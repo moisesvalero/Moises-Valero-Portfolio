@@ -1,7 +1,15 @@
 <script lang="ts">
-  export let columns: number | 'auto' = 3;
-  export let gap = '1.5rem';
-  export let className = '';
+  type Props = {
+    columns?: number | 'auto';
+    gap?: string;
+    className?: string;
+  };
+
+  let {
+    columns = 3,
+    gap = '1.5rem',
+    className = ''
+  }: Props = $props();
 </script>
 
 <div

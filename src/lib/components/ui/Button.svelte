@@ -2,14 +2,27 @@
   type Variant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'link';
   type Size = 'sm' | 'md' | 'lg';
 
-  export let as: 'button' | 'a' = 'button';
-  export let href: string | undefined = undefined;
-  export let type: 'button' | 'submit' | 'reset' = 'button';
-  export let variant: Variant = 'primary';
-  export let size: Size = 'md';
-  export let disabled = false;
-  export let loading = false;
-  export let className = '';
+  type Props = {
+    as?: 'button' | 'a';
+    href?: string;
+    type?: 'button' | 'submit' | 'reset';
+    variant?: Variant;
+    size?: Size;
+    disabled?: boolean;
+    loading?: boolean;
+    className?: string;
+  };
+
+  let {
+    as = 'button',
+    href = undefined,
+    type = 'button',
+    variant = 'primary',
+    size = 'md',
+    disabled = false,
+    loading = false,
+    className = ''
+  }: Props = $props();
 </script>
 
 <svelte:element

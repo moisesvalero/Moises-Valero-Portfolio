@@ -10,11 +10,21 @@
     description: string;
   };
 
-  export let eyebrow: string | undefined = undefined;
-  export let title = '';
-  export let subtitle: string | undefined = undefined;
-  export let items: FeatureItem[] = [];
-  export let id: string | undefined = undefined;
+  type Props = {
+    eyebrow?: string;
+    title?: string;
+    subtitle?: string;
+    items?: FeatureItem[];
+    id?: string;
+  };
+
+  let {
+    eyebrow = undefined,
+    title = '',
+    subtitle = undefined,
+    items = [],
+    id = undefined
+  }: Props = $props();
 </script>
 
 <section class="nk-features" {id}>

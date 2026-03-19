@@ -1,10 +1,19 @@
 <script lang="ts">
   type Variant = 'default' | 'muted' | 'soft' | 'surface';
 
-  export let as: keyof HTMLElementTagNameMap = 'section';
-  export let variant: Variant = 'default';
-  export let id: string | undefined = undefined;
-  export let className = '';
+  type Props = {
+    as?: keyof HTMLElementTagNameMap;
+    variant?: Variant;
+    id?: string;
+    className?: string;
+  };
+
+  let {
+    as = 'section',
+    variant = 'default',
+    id = undefined,
+    className = ''
+  }: Props = $props();
 </script>
 
 <svelte:element

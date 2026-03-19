@@ -2,10 +2,19 @@
   type Variant = 'body' | 'muted' | 'small' | 'label';
   type Align = 'left' | 'center' | 'right';
 
-  export let as: keyof HTMLElementTagNameMap = 'p';
-  export let variant: Variant = 'body';
-  export let align: Align = 'left';
-  export let className = '';
+  type Props = {
+    as?: keyof HTMLElementTagNameMap;
+    variant?: Variant;
+    align?: Align;
+    className?: string;
+  };
+
+  let {
+    as = 'p',
+    variant = 'body',
+    align = 'left',
+    className = ''
+  }: Props = $props();
 </script>
 
 <svelte:element

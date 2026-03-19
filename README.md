@@ -10,6 +10,23 @@ Está pensada para que **también alguien que nunca ha usado SvelteKit** pueda a
 
 ---
 
+## Inicio rápido en 10 pasos (nueva web con esta plantilla)
+
+1. **Copia la plantilla** (Git clone o ZIP).
+2. **Entra en la carpeta** del nuevo proyecto.
+3. Ejecuta `npm install`.
+4. Crea `.env` copiando `.env.example`.
+5. En `.env`, define `PUBLIC_SITE_URL` (local o dominio final).
+6. Ejecuta `npm run dev`.
+7. Abre la URL local que te da la terminal.
+8. Edita tu home en `src/routes/+page.svelte` y colores en `src/app.css`.
+9. Despliega en Vercel y configura `PUBLIC_SITE_URL` con tu dominio real.
+10. Verifica SEO en `/sitemap.xml` y `/robots.txt`.
+
+Si algo falla, ejecuta `npm run check` y revisa el mensaje exacto.
+
+---
+
 ## 1. Qué necesitas antes de empezar (nivel muy básico)
 
 - **Node.js 18 o superior**  
@@ -281,3 +298,74 @@ Si no quieres complicarte, puedes dejar los textos directamente escritos en los 
 - Evita meter textos de marketing dentro de los componentes base: pasa los textos mediante **props** o **i18n**.
 
 Con esto tienes una base lista para construir **starters reutilizables** y landings de producto modernas sobre SvelteKit, incluso si es tu primera vez trabajando con este framework o si te apoyas en IA para escribir el código.
+
+---
+
+## 11. SEO automático incluido (listo para futuros proyectos)
+
+La plantilla ya viene preparada con una base SEO reutilizable para que en cada proyecto solo cambies la URL pública.
+
+### Variable de entorno obligatoria
+
+Define en tu entorno (por ejemplo en Vercel):
+
+- `PUBLIC_SITE_URL=https://tu-dominio.com`
+
+Con esa variable, el proyecto genera metadatos y rutas SEO sin hardcodear dominio.
+
+### Archivos SEO añadidos
+
+- `src/routes/sitemap.xml/+server.js`  
+  Genera sitemap dinámico usando `PUBLIC_SITE_URL`.
+
+- `src/routes/robots.txt/+server.js`  
+  Permite indexación y apunta al sitemap correcto.
+
+- `src/lib/seo.js`  
+  Store reutilizable para:
+  - `title`
+  - `description`
+  - `ogTitle`
+  - `ogDescription`
+  - `ogImage`
+  - `ogUrl`
+  - `twitterCard`
+  - `canonical`
+
+- `src/app.html`  
+  Deja el head base preparado para recibir SEO dinámico desde cada página.
+
+- `src/routes/+page.svelte`  
+  Incluye ejemplo real de uso del store (`setSeo(...)` + `<svelte:head>`).
+
+### Uso rápido por página
+
+1. Importa en la página:
+   - `import { seo, setSeo } from '$lib/seo';`
+2. Llama `setSeo({ ... })` con metadatos específicos de esa ruta.
+3. Renderiza `<svelte:head>` leyendo valores desde `$seo`.
+
+Así cada nueva página puede tener su SEO propio sin repetir lógica.
+
+---
+
+## 12. CMS para edición fácil tipo WordPress
+
+Si quieres que clientes editen contenido sin tocar código, integra un CMS headless.
+
+Opciones recomendadas:
+
+- **Sanity**  
+  Muy cómodo para clientes y equipos, plan gratuito para empezar.
+
+- **Decap CMS**  
+  Open source y gratis, ideal para contenido basado en Git (Markdown/JSON).
+
+- **Directus / Strapi / Payload**  
+  Open source, muy potentes si necesitas panel más avanzado.
+
+### En qué te ayuda
+
+- Editar textos, imágenes, SEO y páginas desde panel.
+- Mantener frontend moderno (SvelteKit) sin depender de plugins de WP.
+- Escalar proyectos con una misma base técnica.

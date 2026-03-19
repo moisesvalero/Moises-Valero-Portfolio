@@ -1,10 +1,19 @@
 <script lang="ts">
   type Variant = 'default' | 'soft' | 'outline';
 
-  export let as: keyof HTMLElementTagNameMap = 'div';
-  export let variant: Variant = 'default';
-  export let clickable = false;
-  export let className = '';
+  type Props = {
+    as?: keyof HTMLElementTagNameMap;
+    variant?: Variant;
+    clickable?: boolean;
+    className?: string;
+  };
+
+  let {
+    as = 'div',
+    variant = 'default',
+    clickable = false,
+    className = ''
+  }: Props = $props();
 </script>
 
 <svelte:element

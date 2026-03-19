@@ -434,3 +434,84 @@ No tengas prisa por entenderlo todo. Empieza por:
 
 Con eso ya estarás aprovechando la plantilla para tus propios proyectos.
 
+--------------------------------------------------
+15. SEO AUTOMATICO YA PREPARADO EN LA PLANTILLA
+--------------------------------------------------
+
+Esta plantilla ya incluye una base SEO reutilizable para futuros proyectos.
+
+IMPORTANTE:
+- Define la variable de entorno:
+  PUBLIC_SITE_URL=https://tu-dominio.com
+- En Vercel se configura en Settings -> Environment Variables.
+
+Archivos SEO incluidos:
+- src\routes\sitemap.xml\+server.js
+  - Genera sitemap dinamico con la URL del proyecto.
+
+- src\routes\robots.txt\+server.js
+  - Permite indexacion y enlaza al sitemap.
+
+- src\lib\seo.js
+  - Store reutilizable para title, description, Open Graph, Twitter y canonical.
+
+- src\app.html
+  - Head base preparado para que cada pagina inyecte SEO dinamico.
+
+- src\routes\+page.svelte
+  - Ejemplo de uso real con setSeo(...) y svelte:head.
+
+Con esta base, para cada proyecto nuevo solo cambias PUBLIC_SITE_URL y los textos SEO.
+
+
+--------------------------------------------------
+16. HACER LA WEB FACIL DE EDITAR (TIPO WORDPRESS)
+--------------------------------------------------
+
+Si quieres que un cliente edite contenido sin tocar codigo, puedes conectar un CMS.
+
+Opciones recomendadas:
+- Sanity (muy comodo para clientes, plan gratis para empezar).
+- Decap CMS (open source, gratis, contenido en Git).
+- Directus / Strapi / Payload (open source, mas avanzados).
+
+Idea clave:
+- Tu web sigue siendo SvelteKit.
+- El cliente edita textos, imagenes y SEO desde un panel.
+- Tu proyecto mantiene mejor rendimiento y control tecnico.
+
+
+--------------------------------------------------
+17. QUE ES UNA PLANTILLA DE VARIABLES DE ENTORNO
+--------------------------------------------------
+
+Una "plantilla de variables de entorno" es un archivo de ejemplo
+que te dice QUE configuraciones necesita el proyecto para funcionar.
+
+En este proyecto ese archivo es:
+- .env.example
+
+Y contiene, por ejemplo:
+- PUBLIC_SITE_URL=https://tu-dominio.com
+
+Importante:
+- .env.example es SOLO una guia (normalmente se sube al repositorio).
+- .env es tu configuracion real local (normalmente NO se sube).
+
+Como usarlo paso a paso:
+
+1. Copia el archivo .env.example y crea otro llamado .env
+2. Dentro de .env pon tus valores reales
+3. Guarda y reinicia "npm run dev" si el servidor ya estaba abierto
+
+Ejemplo local:
+- PUBLIC_SITE_URL=http://localhost:5174
+
+Ejemplo produccion (Vercel):
+- PUBLIC_SITE_URL=https://tu-dominio.com
+
+Para que sirve:
+- Evita olvidar variables importantes.
+- Facilita reutilizar la plantilla en proyectos nuevos.
+- Hace mas facil que otra persona entienda que debe configurar.
+

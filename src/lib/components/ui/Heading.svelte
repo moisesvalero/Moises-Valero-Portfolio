@@ -2,11 +2,21 @@
   type Level = 1 | 2 | 3 | 4;
   type Align = 'left' | 'center' | 'right';
 
-  export let level: Level = 2;
-  export let align: Align = 'left';
-  export let eyebrow: string | undefined = undefined;
-  export let kicker: string | undefined = undefined;
-  export let className = '';
+  type Props = {
+    level?: Level;
+    align?: Align;
+    eyebrow?: string;
+    kicker?: string;
+    className?: string;
+  };
+
+  let {
+    level = 2,
+    align = 'left',
+    eyebrow = undefined,
+    kicker = undefined,
+    className = ''
+  }: Props = $props();
 </script>
 
 <div class={`nk-heading nk-heading--l${level} nk-heading--${align} ${className}`.trim()}>

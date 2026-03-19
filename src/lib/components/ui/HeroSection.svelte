@@ -4,14 +4,27 @@
   import Heading from './Heading.svelte';
   import Text from './Text.svelte';
 
-  export let eyebrow: string | undefined = undefined;
-  export let title = '';
-  export let subtitle: string | undefined = undefined;
-  export let primaryLabel: string | undefined = undefined;
-  export let primaryHref: string | undefined = undefined;
-  export let secondaryLabel: string | undefined = undefined;
-  export let secondaryHref: string | undefined = undefined;
-  export let align: 'left' | 'center' = 'left';
+  type Props = {
+    eyebrow?: string;
+    title?: string;
+    subtitle?: string;
+    primaryLabel?: string;
+    primaryHref?: string;
+    secondaryLabel?: string;
+    secondaryHref?: string;
+    align?: 'left' | 'center';
+  };
+
+  let {
+    eyebrow = undefined,
+    title = '',
+    subtitle = undefined,
+    primaryLabel = undefined,
+    primaryHref = undefined,
+    secondaryLabel = undefined,
+    secondaryHref = undefined,
+    align = 'left'
+  }: Props = $props();
 </script>
 
 <section class="nk-hero">
@@ -27,7 +40,7 @@
         </Text>
       {/if}
 
-      {(primaryLabel || secondaryLabel) && (
+      {#if primaryLabel || secondaryLabel}
         <div class="nk-hero-actions">
           {#if primaryLabel}
             <Button
@@ -51,7 +64,7 @@
             </Button>
           {/if}
         </div>
-      )}
+      {/if}
     </div>
 
     <div class="nk-hero-media">

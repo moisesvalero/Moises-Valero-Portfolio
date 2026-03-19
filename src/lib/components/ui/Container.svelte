@@ -1,6 +1,13 @@
 <script lang="ts">
-  export let as: keyof HTMLElementTagNameMap = 'div';
-  export let className = '';
+  type Props = {
+    as?: keyof HTMLElementTagNameMap;
+    className?: string;
+  };
+
+  let {
+    as = 'div',
+    className = ''
+  }: Props = $props();
 </script>
 
 <svelte:element
