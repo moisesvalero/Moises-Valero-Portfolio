@@ -1,21 +1,23 @@
 import type { SitePortfolioContent } from '$lib/types/site-portfolio';
 
 const aboutHtml = `<p>
-  Soy <strong>Moisés Valero</strong>, desarrollador web especializado en
-  <strong>WordPress, SvelteKit y soporte técnico</strong>. Tras una etapa profesional en otros
-  sectores, he regresado al ámbito tecnológico con formación actualizada y un enfoque centrado en
-  <strong>rendimiento, seguridad y mantenimiento eficiente</strong>.
+  Soy <strong>Moisés Valero</strong>. Tras una sólida trayectoria profesional en sectores de alta
+  exigencia, he regresado al desarrollo tecnológico con una visión clara: crear soluciones web que no
+  solo funcionen, sino que rindan al máximo. Cuento con un
+  <strong>Certificado de Profesionalidad de Nivel 3</strong> y una formación actualizada en el stack
+  más moderno.
 </p>
 <p>
-  He incorporado SvelteKit a mi stack para desarrollar aplicaciones modernas, rápidas y con
-  arquitecturas flexibles. Trabajo con estructuras claras, soluciones ligeras y procesos bien
-  organizados. Utilizo <strong>IA como apoyo</strong> para acelerar tareas y mejorar la calidad del
-  desarrollo.
+  Me especializo en <strong>WordPress</strong>, <strong>SvelteKit</strong> y <strong>Soporte IT</strong>,
+  enfocándome en el rendimiento (performance), la seguridad y el mantenimiento eficiente. Utilizo la
+  <strong>IA generativa</strong> como una herramienta estratégica para acelerar el desarrollo y
+  garantizar resultados sólidos en menos tiempo.
 </p>
 <p>
-  Busco incorporarme a una <strong>empresa</strong> donde pueda aportar desde el primer día,
-  seguir aprendiendo y crecer profesionalmente. Mientras tanto, también estoy disponible para
-  <strong>proyectos freelance</strong> de desarrollo, optimización o mantenimiento web.
+  Mi objetivo es aportar mi experiencia y capacidad de resolución a una empresa donde pueda crecer, o
+  colaborar en proyectos freelance que necesiten un soporte técnico de confianza en la zona de
+  <strong>Alcoy</strong> y <strong>Alicante</strong>. Si buscas compromiso, madurez y dominio técnico,
+  hablemos.
 </p>`;
 
 /** Valores actuales del portfolio; Sanity los sustituye al publicar `sitePortfolio`. */
