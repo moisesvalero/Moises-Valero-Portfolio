@@ -515,3 +515,113 @@ Para que sirve:
 - Facilita reutilizar la plantilla en proyectos nuevos.
 - Hace mas facil que otra persona entienda que debe configurar.
 
+
+--------------------------------------------------
+18. SANITY (LISTO EN EL PROYECTO; TU ACTIVAS CUANDO QUIERAS)
+--------------------------------------------------
+
+Sanity es el CMS opcional: un panel web donde editas textos, SEO y (si lo
+configuras) casos de estudio. El codigo del portfolio YA esta preparado.
+Si no configuras Sanity, no pasa nada: la web usa los datos del archivo
+`src/lib/data/site-portfolio-defaults.ts` y `src/lib/data/case-studies.ts`.
+
+18.1. Como funciona ahora (sin Sanity)
+-------------------------------------
+
+- Sin variables SANITY_* en `.env` (o con `SANITY_PROJECT_ID` vacio), el
+  servidor NO llama a Sanity.
+- Todo el contenido del layout, hero, sobre mi, servicios, contacto, etc.
+  sale de `site-portfolio-defaults.ts` (lo que vayas cambiando en codigo o
+  que ya esta puesto).
+- Los proyectos / casos de estudio en `/proyectos/...` pueden seguir saliendo
+  de `case-studies.ts` hasta que publiques documentos equivalentes en Sanity.
+
+18.2. Cuando quieras activar Sanity: que crear
+----------------------------------------------
+
+1. Cuenta gratuita en https://www.sanity.io
+2. Crear un **proyecto** nuevo desde el dashboard (te daran un **Project ID**).
+3. Dataset habitual: **production** (es el que usa el ejemplo del `.env`).
+
+18.3. Variables en tu archivo `.env` (no subas `.env` a Git)
+------------------------------------------------------------
+
+Copia de `.env.example` y rellena al menos:
+
+  SANITY_PROJECT_ID=tu_id_del_dashboard
+  SANITY_DATASET=production
+  SANITY_API_VERSION=2024-01-01
+
+Opcional:
+
+  SANITY_READ_TOKEN=...
+  (solo si en el futuro tu dataset es privado y la API publica no basta;
+   para empezar en plan gratuito muchas veces no hace falta.)
+
+Para abrir el **Studio** (panel de edicion en local), el mismo Project ID
+debe estar disponible cuando ejecutas `npm run studio`. Puedes usar las
+mismas variables o las alternativas del `.env.example` (`SANITY_STUDIO_*`).
+
+Tras guardar `.env`, reinicia `npm run dev` para que la web lea Sanity.
+
+18.4. Abrir el panel Sanity (Studio) en tu PC
+---------------------------------------------
+
+En la carpeta del proyecto:
+
+  npm run studio
+
+Se abrira el editor en el navegador (puerto que indique la consola). Ahi
+veras los tipos de documento definidos en `sanity/schemaTypes/`.
+
+18.5. Documento imprescindible para la home y el layout
+-------------------------------------------------------
+
+La home y la cabecera leen **un solo documento** de tipo "Sitio (portfolio)":
+
+- En el esquema el tipo interno es `sitePortfolio`.
+- El **ID del documento** debe ser exactamente: **portfolioSite**
+
+Si creas el documento desde Studio y no te deja poner el ID a mano, en
+Sanity puedes usar "Custom ID" al crear, o crear y luego ajustar el id
+segun la documentacion de Sanity para que coincida con `portfolioSite`.
+
+Mientras no exista ese documento (o falle la conexion), la web sigue usando
+`site-portfolio-defaults.ts`.
+
+18.6. Que sustituye a los textos que editas hoy en codigo
+---------------------------------------------------------
+
+En ese documento `portfolioSite` encontraras campos que se mezclan con los
+defaults (si un campo en Sanity esta vacio, suele quedarse el valor del
+archivo TypeScript). Campos utiles:
+
+- **header**: menu, texto del logo, boton LinkedIn del header, enlaces.
+- **seo**: titulo, descripciones, imagen Open Graph.
+- **hero**: etiqueta superior, titulo, subtitulo, bio, enlace del boton
+  "Hablamos" (`cvHref` en el esquema; puede ser `/#contacto`).
+- **about**: foto, titulo, HTML del bloque "Sobre mi" (`aboutHtml`).
+- **services**: meta, titulo de seccion, lista de 3 servicios (titulo +
+  descripcion de cada tarjeta: E-commerce, Desarrollo Web, Soporte IT).
+- **techStack**, **quality**, **projects**, **contact**, **footer**: el resto
+  de secciones de la pagina.
+
+Cuando edites en Sanity y publiques, esos bloques pasan a mandar sobre los
+textos equivalentes en `site-portfolio-defaults.ts` para los campos que
+rellenes.
+
+18.7. Casos de estudio (proyectos)
+----------------------------------
+
+Hay esquema para casos de estudio en Sanity. Si no hay documento para un
+slug, la ruta puede resolver desde `case-studies.ts`. Cuando aprendas a
+publicar en Sanity, revisa `sanity/schemaTypes/caseStudy.ts` y el codigo en
+`src/lib/server/case-study-resolver.ts`.
+
+18.8. Despliegue (Vercel, Netlify, etc.)
+----------------------------------------
+
+En el panel de hosting, anade las mismas variables de entorno privadas
+(`SANITY_PROJECT_ID`, `SANITY_DATASET`, etc.) que uses en local, para que
+la version en produccion tambien pueda leer el CMS si lo deseas.
+

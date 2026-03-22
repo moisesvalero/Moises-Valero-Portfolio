@@ -68,19 +68,19 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
         icon: '🛒',
         title: 'E-commerce',
         description:
-          'Tiendas online con WordPress y WooCommerce, optimizadas para velocidad, seguridad y gestión sencilla. Integración de pagos y automatizaciones.'
+          'Tiendas online con WordPress y WooCommerce diseñadas para convertir visitas en clientes. Priorizo la velocidad de carga, la seguridad en las transacciones y una gestión de inventario que te ahorre tiempo.'
       },
       {
         icon: '🌐',
         title: 'Desarrollo Web',
         description:
-          'Desarrollo webs rápidas, optimizadas y con estructuras ligeras. Combino IA con tecnologías como SvelteKit, WordPress, Kadence y Elementor para crear sitios eficientes y fáciles de mantener.'
+          'Creo sitios web optimizados con arquitecturas ligeras para un SEO imbatible. Combino el poder de SvelteKit para aplicaciones a medida con la flexibilidad de WordPress, utilizando IA para entregar resultados en tiempo récord.'
       },
       {
         icon: '⚙️',
         title: 'Soporte Técnico IT',
         description:
-          'Resolución de incidencias, redes, hardware y hosting. Experiencia en soporte a usuarios y mantenimiento preventivo de sistemas.'
+          'Me encargo de que tu infraestructura nunca falle: redes, hardware, hosting y configuración de correos. Aporto soluciones rápidas a incidencias y mantenimiento preventivo para que tu empresa no se detenga.'
       }
     ]
   },
@@ -153,25 +153,25 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
         icon: '🚀',
         title: 'Rendimiento',
         description:
-          'Priorizo la velocidad de carga. Menos plugins, más funciones nativas y optimización de activos para conseguir sitios ágiles.'
+          'Priorizo la velocidad de carga real. Menos plugins y más funciones nativas para conseguir sitios ágiles que mejoren el SEO y la retención de usuarios.'
       },
       {
         icon: '🛡️',
-        title: 'Seguridad',
+        title: 'Seguridad & Hardening',
         description:
-          'Implementación de protocolos esenciales de endurecimiento (Hardening) y buenas prácticas para proteger la integridad del sitio.'
+          'Implementación de protocolos de seguridad avanzada y buenas prácticas para proteger la integridad de tu negocio online frente a vulnerabilidades.'
       },
       {
         icon: '📱',
-        title: 'Adaptabilidad',
+        title: 'Diseño Responsivo',
         description:
-          'Desarrollo pensando primero en móviles (Mobile-first), asegurando una experiencia fluida en cualquier dispositivo o resolución.'
+          'Desarrollo con enfoque Mobile-first, asegurando que tu web se vea perfecta en cualquier dispositivo, algo vital para el posicionamiento actual.'
       },
       {
         icon: '🤖',
-        title: 'Eficiencia IA',
+        title: 'Optimización con IA',
         description:
-          'Uso avanzado de herramientas de IA para agilizar el desarrollo, depurar código y asegurar entregas en tiempos competitivos.'
+          'Uso avanzado de IA para agilizar el desarrollo, depurar código y asegurar entregas en tiempos competitivos sin sacrificar la robustez técnica.'
       }
     ]
   },

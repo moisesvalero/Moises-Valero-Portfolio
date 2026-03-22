@@ -16,25 +16,25 @@
       icon: '🚀',
       title: 'Rendimiento',
       description:
-        'Priorizo la velocidad de carga. Menos plugins, más funciones nativas y optimización de activos para conseguir sitios ágiles.'
+        'Priorizo la velocidad de carga real. Menos plugins y más funciones nativas para conseguir sitios ágiles que mejoren el SEO y la retención de usuarios.'
     },
     {
       icon: '🛡️',
-      title: 'Seguridad',
+      title: 'Seguridad & Hardening',
       description:
-        'Implementación de protocolos esenciales de endurecimiento (Hardening) y buenas prácticas para proteger la integridad del sitio.'
+        'Implementación de protocolos de seguridad avanzada y buenas prácticas para proteger la integridad de tu negocio online frente a vulnerabilidades.'
     },
     {
       icon: '📱',
-      title: 'Adaptabilidad',
+      title: 'Diseño Responsivo',
       description:
-        'Desarrollo pensando primero en móviles (Mobile-first), asegurando una experiencia fluida en cualquier dispositivo o resolución.'
+        'Desarrollo con enfoque Mobile-first, asegurando que tu web se vea perfecta en cualquier dispositivo, algo vital para el posicionamiento actual.'
     },
     {
       icon: '🤖',
-      title: 'Eficiencia IA',
+      title: 'Optimización con IA',
       description:
-        'Uso avanzado de herramientas de IA para agilizar el desarrollo, depurar código y asegurar entregas en tiempos competitivos.'
+        'Uso avanzado de IA para agilizar el desarrollo, depurar código y asegurar entregas en tiempos competitivos sin sacrificar la robustez técnica.'
     }
   ];
 

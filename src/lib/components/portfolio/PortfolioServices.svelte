@@ -16,19 +16,19 @@
       icon: '🛒',
       title: 'E-commerce',
       description:
-        'Tiendas online con WordPress y WooCommerce, optimizadas para velocidad, seguridad y gestión sencilla. Integración de pagos y automatizaciones.'
+        'Tiendas online con WordPress y WooCommerce diseñadas para convertir visitas en clientes. Priorizo la velocidad de carga, la seguridad en las transacciones y una gestión de inventario que te ahorre tiempo.'
     },
     {
       icon: '🌐',
       title: 'Desarrollo Web',
       description:
-        'Desarrollo webs rápidas, optimizadas y con estructuras ligeras. Combino IA con tecnologías como SvelteKit, WordPress, Kadence y Elementor para crear sitios eficientes y fáciles de mantener.'
+        'Creo sitios web optimizados con arquitecturas ligeras para un SEO imbatible. Combino el poder de SvelteKit para aplicaciones a medida con la flexibilidad de WordPress, utilizando IA para entregar resultados en tiempo récord.'
     },
     {
       icon: '⚙️',
       title: 'Soporte Técnico IT',
       description:
-        'Resolución de incidencias, redes, hardware y hosting. Experiencia en soporte a usuarios y mantenimiento preventivo de sistemas.'
+        'Me encargo de que tu infraestructura nunca falle: redes, hardware, hosting y configuración de correos. Aporto soluciones rápidas a incidencias y mantenimiento preventivo para que tu empresa no se detenga.'
     }
   ];
 
