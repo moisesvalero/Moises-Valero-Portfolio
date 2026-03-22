@@ -1,22 +1,32 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
-  import HeroSection from '$lib/components/ui/HeroSection.svelte';
-  import FeaturesSection from '$lib/components/ui/FeaturesSection.svelte';
+  import PortfolioHeroStripe from '$lib/components/portfolio/PortfolioHeroStripe.svelte';
+  import PortfolioAbout from '$lib/components/portfolio/PortfolioAbout.svelte';
+  import PortfolioServices from '$lib/components/portfolio/PortfolioServices.svelte';
+  import PortfolioTechStack from '$lib/components/portfolio/PortfolioTechStack.svelte';
+  import PortfolioQuality from '$lib/components/portfolio/PortfolioQuality.svelte';
+  import PortfolioProjects from '$lib/components/portfolio/PortfolioProjects.svelte';
+  import PortfolioContactCta from '$lib/components/portfolio/PortfolioContactCta.svelte';
   import { seo, setSeo } from '$lib/seo';
+  import type { PageData } from './$types';
+
+  let { data }: { data: PageData } = $props();
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
+  const site = $derived(data.site);
 
-  setSeo({
-    title: 'Starter SvelteKit | Plantilla base para proyectos web',
-    description:
-      'Plantilla SvelteKit lista para lanzar landings y productos con componentes reutilizables desde el primer día.',
-    ogTitle: 'Starter SvelteKit | Plantilla base para proyectos web',
-    ogDescription:
-      'Empieza nuevos proyectos con una base limpia, componentes reutilizables y estructura lista para producción.',
-    canonical: `${baseUrl}/`,
-    ogUrl: `${baseUrl}/`,
-    ogImage: `${baseUrl}/og-image.png`,
-    twitterCard: 'summary_large_image'
+  $effect(() => {
+    const s = site;
+    setSeo({
+      title: s.seo.title,
+      description: s.seo.description,
+      ogTitle: s.seo.ogTitle,
+      ogDescription: s.seo.ogDescription,
+      canonical: `${baseUrl}/`,
+      ogUrl: `${baseUrl}/`,
+      ogImage: s.seo.ogImage,
+      twitterCard: s.seo.twitterCard
+    });
   });
 </script>
 
@@ -38,41 +48,10 @@
   <meta name="twitter:image" content={$seo.ogImage} />
 </svelte:head>
 
-<HeroSection
-  eyebrow="Starter SvelteKit"
-  title="Plantilla lista para lanzar tus próximas interfaces."
-  subtitle="Usa esta base como punto de partida para landings, productos SaaS o paneles internos. Personaliza colores, tipografía y secciones sin pelearte con el layout."
-  primaryLabel="Ver ejemplo completo"
-  primaryHref="/examples/landing"
-  secondaryLabel="Explorar componentes base"
-  secondaryHref="#features"
-/>
-
-<FeaturesSection
-  id="features"
-  eyebrow="Componentes base incluidos"
-  title="Bloques UI reutilizables desde el primer día."
-  subtitle="Combina secciones y componentes para crear nuevas pantallas rápido, manteniendo una estética limpia y consistente."
-  items={[
-    {
-      icon: '✨',
-      title: 'Hero adaptable',
-      description: 'Título, subtítulo y CTAs listos para reutilizar en cualquier página de tu app.'
-    },
-    {
-      icon: '⚡',
-      title: 'Grid de features',
-      description: 'Resume el valor de tu producto con una cuadrícula de características clara.'
-    },
-    {
-      icon: '🎨',
-      title: 'Tokens de estilo',
-      description: 'Colores y tipografía definidos en un solo lugar para adaptar la marca.'
-    },
-    {
-      icon: '🧩',
-      title: 'Composición flexible',
-      description: 'Crea nuevas secciones combinando Container, Section, Card y Button.'
-    }
-  ]}
-/>
+<PortfolioHeroStripe {...site.hero} />
+<PortfolioAbout {...site.about} />
+<PortfolioServices {...site.services} />
+<PortfolioTechStack {...site.techStack} />
+<PortfolioQuality {...site.quality} />
+<PortfolioProjects meta={site.projects.meta} title={site.projects.title} projects={site.projects.projects} />
+<PortfolioContactCta {...site.contact} />

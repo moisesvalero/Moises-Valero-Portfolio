@@ -1,7 +1,22 @@
 <script lang="ts">
-  import "../app.css"; // Importamos los estilos globales
+  import '../app.css';
   import { t, locale, setLocale } from '$lib/i18n/index.js';
-  
+  import PortfolioFooter from '$lib/components/portfolio/PortfolioFooter.svelte';
+  import PortfolioCustomCursor from '$lib/components/portfolio/PortfolioCustomCursor.svelte';
+  import SmoothHashScroll from '$lib/components/SmoothHashScroll.svelte';
+  import HeaderBrand from '$lib/components/HeaderBrand.svelte';
+  import type { LayoutData } from './$types';
+
+  let {
+    data,
+    children
+  }: {
+    data: LayoutData;
+    children: import('svelte').Snippet;
+  } = $props();
+
+  const site = $derived(data.site);
+
   let menuOpen = $state(false);
   
   const toggleMenu = () => {
@@ -27,30 +42,36 @@
   };
 
 </script>
-  
-  <svelte:head>
-	<title>{$t('layout.title')}</title>
-  </svelte:head>
-  
+
   <header class="header" class:menu-open={menuOpen}>
 	<div class="header-inner">
-	  <a href="/" class="logo">NovaKit</a>
-	  
+	  <HeaderBrand
+		href={site.header.logoHref}
+		ariaLabel={`${site.header.logoText} — WEB DEVELOPER`}
+	  />
+
 	  <nav class="nav-desktop">
-		<a href="#features" onmousemove={handleLinkMove}>{$t('layout.nav.features')}</a>
-		<a href="#pricing" onmousemove={handleLinkMove}>{$t('layout.nav.pricing')}</a>
-		<a href="#testimonials" onmousemove={handleLinkMove}>{$t('layout.nav.testimonials')}</a>
-		<a href="#details" onmousemove={handleLinkMove}>{$t('layout.nav.components')}</a>
+		{#each site.header.navItems as item (item.href + item.label)}
+		  <a href={item.href} onmousemove={handleLinkMove}>{item.label}</a>
+		{/each}
 	  </nav>
-	  
-	  <a href="https://www.linkedin.com/in/moisesvalero/" target="_blank" rel="noopener noreferrer" class="btn-cta desktop-only" onmousemove={handleLinkMove}>{$t('layout.nav.contact')}</a>
+
+	  <a
+		href={site.header.ctaHref}
+		target="_blank"
+		rel="noopener noreferrer"
+		class="btn-cta desktop-only"
+		onmousemove={handleLinkMove}
+	  >
+		{site.header.ctaLabel}
+	  </a>
 
 	  <button
 		class="lang-btn desktop-only"
 		onclick={() => setLocale($locale === 'en' ? 'es' : 'en')}
 		aria-label="Switch language"
 	  >
-		<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c5cbf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 		  <circle cx="12" cy="12" r="10"/>
 		  <line x1="2" y1="12" x2="22" y2="12"/>
 		  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
@@ -64,7 +85,7 @@
 		onclick={() => setLocale($locale === 'en' ? 'es' : 'en')}
 		aria-label="Switch language"
 	  >
-		<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c5cbf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 		  <circle cx="12" cy="12" r="10"/>
 		  <line x1="2" y1="12" x2="22" y2="12"/>
 		  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
@@ -95,21 +116,30 @@
 		onkeydown={(e) => e.key === 'Escape' && closeMenu()}
 	  >
 		<nav class="mobile-nav">
-		  <a href="#features" onclick={closeMenu}>{$t('layout.nav.features')}</a>
-		  <a href="#pricing" onclick={closeMenu}>{$t('layout.nav.pricing')}</a>
-		  <a href="#details" onclick={closeMenu}>{$t('layout.nav.components')}</a>
-		  <a href="#pricing" class="btn-cta mobile-cta" onclick={closeMenu}>
-			{$t('layout.nav.getStarted')}
+		  {#each site.header.navItems as item (item.href + item.label)}
+		    <a href={item.href} onclick={closeMenu}>{item.label}</a>
+		  {/each}
+		  <a href={site.header.ctaHref} class="btn-cta mobile-cta" onclick={closeMenu} target="_blank" rel="noopener noreferrer">
+			{site.header.ctaLabel}
 		  </a>
 		</nav>
 	  </div>
 	{/if}
   </header>
   
-  <slot />
+  {@render children()}
+
+  <SmoothHashScroll />
+  <PortfolioCustomCursor />
+  <PortfolioFooter {...site.footer} />
   
   <style>
+	/* Misma familia y paleta que el portfolio (CaseStudy / secciones) */
 	.header {
+	  --header-text: #1d1d1f;
+	  --header-muted: #86868b;
+	  --header-accent: #0071e3;
+	  --header-border: #e8e8ed;
 	  position: fixed;
 	  top: 0;
 	  left: 0;
@@ -119,6 +149,7 @@
 	  display: flex;
 	  justify-content: center;
 	  pointer-events: none;
+	  font-family: var(--font-sans);
 	}
 	.header-inner {
 	  width: min(92%, 1200px);
@@ -128,25 +159,25 @@
 	  align-items: center;
 	  justify-content: space-between;
 	  gap: 1rem;
-	  background: rgba(255, 255, 255, 0.88);
-	  border: 1px solid rgba(255, 255, 255, 0.6);
+	  overflow: visible;
+	  background: rgba(255, 255, 255, 0.92);
+	  border: 1px solid var(--header-border);
 	  border-radius: 999px;
 	  box-shadow:
-		0 14px 40px rgba(15, 23, 42, 0.12),
-		0 1px 0 rgba(255, 255, 255, 0.65) inset;
+		0 14px 40px rgba(29, 29, 31, 0.08),
+		0 1px 0 rgba(255, 255, 255, 0.8) inset;
 	  pointer-events: auto;
 	  transition:
 		background-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
 		box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
 		border-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 	}
-	.logo { font-size:1.25rem; font-weight:700; color:var(--accent); letter-spacing:-0.04em; text-decoration:none; }
 	.nav-desktop { display:flex; gap:0.4rem; margin-left:auto; margin-right:0.8rem; }
 	.nav-desktop a {
 	  --mx: 50%;
 	  --my: 50%;
 	  text-decoration: none;
-	  color: var(--text-secondary);
+	  color: var(--header-muted);
 	  font-size: 0.9rem;
 	  font-weight: 500;
 	  letter-spacing: -0.015em;
@@ -166,28 +197,28 @@
 	  inset: 0;
 	  border-radius: inherit;
 	  background:
-		radial-gradient(circle at var(--mx) var(--my), rgba(167, 139, 250, 0.07), transparent 60%),
-		rgba(99, 102, 241, 0.015);
+		radial-gradient(circle at var(--mx) var(--my), rgba(0, 113, 227, 0.12), transparent 58%),
+		rgba(0, 113, 227, 0.04);
 	  opacity: 0;
 	  transform: scale(0.985);
 	  transition: opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 	  pointer-events: none;
 	}
 	.nav-desktop a:hover {
-	  color: var(--accent);
+	  color: var(--header-accent);
 	  transform: translateY(-0.25px);
 	}
 	.nav-desktop a:hover::before {
-	  opacity: 0.52;
+	  opacity: 0.55;
 	  transform: scale(1);
 	}
 	.desktop-only { margin-left: 0; }
 	.btn-cta {
 	  text-decoration:none;
-	  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+	  background: var(--header-accent);
 	  color:#fff !important;
-	  border: 1px solid rgba(139, 92, 246, 0.45);
-	  box-shadow: 0 10px 26px rgba(99, 102, 241, 0.25);
+	  border: 1px solid rgba(0, 113, 227, 0.35);
+	  box-shadow: 0 8px 24px rgba(0, 113, 227, 0.22);
 	  min-height: 44px;
 	  display: inline-flex;
 	  align-items: center;
@@ -200,7 +231,8 @@
 	  overflow: hidden;
 	  transition:
 		transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-		box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+		box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+		opacity 0.2s;
 	}
 	.btn-cta::before {
 	  content: "";
@@ -210,11 +242,11 @@
 		linear-gradient(
 		  115deg,
 		  transparent 18%,
-		  rgba(255, 255, 255, 0.38) 46%,
+		  rgba(255, 255, 255, 0.35) 46%,
 		  rgba(255, 255, 255, 0.04) 62%,
 		  transparent 78%
 		);
-	  opacity: 0.7;
+	  opacity: 0.65;
 	  transform: translateX(-120%);
 	  transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 	  pointer-events: none;
@@ -222,7 +254,8 @@
 	.btn-cta:hover {
 	  color: #ffffff;
 	  transform: translateY(-1px);
-	  box-shadow: 0 14px 34px rgba(99, 102, 241, 0.33);
+	  box-shadow: 0 12px 32px rgba(0, 113, 227, 0.28);
+	  opacity: 0.92;
 	}
 	.btn-cta:hover::before {
 	  opacity: 1;
@@ -230,15 +263,15 @@
 	}
 
 	.hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; z-index:110; }
-	.hamburger span { display:block; width:22px; height:2px; background:#1a1a2e; border-radius:2px; transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s; transform-origin:center; }
+	.hamburger span { display:block; width:22px; height:2px; background: var(--header-text); border-radius:2px; transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s; transform-origin:center; }
 	.hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
 	.hamburger.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
 	.hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
 
 	.mobile-menu { position:fixed; inset:0; background:rgba(7,9,20,0.56); z-index:99; animation:fadeIn 0.3s ease; pointer-events:auto; }
 	.mobile-nav { position:absolute; top:0; right:0; bottom:0; width:75%; max-width:300px; background:#ffffff; opacity:1; border-left:1px solid rgba(0,0,0,0.08); box-shadow:-18px 0 36px rgba(15,23,42,0.18); padding:80px 24px 32px; display:flex; flex-direction:column; gap:8px; animation:slideIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
-	.mobile-nav a { font-size:18px; font-weight:600; color:#1a1a2e; text-decoration:none; padding:12px 0; border-bottom:1px solid rgba(0,0,0,0.06); transition:color 0.3s, transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-	.mobile-nav a:hover { color:#7c5cbf; transform:translateX(4px); }
+	.mobile-nav a { font-size:18px; font-weight:600; color: var(--header-text); text-decoration:none; padding:12px 0; border-bottom:1px solid var(--header-border); transition:color 0.3s, transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+	.mobile-nav a:hover { color: var(--header-accent); transform:translateX(4px); }
 	.mobile-cta { margin-top:12px; text-align:center; border-bottom:none !important; padding:10px 14px !important; min-height:36px; font-size:13px; }
 	.lang-btn {
 	  display: flex;
@@ -246,22 +279,22 @@
 	  gap: 7px;
 	  padding: 7px 14px;
 	  border-radius: 999px;
-	  border: 1px solid rgba(0,0,0,0.1);
-	  background: rgba(255,255,255,0.8);
+	  border: 1px solid var(--header-border);
+	  background: rgba(255,255,255,0.9);
 	  backdrop-filter: blur(8px);
 	  cursor: pointer;
-	  font-family: -apple-system, sans-serif;
+	  font-family: var(--font-sans);
 	  font-size: 13px;
 	  font-weight: 600;
-	  color: #1a1a2e;
+	  color: var(--header-text);
 	  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-	  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+	  box-shadow: 0 1px 4px rgba(29,29,31,0.06);
 	}
 	.lang-btn:hover {
-	  border-color: rgba(124,92,191,0.3);
-	  background: rgba(124,92,191,0.05);
+	  border-color: rgba(0, 113, 227, 0.25);
+	  background: rgba(0, 113, 227, 0.06);
 	  transform: scale(1.05);
-	  box-shadow: 0 4px 12px rgba(124,92,191,0.15);
+	  box-shadow: 0 4px 12px rgba(0, 113, 227, 0.12);
 	}
 	.lang-btn svg {
 	  opacity: 0.7;
@@ -273,7 +306,7 @@
 	  width: 5px;
 	  height: 5px;
 	  border-radius: 50%;
-	  background: #7c5cbf;
+	  background: var(--header-accent);
 	  animation: dotPulse 2s ease-in-out infinite;
 	}
 	@keyframes dotPulse {
@@ -291,8 +324,8 @@
 		padding:0.66rem 0.85rem;
 		border-radius:18px;
 		background:#fff;
-		border:1px solid rgba(0,0,0,0.08);
-		box-shadow:0 10px 28px rgba(15,23,42,0.12);
+		border:1px solid var(--header-border);
+		box-shadow:0 10px 28px rgba(29,29,31,0.08);
 	  }
 	  .nav-desktop { display:none; }
 	  .desktop-only { display:none; }
@@ -301,7 +334,6 @@
 		margin-left: auto;
 	  }
 	  .hamburger { display:flex; }
-	  .logo { font-size:1.05rem; }
 	}
 
 	@media (min-width: 769px) {
