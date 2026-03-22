@@ -1,11 +1,18 @@
 <script lang="ts">
+  import type { SiteLocale } from '$lib/i18n/site-locale';
+  import { getCareerModalCopy } from './career-modal-copy';
+
   let {
     open = $bindable(false),
-    pdfHref = '/imagenes/MOISES-VALERO-CV.pdf'
+    pdfHref = '/imagenes/MOISES-VALERO-CV.pdf',
+    locale = 'es' as SiteLocale
   }: {
     open?: boolean;
     pdfHref?: string;
+    locale?: SiteLocale;
   } = $props();
+
+  const c = $derived(getCareerModalCopy(locale));
 
   let showPdf = $state(false);
 
@@ -49,60 +56,47 @@
       tabindex="-1"
       onmousedown={(e) => e.stopPropagation()}
     >
-      <button type="button" class="career-close" onclick={close} aria-label="Cerrar">
+      <button type="button" class="career-close" onclick={close} aria-label={c.closeAria}>
         <span aria-hidden="true">×</span>
       </button>
 
       <div class="career-scroll">
-        <h2 id="career-modal-title" class="career-title">Trayectoria Profesional — Moisés Valero</h2>
+        <h2 id="career-modal-title" class="career-title">{c.title}</h2>
 
         <section class="career-block" aria-labelledby="career-perfil">
-          <h3 id="career-perfil" class="career-h3">Perfil</h3>
-          <p class="career-p">
-            Cuento con el <strong>Certificado de Profesionalidad de Nivel 3 en Desarrollo Web</strong>
-            (equivalente a formación de <strong>Grado Superior</strong>), que avala competencias
-            actualizadas en desarrollo y entornos web profesionales.
-          </p>
+          <h3 id="career-perfil" class="career-h3">{c.profileTitle}</h3>
+          <!-- svelte-ignore hydration_html_changed -->
+          {@html c.profileHtml}
         </section>
 
         <section class="career-block" aria-labelledby="career-exp">
-          <h3 id="career-exp" class="career-h3">Experiencia</h3>
+          <h3 id="career-exp" class="career-h3">{c.expTitle}</h3>
           <ol class="career-timeline">
-            <li class="career-tl-item">
-              <span class="career-tl-range">2019 – 2022</span>
-              <span class="career-tl-role">Autónomo</span>
-              <p class="career-tl-desc">
-                Digitalización de negocios, gestión de proyectos técnicos y mantenimiento de sistemas.
-              </p>
-            </li>
-            <li class="career-tl-item">
-              <span class="career-tl-range">2012 – 2014</span>
-              <span class="career-tl-role">MutuaSAD</span>
-              <p class="career-tl-desc">
-                Administración WordPress, comercio electrónico (WooCommerce / PrestaShop) y soporte
-                microinformático y de redes.
-              </p>
-            </li>
-            <li class="career-tl-item career-tl-item--span">
-              <span class="career-tl-range">2001 – 2026</span>
-              <span class="career-tl-role">Trayectoria adicional</span>
-              <p class="career-tl-desc">
-                Más de dos décadas aportando <strong>madurez profesional</strong> y
-                <strong>capacidad de liderazgo</strong> como oficial especialista en entornos
-                industriales y en <strong>carpintería técnica</strong>, con fuerte orientación a la
-                calidad, la coordinación y la resolución de problemas complejos.
-              </p>
-            </li>
+            {#each c.timeline as item (item.range + item.role)}
+              <li
+                class="career-tl-item"
+                class:career-tl-item--span={item.span}
+              >
+                <span class="career-tl-range">{item.range}</span>
+                <span class="career-tl-role">{item.role}</span>
+                <p class="career-tl-desc">
+                  <!-- svelte-ignore hydration_html_changed -->
+                  {@html item.descHtml}
+                </p>
+              </li>
+            {/each}
           </ol>
         </section>
 
         <section class="career-block" aria-labelledby="career-stack">
-          <h3 id="career-stack" class="career-h3">Stack técnico</h3>
+          <h3 id="career-stack" class="career-h3">{c.stackTitle}</h3>
           <ul class="career-tags">
-            <li>WordPress <span class="career-tag-sub">Kadence · Elementor</span></li>
-            <li>SvelteKit</li>
-            <li>SEO on-page</li>
-            <li>IA generativa <span class="career-tag-sub">prompt engineering · automatización</span></li>
+            {#each c.stackLines as line, i (i)}
+              <li>
+                <!-- svelte-ignore hydration_html_changed -->
+                {@html line}
+              </li>
+            {/each}
           </ul>
         </section>
 
@@ -113,7 +107,7 @@
             onclick={() => (showPdf = !showPdf)}
             aria-expanded={showPdf}
           >
-            {showPdf ? 'Ocultar CV en PDF' : 'Ver CV original en PDF'}
+            {showPdf ? c.pdfHide : c.pdfShow}
           </button>
 
           {#if showPdf}
@@ -121,11 +115,12 @@
               <iframe
                 class="career-pdf-frame"
                 src={pdfHref}
-                title="CV de Moisés Valero (PDF)"
+                title={c.pdfIframeTitle}
               ></iframe>
               <p class="career-pdf-hint">
-                Si no se muestra el documento,
-                <a href={pdfHref} target="_blank" rel="noopener noreferrer">ábrelo en una pestaña nueva</a>.
+                {c.pdfHintBefore}<a href={pdfHref} target="_blank" rel="noopener noreferrer"
+                  >{c.pdfHintLink}</a
+                >.
               </p>
             </div>
           {/if}

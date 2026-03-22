@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import CareerModal from './CareerModal.svelte';
+  import { getCareerModalControls } from '$lib/career-modal-context';
 
   interface Props {
     cvHref?: string;
@@ -8,6 +8,8 @@
     title?: string;
     subtitle?: string;
     bio?: string;
+    ctaPrimaryLabel?: string;
+    careerCtaLabel?: string;
   }
 
   let {
@@ -15,12 +17,15 @@
     label = 'PORTFOLIO – MOISÉS VALERO · Alcoy / Alicante',
     title = 'Desarrollador Web',
     subtitle = 'SvelteKit | WordPress | Soporte IT',
-    bio = 'Desarrollo soluciones robustas enfocadas en Web Performance. Me encargo de la infraestructura técnica y el soporte para que tú solo te preocupes de tu negocio. Uso IA para optimizar tiempos, ya sea colaborando con empresas de la zona (Alcoy/Alicante) o integrándome en plantilla.'
+    bio = 'Desarrollo soluciones robustas enfocadas en Web Performance. Me encargo de la infraestructura técnica y el soporte para que tú solo te preocupes de tu negocio. Uso IA para optimizar tiempos, ya sea colaborando con empresas de la zona (Alcoy/Alicante) o integrándome en plantilla.',
+    ctaPrimaryLabel = '¿Hablamos?',
+    careerCtaLabel = 'Ver Trayectoria'
   }: Props = $props();
 
   const primaryOpensNewTab = $derived(/^https?:\/\//i.test(cvHref));
 
-  let careerOpen = $state(false);
+  const careerModal = getCareerModalControls();
+
   let scrollHintOpacity = $state(1);
 
   onMount(() => {
@@ -32,8 +37,6 @@
     return () => window.removeEventListener('scroll', onScroll);
   });
 </script>
-
-<CareerModal bind:open={careerOpen} />
 
 <div class="hero-viewport-root" id="top">
   <div class="hero-stripe-pro-v2">
@@ -51,10 +54,10 @@
           target={primaryOpensNewTab ? '_blank' : undefined}
           rel={primaryOpensNewTab ? 'noopener noreferrer' : undefined}
         >
-          ¿Hablamos?
+          {ctaPrimaryLabel}
         </a>
-        <button type="button" class="btn-ghost-slim" onclick={() => (careerOpen = true)}>
-          Ver Trayectoria
+        <button type="button" class="btn-ghost-slim" onclick={() => careerModal?.open()}>
+          {careerCtaLabel}
         </button>
       </div>
     </div>

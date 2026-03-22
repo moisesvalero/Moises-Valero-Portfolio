@@ -3,9 +3,8 @@
     heading?: string;
     subtitle?: string;
     typebotSrc?: string;
-    linkedinHref?: string;
-    linkedinLead?: string;
-    linkedinButtonLabel?: string;
+    whatsappLead?: string;
+    whatsappButtonLabel?: string;
     iframeTitle?: string;
   }
 
@@ -13,11 +12,13 @@
     heading = '¿Hablamos?',
     subtitle = '',
     typebotSrc = 'https://typebot.io/asistente-mois-s-valero-sud5oya',
-    linkedinHref = 'https://www.linkedin.com/in/moisesvalero/',
-    linkedinLead = 'Estoy a un mensaje de distancia en LinkedIn.',
-    linkedinButtonLabel = 'Contactar en LinkedIn',
+    whatsappLead = '¿Prefieres WhatsApp? Escríbeme sin salir de un clic.',
+    whatsappButtonLabel = 'Escribir por WhatsApp',
     iframeTitle = 'Asistente de chat — Moisés Valero'
   }: Props = $props();
+
+  /** El número no va en el HTML: redirección en servidor (WHATSAPP_E164 en .env). */
+  const whatsappHref = '/api/contact/whatsapp';
 </script>
 
 <section class="seccion-final-unificada" id="contacto" aria-labelledby="contacto-titulo">
@@ -41,14 +42,14 @@
     </div>
 
     <div class="botones-final">
-      <p class="texto-linkedin-final">{linkedinLead}</p>
+      <p class="texto-whatsapp-final">{whatsappLead}</p>
       <a
-        href={linkedinHref}
+        href={whatsappHref}
         target="_blank"
         rel="noopener noreferrer"
-        class="btn-apple-blue-final"
+        class="btn-whatsapp-final"
       >
-        {linkedinButtonLabel} <span aria-hidden="true">→</span>
+        {whatsappButtonLabel} <span aria-hidden="true">→</span>
       </a>
     </div>
   </div>
@@ -121,17 +122,17 @@
     display: block;
   }
 
-  .texto-linkedin-final {
+  .texto-whatsapp-final {
     color: #a1a1a6;
     font-size: 16px;
     margin-bottom: 10px;
   }
 
-  .btn-apple-blue-final {
+  .btn-whatsapp-final {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background: #0071e3;
+    background: rgb(37, 211, 102);
     color: #ffffff !important;
     padding: 14px 30px;
     border-radius: 8px;
@@ -141,10 +142,11 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .btn-apple-blue-final:hover {
-    background: #0077ed;
+  .btn-whatsapp-final:hover {
+    background: rgb(30, 175, 85);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    color: #ffffff !important;
   }
 
   @media (max-width: 768px) {

@@ -3,6 +3,8 @@
 export type SiteNavItem = {
   label: string;
   href: string;
+  /** Si es true, el header abre el modal de trayectoria en lugar de navegar a `href`. */
+  openCareerModal?: boolean;
 };
 
 export type SiteHeader = {
@@ -29,6 +31,10 @@ export type SiteHero = {
   title: string;
   subtitle: string;
   bio: string;
+  /** CTA principal del hero (i18n). */
+  ctaPrimaryLabel?: string;
+  /** Abre el modal de trayectoria (i18n). */
+  careerCtaLabel?: string;
 };
 
 export type SiteAbout = {
@@ -104,9 +110,9 @@ export type SiteContact = {
   heading: string;
   subtitle: string;
   typebotSrc: string;
-  linkedinHref: string;
-  linkedinLead: string;
-  linkedinButtonLabel: string;
+  /** Texto encima del botón (el enlace va a /api/contact/whatsapp; el número solo en WHATSAPP_E164). */
+  whatsappLead: string;
+  whatsappButtonLabel: string;
   iframeTitle: string;
 };
 

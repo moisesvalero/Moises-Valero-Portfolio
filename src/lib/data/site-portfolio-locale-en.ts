@@ -1,0 +1,244 @@
+import type { SitePortfolioContent } from '$lib/types/site-portfolio';
+
+const aboutHtmlEn = `<p>
+  I'm <strong>Moisés Valero</strong>. After a solid professional track record in demanding sectors, I returned
+  to technology with a clear goal: build web solutions that not only work, but perform. I hold a
+  <strong>Level 3 Vocational Certificate in Web Development</strong> and up-to-date training on the modern stack.
+</p>
+<p>
+  I focus on <strong>WordPress</strong>, <strong>SvelteKit</strong>, and <strong>IT support</strong>,
+  prioritising performance, security, and efficient maintenance. I use <strong>generative AI</strong> as a
+  strategic tool to speed up delivery without sacrificing quality.
+</p>
+<p>
+  I want to bring my experience and problem-solving skills to a company where I can grow, or collaborate on
+  freelance projects that need reliable technical support in <strong>Alcoy</strong> and <strong>Alicante</strong>.
+  If you value commitment, maturity, and strong technical skills, let's talk.
+</p>`;
+
+/**
+ * Contenido EN solo para la demo i18n (selector del header).
+ * El SEO (`site.seo`) no se modifica: sigue en español desde Sanity/defaults.
+ */
+export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
+  header: {
+    logoText: 'Moisés Valero',
+    logoHref: '/',
+    navItems: [
+      { label: 'Home', href: '/#top' },
+      { label: 'About', href: '/#sobre' },
+      { label: 'Services', href: '/#servicios' },
+      { label: 'Stack', href: '/#stack' },
+      { label: 'Projects', href: '/#proyectos' },
+      { label: 'Career', href: '#', openCareerModal: true }
+    ],
+    ctaLabel: 'Contact',
+    ctaHref: '/#contacto'
+  },
+  hero: {
+    cvHref: '/#contacto',
+    label: 'PORTFOLIO — MOISÉS VALERO · Alcoy / Alicante',
+    title: 'Web Developer',
+    subtitle: 'SvelteKit | WordPress | IT Support',
+    bio: 'I build robust solutions focused on web performance. I handle the technical stack and support so you can focus on your business. I use AI to optimise delivery time, whether working with local companies (Alcoy/Alicante) or as part of an in-house team.',
+    ctaPrimaryLabel: "Let's talk",
+    careerCtaLabel: 'View career'
+  },
+  about: {
+    imageSrc: '/imagenes/Moises-Valero-Sanchez.png',
+    imageAlt: 'Moisés Valero — WordPress developer',
+    meta: 'A BIT OF MY STORY',
+    title: 'About me',
+    aboutHtml: aboutHtmlEn
+  },
+  services: {
+    meta: 'MY SPECIALTIES',
+    title: 'High-Performance Web Solutions',
+    items: [
+      {
+        icon: '🛒',
+        title: 'E-commerce',
+        description:
+          'Online stores with WordPress and WooCommerce built to turn visits into customers. I focus on load speed, transaction security, and inventory workflows that save you time.'
+      },
+      {
+        icon: '🌐',
+        title: 'Web Development',
+        description:
+          'I build optimised sites with lean architecture for strong SEO. I pair SvelteKit for custom apps with WordPress where it fits, using AI to ship faster without cutting corners.'
+      },
+      {
+        icon: '⚙️',
+        title: 'IT Support',
+        description:
+          'I keep your stack running: networks, hardware, hosting, and email setup. Fast incident response and preventive maintenance so your business does not stop.'
+      }
+    ]
+  },
+  techStack: {
+    meta: 'TECHNOLOGIES & TOOLS',
+    title: 'My Tech Stack',
+    categories: [
+      {
+        title: 'Layout & structure',
+        icons: []
+      },
+      {
+        title: 'WordPress ecosystem',
+        icons: []
+      },
+      {
+        title: 'Workflow & AI',
+        icons: []
+      }
+    ]
+  },
+  quality: {
+    meta: 'MY WORK STANDARD',
+    title: 'Commitment to Quality',
+    items: [
+      {
+        icon: '🚀',
+        title: 'Performance',
+        description:
+          'Real-world load speed first. Fewer plugins and more native features for fast sites that boost SEO and retention.'
+      },
+      {
+        icon: '🛡️',
+        title: 'Security & hardening',
+        description:
+          'Security protocols and best practices to protect your online business against common vulnerabilities.'
+      },
+      {
+        icon: '📱',
+        title: 'Responsive design',
+        description:
+          'Mobile-first development so your site looks right on every device — essential for modern SEO.'
+      },
+      {
+        icon: '🤖',
+        title: 'AI-assisted delivery',
+        description:
+          'Practical use of AI to speed up development, debug, and ship on competitive timelines without losing robustness.'
+      }
+    ]
+  },
+  projects: {
+    meta: 'SELECTED PORTFOLIO',
+    title: 'Featured Projects',
+    projects: [
+      {
+        imageSrc: '/imagenes/captura-novakit_ember.avif',
+        imageAlt: 'NovaKit: UI Toolkit',
+        href: '/proyectos/novakit',
+        external: false,
+        linkLabel: 'View project',
+        title: 'NovaKit landing with SvelteKit',
+        description:
+          'UI toolkit landing with SvelteKit: CSS animations, interactive mockups, Spline 3D, and i18n. Live demo at novakit.moisesvalero.es.',
+        tags: ['SvelteKit', 'UI/UX', 'CSS Animations', 'i18n']
+      },
+      {
+        imageSrc: '/imagenes/galeria-nova-.jpeg',
+        imageAlt: 'Galería Nova: AI art e-commerce',
+        href: '/proyectos/galeria-nova',
+        external: false,
+        linkLabel: 'View project',
+        title: 'Galería Nova | Art e-commerce',
+        description:
+          'Production e-commerce for digital art with WordPress and Kadence. WooCommerce integration and assets shaped with prompt engineering for a real client.',
+        tags: ['Kadence', 'WooCommerce', 'Prompt Engineering', 'Performance']
+      },
+      {
+        imageSrc:
+          '/imagenes/Captura-de-pantalla_27-2-2026_114525_moisesvalero.es_.jpeg',
+        imageAlt: 'Premium steakhouse',
+        href: '/proyectos/ember-iron',
+        external: false,
+        linkLabel: 'View project',
+        title: 'Ember & Iron | Premium steakhouse',
+        description:
+          'High-impact visual site focused on conversion. Background video with performance-conscious implementation on Kadence WP.',
+        tags: ['Kadence', 'Performance', 'UI/UX', 'Video Optimization']
+      },
+      {
+        imageSrc: '/imagenes/vshield-1.jpeg',
+        imageAlt: 'V-Shield Cybersecurity',
+        href: '/proyectos/vshield',
+        external: false,
+        linkLabel: 'View project',
+        title: 'V-Shield | Cybersecurity',
+        description:
+          'High-fidelity landing page. Functional interactive terminal and business logic tuned with custom scripts.',
+        tags: ['Elementor', 'WordPress', 'Custom Scripts', 'Prompt Engineering']
+      },
+      {
+        imageSrc: '/imagenes/chatbot.jpeg',
+        imageAlt: 'AI chatbot with Llama 3.3',
+        href: '/proyectos/chatbot',
+        external: false,
+        linkLabel: 'View project',
+        title: 'AI chatbot | Portfolio assistant',
+        description:
+          'Conversational assistant with Llama 3.3 via Groq API, trained on my professional profile. Make.com + Telegram automation for real-time alerts.',
+        tags: ['Typebot', 'Groq API', 'Make.com', 'Llama 3.3']
+      },
+      {
+        imageSrc:
+          '/imagenes/Captura-de-pantalla_19-2-2026_122315_www.amazon.es_.jpeg',
+        imageAlt: 'Crónicas Visigodas',
+        href: 'https://www.amazon.es/Cr%C3%B3nicas-Visigodas-Leyendas-Reino-Perdido/dp/B0D47ZQDKH',
+        external: true,
+        linkLabel: 'View on Amazon',
+        title: 'Crónicas Visigodas | Amazon KDP book',
+        description:
+          'Amazon KDP release. Prompt engineering to structure historical data, support imagery, and streamline the editorial workflow for global distribution.',
+        tags: ['Amazon KDP', 'Prompt Engineering', 'Generative AI', 'Copywriting']
+      }
+    ]
+  },
+  contact: {
+    heading: "Let's talk",
+    subtitle: '',
+    typebotSrc: 'https://typebot.io/asistente-mois-s-valero-sud5oya',
+    whatsappLead: 'Prefer WhatsApp? Message me in one click.',
+    whatsappButtonLabel: 'Message on WhatsApp',
+    iframeTitle: 'Chat assistant — Moisés Valero'
+  },
+  footer: {
+    copyrightTemplate: 'Moisés Valero © {{year}} | Web Developer',
+    githubHref: 'https://github.com/moisesvalero',
+    linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
+    emailHref: 'mailto:ludicrous_fastball804@simplelogin.com'
+  }
+};
+
+export function applyPortfolioEnglishDemo(
+  site: SitePortfolioContent,
+  opts?: { preserveSanityServicesProjects?: boolean }
+): SitePortfolioContent {
+  const seo = site.seo;
+  const en = portfolioEnglishDemo;
+  const preserve = opts?.preserveSanityServicesProjects === true;
+  const categories = site.techStack.categories.map((cat, i) => ({
+    ...cat,
+    title: en.techStack.categories[i]?.title ?? cat.title
+  }));
+  return {
+    ...site,
+    header: en.header,
+    hero: en.hero,
+    about: en.about,
+    services: preserve ? site.services : en.services,
+    techStack: {
+      meta: en.techStack.meta,
+      title: en.techStack.title,
+      categories
+    },
+    quality: en.quality,
+    projects: preserve ? site.projects : en.projects,
+    contact: en.contact,
+    footer: en.footer,
+    seo
+  };
+}

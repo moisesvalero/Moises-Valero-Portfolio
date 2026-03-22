@@ -24,14 +24,31 @@ export const portfolioSite = defineType({
               type: 'object',
               fields: [
                 { name: 'label', type: 'string', title: 'Texto' },
-                { name: 'href', type: 'string', title: 'URL o ancla', description: 'Ej. /#sobre' }
+                {
+                  name: 'href',
+                  type: 'string',
+                  title: 'URL o ancla',
+                  description: 'Ej. /#sobre. Si marcas «Abrir trayectoria», puede quedar en #.'
+                },
+                {
+                  name: 'openCareerModal',
+                  type: 'boolean',
+                  title: 'Abrir modal Trayectoria',
+                  description: 'Si está activo, no navega: abre el mismo modal que en el hero.',
+                  initialValue: false
+                }
               ],
               preview: { select: { t: 'label' }, prepare: ({ t }) => ({ title: t || 'Ítem' }) }
             }
           ]
         },
-        { name: 'ctaLabel', type: 'string', title: 'Texto botón CTA' },
-        { name: 'ctaHref', type: 'url', title: 'URL CTA' }
+        { name: 'ctaLabel', type: 'string', title: 'Texto botón CTA (ej. Contacto)' },
+        {
+          name: 'ctaHref',
+          type: 'string',
+          title: 'Enlace CTA',
+          description: 'Ej. /#contacto para scroll al chat, o https://… para externo.'
+        }
       ]
     }),
     defineField({
@@ -94,20 +111,35 @@ export const portfolioSite = defineType({
     defineField({
       name: 'services',
       type: 'object',
+      title: 'Servicios',
+      description: 'Meta, título e ítems con campos ES/EN. Si falta un idioma, la web usa el otro.',
       fields: [
-        { name: 'meta', type: 'string' },
-        { name: 'title', type: 'string' },
+        {
+          name: 'meta',
+          type: 'localeString',
+          title: 'Meta sección'
+        },
+        {
+          name: 'title',
+          type: 'localeString',
+          title: 'Título H2'
+        },
         {
           name: 'items',
           type: 'array',
+          title: 'Servicios',
           of: [
             {
               type: 'object',
               fields: [
-                { name: 'icon', type: 'string', title: 'Emoji / icono' },
-                { name: 'title', type: 'string' },
-                { name: 'description', type: 'text' }
-              ]
+                { name: 'icon', type: 'string', title: 'Emoji / icono (compartido)' },
+                { name: 'title', type: 'localeString', title: 'Título' },
+                { name: 'description', type: 'localeText', title: 'Descripción' }
+              ],
+              preview: {
+                select: { t: 'title.es', media: 'icon' },
+                prepare: ({ t }) => ({ title: t || 'Servicio' })
+              }
             }
           ]
         }
@@ -174,12 +206,14 @@ export const portfolioSite = defineType({
       name: 'projects',
       type: 'object',
       title: 'Proyectos destacados',
+      description: 'Textos ES/EN; imagen, tags y URL de destino son compartidos.',
       fields: [
-        { name: 'meta', type: 'string' },
-        { name: 'title', type: 'string' },
+        { name: 'meta', type: 'localeString', title: 'Meta sección' },
+        { name: 'title', type: 'localeString', title: 'Título H2' },
         {
           name: 'projects',
           type: 'array',
+          title: 'Tarjetas',
           of: [
             {
               type: 'object',
@@ -188,10 +222,15 @@ export const portfolioSite = defineType({
                 { name: 'thumbnail', type: 'image', title: 'Captura', options: { hotspot: true } },
                 { name: 'imageSrc', type: 'url', title: 'O URL imagen externa' },
                 { name: 'imageAlt', type: 'string' },
-                { name: 'title', type: 'string' },
-                { name: 'description', type: 'text' },
-                { name: 'tags', type: 'array', of: [{ type: 'string' }] },
-                { name: 'linkLabel', type: 'string', initialValue: 'Ver Proyecto' },
+                { name: 'title', type: 'localeString', title: 'Título' },
+                { name: 'description', type: 'localeText', title: 'Descripción' },
+                { name: 'tags', type: 'array', of: [{ type: 'string' }], title: 'Tags (compartidos)' },
+                {
+                  name: 'linkLabel',
+                  type: 'localeString',
+                  title: 'Texto del enlace',
+                  description: 'Ej. «Ver proyecto» / «View project»'
+                },
                 {
                   name: 'destinationUrl',
                   type: 'string',
@@ -200,7 +239,7 @@ export const portfolioSite = defineType({
                 }
               ],
               preview: {
-                select: { t: 'title', media: 'thumbnail' },
+                select: { t: 'title.es', media: 'thumbnail' },
                 prepare: ({ t, media }) => ({ title: t || 'Proyecto', media })
               }
             }
@@ -215,9 +254,13 @@ export const portfolioSite = defineType({
         { name: 'heading', type: 'string' },
         { name: 'subtitle', type: 'string' },
         { name: 'typebotSrc', type: 'url', title: 'URL iframe Typebot' },
-        { name: 'linkedinHref', type: 'url' },
-        { name: 'linkedinLead', type: 'string' },
-        { name: 'linkedinButtonLabel', type: 'string' },
+        {
+          name: 'whatsappLead',
+          type: 'string',
+          title: 'Texto sobre el botón WhatsApp',
+          description: 'El número no va aquí: se configura en el servidor (WHATSAPP_E164).'
+        },
+        { name: 'whatsappButtonLabel', type: 'string', title: 'Texto del botón WhatsApp' },
         { name: 'iframeTitle', type: 'string' }
       ]
     }),

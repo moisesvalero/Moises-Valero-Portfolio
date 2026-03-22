@@ -31,10 +31,10 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
       { label: 'Servicios', href: '/#servicios' },
       { label: 'Stack', href: '/#stack' },
       { label: 'Proyectos', href: '/#proyectos' },
-      { label: 'Contacto', href: '/#contacto' }
+      { label: 'Trayectoria', href: '#', openCareerModal: true }
     ],
-    ctaLabel: 'LinkedIn',
-    ctaHref: 'https://www.linkedin.com/in/moisesvalero/'
+    ctaLabel: 'Contacto',
+    ctaHref: '/#contacto'
   },
   seo: {
     title: 'Moisés Valero – Desarrollador Web | SvelteKit, WordPress, Soporte IT',
@@ -51,7 +51,9 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     label: 'PORTFOLIO – MOISÉS VALERO · Alcoy / Alicante',
     title: 'Desarrollador Web',
     subtitle: 'SvelteKit | WordPress | Soporte IT',
-    bio: 'Desarrollo soluciones robustas enfocadas en Web Performance. Me encargo de la infraestructura técnica y el soporte para que tú solo te preocupes de tu negocio. Uso IA para optimizar tiempos, ya sea colaborando con empresas de la zona (Alcoy/Alicante) o integrándome en plantilla.'
+    bio: 'Desarrollo soluciones robustas enfocadas en Web Performance. Me encargo de la infraestructura técnica y el soporte para que tú solo te preocupes de tu negocio. Uso IA para optimizar tiempos, ya sea colaborando con empresas de la zona (Alcoy/Alicante) o integrándome en plantilla.',
+    ctaPrimaryLabel: '¿Hablamos?',
+    careerCtaLabel: 'Ver Trayectoria'
   },
   about: {
     imageSrc: '/imagenes/Moises-Valero-Sanchez.png',
@@ -253,9 +255,8 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     heading: '¿Hablamos?',
     subtitle: '',
     typebotSrc: 'https://typebot.io/asistente-mois-s-valero-sud5oya',
-    linkedinHref: 'https://www.linkedin.com/in/moisesvalero/',
-    linkedinLead: 'Estoy a un mensaje de distancia en LinkedIn.',
-    linkedinButtonLabel: 'Contactar en LinkedIn',
+    whatsappLead: '¿Prefieres WhatsApp? Escríbeme sin salir de un clic.',
+    whatsappButtonLabel: 'Escribir por WhatsApp',
     iframeTitle: 'Asistente de chat — Moisés Valero'
   },
   footer: {
