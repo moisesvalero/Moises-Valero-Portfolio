@@ -1,11 +1,21 @@
 <script lang="ts">
+  import { getProyectoPageLabels } from '$lib/i18n/proyecto-page-labels';
+  import type { SiteLocale } from '$lib/i18n/site-locale';
   import type { CaseStudy } from '$lib/types/case-study';
 
   interface Props {
     study: CaseStudy;
+    locale?: SiteLocale;
   }
 
-  let { study }: Props = $props();
+  let { study, locale = 'es' }: Props = $props();
+
+  const L = $derived(getProyectoPageLabels(locale));
+  const altMain = $derived(
+    locale === 'en' ? `${study.title} — main view` : `${study.title} — vista principal`
+  );
+  const altSec = (n: number) =>
+    locale === 'en' ? `${study.title} — screenshot ${n}` : `${study.title} — captura secundaria ${n}`;
 </script>
 
 <div class="case-study-root">
@@ -32,7 +42,7 @@
       <div class="window-content">
         <img
           src={study.images.principal}
-          alt={`${study.title} — vista principal`}
+          alt={altMain}
           loading="eager"
           decoding="async"
         />
@@ -53,12 +63,12 @@
 
   <div class="content">
     <div class="section">
-      <p class="section-label">El reto</p>
+      <p class="section-label">{L.elReto}</p>
       <h2>{study.reto.title}</h2>
       <div class="section-body">{@html study.reto.bodyHtml}</div>
     </div>
     <div class="section">
-      <p class="section-label">Lo que hice</p>
+      <p class="section-label">{L.loQueHice}</p>
       <h2>{study.hice.title}</h2>
       <div class="section-body">{@html study.hice.bodyHtml}</div>
     </div>
@@ -74,7 +84,7 @@
       <div class="window-content-static">
         <img
           src={study.images.secondary1}
-          alt={`${study.title} — captura secundaria 1`}
+          alt={altSec(1)}
           loading="lazy"
           decoding="async"
         />
@@ -89,7 +99,7 @@
       <div class="window-content-static">
         <img
           src={study.images.secondary2}
-          alt={`${study.title} — captura secundaria 2`}
+          alt={altSec(2)}
           loading="lazy"
           decoding="async"
         />
@@ -99,7 +109,7 @@
 
   <div class="content">
     <div class="section">
-      <p class="section-label">Resultado</p>
+      <p class="section-label">{L.resultado}</p>
       <h2>{study.resultado.title}</h2>
       <div class="section-body">{@html study.resultado.bodyHtml}</div>
     </div>
@@ -107,7 +117,7 @@
 
   <div class="stack-section">
     <div class="stack-inner">
-      <p class="section-label stack-label">Stack tecnológico</p>
+      <p class="section-label stack-label">{L.stackTech}</p>
       <div class="stack-grid">
         {#each study.stack as tech (tech)}
           <span class="stack-item">{tech}</span>
@@ -117,8 +127,8 @@
   </div>
 
   <div class="cta-section">
-    <a href={study.liveUrl} class="btn" target="_blank" rel="noopener noreferrer">Ver proyecto en vivo</a>
-    <a href="/#proyectos" class="btn btn-outline">← Volver al portfolio</a>
+    <a href={study.liveUrl} class="btn" target="_blank" rel="noopener noreferrer">{L.verProyectoVivo}</a>
+    <a href="/#proyectos" class="btn btn-outline">{L.volverPortfolio}</a>
   </div>
 </div>
 

@@ -1,15 +1,23 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
+  import { getProyectoPageLabels } from '$lib/i18n/proyecto-page-labels';
+  import { getVshieldPageCopy } from '$lib/i18n/proyectos/vshield-copy';
   import { setSeo } from '$lib/seo';
+  import type { PageData } from './$types';
+
+  let { data }: { data: PageData } = $props();
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/vshield`;
 
+  const c = $derived(getVshieldPageCopy(data.locale));
+  const L = $derived(getProyectoPageLabels(data.locale));
+  const seoEs = getVshieldPageCopy('es');
+
   $effect(() => {
     setSeo({
-      title: 'V-Shield — Caso de Estudio | Moisés Valero',
-      description:
-        'Landing de ciberseguridad con terminal interactiva en JavaScript, WordPress, Elementor y alto PageSpeed en móvil.',
+      title: seoEs.headTitle,
+      description: seoEs.headDescription,
       ogTitle: 'V-Shield — Caso de Estudio',
       ogDescription:
         'Landing de ciberseguridad con terminal interactiva, formulario sin plugins y optimización de rendimiento.',
@@ -22,23 +30,17 @@
 </script>
 
 <svelte:head>
-  <title>V-Shield — Caso de Estudio | Moisés Valero</title>
-  <meta
-    name="description"
-    content="Landing de ciberseguridad con terminal interactiva en JavaScript, WordPress, Elementor y alto PageSpeed en móvil."
-  />
+  <title>{seoEs.headTitle}</title>
+  <meta name="description" content={seoEs.headDescription} />
   <link rel="canonical" href={canonical} />
 </svelte:head>
 
 <div class="vshield-page">
   <section class="hero">
     <div class="hero-inner">
-      <span class="hero-tag">Proyecto de Portfolio · Landing Page</span>
-      <h1>V-Shield</h1>
-      <p class="hero-sub">
-        Landing page de alto impacto para empresa de ciberseguridad, con terminal interactiva funcional desarrollada en
-        JavaScript.
-      </p>
+      <span class="hero-tag">{c.heroTag}</span>
+      <h1>{c.heroTitle}</h1>
+      <p class="hero-sub">{c.heroSub}</p>
       <div class="tags">
         <span class="tag">WordPress</span>
         <span class="tag">Elementor</span>
@@ -60,7 +62,7 @@
       <div class="window-content">
         <img
           src="/imagenes/captura-vshieldfinal_ember-scaled.avif"
-          alt="Captura principal de V-Shield"
+          alt={c.imgMainAlt}
           width="1200"
           height="800"
           loading="eager"
@@ -73,51 +75,38 @@
   <div class="stats-section">
     <div class="stats-grid">
       <div class="stat">
-        <span class="stat-num">~100</span>
-        <span class="stat-label">PageSpeed móvil</span>
+        <span class="stat-num">{@html c.stat1Num}</span>
+        <span class="stat-label">{c.stat1Label}</span>
       </div>
       <div class="stat">
-        <span class="stat-num">JS</span>
-        <span class="stat-label">Terminal funcional</span>
+        <span class="stat-num">{@html c.stat2Num}</span>
+        <span class="stat-label">{c.stat2Label}</span>
       </div>
       <div class="stat">
-        <span class="stat-num">0</span>
-        <span class="stat-label">Plugins de formulario</span>
+        <span class="stat-num">{@html c.stat3Num}</span>
+        <span class="stat-label">{c.stat3Label}</span>
       </div>
       <div class="stat">
-        <span class="stat-num">SVG</span>
-        <span class="stat-label">Todos los iconos</span>
+        <span class="stat-num">{@html c.stat4Num}</span>
+        <span class="stat-label">{c.stat4Label}</span>
       </div>
     </div>
   </div>
 
   <div class="content">
     <div class="section">
-      <p class="section-label">El reto</p>
-      <h2>Credibilidad técnica desde el primer segundo</h2>
-      <p>
-        Crear una landing page de alto impacto para una empresa de ciberseguridad ficticia, transmitiendo credibilidad
-        técnica y profesionalidad mediante una experiencia visual inmersiva y elementos interactivos reales.
-      </p>
+      <p class="section-label">{L.elReto}</p>
+      <h2>{c.retoTitle}</h2>
+      <p>{c.retoP}</p>
     </div>
     <div class="section">
-      <p class="section-label">Lo que hice</p>
-      <h2>WordPress + Elementor llevado al límite</h2>
-      <p>
-        Desarrollé la web con WordPress + Astra + Elementor, construyendo prácticamente toda la página con widgets HTML
-        personalizados y código CSS/JS generado y depurado con apoyo de IA.
-      </p>
+      <p class="section-label">{L.loQueHice}</p>
+      <h2>{c.hiceTitle}</h2>
+      <p>{c.hiceP1}</p>
       <div class="highlight-box">
-        <p>
-          <strong>Elemento destacado:</strong> Terminal interactiva completamente funcional desarrollada en JavaScript
-          puro, que simula comandos reales y refuerza la identidad técnica de la marca.
-        </p>
+        {@html c.hiceHighlightHtml}
       </div>
-      <p>
-        El formulario de contacto está desarrollado íntegramente con código propio sin plugins, integrado con Formspree.io.
-        Todos los iconos en SVG para máximo rendimiento. SEO on-page con Yoast, optimización con Autoptimize y seguridad
-        con WPS Hide Login.
-      </p>
+      <p>{c.hiceP2}</p>
     </div>
   </div>
 
@@ -131,7 +120,7 @@
       <div class="window-content-static">
         <img
           src="/imagenes/terminalfinal.jpeg"
-          alt="Terminal interactiva"
+          alt={c.imgTerminalAlt}
           width="800"
           height="600"
           loading="lazy"
@@ -149,7 +138,7 @@
       <div class="window-content-static">
         <img
           src="/imagenes/formulario-vshield.jpeg"
-          alt="Formulario de contacto"
+          alt={c.imgFormAlt}
           width="800"
           height="600"
           loading="lazy"
@@ -161,18 +150,15 @@
 
   <div class="content">
     <div class="section section-result">
-      <p class="section-label">Resultado</p>
-      <h2>El mejor rendimiento del portfolio</h2>
-      <p>
-        Puntuación PageSpeed cercana a 100 en móvil — el mejor resultado de todos los proyectos. Landing funcional con
-        terminal operativa, formulario sin plugins y carga ultrarrápida.
-      </p>
+      <p class="section-label">{L.resultado}</p>
+      <h2>{c.resultadoTitle}</h2>
+      <p>{c.resultadoP}</p>
     </div>
   </div>
 
   <div class="stack-section">
     <div class="stack-inner">
-      <p class="section-label stack-label">Stack tecnológico</p>
+      <p class="section-label stack-label">{L.stackTech}</p>
       <div class="stack-grid">
         <span class="stack-item">WordPress</span>
         <span class="stack-item">Astra</span>
@@ -189,10 +175,10 @@
   </div>
 
   <div class="cta-section">
-    <h3>¿Quieres ver el proyecto en vivo?</h3>
-    <p class="cta-lead">Visita la landing completa o contáctame para hablar sobre tu proyecto.</p>
-    <a href="https://moisesvalero.es/v-shield/" class="btn" target="_blank" rel="noopener noreferrer">Ver proyecto en vivo</a>
-    <a href="/#proyectos" class="btn btn-outline">← Volver</a>
+    <h3>{c.ctaTitle}</h3>
+    <p class="cta-lead">{c.ctaLead}</p>
+    <a href="https://moisesvalero.es/v-shield/" class="btn" target="_blank" rel="noopener noreferrer">{c.ctaBtn}</a>
+    <a href="/#proyectos" class="btn btn-outline">{c.ctaBack}</a>
   </div>
 </div>
 

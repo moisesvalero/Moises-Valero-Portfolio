@@ -1,15 +1,23 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
+  import { getProyectoPageLabels } from '$lib/i18n/proyecto-page-labels';
+  import { getGaleriaNovaPageCopy } from '$lib/i18n/proyectos/galeria-nova-copy';
   import { setSeo } from '$lib/seo';
+  import type { PageData } from './$types';
+
+  let { data }: { data: PageData } = $props();
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/galeria-nova`;
 
+  const c = $derived(getGaleriaNovaPageCopy(data.locale));
+  const L = $derived(getProyectoPageLabels(data.locale));
+  const seoEs = getGaleriaNovaPageCopy('es');
+
   $effect(() => {
     setSeo({
-      title: 'Galería Nova — Caso de Estudio | Moisés Valero',
-      description:
-        'E-commerce de arte digital con IA, WordPress, Kadence, WooCommerce y rendimiento optimizado (WebP, Cloudflare).',
+      title: seoEs.headTitle,
+      description: seoEs.headDescription,
       ogTitle: 'Galería Nova — Caso de Estudio',
       ogDescription:
         'Tienda online de arte generado con IA, alta resolución para impresión, WooCommerce y PageSpeed 90+ en móvil.',
@@ -22,11 +30,8 @@
 </script>
 
 <svelte:head>
-  <title>Galería Nova — Caso de Estudio | Moisés Valero</title>
-  <meta
-    name="description"
-    content="E-commerce de arte digital con IA, WordPress, Kadence, WooCommerce y rendimiento optimizado (WebP, Cloudflare)."
-  />
+  <title>{seoEs.headTitle}</title>
+  <meta name="description" content={seoEs.headDescription} />
   <link rel="canonical" href={canonical} />
 </svelte:head>
 
@@ -59,7 +64,7 @@
       <div class="window-content">
         <img
           src="/imagenes/novafinal_ember-scaled.avif"
-          alt="Galería Nova — vista principal"
+          alt={c.imgMainAlt}
           width="1200"
           height="800"
           loading="eager"
@@ -92,31 +97,17 @@
 
   <div class="content">
     <div class="section">
-      <p class="section-label">El reto</p>
-      <h2>Una tienda para arte que nace digital</h2>
-      <p>
-        Diseñar y desarrollar una tienda online para la venta de arte digital generado con IA, con imágenes preparadas
-        para impresión en alta resolución y una experiencia de compra rápida y segura.
-      </p>
+      <p class="section-label">{L.elReto}</p>
+      <h2>{c.retoTitle}</h2>
+      <p>{c.retoP}</p>
     </div>
 
     <div class="section">
-      <p class="section-label">Lo que hice</p>
-      <h2>Desarrollo completo con foco en rendimiento</h2>
-      <p>
-        Desarrollé el proyecto completo con WordPress + Kadence, implementando personalizaciones visuales extensas
-        mediante HTML y CSS escrito con apoyo de Cursor Agent, Gemini y Claude. Generé todos los activos visuales con
-        Leonardo.ai en alta resolución optimizada para impresión física, y creé el logotipo en formato SVG para máxima
-        escalabilidad.
-      </p>
-      <p>
-        Configuré WooCommerce con pasarela PayPal, gestioné el SEO on-page con Yoast, y apliqué una capa de seguridad
-        ocultando el acceso al panel con WPS Hide Login.
-      </p>
-      <p>
-        Para rendimiento: imágenes convertidas a WebP con EWWW, optimización de assets con Autoptimize y CDN global
-        mediante Cloudflare.
-      </p>
+      <p class="section-label">{L.loQueHice}</p>
+      <h2>{c.hiceTitle}</h2>
+      <p>{c.hiceP1}</p>
+      <p>{c.hiceP2}</p>
+      <p>{c.hiceP3}</p>
     </div>
   </div>
 
@@ -130,7 +121,7 @@
       <div class="window-content-static">
         <img
           src="/imagenes/captura-carrito-nova.jpeg"
-          alt="Carrito de compra"
+          alt={c.imgCartAlt}
           width="800"
           height="600"
           loading="lazy"
@@ -148,7 +139,7 @@
       <div class="window-content-static">
         <img
           src="/imagenes/captura-producto-nova.jpeg"
-          alt="Página de producto"
+          alt={c.imgProductAlt}
           width="800"
           height="600"
           loading="lazy"
@@ -160,19 +151,15 @@
 
   <div class="content">
     <div class="section">
-      <p class="section-label">Resultado</p>
-      <h2>Tienda funcional con rendimiento optimizado</h2>
-      <p>
-        Puntuación PageSpeed superior a 90 en móvil. Tienda completamente funcional con catálogo de obras, carrito de
-        compra y pasarela de pago operativos. CDN global activo mediante Cloudflare para carga rápida desde cualquier
-        ubicación.
-      </p>
+      <p class="section-label">{L.resultado}</p>
+      <h2>{c.resultadoTitle}</h2>
+      <p>{c.resultadoP}</p>
     </div>
   </div>
 
   <div class="stack-section">
     <div class="stack-inner">
-      <p class="section-label stack-label">Stack tecnológico</p>
+      <p class="section-label stack-label">{L.stackTech}</p>
       <div class="stack-grid">
         <span class="stack-item">WordPress</span>
         <span class="stack-item">Kadence</span>
@@ -191,10 +178,10 @@
   </div>
 
   <div class="cta-section">
-    <h3>¿Quieres ver el proyecto en vivo?</h3>
-    <p class="cta-lead">Visita la tienda completa o contáctame para hablar sobre tu proyecto.</p>
-    <a href="https://galerianova.es" class="btn" target="_blank" rel="noopener noreferrer">Ver proyecto en vivo</a>
-    <a href="/#proyectos" class="btn btn-outline">← Volver</a>
+    <h3>{c.ctaTitle}</h3>
+    <p class="cta-lead">{c.ctaLead}</p>
+    <a href="https://galerianova.es" class="btn" target="_blank" rel="noopener noreferrer">{c.ctaBtn}</a>
+    <a href="/#proyectos" class="btn btn-outline">{c.ctaBack}</a>
   </div>
 </div>
 

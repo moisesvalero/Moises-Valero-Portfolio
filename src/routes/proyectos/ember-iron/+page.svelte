@@ -1,15 +1,23 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
+  import { getProyectoPageLabels } from '$lib/i18n/proyecto-page-labels';
+  import { getEmberPageCopy } from '$lib/i18n/proyectos/ember-copy';
   import { setSeo } from '$lib/seo';
+  import type { PageData } from './$types';
+
+  let { data }: { data: PageData } = $props();
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/ember-iron`;
 
+  const c = $derived(getEmberPageCopy(data.locale));
+  const L = $derived(getProyectoPageLabels(data.locale));
+  const seoEs = getEmberPageCopy('es');
+
   $effect(() => {
     setSeo({
-      title: 'Ember & Iron — Caso de Estudio | Moisés Valero',
-      description:
-        'Web corporativa para asador premium: vídeo de fondo optimizado, flujo Figma → WordPress, Kadence, AVIF y PageSpeed 80+ en móvil.',
+      title: seoEs.headTitle,
+      description: seoEs.headDescription,
       ogTitle: 'Ember & Iron — Caso de Estudio',
       ogDescription:
         'Alto impacto visual sin sacrificar rendimiento: Kadence, child theme, Handbrake, XnConvert y formulario sin plugins.',
@@ -22,23 +30,17 @@
 </script>
 
 <svelte:head>
-  <title>Ember & Iron — Caso de Estudio | Moisés Valero</title>
-  <meta
-    name="description"
-    content="Web corporativa para asador premium: vídeo de fondo optimizado, flujo Figma → WordPress, Kadence, AVIF y PageSpeed 80+ en móvil."
-  />
+  <title>{seoEs.headTitle}</title>
+  <meta name="description" content={seoEs.headDescription} />
   <link rel="canonical" href={canonical} />
 </svelte:head>
 
 <div class="ember-page">
   <section class="hero">
     <div class="hero-inner">
-      <span class="hero-tag">Proyecto de Portfolio · Web Corporativa</span>
-      <h1>Ember & Iron</h1>
-      <p class="hero-sub">
-        Web de alto impacto visual para restaurante asador premium, con vídeo de fondo optimizado y flujo profesional Figma →
-        desarrollo.
-      </p>
+      <span class="hero-tag">{c.heroTag}</span>
+      <h1>{c.heroTitle}</h1>
+      <p class="hero-sub">{c.heroSub}</p>
       <div class="tags">
         <span class="tag">WordPress</span>
         <span class="tag">Kadence</span>
@@ -61,7 +63,7 @@
       <div class="window-content">
         <img
           src="/imagenes/captura-final-ember_ember-scaled.avif"
-          alt="Ember & Iron — vista principal"
+          alt={c.imgMainAlt}
           width="1200"
           height="800"
           loading="eager"
@@ -74,61 +76,47 @@
   <div class="stats-section">
     <div class="stats-grid">
       <div class="stat">
-        <span class="stat-num">80+</span>
-        <span class="stat-label">PageSpeed móvil</span>
+        <span class="stat-num">{@html c.stat1Num}</span>
+        <span class="stat-label">{c.stat1Label}</span>
       </div>
       <div class="stat">
-        <span class="stat-num">AVIF</span>
-        <span class="stat-label">Formato imágenes</span>
+        <span class="stat-num">{@html c.stat2Num}</span>
+        <span class="stat-label">{c.stat2Label}</span>
       </div>
       <div class="stat">
-        <span class="stat-num">Figma</span>
-        <span class="stat-label">Diseño previo</span>
+        <span class="stat-num">{@html c.stat3Num}</span>
+        <span class="stat-label">{c.stat3Label}</span>
       </div>
       <div class="stat">
-        <span class="stat-num">0</span>
-        <span class="stat-label">Plugins de formulario</span>
+        <span class="stat-num">{@html c.stat4Num}</span>
+        <span class="stat-label">{c.stat4Label}</span>
       </div>
     </div>
   </div>
 
   <div class="content">
     <div class="section">
-      <p class="section-label">El reto</p>
-      <h2>Impacto visual sin sacrificar rendimiento</h2>
-      <p>
-        Desarrollar una web de alto impacto visual para un asador de carne premium ficticio, priorizando la experiencia
-        inmersiva y la conversión, sin sacrificar el rendimiento pese al uso intensivo de vídeo e imágenes.
-      </p>
+      <p class="section-label">{L.elReto}</p>
+      <h2>{c.retoTitle}</h2>
+      <p>{c.retoP}</p>
     </div>
 
     <div class="section">
-      <p class="section-label">Lo que hice</p>
-      <h2>Primer proyecto con flujo profesional Figma → WordPress</h2>
+      <p class="section-label">{L.loQueHice}</p>
+      <h2>{c.hiceTitle}</h2>
       <div class="highlight-box">
-        <p>
-          <strong>Flujo de trabajo aplicado:</strong> Primer proyecto donde diseñé la maqueta completa en Figma antes de abrir
-          WordPress — aplicando un proceso profesional real de diseño previo al desarrollo.
-        </p>
+        {@html c.hiceHighlightHtml}
       </div>
       <div class="workflow">
-        <span class="workflow-step">🎨 Figma</span>
-        <span class="workflow-arrow">→</span>
-        <span class="workflow-step">⚙️ WordPress + Kadence</span>
-        <span class="workflow-arrow">→</span>
-        <span class="workflow-step">🎬 Optimización medios</span>
-        <span class="workflow-arrow">→</span>
-        <span class="workflow-step">🚀 Producción</span>
+        {#each c.workflowSteps as step, i}
+          <span class="workflow-step">{step}</span>
+          {#if i < c.workflowSteps.length - 1}
+            <span class="workflow-arrow">→</span>
+          {/if}
+        {/each}
       </div>
-      <p>
-        Desarrollé la web con WordPress + Kadence con tema hijo, construyendo la mayor parte con widgets HTML personalizados
-        generados y depurados con Cursor Agent e IA.
-      </p>
-      <p>
-        Optimización de medios fuera de WordPress: vídeos procesados con Handbrake e imágenes convertidas a AVIF con XnConvert.
-        Animaciones CSS con Blocks Animation. Formulario sin plugins integrado con Formspree. Copias de seguridad con WP Vivid
-        Backup.
-      </p>
+      <p>{c.hiceP1}</p>
+      <p>{c.hiceP2}</p>
     </div>
   </div>
 
@@ -160,7 +148,7 @@
       <div class="window-content-static">
         <img
           src="/imagenes/ember-captura-vino.jpeg"
-          alt="Sección vinos"
+          alt={c.imgWineAlt}
           width="800"
           height="600"
           loading="lazy"
@@ -172,12 +160,9 @@
 
   <div class="content">
     <div class="section section-result">
-      <p class="section-label">Resultado</p>
-      <h2>Experiencia premium con medios optimizados</h2>
-      <p>
-        Web con vídeo de fondo optimizado manteniendo más de 80 puntos en PageSpeed móvil — un resultado sólido considerando el
-        uso intensivo de vídeo e imágenes de alta calidad. Flujo completo Figma → desarrollo aplicado por primera vez.
-      </p>
+      <p class="section-label">{L.resultado}</p>
+      <h2>{c.resultadoTitle}</h2>
+      <p>{c.resultadoP}</p>
     </div>
   </div>
 
@@ -201,10 +186,10 @@
   </div>
 
   <div class="cta-section">
-    <h3>¿Quieres ver el proyecto en vivo?</h3>
-    <p class="cta-lead">Visita la web completa o contáctame para hablar sobre tu proyecto.</p>
-    <a href="https://moisesvalero.es/ember" class="btn" target="_blank" rel="noopener noreferrer">Ver proyecto en vivo</a>
-    <a href="/#proyectos" class="btn btn-outline">← Volver</a>
+    <h3>{c.ctaTitle}</h3>
+    <p class="cta-lead">{c.ctaLead}</p>
+    <a href="https://moisesvalero.es/ember" class="btn" target="_blank" rel="noopener noreferrer">{c.ctaBtn}</a>
+    <a href="/#proyectos" class="btn btn-outline">{c.ctaBack}</a>
   </div>
 </div>
 

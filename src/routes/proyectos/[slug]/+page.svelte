@@ -8,14 +8,15 @@
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
 
+  /** Meta siempre en español (`studySeo`) para SEO principal. */
   $effect(() => {
-    const study = data.study;
-    const canonical = `${baseUrl}/proyectos/${study.slug}`;
+    const s = data.studySeo;
+    const canonical = `${baseUrl}/proyectos/${s.slug}`;
     setSeo({
-      title: `${study.title} | Case study`,
-      description: study.seoDescription ?? study.heroDescription,
-      ogTitle: study.title,
-      ogDescription: study.seoDescription ?? study.heroDescription,
+      title: `${s.title} | Caso de Estudio | Moisés Valero`,
+      description: s.seoDescription ?? s.heroDescription,
+      ogTitle: `${s.title} | Caso de Estudio`,
+      ogDescription: s.seoDescription ?? s.heroDescription,
       canonical,
       ogUrl: canonical,
       ogImage: `${baseUrl}/og-image.png`,
@@ -25,9 +26,12 @@
 </script>
 
 <svelte:head>
-  <title>{data.study.title} | Case study</title>
-  <meta name="description" content={data.study.seoDescription ?? data.study.heroDescription} />
-  <link rel="canonical" href={`${baseUrl}/proyectos/${data.study.slug}`} />
+  <title>{data.studySeo.title} | Caso de Estudio | Moisés Valero</title>
+  <meta
+    name="description"
+    content={data.studySeo.seoDescription ?? data.studySeo.heroDescription}
+  />
+  <link rel="canonical" href={`${baseUrl}/proyectos/${data.studySeo.slug}`} />
 </svelte:head>
 
-<CaseStudyPage study={data.study} />
+<CaseStudyPage study={data.study} locale={data.locale} />

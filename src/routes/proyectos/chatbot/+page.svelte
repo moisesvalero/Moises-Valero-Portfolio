@@ -1,15 +1,23 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
+  import { getChatbotPageCopy } from '$lib/i18n/proyectos/chatbot-copy';
+  import { getProyectoPageLabels } from '$lib/i18n/proyecto-page-labels';
   import { setSeo } from '$lib/seo';
+  import type { PageData } from './$types';
+
+  let { data }: { data: PageData } = $props();
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/chatbot`;
 
+  const c = $derived(getChatbotPageCopy(data.locale));
+  const L = $derived(getProyectoPageLabels(data.locale));
+  const seoEs = getChatbotPageCopy('es');
+
   $effect(() => {
     setSeo({
-      title: 'Chatbot IA — Caso de Estudio | Moisés Valero',
-      description:
-        'Asistente con Typebot, Llama 3.3 via Groq, Make.com y alertas Telegram. Caso de estudio del chatbot del portfolio.',
+      title: seoEs.headTitle,
+      description: seoEs.headDescription,
       ogTitle: 'Chatbot IA — Caso de Estudio',
       ogDescription:
         'IA conversacional entrenada con tu perfil, webhooks y notificaciones en tiempo real sin infraestructura compleja.',
@@ -22,22 +30,17 @@
 </script>
 
 <svelte:head>
-  <title>Chatbot IA — Caso de Estudio | Moisés Valero</title>
-  <meta
-    name="description"
-    content="Asistente con Typebot, Llama 3.3 via Groq, Make.com y alertas Telegram. Caso de estudio del chatbot del portfolio."
-  />
+  <title>{seoEs.headTitle}</title>
+  <meta name="description" content={seoEs.headDescription} />
   <link rel="canonical" href={canonical} />
 </svelte:head>
 
 <div class="chatbot-case-page">
   <section class="hero">
     <div class="hero-inner">
-      <span class="hero-tag">Proyecto en Producción · IA + Automatización</span>
-      <h1>Chatbot IA<br />Portfolio</h1>
-      <p class="hero-sub">
-        Asistente conversacional con IA entrenado con mi perfil profesional y notificaciones en tiempo real vía Telegram.
-      </p>
+      <span class="hero-tag">{c.heroTag}</span>
+      <h1>{@html c.heroTitleHtml}</h1>
+      <p class="hero-sub">{c.heroSub}</p>
       <div class="tags">
         <span class="tag">Typebot</span>
         <span class="tag">Groq API</span>
@@ -59,7 +62,7 @@
       <div class="window-content">
         <img
           src="/imagenes/captura-portfolio_ember-scaled.avif"
-          alt="Chatbot IA en el portfolio"
+          alt={c.imgMainAlt}
           width="1200"
           height="800"
           loading="eager"
@@ -72,77 +75,68 @@
   <div class="stats-section">
     <div class="stats-grid">
       <div class="stat">
-        <span class="stat-num">&lt;1d</span>
-        <span class="stat-label">Desarrollo completo</span>
+        <span class="stat-num">{@html c.stat1Num}</span>
+        <span class="stat-label">{c.stat1Label}</span>
       </div>
       <div class="stat">
-        <span class="stat-num">IA</span>
-        <span class="stat-label">Llama 3.3 via Groq</span>
+        <span class="stat-num">{c.stat2Num}</span>
+        <span class="stat-label">{c.stat2Label}</span>
       </div>
       <div class="stat">
-        <span class="stat-num">Live</span>
-        <span class="stat-label">En producción ahora</span>
+        <span class="stat-num">{c.stat3Num}</span>
+        <span class="stat-label">{c.stat3Label}</span>
       </div>
       <div class="stat">
         <span class="stat-num" aria-hidden="true">📱</span>
-        <span class="stat-label">Alertas Telegram</span>
+        <span class="stat-label">{c.stat4Label}</span>
       </div>
     </div>
   </div>
 
   <div class="content">
     <div class="section">
-      <p class="section-label">El reto</p>
-      <h2>Un portfolio que responde por sí solo</h2>
-      <p>
-        Añadir al portfolio un asistente inteligente capaz de responder preguntas sobre mi experiencia y habilidades, y
-        notificarme en tiempo real cuando alguien interactúa con él — sin infraestructura compleja ni servicios de pago.
-      </p>
+      <p class="section-label">{L.elReto}</p>
+      <h2>{c.retoTitle}</h2>
+      <p>{c.retoP}</p>
     </div>
     <div class="section">
-      <p class="section-label">Lo que hice</p>
-      <h2>IA conversacional + automatización real</h2>
-      <p>
-        Desarrollé el chatbot con Typebot, integrando el modelo Llama 3.3 a través de la API de Groq para respuestas
-        ultrarrápidas. Entrené el asistente con mi perfil profesional, CV y proyectos para que responda preguntas de
-        reclutadores de forma autónoma.
-      </p>
+      <p class="section-label">{L.loQueHice}</p>
+      <h2>{c.hiceTitle}</h2>
+      <p>{c.hiceP1}</p>
       <div class="highlight-box">
-        <p>
-          <strong>Automatización:</strong> Cada conversación dispara un webhook en Make.com que envía el mensaje
-          instantáneamente a un bot de Telegram — sé en tiempo real quién visita mi portfolio y qué pregunta.
-        </p>
+        <!-- svelte-ignore hydration_html_changed -->
+        {@html c.hiceHighlightHtml}
       </div>
     </div>
   </div>
 
   <div class="flow-section">
     <div class="flow-inner">
-      <p class="flow-title">Flujo técnico completo</p>
+      <p class="flow-title">{c.flowTitle}</p>
       <div class="flow">
         <div class="flow-step">
           <div class="flow-icon">💬</div>
-          <span class="flow-label">Visitante<br />escribe</span>
+          <span class="flow-label">{@html c.flowL1}</span>
         </div>
         <span class="flow-arrow">→</span>
         <div class="flow-step">
           <div class="flow-icon">🤖</div>
-          <span class="flow-label">Typebot<br />procesa</span>
+          <span class="flow-label">{@html c.flowL2}</span>
         </div>
         <span class="flow-arrow">→</span>
         <div class="flow-step">
           <div class="flow-icon">⚡</div>
-          <span class="flow-label">Groq API<br />Llama 3.3</span>
+          <span class="flow-label">{@html c.flowL3}</span>
         </div>
         <span class="flow-arrow">→</span>
         <div class="flow-step">
           <div class="flow-icon">🔗</div>
-          <span class="flow-label">Webhook<br />Make.com</span>
+          <span class="flow-label">{@html c.flowL4}</span>
         </div>
         <span class="flow-arrow">→</span>
         <div class="flow-step">
           <div class="flow-icon">📱</div>
-          <span class="flow-label">Telegram<br />notifica</span>
+          <span class="flow-label">{@html c.flowL5}</span>
         </div>
       </div>
     </div>
@@ -150,29 +144,23 @@
 
   <div class="chat-section">
     <div class="chat-inner">
-      <p class="chat-title">Ejemplo de conversación real</p>
+      <p class="chat-title">{c.chatTitle}</p>
       <div class="chat-window">
         <div class="chat-msg user">
           <div class="chat-avatar">R</div>
-          <div class="chat-bubble">¿Tienes experiencia con WooCommerce?</div>
+          <div class="chat-bubble">{c.chatUser1}</div>
         </div>
         <div class="chat-msg bot">
           <div class="chat-avatar">MV</div>
-          <div class="chat-bubble">
-            Sí, he desarrollado tiendas con WooCommerce incluyendo configuración de productos, pasarelas de pago como
-            PayPal, y optimización de rendimiento. Puedes ver el proyecto Galería Nova en mi portfolio como ejemplo.
-          </div>
+          <div class="chat-bubble">{c.chatBot1}</div>
         </div>
         <div class="chat-msg user">
           <div class="chat-avatar">R</div>
-          <div class="chat-bubble">¿Y con automatizaciones?</div>
+          <div class="chat-bubble">{c.chatUser2}</div>
         </div>
         <div class="chat-msg bot">
           <div class="chat-avatar">MV</div>
-          <div class="chat-bubble">
-            Sí, este mismo chatbot es un ejemplo — integra Typebot, Groq API y Make.com para notificarme en Telegram cada
-            vez que alguien escribe aquí.
-          </div>
+          <div class="chat-bubble">{c.chatBot2}</div>
         </div>
       </div>
     </div>
@@ -180,7 +168,7 @@
 
   <div class="stack-section">
     <div class="stack-inner">
-      <p class="section-label stack-label">Stack tecnológico</p>
+      <p class="section-label stack-label">{L.stackTech}</p>
       <div class="stack-grid">
         <span class="stack-item">Typebot</span>
         <span class="stack-item">Groq API</span>
@@ -195,17 +183,17 @@
   </div>
 
   <div class="cta-section">
-    <h3>Pruébalo en vivo en mi portfolio</h3>
-    <p class="cta-lead">El chatbot está activo ahora mismo. Escríbele y te responderá al instante.</p>
+    <h3>{c.ctaTitle}</h3>
+    <p class="cta-lead">{c.ctaLead}</p>
     <a href="/#contacto" class="btn">
-      Probar el Chatbot
+      {c.ctaBtn}
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
         <polyline points="15,3 21,3 21,9" />
         <line x1="10" y1="14" x2="21" y2="3" />
       </svg>
     </a>
-    <a href="/#proyectos" class="btn btn-outline">← Volver</a>
+    <a href="/#proyectos" class="btn btn-outline">{c.ctaBack}</a>
   </div>
 </div>
 
