@@ -96,7 +96,9 @@ export const landingDisenoWebAlcoy = defineType({
           name: 'ogImagePath',
           type: 'string',
           title: 'Fallback OG image (ruta o URL)',
-          description: 'Ejemplo: /og-image.png o https://dominio.com/imagen.png'
+          description:
+            'Por defecto /og-image.png (archivo en /static del sitio). También puedes usar https://…',
+          initialValue: '/og-image.png'
         }),
         defineField({
           name: 'canonicalPath',

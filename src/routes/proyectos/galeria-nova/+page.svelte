@@ -8,7 +8,7 @@
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/galeria-nova`;
-  const ogImage = `${baseUrl}/imagenes/Moises-Valero-Sanchez.png`;
+  const ogImage = `${baseUrl}/og-image.png`;
   const ogTitleShort = 'Galería Nova — Caso de Estudio';
   const ogDesc =
     'Tienda online de arte generado con IA, alta resolución para impresión, WooCommerce y PageSpeed 90+ en móvil.';

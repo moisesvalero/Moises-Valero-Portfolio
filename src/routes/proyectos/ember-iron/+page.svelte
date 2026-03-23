@@ -8,7 +8,7 @@
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/ember-iron`;
-  const ogImage = `${baseUrl}/imagenes/Moises-Valero-Sanchez.png`;
+  const ogImage = `${baseUrl}/og-image.png`;
   const ogTitleShort = 'Ember & Iron — Caso de Estudio';
   const ogDesc =
     'Alto impacto visual sin sacrificar rendimiento: Kadence, child theme, Handbrake, XnConvert y formulario sin plugins.';

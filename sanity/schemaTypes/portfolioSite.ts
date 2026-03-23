@@ -108,12 +108,14 @@ export const portfolioSite = defineType({
         { name: 'description', type: 'text', title: 'Meta description' },
         { name: 'ogTitle', type: 'string', title: 'OG title' },
         { name: 'ogDescription', type: 'text', title: 'OG description' },
-        {
+        defineField({
           name: 'ogImage',
           type: 'string',
           title: 'OG image (URL absoluta o ruta /og-image.png)',
-          description: 'Si es relativa, se antepondrá PUBLIC_SITE_URL en la web.'
-        },
+          description:
+            'Archivo recomendado en el sitio: /og-image.png (sube la imagen a /static/og-image.png). Si es relativa, se antepondrá PUBLIC_SITE_URL.',
+          initialValue: '/og-image.png'
+        }),
         {
           name: 'twitterCard',
           type: 'string',

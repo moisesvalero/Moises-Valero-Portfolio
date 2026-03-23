@@ -7,7 +7,7 @@
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
   const canonical = $derived(`${baseUrl}/proyectos/${data.studySeo.slug}`);
-  const ogImageDefault = `${baseUrl}/imagenes/Moises-Valero-Sanchez.png`;
+  const ogImageDefault = `${baseUrl}/og-image.png`;
   const ogDescription = $derived(data.studySeo.seoDescription ?? data.studySeo.heroDescription);
   const ogTitle = $derived(`${data.studySeo.title} | Caso de Estudio`);
   const projectJsonLd = $derived(

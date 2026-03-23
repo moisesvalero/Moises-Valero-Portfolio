@@ -8,7 +8,7 @@
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/chatbot`;
-  const ogImage = `${baseUrl}/imagenes/Moises-Valero-Sanchez.png`;
+  const ogImage = `${baseUrl}/og-image.png`;
   const ogTitleShort = 'Chatbot IA — Caso de Estudio';
   const ogDesc =
     'IA conversacional entrenada con tu perfil, webhooks y notificaciones en tiempo real sin infraestructura compleja.';

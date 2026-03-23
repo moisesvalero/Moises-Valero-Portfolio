@@ -12,7 +12,7 @@ export const defaultSeo = {
 	ogTitle: 'Moisés Valero – Desarrollador Web',
 	ogDescription:
 		'Desarrollo web con foco en rendimiento, WordPress, SvelteKit y soporte técnico.',
-	ogImage: `${baseUrl}/imagenes/Moises-Valero-Sanchez.png`,
+	ogImage: `${baseUrl}/og-image.png`,
 	ogUrl: baseUrl,
 	twitterCard: 'summary_large_image',
 	canonical: baseUrl
