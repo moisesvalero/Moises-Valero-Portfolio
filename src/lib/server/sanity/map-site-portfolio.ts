@@ -85,6 +85,18 @@ function mergeHeader(raw: unknown, d: SitePortfolioContent['header']): SitePortf
   };
 }
 
+/** Antes se usaba el retrato de “Sobre mí” como OG; WhatsApp/Facebook lo mostraban mal. Si Sanity aún tiene esa ruta, usamos la imagen OG dedicada. */
+function resolveOgImagePath(fromCms: string | undefined, fallback: string): string {
+  const raw = (fromCms ?? '').trim();
+  if (!raw) {
+    return fallback;
+  }
+  if (raw.includes('Moises-Valero-Sanchez.png')) {
+    return fallback;
+  }
+  return raw;
+}
+
 function mergeSeo(
   raw: unknown,
   d: SitePortfolioContent['seo'],
@@ -97,7 +109,7 @@ function mergeSeo(
       ogImage: absolutizeOgImage(d.ogImage, baseUrl)
     };
   }
-  const ogImageRaw = asStringOpt(o.ogImage) ?? d.ogImage;
+  const ogImageRaw = resolveOgImagePath(asStringOpt(o.ogImage), d.ogImage);
   return {
     title: asString(o.title, d.title),
     description: asString(o.description, d.description),
