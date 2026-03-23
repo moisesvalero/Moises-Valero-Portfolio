@@ -361,5 +361,24 @@
     "statusFallback": "ALC / ESP",
     "backToTopAria": "Back to top",
     "designedBy": "Designed by"
+  },
+  "cookieBanner": {
+    "ariaLabel": "Cookie and privacy notice",
+    "title": "Cookies and your privacy",
+    "body": "We use necessary cookies for language and your choice. If you accept all, we also enable Google Analytics and may load the chat (Typebot). You can change this anytime.",
+    "policyLink": "Cookie policy",
+    "privacyLink": "Privacy",
+    "essential": "Essential only",
+    "all": "Accept all"
+  },
+  "legalFooter": {
+    "privacy": "Privacy",
+    "cookies": "Cookies",
+    "preferences": "Cookie preferences"
+  },
+  "contactChatBlocked": {
+    "title": "Assistant chat",
+    "body": "The chat uses an external service (Typebot). To enable it, choose “Accept all” in the cookie banner or tap below. You can always use WhatsApp.",
+    "accept": "Enable chat (accept all)"
   }
 }

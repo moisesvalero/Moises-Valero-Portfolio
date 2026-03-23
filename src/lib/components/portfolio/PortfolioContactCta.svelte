@@ -1,4 +1,8 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
+  import { t } from '$lib/i18n/index.js';
+  import { cookieConsent, setCookieConsent } from '$lib/cookie-consent';
+
   interface Props {
     heading?: string;
     subtitle?: string;
@@ -19,6 +23,16 @@
 
   /** El número no va en el HTML: redirección en servidor (WHATSAPP_E164 en .env). */
   const whatsappHref = '/api/contact/whatsapp';
+
+  let allowTypebot = $state(false);
+  const unsub = cookieConsent.subscribe((v) => {
+    allowTypebot = v === 'all';
+  });
+  onDestroy(() => unsub());
+
+  function enableChat() {
+    setCookieConsent('all');
+  }
 </script>
 
 <section class="seccion-final-unificada" id="contacto" aria-labelledby="contacto-titulo">
@@ -33,12 +47,22 @@
     </div>
 
     <div class="chat-container-final">
-      <iframe
-        src={typebotSrc}
-        class="typebot-frame"
-        title={iframeTitle}
-        allow="camera; microphone; autoplay; encrypted-media"
-      ></iframe>
+      {#if allowTypebot}
+        <iframe
+          src={typebotSrc}
+          class="typebot-frame"
+          title={iframeTitle}
+          allow="camera; microphone; autoplay; encrypted-media"
+        ></iframe>
+      {:else}
+        <div class="chat-blocked" role="status">
+          <p class="chat-blocked-title">{$t('contactChatBlocked.title')}</p>
+          <p class="chat-blocked-body">{$t('contactChatBlocked.body')}</p>
+          <button type="button" class="btn-enable-chat" onclick={enableChat}>
+            {$t('contactChatBlocked.accept')}
+          </button>
+        </div>
+      {/if}
     </div>
 
     <div class="botones-final">
@@ -120,6 +144,56 @@
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     display: block;
+  }
+
+  .chat-blocked {
+    width: 100%;
+    min-height: 280px;
+    padding: 28px 20px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .chat-blocked-title {
+    margin: 0 0 10px;
+    color: #f5f5f7;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .chat-blocked-body {
+    margin: 0 0 18px;
+    color: #a1a1a6;
+    font-size: 14px;
+    line-height: 1.55;
+    max-width: 420px;
+  }
+
+  .btn-enable-chat {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 22px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    background: #0071e3;
+    color: #fff;
+    transition:
+      background 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .btn-enable-chat:hover {
+    background: #0077ed;
+    transform: translateY(-1px);
   }
 
   .texto-whatsapp-final {

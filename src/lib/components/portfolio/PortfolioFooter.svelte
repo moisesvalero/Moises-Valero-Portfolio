@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { t } from '$lib/i18n/index.js';
+  import { openCookiePreferences } from '$lib/cookie-consent';
+
   interface Props {
     /** Sustituye `{{year}}` por el año actual (útil con Sanity). */
     copyrightTemplate?: string;
@@ -48,6 +51,16 @@
     {/if}
   </div>
 
+  <nav class="footer-legal" aria-label="Legal">
+    <a href="/privacidad">{$t('legalFooter.privacy')}</a>
+    <span class="footer-dot" aria-hidden="true">·</span>
+    <a href="/cookies">{$t('legalFooter.cookies')}</a>
+    <span class="footer-dot" aria-hidden="true">·</span>
+    <button type="button" class="footer-legal-btn" onclick={() => openCookiePreferences()}>
+      {$t('legalFooter.preferences')}
+    </button>
+  </nav>
+
   <div class="footer-icons">
     <a href={githubHref} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
       <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -86,8 +99,51 @@
 
   .footer-copy {
     max-width: 1100px;
-    margin: 0 auto 32px;
+    margin: 0 auto 24px;
     padding: 0 16px;
+  }
+
+  .footer-legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 10px;
+    margin: 0 auto 28px;
+    max-width: 1100px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .footer-legal a {
+    color: #2563eb;
+    text-decoration: none;
+  }
+
+  .footer-legal a:hover {
+    text-decoration: underline;
+  }
+
+  .footer-dot {
+    color: #94a3b8;
+    user-select: none;
+  }
+
+  .footer-legal-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-weight: 600;
+    color: #2563eb;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .footer-legal-btn:hover {
+    color: #1d4ed8;
   }
 
   .footer-primary,

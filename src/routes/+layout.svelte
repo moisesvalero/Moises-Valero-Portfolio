@@ -1,6 +1,8 @@
 <script lang="ts">
   import '../app.css';
   import { t, locale, setLocale } from '$lib/i18n/index.js';
+  import CookieBanner from '$lib/components/CookieBanner.svelte';
+  import GoogleAnalytics from '$lib/components/GoogleAnalytics.svelte';
   import PortfolioFooter from '$lib/components/portfolio/PortfolioFooter.svelte';
   import PortfolioCustomCursor from '$lib/components/portfolio/PortfolioCustomCursor.svelte';
   import SmoothHashScroll from '$lib/components/SmoothHashScroll.svelte';
@@ -184,6 +186,9 @@
   <SmoothHashScroll />
   <PortfolioCustomCursor />
   <PortfolioFooter {...site.footer} />
+
+  <CookieBanner />
+  <GoogleAnalytics />
   
   <style>
 	/* Misma familia y paleta que el portfolio (CaseStudy / secciones) */

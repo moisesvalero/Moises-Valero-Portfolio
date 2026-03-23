@@ -365,5 +365,24 @@
     "statusFallback": "ALC / ESP",
     "backToTopAria": "Volver arriba",
     "designedBy": "Diseñado por"
+  },
+  "cookieBanner": {
+    "ariaLabel": "Aviso sobre cookies y privacidad",
+    "title": "Cookies y tu privacidad",
+    "body": "Usamos cookies necesarias para el idioma y tu elección. Si aceptas todas, también activamos Google Analytics y podemos cargar el chat (Typebot). Puedes cambiarlo cuando quieras.",
+    "policyLink": "Política de cookies",
+    "privacyLink": "Privacidad",
+    "essential": "Solo necesarias",
+    "all": "Aceptar todas"
+  },
+  "legalFooter": {
+    "privacy": "Privacidad",
+    "cookies": "Cookies",
+    "preferences": "Preferencias de cookies"
+  },
+  "contactChatBlocked": {
+    "title": "Chat con asistente",
+    "body": "El chat usa un servicio externo (Typebot). Para activarlo, elige «Aceptar todas» en el aviso de cookies o pulsa abajo. Siempre puedes escribirme por WhatsApp.",
+    "accept": "Activar chat (aceptar todas)"
   }
 }
