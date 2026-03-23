@@ -127,12 +127,12 @@ export const caseStudy = defineType({
       fields: [
         {
           name: 'principal',
-          type: 'url',
-          title: 'Imagen principal (URL)',
-          description: 'Ejemplo: https://.../captura-home.jpg'
+          type: 'string',
+          title: 'Imagen principal (ruta o URL)',
+          description: 'Ejemplo: /imagenes/captura-home.jpg o https://.../captura-home.jpg'
         },
-        { name: 'secondary1', type: 'url', title: 'Imagen secundaria 1 (URL)' },
-        { name: 'secondary2', type: 'url', title: 'Imagen secundaria 2 (URL)' }
+        { name: 'secondary1', type: 'string', title: 'Imagen secundaria 1 (ruta o URL)' },
+        { name: 'secondary2', type: 'string', title: 'Imagen secundaria 2 (ruta o URL)' }
       ]
     }),
     defineField({

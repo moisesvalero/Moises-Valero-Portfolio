@@ -166,30 +166,9 @@
             "title": "OG description"
           },
           {
-            "validation": [
-              {
-                "level": "error",
-                "rules": [
-                  {
-                    "flag": "uri",
-                    "constraint": {
-                      "options": {
-                        "scheme": [
-                          "/^http$/",
-                          "/^https$/"
-                        ],
-                        "allowRelative": false,
-                        "relativeOnly": false,
-                        "allowCredentials": false
-                      }
-                    }
-                  }
-                ]
-              }
-            ],
             "description": "Si es relativa, se antepondrá PUBLIC_SITE_URL en la web.",
             "name": "ogImage",
-            "type": "url",
+            "type": "string",
             "title": "OG image (URL absoluta o ruta /og-image.png)"
           },
           {
@@ -255,30 +234,9 @@
             "title": "Foto"
           },
           {
-            "validation": [
-              {
-                "level": "error",
-                "rules": [
-                  {
-                    "flag": "uri",
-                    "constraint": {
-                      "options": {
-                        "scheme": [
-                          "/^http$/",
-                          "/^https$/"
-                        ],
-                        "allowRelative": false,
-                        "relativeOnly": false,
-                        "allowCredentials": false
-                      }
-                    }
-                  }
-                ]
-              }
-            ],
             "name": "imageSrc",
-            "type": "url",
-            "title": "O URL imagen externa (si no subes archivo)"
+            "type": "string",
+            "title": "Ruta o URL imagen (si no subes archivo)"
           },
           {
             "name": "imageAlt",
@@ -381,30 +339,9 @@
                             "title": "Icono (imagen)"
                           },
                           {
-                            "validation": [
-                              {
-                                "level": "error",
-                                "rules": [
-                                  {
-                                    "flag": "uri",
-                                    "constraint": {
-                                      "options": {
-                                        "scheme": [
-                                          "/^http$/",
-                                          "/^https$/"
-                                        ],
-                                        "allowRelative": false,
-                                        "relativeOnly": false,
-                                        "allowCredentials": false
-                                      }
-                                    }
-                                  }
-                                ]
-                              }
-                            ],
                             "name": "src",
-                            "type": "url",
-                            "title": "O URL del SVG/PNG"
+                            "type": "string",
+                            "title": "Ruta o URL del SVG/PNG"
                           },
                           {
                             "name": "alt",
@@ -504,30 +441,9 @@
                     "title": "Captura"
                   },
                   {
-                    "validation": [
-                      {
-                        "level": "error",
-                        "rules": [
-                          {
-                            "flag": "uri",
-                            "constraint": {
-                              "options": {
-                                "scheme": [
-                                  "/^http$/",
-                                  "/^https$/"
-                                ],
-                                "allowRelative": false,
-                                "relativeOnly": false,
-                                "allowCredentials": false
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    ],
                     "name": "imageSrc",
-                    "type": "url",
-                    "title": "O URL imagen externa"
+                    "type": "string",
+                    "title": "Ruta o URL imagen externa"
                   },
                   {
                     "name": "imageAlt",
@@ -866,83 +782,20 @@
       {
         "fields": [
           {
-            "validation": [
-              {
-                "level": "error",
-                "rules": [
-                  {
-                    "flag": "uri",
-                    "constraint": {
-                      "options": {
-                        "scheme": [
-                          "/^http$/",
-                          "/^https$/"
-                        ],
-                        "allowRelative": false,
-                        "relativeOnly": false,
-                        "allowCredentials": false
-                      }
-                    }
-                  }
-                ]
-              }
-            ],
-            "description": "Ejemplo: https://.../captura-home.jpg",
+            "description": "Ejemplo: /imagenes/captura-home.jpg o https://.../captura-home.jpg",
             "name": "principal",
-            "type": "url",
-            "title": "Imagen principal (URL)"
+            "type": "string",
+            "title": "Imagen principal (ruta o URL)"
           },
           {
-            "validation": [
-              {
-                "level": "error",
-                "rules": [
-                  {
-                    "flag": "uri",
-                    "constraint": {
-                      "options": {
-                        "scheme": [
-                          "/^http$/",
-                          "/^https$/"
-                        ],
-                        "allowRelative": false,
-                        "relativeOnly": false,
-                        "allowCredentials": false
-                      }
-                    }
-                  }
-                ]
-              }
-            ],
             "name": "secondary1",
-            "type": "url",
-            "title": "Imagen secundaria 1 (URL)"
+            "type": "string",
+            "title": "Imagen secundaria 1 (ruta o URL)"
           },
           {
-            "validation": [
-              {
-                "level": "error",
-                "rules": [
-                  {
-                    "flag": "uri",
-                    "constraint": {
-                      "options": {
-                        "scheme": [
-                          "/^http$/",
-                          "/^https$/"
-                        ],
-                        "allowRelative": false,
-                        "relativeOnly": false,
-                        "allowCredentials": false
-                      }
-                    }
-                  }
-                ]
-              }
-            ],
             "name": "secondary2",
-            "type": "url",
-            "title": "Imagen secundaria 2 (URL)"
+            "type": "string",
+            "title": "Imagen secundaria 2 (ruta o URL)"
           }
         ],
         "name": "images",

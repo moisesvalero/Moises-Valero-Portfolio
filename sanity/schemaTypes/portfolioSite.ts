@@ -110,7 +110,7 @@ export const portfolioSite = defineType({
         { name: 'ogDescription', type: 'text', title: 'OG description' },
         {
           name: 'ogImage',
-          type: 'url',
+          type: 'string',
           title: 'OG image (URL absoluta o ruta /og-image.png)',
           description: 'Si es relativa, se antepondrá PUBLIC_SITE_URL en la web.'
         },
@@ -149,7 +149,7 @@ export const portfolioSite = defineType({
       group: 'home',
       fields: [
         { name: 'image', type: 'image', title: 'Foto', options: { hotspot: true } },
-        { name: 'imageSrc', type: 'url', title: 'O URL imagen externa (si no subes archivo)' },
+        { name: 'imageSrc', type: 'string', title: 'Ruta o URL imagen (si no subes archivo)' },
         { name: 'imageAlt', type: 'string', title: 'Alt imagen' },
         { name: 'meta', type: 'string', title: 'Meta sección' },
         { name: 'title', type: 'string', title: 'Título H2' },
@@ -224,7 +224,7 @@ export const portfolioSite = defineType({
                       type: 'object',
                       fields: [
                         { name: 'iconImage', type: 'image', title: 'Icono (imagen)' },
-                        { name: 'src', type: 'url', title: 'O URL del SVG/PNG' },
+                        { name: 'src', type: 'string', title: 'Ruta o URL del SVG/PNG' },
                         { name: 'alt', type: 'string' },
                         { name: 'title', type: 'string', title: 'Tooltip' }
                       ]
@@ -280,7 +280,7 @@ export const portfolioSite = defineType({
               fields: [
                 { name: 'sortOrder', type: 'number', title: 'Orden', initialValue: 0 },
                 { name: 'thumbnail', type: 'image', title: 'Captura', options: { hotspot: true } },
-                { name: 'imageSrc', type: 'url', title: 'O URL imagen externa' },
+                { name: 'imageSrc', type: 'string', title: 'Ruta o URL imagen externa' },
                 { name: 'imageAlt', type: 'string' },
                 { name: 'title', type: 'localeString', title: 'Título' },
                 { name: 'description', type: 'localeText', title: 'Descripción' },
