@@ -18,7 +18,7 @@ export type CareerModalCopy = {
 
 const es: CareerModalCopy = {
   closeAria: 'Cerrar',
-  title: 'Trayectoria Profesional — Moisés Valero',
+  title: 'Trayectoria profesional de Moisés Valero',
   profileTitle: 'Perfil',
   profileHtml: `<p class="career-p">
             Cuento con el <strong>Certificado de Profesionalidad de Nivel 3 en Desarrollo Web</strong>
@@ -65,7 +65,7 @@ const es: CareerModalCopy = {
 
 const en: CareerModalCopy = {
   closeAria: 'Close',
-  title: 'Professional background — Moisés Valero',
+  title: 'Professional background of Moisés Valero',
   profileTitle: 'Profile',
   profileHtml: `<p class="career-p">
             I hold a <strong>Level 3 Vocational Certificate in Web Development</strong>

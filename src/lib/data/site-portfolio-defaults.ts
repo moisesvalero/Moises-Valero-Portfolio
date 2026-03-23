@@ -8,7 +8,7 @@ const aboutHtml = `<p>
   más moderno.
 </p>
 <p>
-  Me especializo en <strong>WordPress</strong>, <strong>SvelteKit</strong> y <strong>Soporte IT</strong>,
+  Me especializo en <strong>WordPress</strong>, <strong>SvelteKit</strong> y <strong>SEO Técnico</strong>,
   enfocándome en el rendimiento (performance), la seguridad y el mantenimiento eficiente. Utilizo la
   <strong>IA generativa</strong> como una herramienta estratégica para acelerar el desarrollo y
   garantizar resultados sólidos en menos tiempo.
@@ -50,7 +50,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     cvHref: '/#contacto',
     label: 'PORTFOLIO – MOISÉS VALERO · Alcoy / Alicante',
     title: 'Desarrollador Web',
-    subtitle: 'SvelteKit | WordPress | Soporte IT',
+    subtitle: 'SvelteKit | WordPress | Sistemas & SEO',
     bio: 'Desarrollo soluciones robustas enfocadas en Web Performance. Me encargo de la infraestructura técnica y el soporte para que tú solo te preocupes de tu negocio. Uso IA para optimizar tiempos, ya sea colaborando con empresas de la zona (Alcoy/Alicante) o integrándome en plantilla.',
     ctaPrimaryLabel: '¿Hablamos?',
     careerCtaLabel: 'Ver Trayectoria'
@@ -91,58 +91,58 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     title: 'Mi Stack Tecnológico',
     categories: [
       {
-        title: 'Maquetación y Estructura',
+        title: 'Desarrollo Moderno',
         icons: [
           {
-            src: '/imagenes/svelte.svg',
+            iconify: 'logos:svelte-icon',
             alt: 'SvelteKit',
             title: 'SvelteKit'
           },
-          { src: '/imagenes/html5.svg', alt: 'HTML5', title: 'HTML5' },
-          { src: '/imagenes/css.svg', alt: 'CSS3', title: 'CSS3' },
           {
-            src: '/imagenes/tailwindcss.svg',
+            iconify: 'logos:tailwindcss-icon',
             alt: 'Tailwind CSS',
             title: 'Tailwind CSS'
-          }
+          },
+          { iconify: 'logos:sanity', alt: 'Sanity CMS', title: 'Sanity CMS' },
+          { iconify: 'logos:vercel-icon', alt: 'Vercel', title: 'Vercel' }
         ]
       },
       {
         title: 'Ecosistema WordPress',
         icons: [
           {
-            src: '/imagenes/wordpress.svg',
+            iconify: 'logos:wordpress-icon',
             alt: 'WordPress',
             title: 'WordPress'
           },
+          { iconify: 'logos:woocommerce-icon', alt: 'WooCommerce', title: 'WooCommerce' },
+          { src: '/imagenes/kadence.svg', alt: 'Kadence Blocks', title: 'Kadence Blocks' },
           {
             src: '/imagenes/elementor.svg',
             alt: 'Elementor',
             title: 'Elementor'
-          },
-          { src: '/imagenes/kadence.svg', alt: 'Kadence', title: 'Kadence' },
-          { src: '/imagenes/localwp.svg', alt: 'Local WP', title: 'Local WP' }
+          }
         ]
       },
       {
-        title: 'Flujo de Trabajo e IA',
+        title: 'IA y Flujo de Trabajo',
         icons: [
           {
-            src: '/imagenes/cursor_light.svg',
-            alt: 'Cursor AI',
-            title: 'Cursor AI'
+            src: '/imagenes/cursor.svg',
+            alt: 'Cursor',
+            title: 'Cursor'
           },
           {
             src: '/imagenes/claude-ai-icon.svg',
-            alt: 'Claude AI',
-            title: 'Claude AI'
+            alt: 'Claude',
+            title: 'Claude'
           },
           {
-            src: '/imagenes/cloudflare.svg',
-            alt: 'Cloudflare',
-            title: 'Cloudflare'
+            iconify: 'logos:google-gemini',
+            alt: 'Gemini',
+            title: 'Gemini'
           },
-          { src: '/imagenes/github.svg', alt: 'GitHub', title: 'GitHub' }
+          { iconify: 'logos:github-icon', alt: 'GitHub', title: 'GitHub' }
         ]
       }
     ]
@@ -174,6 +174,12 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
         title: 'Optimización con IA',
         description:
           'Uso avanzado de IA para agilizar el desarrollo, depurar código y asegurar entregas en tiempos competitivos sin sacrificar la robustez técnica.'
+      },
+      {
+        icon: '⚙️',
+        title: 'Gestión de Contenido Estructurado (CMS)',
+        description:
+          'Implementación de Sanity (Headless CMS) para que gestiones tu contenido de forma segura, rápida y escalable, separando los datos del diseño.'
       }
     ]
   },
@@ -260,7 +266,8 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     iframeTitle: 'Asistente de chat — Moisés Valero'
   },
   footer: {
-    copyrightTemplate: 'Moisés Valero © {{year}} | Web Developer',
+    copyrightTemplate:
+      'Desarrollo Web de Alto Rendimiento | Sistemas & SEO Alcoy(Alicante) | Disponible para proyectos en remoto y presenciales. Moisés Valero © 2026 | Especialista en SvelteKit, WordPress y Sanity CMS.',
     githubHref: 'https://github.com/moisesvalero',
     linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
     emailHref: 'mailto:ludicrous_fastball804@simplelogin.com'

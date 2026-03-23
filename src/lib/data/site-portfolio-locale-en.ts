@@ -80,16 +80,31 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     title: 'My Tech Stack',
     categories: [
       {
-        title: 'Layout & structure',
-        icons: []
+        title: 'Modern Development',
+        icons: [
+          { iconify: 'logos:svelte-icon', alt: 'SvelteKit', title: 'SvelteKit' },
+          { iconify: 'logos:tailwindcss-icon', alt: 'Tailwind CSS', title: 'Tailwind CSS' },
+          { iconify: 'logos:sanity', alt: 'Sanity CMS', title: 'Sanity CMS' },
+          { iconify: 'logos:vercel-icon', alt: 'Vercel', title: 'Vercel' }
+        ]
       },
       {
-        title: 'WordPress ecosystem',
-        icons: []
+        title: 'CMS Ecosystem',
+        icons: [
+          { iconify: 'logos:wordpress-icon', alt: 'WordPress', title: 'WordPress' },
+          { iconify: 'logos:woocommerce-icon', alt: 'WooCommerce', title: 'WooCommerce' },
+          { src: '/imagenes/kadence.svg', alt: 'Kadence Blocks', title: 'Kadence Blocks' },
+          { src: '/imagenes/elementor.svg', alt: 'Elementor', title: 'Elementor' }
+        ]
       },
       {
         title: 'Workflow & AI',
-        icons: []
+        icons: [
+          { src: '/imagenes/cursor.svg', alt: 'Cursor', title: 'Cursor' },
+          { src: '/imagenes/claude-ai-icon.svg', alt: 'Claude', title: 'Claude' },
+          { iconify: 'logos:google-gemini', alt: 'Gemini', title: 'Gemini' },
+          { iconify: 'logos:github-icon', alt: 'GitHub', title: 'GitHub' }
+        ]
       }
     ]
   },
@@ -120,6 +135,12 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
         title: 'AI-assisted delivery',
         description:
           'Practical use of AI to speed up development, debug, and ship on competitive timelines without losing robustness.'
+      },
+      {
+        icon: '⚙️',
+        title: 'Structured Content Management (CMS)',
+        description:
+          'Sanity (Headless CMS) implementation so you can manage content safely, quickly, and at scale, while keeping data separate from design.'
       }
     ]
   },

@@ -16,7 +16,7 @@
     cvHref = '/#contacto',
     label = 'PORTFOLIO – MOISÉS VALERO · Alcoy / Alicante',
     title = 'Desarrollador Web',
-    subtitle = 'SvelteKit | WordPress | Soporte IT',
+    subtitle = 'SvelteKit | WordPress | Sistemas & SEO',
     bio = 'Desarrollo soluciones robustas enfocadas en Web Performance. Me encargo de la infraestructura técnica y el soporte para que tú solo te preocupes de tu negocio. Uso IA para optimizar tiempos, ya sea colaborando con empresas de la zona (Alcoy/Alicante) o integrándome en plantilla.',
     ctaPrimaryLabel = '¿Hablamos?',
     careerCtaLabel = 'Ver Trayectoria'

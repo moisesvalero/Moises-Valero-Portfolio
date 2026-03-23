@@ -35,6 +35,12 @@
       title: 'Optimización con IA',
       description:
         'Uso avanzado de IA para agilizar el desarrollo, depurar código y asegurar entregas en tiempos competitivos sin sacrificar la robustez técnica.'
+    },
+    {
+      icon: '⚙️',
+      title: 'Gestión de Contenido Estructurado (CMS)',
+      description:
+        'Implementación de Sanity (Headless CMS) para que gestiones tu contenido de forma segura, rápida y escalable, separando los datos del diseño.'
     }
   ];
 
@@ -94,14 +100,26 @@
 
   .garantias-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2px;
-    background: #e2e8f0;
-    border: 1px solid #e2e8f0;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .garantia-item {
+    grid-column: span 2;
+  }
+
+  .garantia-item:nth-child(4) {
+    grid-column: 2 / span 2;
+  }
+
+  .garantia-item:nth-child(5) {
+    grid-column: 4 / span 2;
   }
 
   .garantia-item {
     background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
     padding: 30px;
     display: flex;
     flex-direction: column;
@@ -146,6 +164,12 @@
       grid-template-columns: repeat(2, 1fr);
     }
 
+    .garantia-item,
+    .garantia-item:nth-child(4),
+    .garantia-item:nth-child(5) {
+      grid-column: auto;
+    }
+
     .garantias-header h2 {
       font-size: 32px;
     }
@@ -159,6 +183,12 @@
 
     .garantias-grid {
       grid-template-columns: 1fr;
+    }
+
+    .garantia-item,
+    .garantia-item:nth-child(4),
+    .garantia-item:nth-child(5) {
+      grid-column: auto;
     }
   }
 </style>

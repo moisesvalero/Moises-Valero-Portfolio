@@ -59,7 +59,9 @@ export type SiteServices = {
 };
 
 export type SiteStackIcon = {
-  src: string;
+  src?: string;
+  /** Nombre de icono Iconify (ej. `logos:svelte-icon`). */
+  iconify?: string;
   alt: string;
   title?: string;
 };

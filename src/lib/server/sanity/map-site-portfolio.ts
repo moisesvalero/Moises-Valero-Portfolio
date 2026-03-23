@@ -196,9 +196,12 @@ function mapStackIcon(
     return fallback;
   }
   const fromImg = imageUrl(ctx.projectId, ctx.dataset, o.iconImage, 80);
-  const src = fromImg || asString(o.src, fallback.src);
+  const srcFallback = fallback.src ?? '';
+  const src = fromImg || asString(o.src, srcFallback);
+  const iconify = asStringOpt(o.iconify) ?? fallback.iconify;
   return {
-    src,
+    src: src || undefined,
+    iconify,
     alt: asString(o.alt, fallback.alt),
     title: asStringOpt(o.title) ?? fallback.title
   };
@@ -227,7 +230,7 @@ function mergeTechStack(
       const iconsRaw = Array.isArray(r.icons) ? (r.icons as unknown[]) : [];
       const defaultIcons = d.categories[ci]?.icons ?? d.categories[0]?.icons ?? [];
       const icons = iconsRaw.map((ic, ii) =>
-        mapStackIcon(ic, ctx, defaultIcons[ii] ?? { src: '', alt: 'icon', title: 'icon' })
+        mapStackIcon(ic, ctx, defaultIcons[ii] ?? { iconify: 'logos:code-icon', alt: 'icon', title: 'icon' })
       );
       return {
         title,

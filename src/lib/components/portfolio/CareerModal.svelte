@@ -13,6 +13,50 @@
   } = $props();
 
   const c = $derived(getCareerModalCopy(locale));
+  type StackIcon = {
+    src?: string;
+    iconify?: string;
+    title: string;
+  };
+
+  type StackGroup = {
+    title: string;
+    icons: StackIcon[];
+  };
+
+  const stackGroups: StackGroup[] = [
+    {
+      title: 'Desarrollo Moderno',
+      icons: [
+        { iconify: 'logos:svelte-icon', title: 'SvelteKit' },
+        { iconify: 'logos:tailwindcss-icon', title: 'Tailwind CSS' },
+        { iconify: 'logos:sanity', title: 'Sanity CMS' },
+        { iconify: 'logos:vercel-icon', title: 'Vercel' }
+      ]
+    },
+    {
+      title: 'Ecosistema WordPress',
+      icons: [
+        { iconify: 'logos:wordpress-icon', title: 'WordPress' },
+        { iconify: 'logos:woocommerce-icon', title: 'WooCommerce' },
+        { src: '/imagenes/kadence.svg', title: 'Kadence Blocks' },
+        { src: '/imagenes/elementor.svg', title: 'Elementor' }
+      ]
+    },
+    {
+      title: 'IA y Flujo de Trabajo',
+      icons: [
+        { src: '/imagenes/cursor.svg', title: 'Cursor' },
+        { src: '/imagenes/claude-ai-icon.svg', title: 'Claude' },
+        { iconify: 'logos:google-gemini', title: 'Gemini' },
+        { iconify: 'logos:github-icon', title: 'GitHub' }
+      ]
+    }
+  ];
+
+  function iconifySvgUrl(name: string): string {
+    return `https://api.iconify.design/${encodeURIComponent(name)}.svg`;
+  }
 
   let showPdf = $state(false);
 
@@ -90,14 +134,31 @@
 
         <section class="career-block" aria-labelledby="career-stack">
           <h3 id="career-stack" class="career-h3">{c.stackTitle}</h3>
-          <ul class="career-tags">
-            {#each c.stackLines as line, i (i)}
-              <li>
-                <!-- svelte-ignore hydration_html_changed -->
-                {@html line}
-              </li>
+          <div class="career-stack-groups">
+            {#each stackGroups as group (group.title)}
+              <section class="career-stack-group" aria-label={group.title}>
+                <p class="career-stack-group-title">{group.title}</p>
+                <ul class="career-stack-icons">
+                  {#each group.icons as icon (icon.title)}
+                    <li class="career-stack-icon-item">
+                      <span class="career-stack-icon-mark">
+                        <img
+                          src={icon.iconify ? iconifySvgUrl(icon.iconify) : icon.src}
+                          alt={icon.title}
+                          title={icon.title}
+                          width="16"
+                          height="16"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </span>
+                      <span class="career-stack-icon-text">{icon.title}</span>
+                    </li>
+                  {/each}
+                </ul>
+              </section>
             {/each}
-          </ul>
+          </div>
         </section>
 
         <footer class="career-footer">
@@ -272,31 +333,70 @@
     color: #6e6e73;
   }
 
-  .career-tags {
+  .career-stack-groups {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .career-stack-group {
+    padding: 0.65rem 0.75rem 0.75rem;
+    background: #f8fafc;
+    border: 1px solid #e8edf3;
+    border-radius: 10px;
+  }
+
+  .career-stack-group-title {
+    margin: 0 0 0.45rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+
+  .career-stack-icons {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem 0.6rem;
   }
 
-  .career-tags li {
-    font-size: 0.9375rem;
-    color: #1d1d1f;
-    padding: 0.55rem 0.85rem;
-    background: #f5f5f7;
-    border-radius: 10px;
-    border: 1px solid #e8e8ed;
-    line-height: 1.4;
+  .career-stack-icon-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    min-width: 0;
   }
 
-  .career-tag-sub {
+  .career-stack-icon-mark {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+
+  .career-stack-icon-mark img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
     display: block;
-    font-size: 0.8125rem;
+  }
+
+  .career-stack-icon-text {
+    font-size: 0.78rem;
     font-weight: 500;
-    color: #86868b;
-    margin-top: 0.15rem;
+    color: #1d1d1f;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .career-footer {

@@ -16,7 +16,7 @@
     más moderno.
   </p>
   <p>
-    Me especializo en <strong>WordPress</strong>, <strong>SvelteKit</strong> y <strong>Soporte IT</strong>,
+    Me especializo en <strong>WordPress</strong>, <strong>SvelteKit</strong> y <strong>SEO Técnico</strong>,
     enfocándome en el rendimiento (performance), la seguridad y el mantenimiento eficiente. Utilizo la
     <strong>IA generativa</strong> como una herramienta estratégica para acelerar el desarrollo y
     garantizar resultados sólidos en menos tiempo.

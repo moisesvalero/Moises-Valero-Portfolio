@@ -1,6 +1,7 @@
 <script lang="ts">
   type StackIcon = {
-    src: string;
+    src?: string;
+    iconify?: string;
     alt: string;
     title?: string;
   };
@@ -18,38 +19,30 @@
 
   const defaultCategories: StackCategory[] = [
     {
-      title: 'Maquetación y Estructura',
+      title: 'Desarrollo Moderno',
       icons: [
-        { src: '/imagenes/svelte.svg', alt: 'SvelteKit', title: 'SvelteKit' },
-        { src: '/imagenes/html5.svg', alt: 'HTML5', title: 'HTML5' },
-        { src: '/imagenes/css.svg', alt: 'CSS3', title: 'CSS3' },
-        {
-          src: '/imagenes/tailwindcss.svg',
-          alt: 'Tailwind CSS',
-          title: 'Tailwind CSS'
-        }
+        { iconify: 'logos:svelte-icon', alt: 'SvelteKit', title: 'SvelteKit' },
+        { iconify: 'logos:tailwindcss-icon', alt: 'Tailwind CSS', title: 'Tailwind CSS' },
+        { iconify: 'logos:sanity', alt: 'Sanity CMS', title: 'Sanity CMS' },
+        { iconify: 'logos:vercel-icon', alt: 'Vercel', title: 'Vercel' }
       ]
     },
     {
       title: 'Ecosistema WordPress',
       icons: [
-        { src: '/imagenes/wordpress.svg', alt: 'WordPress', title: 'WordPress' },
-        { src: '/imagenes/elementor.svg', alt: 'Elementor', title: 'Elementor' },
-        { src: '/imagenes/kadence.svg', alt: 'Kadence', title: 'Kadence' },
-        { src: '/imagenes/localwp.svg', alt: 'Local WP', title: 'Local WP' }
+        { iconify: 'logos:wordpress-icon', alt: 'WordPress', title: 'WordPress' },
+        { iconify: 'logos:woocommerce-icon', alt: 'WooCommerce', title: 'WooCommerce' },
+        { src: '/imagenes/kadence.svg', alt: 'Kadence Blocks', title: 'Kadence Blocks' },
+        { src: '/imagenes/elementor.svg', alt: 'Elementor', title: 'Elementor' }
       ]
     },
     {
-      title: 'Flujo de Trabajo e IA',
+      title: 'IA y Flujo de Trabajo',
       icons: [
-        { src: '/imagenes/cursor_light.svg', alt: 'Cursor AI', title: 'Cursor AI' },
-        {
-          src: '/imagenes/claude-ai-icon.svg',
-          alt: 'Claude AI',
-          title: 'Claude AI'
-        },
-        { src: '/imagenes/cloudflare.svg', alt: 'Cloudflare', title: 'Cloudflare' },
-        { src: '/imagenes/github.svg', alt: 'GitHub', title: 'GitHub' }
+        { src: '/imagenes/cursor.svg', alt: 'Cursor', title: 'Cursor' },
+        { src: '/imagenes/claude-ai-icon.svg', alt: 'Claude', title: 'Claude' },
+        { iconify: 'logos:google-gemini', alt: 'Gemini', title: 'Gemini' },
+        { iconify: 'logos:github-icon', alt: 'GitHub', title: 'GitHub' }
       ]
     }
   ];
@@ -59,6 +52,10 @@
     title = 'Mi Stack Tecnológico',
     categories = defaultCategories
   }: Props = $props();
+
+  function iconifySvgUrl(name: string): string {
+    return `https://api.iconify.design/${encodeURIComponent(name)}.svg`;
+  }
 </script>
 
 <section class="stack-container" id="stack" aria-labelledby="stack-titulo">
@@ -72,17 +69,29 @@
       <div class="stack-cat">
         <p class="cat-title">{cat.title}</p>
         <div class="iconos-flex">
-          {#each cat.icons as icon (icon.src + icon.alt)}
-            <div class="item-stack">
-              <img
-                src={icon.src}
-                alt={icon.alt}
-                title={icon.title ?? icon.alt}
-                width="40"
-                height="40"
-                loading="lazy"
-                decoding="async"
-              />
+          {#each cat.icons as icon ((icon.iconify ?? icon.src ?? '') + icon.alt)}
+            <div class="item-stack" class:is-woocommerce={icon.alt === 'WooCommerce'}>
+              {#if icon.iconify}
+                <img
+                  src={iconifySvgUrl(icon.iconify)}
+                  alt={icon.alt}
+                  title={icon.title ?? icon.alt}
+                  width="40"
+                  height="40"
+                  loading="lazy"
+                  decoding="async"
+                />
+              {:else if icon.src}
+                <img
+                  src={icon.src}
+                  alt={icon.alt}
+                  title={icon.title ?? icon.alt}
+                  width="40"
+                  height="40"
+                  loading="lazy"
+                  decoding="async"
+                />
+              {/if}
             </div>
           {/each}
         </div>
@@ -141,21 +150,22 @@
 
   .iconos-flex {
     display: grid;
-    grid-template-columns: repeat(4, 60px);
-    gap: 12px;
+    grid-template-columns: repeat(4, 72px);
+    gap: 14px;
     justify-content: start;
   }
 
   .item-stack {
-    width: 60px;
-    height: 60px;
+    width: 72px;
+    height: 72px;
     background: #ffffff;
     border: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
-    transition: all 0.3s ease;
+    padding: 12px;
+    border-radius: 12px;
+    transition: all 0.25s ease;
     box-sizing: border-box;
   }
 
@@ -163,18 +173,23 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    filter: grayscale(100%);
-    opacity: 0.7;
+    filter: grayscale(20%);
+    opacity: 0.92;
   }
 
   .item-stack:hover {
     border-color: #0071e3;
-    transform: translateY(-3px);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 113, 227, 0.12);
   }
 
   .item-stack:hover img {
     filter: grayscale(0%);
     opacity: 1;
+  }
+
+  .item-stack.is-woocommerce img {
+    width: 120%;
   }
 
   @media (max-width: 1024px) {
@@ -194,7 +209,7 @@
     }
 
     .iconos-flex {
-      grid-template-columns: repeat(4, 60px);
+      grid-template-columns: repeat(4, 72px);
       justify-content: center;
     }
   }

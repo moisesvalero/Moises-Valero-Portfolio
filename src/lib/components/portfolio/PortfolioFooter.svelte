@@ -10,17 +10,43 @@
   const year = new Date().getFullYear();
 
   let {
-    copyrightTemplate = 'Moisés Valero © {{year}} | Web Developer',
+    copyrightTemplate =
+      'Desarrollo Web de Alto Rendimiento | Sistemas & SEO Alcoy(Alicante) | Disponible para proyectos en remoto y presenciales. Moisés Valero © 2026 | Especialista en SvelteKit, WordPress y Sanity CMS.',
     githubHref = 'https://github.com/moisesvalero',
     linkedinHref = 'https://www.linkedin.com/in/moisesvalero',
     emailHref = 'mailto:ludicrous_fastball804@simplelogin.com'
   }: Props = $props();
 
   const copyrightText = $derived(copyrightTemplate.replace(/\{\{year\}\}/g, String(year)));
+  const footerParts = $derived(
+    (() => {
+      const parts = copyrightText
+        .split('|')
+        .map((part) => part.trim())
+        .filter(Boolean);
+
+      if (parts.length <= 3) {
+        return parts;
+      }
+
+      const tertiary = parts.pop() ?? '';
+      const secondary = parts.pop() ?? '';
+      const primary = parts.join(' | ');
+      return [primary, secondary, tertiary];
+    })()
+  );
 </script>
 
 <footer class="footer-custom">
-  <p class="footer-text">{copyrightText}</p>
+  <div class="footer-copy">
+    <p class="footer-primary">{footerParts[0] ?? ''}</p>
+    {#if footerParts[1]}
+      <p class="footer-secondary">{footerParts[1]}</p>
+    {/if}
+    {#if footerParts[2]}
+      <p class="footer-tertiary">{footerParts[2]}</p>
+    {/if}
+  </div>
 
   <div class="footer-icons">
     <a href={githubHref} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
@@ -50,26 +76,46 @@
 <style>
   .footer-custom {
     text-align: center;
-    padding: 0 20px 48px;
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 42px 20px 48px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-top: 1px solid #e2e8f0;
   }
 
-  .footer-custom::before {
-    content: '';
-    display: block;
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #e2e8f0 50%, transparent);
-    margin-bottom: 40px;
+  .footer-copy {
+    max-width: 1100px;
+    margin: 0 auto 32px;
+    padding: 0 16px;
   }
 
-  .footer-text {
+  .footer-primary,
+  .footer-secondary,
+  .footer-tertiary {
+    margin: 0;
+    line-height: 1.65;
+  }
+
+  .footer-primary {
+    color: #0f172a;
     font-size: 14px;
-    color: #64748b;
-    margin-bottom: 28px;
+    font-weight: 600;
+    letter-spacing: 0.1px;
+  }
+
+  .footer-secondary {
+    color: #475569;
+    font-size: 13px;
+    margin-top: 6px;
     font-weight: 500;
-    letter-spacing: 0.5px;
+  }
+
+  .footer-tertiary {
+    color: #2563eb;
+    font-size: 13px;
+    margin-top: 6px;
+    font-weight: 600;
   }
 
   .footer-icons {
@@ -107,14 +153,20 @@
   }
 
   @media (max-width: 768px) {
-    .footer-custom::before {
-      margin-bottom: 30px;
+    .footer-custom {
+      padding-top: 34px;
     }
 
-    .footer-text {
+    .footer-copy {
+      padding: 0 14px;
+      margin-bottom: 26px;
+    }
+
+    .footer-primary,
+    .footer-secondary,
+    .footer-tertiary {
       font-size: 12px;
-      margin-bottom: 24px;
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
     .footer-icons {
