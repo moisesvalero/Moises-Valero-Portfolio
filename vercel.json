@@ -1,0 +1,44 @@
+{
+  "redirects": [
+    {
+      "source": "/chat",
+      "destination": "/proyectos/chatbot",
+      "permanent": true
+    },
+    {
+      "source": "/chat/",
+      "destination": "/proyectos/chatbot",
+      "permanent": true
+    },
+    {
+      "source": "/ember-iron",
+      "destination": "/proyectos/ember-iron",
+      "permanent": true
+    },
+    {
+      "source": "/ember-iron/",
+      "destination": "/proyectos/ember-iron",
+      "permanent": true
+    },
+    {
+      "source": "/galer",
+      "destination": "/proyectos/galeria-nova",
+      "permanent": true
+    },
+    {
+      "source": "/galer/",
+      "destination": "/proyectos/galeria-nova",
+      "permanent": true
+    },
+    {
+      "source": "/vshield",
+      "destination": "/proyectos/vshield",
+      "permanent": true
+    },
+    {
+      "source": "/vshield/",
+      "destination": "/proyectos/vshield",
+      "permanent": true
+    }
+  ]
+}
