@@ -1,5 +1,6 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
+  import { onMount } from 'svelte';
   import PortfolioHeroStripe from '$lib/components/portfolio/PortfolioHeroStripe.svelte';
   import PortfolioAbout from '$lib/components/portfolio/PortfolioAbout.svelte';
   import PortfolioServices from '$lib/components/portfolio/PortfolioServices.svelte';
@@ -51,6 +52,59 @@
       twitterCard: s.seo.twitterCard
     });
   });
+
+  let prefersReducedMotion = false;
+  onMount(() => {
+    prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
+  function revealOnScroll(node: HTMLElement) {
+    if (prefersReducedMotion) {
+      node.classList.add('is-visible');
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            node.classList.add('is-visible');
+            observer.unobserve(node);
+          }
+        }
+      },
+      { threshold: 0.34, rootMargin: '0px 0px -14% 0px' }
+    );
+    observer.observe(node);
+    return {
+      destroy() {
+        observer.disconnect();
+      }
+    };
+  }
+
+  function revealOnScrollProjects(node: HTMLElement) {
+    if (prefersReducedMotion) {
+      node.classList.add('is-visible');
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            node.classList.add('is-visible');
+            observer.unobserve(node);
+          }
+        }
+      },
+      { threshold: 0.2, rootMargin: '0px 0px -6% 0px' }
+    );
+    observer.observe(node);
+    return {
+      destroy() {
+        observer.disconnect();
+      }
+    };
+  }
 </script>
 
 <svelte:head>
@@ -75,10 +129,103 @@
   <script type="application/ld+json">{personJsonLd}</script>
 </svelte:head>
 
-<PortfolioHeroStripe {...site.hero} />
-<PortfolioAbout {...site.about} />
-<PortfolioServices {...site.services} />
-<PortfolioTechStack {...site.techStack} />
-<PortfolioQuality {...site.quality} />
-<PortfolioProjects meta={site.projects.meta} title={site.projects.title} projects={site.projects.projects} />
-<PortfolioContactCta {...site.contact} />
+<div class="reveal-block hero-block is-visible">
+  <PortfolioHeroStripe {...site.hero} />
+</div>
+<div class="reveal-block" use:revealOnScroll>
+  <PortfolioAbout {...site.about} />
+</div>
+<div class="reveal-block" use:revealOnScroll>
+  <PortfolioServices {...site.services} />
+</div>
+<div class="reveal-block" use:revealOnScroll>
+  <PortfolioTechStack {...site.techStack} />
+</div>
+<div class="reveal-block" use:revealOnScroll>
+  <PortfolioQuality {...site.quality} />
+</div>
+<div class="reveal-block" use:revealOnScrollProjects>
+  <PortfolioProjects meta={site.projects.meta} title={site.projects.title} projects={site.projects.projects} />
+</div>
+<div class="reveal-block" use:revealOnScroll>
+  <PortfolioContactCta {...site.contact} />
+</div>
+
+<style>
+  .reveal-block {
+    opacity: 0;
+    transform: translate3d(0, 48px, 0) scale(0.96) rotateX(8deg);
+    transform-origin: 50% 100%;
+    clip-path: inset(0 0 18% 0);
+    transition:
+      opacity 860ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 860ms cubic-bezier(0.22, 1, 0.36, 1),
+      clip-path 820ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+
+  .reveal-block.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1) rotateX(0deg);
+    clip-path: inset(0 0 0 0);
+  }
+
+  .hero-block {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .reveal-block.is-visible :global(.servicios-flex .card-servicio),
+  .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item) {
+    animation: cardIn 740ms cubic-bezier(0.16, 0.84, 0.32, 1) both;
+  }
+
+  .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(2)),
+  .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(2)),
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(2)) {
+    animation-delay: 120ms;
+  }
+
+  .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(3)),
+  .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(3)),
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(3)) {
+    animation-delay: 240ms;
+  }
+
+  .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(4)),
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(4)) {
+    animation-delay: 320ms;
+  }
+
+  .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(5)),
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(5)) {
+    animation-delay: 400ms;
+  }
+
+  @keyframes cardIn {
+    from {
+      opacity: 0;
+      transform: translateY(34px) scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-block,
+    .hero-block {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+    .reveal-block :global(.card-servicio),
+    .reveal-block :global(.proyecto-card),
+    .reveal-block :global(.garantia-item) {
+      animation: none !important;
+    }
+  }
+</style>

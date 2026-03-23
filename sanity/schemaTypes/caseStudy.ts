@@ -3,38 +3,151 @@ import { defineField, defineType } from 'sanity';
 /** Plantilla `/proyectos/[slug]` — alineado con `$lib/types/case-study.ts` y GROQ en `groq.ts`. */
 export const caseStudy = defineType({
   name: 'caseStudy',
-  title: 'Case study (plantilla)',
+  title: 'Proyecto',
   type: 'document',
+  initialValue: {
+    estadoInterno: 'borrador',
+    panelHelp:
+      '1) Completa General. 2) Rellena Contenido e Imagenes. 3) Revisa SEO y enlace final. 4) Marca el checklist y pulsa Publish.',
+    heroTag: 'Caso de estudio',
+    checklistPublicacion: {
+      tituloYSlug: false,
+      contenidoPrincipal: false,
+      imagenesCargadas: false,
+      seoCompletado: false
+    }
+  },
+  groups: [
+    { name: 'panel', title: '🚦 Guia rapida', default: true },
+    { name: 'general', title: '🧩 General' },
+    { name: 'contenido', title: '✍️ Contenido' },
+    { name: 'imagenes', title: '🖼️ Imagenes' },
+    { name: 'seo', title: '📈 SEO y enlace final' }
+  ],
   fields: [
-    defineField({ name: 'title', type: 'string' }),
+    defineField({
+      name: 'panelHelp',
+      type: 'text',
+      title: 'Como usar este formulario',
+      readOnly: true,
+      rows: 4,
+      group: 'panel'
+    }),
+    defineField({
+      name: 'estadoInterno',
+      type: 'string',
+      title: 'Estado del proyecto',
+      description: 'Solo organizacion interna (no se muestra en la web).',
+      initialValue: 'borrador',
+      options: {
+        list: [
+          { title: 'Borrador', value: 'borrador' },
+          { title: 'En revision', value: 'revision' },
+          { title: 'Listo para publicar', value: 'listo' }
+        ],
+        layout: 'radio'
+      },
+      group: 'panel'
+    }),
+    defineField({
+      name: 'showOnHome',
+      type: 'boolean',
+      title: 'Mostrar en portada',
+      description: 'Si esta activo, este proyecto aparece automaticamente en la home.',
+      initialValue: true,
+      group: 'panel'
+    }),
+    defineField({
+      name: 'homeSortOrder',
+      type: 'number',
+      title: 'Orden en portada',
+      description: 'Menor numero = aparece antes en la home.',
+      initialValue: 50,
+      group: 'panel'
+    }),
+    defineField({
+      name: 'checklistPublicacion',
+      type: 'object',
+      title: 'Checklist de publicacion',
+      description: 'Marca todo antes de publicar.',
+      group: 'panel',
+      fields: [
+        { name: 'tituloYSlug', type: 'boolean', title: 'Titulo y slug completos' },
+        { name: 'contenidoPrincipal', type: 'boolean', title: 'Contenido principal completado' },
+        { name: 'imagenesCargadas', type: 'boolean', title: 'Imagenes principales añadidas' },
+        { name: 'seoCompletado', type: 'boolean', title: 'Meta description y URL final revisadas' }
+      ]
+    }),
+    defineField({
+      name: 'title',
+      type: 'string',
+      title: 'Nombre del proyecto',
+      description: 'Ejemplo: V-Shield',
+      options: { placeholder: 'Ejemplo: V-Shield' },
+      group: 'general',
+      validation: (Rule) => Rule.required()
+    }),
     defineField({
       name: 'slug',
       type: 'slug',
+      title: 'URL interna',
+      description: 'Se usa para crear la URL: /proyectos/tu-slug',
+      group: 'general',
       options: { source: 'title', maxLength: 96 },
       validation: (Rule) => Rule.required()
     }),
-    defineField({ name: 'seoDescription', type: 'text', title: 'SEO description' }),
-    defineField({ name: 'heroTag', type: 'string' }),
-    defineField({ name: 'heroDescription', type: 'text' }),
-    defineField({ name: 'tags', type: 'array', of: [{ type: 'string' }] }),
+    defineField({
+      name: 'heroTag',
+      type: 'string',
+      title: 'Etiqueta superior',
+      description: 'Ejemplo: Caso de estudio',
+      group: 'contenido'
+    }),
+    defineField({
+      name: 'heroDescription',
+      type: 'text',
+      title: 'Descripcion corta principal',
+      rows: 3,
+      options: { placeholder: 'Resumen rapido del proyecto y su objetivo principal.' },
+      group: 'contenido'
+    }),
+    defineField({
+      name: 'tags',
+      type: 'array',
+      title: 'Tecnologias (chips)',
+      description: 'Anade una tecnologia por item: SvelteKit, WordPress, SEO...',
+      of: [{ type: 'string' }],
+      group: 'contenido'
+    }),
     defineField({
       name: 'images',
       type: 'object',
+      title: 'Imagenes del proyecto',
+      group: 'imagenes',
       fields: [
-        { name: 'principal', type: 'url' },
-        { name: 'secondary1', type: 'url' },
-        { name: 'secondary2', type: 'url' }
+        {
+          name: 'principal',
+          type: 'url',
+          title: 'Imagen principal (URL)',
+          description: 'Ejemplo: https://.../captura-home.jpg'
+        },
+        { name: 'secondary1', type: 'url', title: 'Imagen secundaria 1 (URL)' },
+        { name: 'secondary2', type: 'url', title: 'Imagen secundaria 2 (URL)' }
       ]
     }),
     defineField({
       name: 'metrics',
       type: 'array',
+      title: 'Metricas / resultados rapidos',
+      description: 'Bloques tipo "90+ / PageSpeed movil".',
+      group: 'contenido',
       of: [
         {
           type: 'object',
+          title: 'Metrica',
           fields: [
-            { name: 'value', type: 'string' },
-            { name: 'label', type: 'string' }
+            { name: 'value', type: 'string', title: 'Valor' },
+            { name: 'label', type: 'string', title: 'Texto' }
           ]
         }
       ]
@@ -42,32 +155,57 @@ export const caseStudy = defineType({
     defineField({
       name: 'reto',
       type: 'object',
+      title: 'Bloque: El reto',
+      group: 'contenido',
       fields: [
-        { name: 'title', type: 'string' },
-        { name: 'bodyHtml', type: 'text', rows: 6 }
+        { name: 'title', type: 'string', title: 'Titulo del bloque' },
+        { name: 'bodyHtml', type: 'text', title: 'Texto (acepta HTML basico)', rows: 6 }
       ]
     }),
     defineField({
       name: 'hice',
       type: 'object',
+      title: 'Bloque: Lo que hice',
+      group: 'contenido',
       fields: [
-        { name: 'title', type: 'string' },
-        { name: 'bodyHtml', type: 'text', rows: 6 }
+        { name: 'title', type: 'string', title: 'Titulo del bloque' },
+        { name: 'bodyHtml', type: 'text', title: 'Texto (acepta HTML basico)', rows: 6 }
       ]
     }),
     defineField({
       name: 'resultado',
       type: 'object',
+      title: 'Bloque: Resultado',
+      group: 'contenido',
       fields: [
-        { name: 'title', type: 'string' },
-        { name: 'bodyHtml', type: 'text', rows: 6 }
+        { name: 'title', type: 'string', title: 'Titulo del bloque' },
+        { name: 'bodyHtml', type: 'text', title: 'Texto (acepta HTML basico)', rows: 6 }
       ]
     }),
-    defineField({ name: 'stack', type: 'array', of: [{ type: 'string' }] }),
-    defineField({ name: 'liveUrl', type: 'url' })
+    defineField({
+      name: 'stack',
+      type: 'array',
+      title: 'Stack tecnico final',
+      of: [{ type: 'string' }],
+      group: 'contenido'
+    }),
+    defineField({
+      name: 'seoDescription',
+      type: 'text',
+      title: 'Meta description (SEO)',
+      rows: 3,
+      options: { placeholder: 'Descripcion corta para Google (aprox. 140-160 caracteres).' },
+      group: 'seo'
+    }),
+    defineField({
+      name: 'liveUrl',
+      type: 'url',
+      title: 'URL del proyecto online (boton final)',
+      group: 'seo'
+    })
   ],
   preview: {
     select: { t: 'title', s: 'slug.current' },
-    prepare: ({ t, s }) => ({ title: t || 'Case study', subtitle: s ? `/${s}` : '' })
+    prepare: ({ t, s }) => ({ title: t || 'Proyecto', subtitle: s ? `/${s}` : '' })
   }
 });

@@ -27,11 +27,21 @@ export async function fetchSitePortfolio(locale: SiteLocale = 'es'): Promise<Sit
     });
   }
 
-  const raw = await client.fetch<Record<string, unknown> | null>(sitePortfolioQuery);
-  return mapSanitySitePortfolio(raw, sitePortfolioDefaults, {
-    projectId: cfg.projectId,
-    dataset: cfg.dataset,
-    baseUrl,
-    locale
-  });
+  try {
+    const raw = await client.fetch<Record<string, unknown> | null>(sitePortfolioQuery);
+    return mapSanitySitePortfolio(raw, sitePortfolioDefaults, {
+      projectId: cfg.projectId,
+      dataset: cfg.dataset,
+      baseUrl,
+      locale
+    });
+  } catch (error) {
+    console.warn('[portfolio] Sanity unavailable, using local defaults.', error);
+    return mapSanitySitePortfolio(null, sitePortfolioDefaults, {
+      projectId: cfg.projectId,
+      dataset: cfg.dataset,
+      baseUrl,
+      locale
+    });
+  }
 }

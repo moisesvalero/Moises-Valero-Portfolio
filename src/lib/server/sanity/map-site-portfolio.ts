@@ -366,6 +366,71 @@ function mergeFooter(raw: unknown, d: SitePortfolioContent['footer']): SitePortf
   };
 }
 
+function hasNonEmptyString(v: unknown): boolean {
+  return typeof v === 'string' && v.trim().length > 0;
+}
+
+function hasEnglishLocalizedValue(v: unknown): boolean {
+  if (hasNonEmptyString(v)) {
+    return false;
+  }
+  const o = asRecord(v);
+  if (!o) {
+    return false;
+  }
+  return hasNonEmptyString(o.en);
+}
+
+function hasEnglishServicesOrProjects(raw: Record<string, unknown> | null | undefined): boolean {
+  if (!raw) {
+    return false;
+  }
+
+  const services = asRecord(raw.services);
+  if (services) {
+    if (hasEnglishLocalizedValue(services.meta) || hasEnglishLocalizedValue(services.title)) {
+      return true;
+    }
+    const items = Array.isArray(services.items) ? (services.items as unknown[]) : [];
+    if (
+      items.some((item) => {
+        const r = asRecord(item);
+        if (!r) {
+          return false;
+        }
+        return hasEnglishLocalizedValue(r.title) || hasEnglishLocalizedValue(r.description);
+      })
+    ) {
+      return true;
+    }
+  }
+
+  const projects = asRecord(raw.projects);
+  if (projects) {
+    if (hasEnglishLocalizedValue(projects.meta) || hasEnglishLocalizedValue(projects.title)) {
+      return true;
+    }
+    const listRaw = Array.isArray(projects.projects)
+      ? (projects.projects as unknown[])
+      : Array.isArray(projects.items)
+        ? (projects.items as unknown[])
+        : [];
+    return listRaw.some((item) => {
+      const r = asRecord(item);
+      if (!r) {
+        return false;
+      }
+      return (
+        hasEnglishLocalizedValue(r.title) ||
+        hasEnglishLocalizedValue(r.description) ||
+        hasEnglishLocalizedValue(r.linkLabel)
+      );
+    });
+  }
+
+  return false;
+}
+
 function finalizePortfolioLocale(
   site: SitePortfolioContent,
   locale: SiteLocale,
@@ -405,5 +470,5 @@ export function mapSanitySitePortfolio(
     contact: mergeContact(raw.contact, defaults.contact),
     footer: mergeFooter(raw.footer, defaults.footer)
   };
-  return finalizePortfolioLocale(merged, ctx.locale, true);
+  return finalizePortfolioLocale(merged, ctx.locale, hasEnglishServicesOrProjects(raw));
 }

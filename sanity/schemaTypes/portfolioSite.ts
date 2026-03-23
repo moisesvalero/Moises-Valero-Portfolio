@@ -6,12 +6,59 @@ import { defineField, defineType } from 'sanity';
  */
 export const portfolioSite = defineType({
   name: 'sitePortfolio',
-  title: 'Sitio (portfolio)',
+  title: 'Sitio (contenido global)',
   type: 'document',
+  initialValue: {
+    title: 'Web principal',
+    panelHelp:
+      'Edita por pestañas, guarda cambios y pulsa Publish. Si algo no lo usas, dejalo vacio. Este panel controla textos globales de toda la web.'
+  },
+  groups: [
+    { name: 'panel', title: '🚦 Guia rapida', default: true },
+    { name: 'home', title: '🏠 Inicio' },
+    { name: 'servicios', title: '🛠️ Servicios y stack' },
+    { name: 'proyectos', title: '🧱 Proyectos destacados' },
+    { name: 'contacto', title: '💬 Contacto y footer' },
+    { name: 'seo', title: '📈 SEO' }
+  ],
   fields: [
+    defineField({
+      name: 'title',
+      type: 'string',
+      title: 'Nombre interno',
+      description: 'Solo para identificar este documento en el panel.',
+      readOnly: true,
+      group: 'panel'
+    }),
+    defineField({
+      name: 'panelHelp',
+      type: 'text',
+      title: 'Como usar este panel',
+      initialValue:
+        'Edita por pestañas, guarda cambios y pulsa Publish. Si algo no lo usas, dejalo vacio. Este panel controla textos globales de toda la web.',
+      readOnly: true,
+      rows: 4,
+      group: 'panel'
+    }),
+    defineField({
+      name: 'checklistHome',
+      type: 'object',
+      title: 'Checklist rapido (opcional)',
+      description: 'Te ayuda a no olvidar nada antes de publicar.',
+      group: 'panel',
+      fields: [
+        { name: 'heroRevisado', type: 'boolean', title: 'Hero revisado (titulo y subtitulo)' },
+        { name: 'serviciosRevisados', type: 'boolean', title: 'Servicios revisados' },
+        { name: 'contactoRevisado', type: 'boolean', title: 'Contacto revisado' },
+        { name: 'seoRevisado', type: 'boolean', title: 'SEO basico revisado' }
+      ]
+    }),
     defineField({
       name: 'header',
       type: 'object',
+      title: 'Cabecera (menu)',
+      description: 'Logo, menu y boton principal.',
+      group: 'home',
       fields: [
         { name: 'logoText', type: 'string', title: 'Marca / logo' },
         { name: 'logoHref', type: 'string', title: 'Enlace del logo', initialValue: '/' },
@@ -54,6 +101,8 @@ export const portfolioSite = defineType({
     defineField({
       name: 'seo',
       type: 'object',
+      title: 'SEO global de la home',
+      group: 'seo',
       fields: [
         { name: 'title', type: 'string', title: 'Title' },
         { name: 'description', type: 'text', title: 'Meta description' },
@@ -77,12 +126,15 @@ export const portfolioSite = defineType({
     defineField({
       name: 'hero',
       type: 'object',
+      title: 'Bloque principal (hero)',
+      group: 'home',
       fields: [
         {
           name: 'cvHref',
           type: 'string',
           title: 'Enlace botón «¿Hablamos?»',
-          description: 'Ej. /#contacto para el chat, o https://… para otra URL.'
+          description: 'Ej. /#contacto para el chat, o https://… para otra URL.',
+          options: { placeholder: '/#contacto' }
         },
         { name: 'label', type: 'string', title: 'Etiqueta superior' },
         { name: 'title', type: 'string', title: 'Título H1' },
@@ -93,6 +145,8 @@ export const portfolioSite = defineType({
     defineField({
       name: 'about',
       type: 'object',
+      title: 'Seccion Sobre mi',
+      group: 'home',
       fields: [
         { name: 'image', type: 'image', title: 'Foto', options: { hotspot: true } },
         { name: 'imageSrc', type: 'url', title: 'O URL imagen externa (si no subes archivo)' },
@@ -113,6 +167,7 @@ export const portfolioSite = defineType({
       type: 'object',
       title: 'Servicios',
       description: 'Meta, título e ítems con campos ES/EN. Si falta un idioma, la web usa el otro.',
+      group: 'servicios',
       fields: [
         {
           name: 'meta',
@@ -148,6 +203,8 @@ export const portfolioSite = defineType({
     defineField({
       name: 'techStack',
       type: 'object',
+      title: 'Stack tecnologico',
+      group: 'servicios',
       fields: [
         { name: 'meta', type: 'string' },
         { name: 'title', type: 'string' },
@@ -183,6 +240,8 @@ export const portfolioSite = defineType({
     defineField({
       name: 'quality',
       type: 'object',
+      title: 'Bloque de calidad / beneficios',
+      group: 'servicios',
       fields: [
         { name: 'meta', type: 'string' },
         { name: 'title', type: 'string' },
@@ -207,6 +266,7 @@ export const portfolioSite = defineType({
       type: 'object',
       title: 'Proyectos destacados',
       description: 'Textos ES/EN; imagen, tags y URL de destino son compartidos.',
+      group: 'proyectos',
       fields: [
         { name: 'meta', type: 'localeString', title: 'Meta sección' },
         { name: 'title', type: 'localeString', title: 'Título H2' },
@@ -250,6 +310,8 @@ export const portfolioSite = defineType({
     defineField({
       name: 'contact',
       type: 'object',
+      title: 'Seccion de contacto',
+      group: 'contacto',
       fields: [
         { name: 'heading', type: 'string' },
         { name: 'subtitle', type: 'string' },
@@ -267,6 +329,8 @@ export const portfolioSite = defineType({
     defineField({
       name: 'footer',
       type: 'object',
+      title: 'Footer',
+      group: 'contacto',
       fields: [
         {
           name: 'copyrightTemplate',
@@ -282,6 +346,7 @@ export const portfolioSite = defineType({
     })
   ],
   preview: {
-    prepare: () => ({ title: 'Sitio (portfolio)' })
+    select: { t: 'title' },
+    prepare: ({ t }) => ({ title: t || 'Web principal' })
   }
 });

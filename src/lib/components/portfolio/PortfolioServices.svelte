@@ -110,6 +110,11 @@
   .icono-wrap {
     font-size: 40px;
     margin-bottom: 25px;
+    transition: transform 0.3s ease;
+  }
+
+  .card-servicio:hover .icono-wrap {
+    transform: scale(1.1) rotate(-5deg);
   }
 
   .card-servicio h3 {

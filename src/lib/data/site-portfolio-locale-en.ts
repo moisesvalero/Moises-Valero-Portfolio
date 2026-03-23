@@ -227,7 +227,8 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     iframeTitle: 'Chat assistant — Moisés Valero'
   },
   footer: {
-    copyrightTemplate: 'Moisés Valero © {{year}} | Web Developer',
+    copyrightTemplate:
+      'High-Performance Web Development | Systems & SEO Alcoy(Alicante) | Available for remote and on-site projects. Moisés Valero © {{year}} | Specialist in SvelteKit, WordPress and Sanity CMS.',
     githubHref: 'https://github.com/moisesvalero',
     linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
     emailHref: 'mailto:ludicrous_fastball804@simplelogin.com'
