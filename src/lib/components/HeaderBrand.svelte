@@ -31,7 +31,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.28rem;
+    gap: 0.12rem;
+    min-height: 44px;
     text-decoration: none;
     color: inherit;
     flex-shrink: 0;
@@ -42,34 +43,35 @@
 
   .header-brand-mv {
     display: block;
-    height: 42px;
+    height: 30px;
     width: auto;
     aspect-ratio: 632 / 292;
-    max-width: min(58vw, 236px);
+    max-width: min(54vw, 188px);
   }
 
   .header-brand-tag {
     font-family: var(--font-sans);
-    font-size: 0.5625rem;
-    font-weight: 400;
-    letter-spacing: 0.18em;
-    line-height: 1;
-    color: #1d1d1f;
+    font-size: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    line-height: 1.05;
+    color: rgba(29, 29, 31, 0.7);
     text-transform: uppercase;
     white-space: nowrap;
   }
 
   @media (max-width: 768px) {
     .header-brand {
-      gap: 0.22rem;
+      gap: 0.1rem;
+      min-height: 36px;
     }
     .header-brand-mv {
-      height: 32px;
-      max-width: min(50vw, 180px);
+      height: 24px;
+      max-width: min(46vw, 150px);
     }
     .header-brand-tag {
-      font-size: 0.5rem;
-      letter-spacing: 0.14em;
+      font-size: 0.42rem;
+      letter-spacing: 0.1em;
     }
   }
 </style>
