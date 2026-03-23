@@ -58,11 +58,16 @@
     prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   });
 
+  function isRevealMobileViewport() {
+    return typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+  }
+
   function revealOnScroll(node: HTMLElement) {
     if (prefersReducedMotion) {
       node.classList.add('is-visible');
       return;
     }
+    const mobile = isRevealMobileViewport();
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -72,7 +77,9 @@
           }
         }
       },
-      { threshold: 0.34, rootMargin: '0px 0px -14% 0px' }
+      mobile
+        ? { threshold: 0.06, rootMargin: '0px 0px 14% 0px' }
+        : { threshold: 0.34, rootMargin: '0px 0px -14% 0px' }
     );
     observer.observe(node);
     return {
@@ -87,6 +94,7 @@
       node.classList.add('is-visible');
       return;
     }
+    const mobile = isRevealMobileViewport();
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -96,7 +104,9 @@
           }
         }
       },
-      { threshold: 0.2, rootMargin: '0px 0px -6% 0px' }
+      mobile
+        ? { threshold: 0.06, rootMargin: '0px 0px 12% 0px' }
+        : { threshold: 0.2, rootMargin: '0px 0px -6% 0px' }
     );
     observer.observe(node);
     return {
@@ -211,6 +221,55 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes cardInMobile {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .reveal-block {
+      transform: translate3d(0, 22px, 0);
+      transition:
+        opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+        clip-path 400ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reveal-block.is-visible :global(.servicios-flex .card-servicio),
+    .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item) {
+      animation: cardInMobile 420ms cubic-bezier(0.16, 0.84, 0.32, 1) both;
+    }
+
+    .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(2)),
+    .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(2)),
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(2)) {
+      animation-delay: 45ms;
+    }
+
+    .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(3)),
+    .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(3)),
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(3)) {
+      animation-delay: 85ms;
+    }
+
+    .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(4)),
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(4)) {
+      animation-delay: 120ms;
+    }
+
+    .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(5)),
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(5)) {
+      animation-delay: 155ms;
     }
   }
 
