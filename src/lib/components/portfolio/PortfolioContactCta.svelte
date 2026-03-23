@@ -59,9 +59,9 @@
   .seccion-final-unificada {
     position: relative;
     width: 100%;
-    max-width: 1200px;
+    max-width: min(1200px, 100%);
     margin: 60px auto;
-    padding: 60px 5% 50px;
+    padding: 60px clamp(16px, 5vw, 48px) 50px;
     background: #1d1d1f;
     border-radius: 20px;
     overflow: hidden;

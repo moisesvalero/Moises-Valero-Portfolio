@@ -67,10 +67,12 @@
     display: flex;
     align-items: center;
     gap: 60px;
+    min-width: 0;
   }
 
   .col-foto {
     flex: 1;
+    min-width: 0;
     display: flex;
     justify-content: center;
   }
@@ -92,6 +94,7 @@
 
   .col-texto {
     flex: 1.5;
+    min-width: 0;
   }
 
   .meta-sobre {

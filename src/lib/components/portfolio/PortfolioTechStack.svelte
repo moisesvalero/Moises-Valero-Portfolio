@@ -128,7 +128,7 @@
 
   .stack-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 25px;
   }
 
@@ -137,6 +137,7 @@
     padding: 30px;
     border: 1px solid #f1f5f9;
     border-radius: 8px;
+    min-width: 0;
   }
 
   .cat-title {
@@ -149,10 +150,11 @@
   }
 
   .iconos-flex {
-    display: grid;
-    grid-template-columns: repeat(4, 72px);
-    gap: 14px;
-    justify-content: start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 14px;
+    justify-content: center;
+    align-items: center;
   }
 
   .item-stack {
@@ -192,25 +194,37 @@
     width: 120%;
   }
 
-  @media (max-width: 1024px) {
+  /* Tablet / iPad horizontal: 3 columnas estrechas rompían la fila de 4 iconos */
+  @media (max-width: 1199px) {
     .stack-container {
       scroll-margin-top: 88px;
     }
 
     .stack-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 20px;
     }
 
     .stack-cat {
-      padding: 20px;
-      max-width: 400px;
-      margin: 0 auto;
+      padding: 22px;
+      margin: 0;
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .stack-grid {
+      grid-template-columns: 1fr;
     }
 
-    .iconos-flex {
-      grid-template-columns: repeat(4, 72px);
-      justify-content: center;
+    .stack-cat {
+      padding: 20px;
+    }
+
+    .item-stack {
+      width: 68px;
+      height: 68px;
+      padding: 10px;
     }
   }
 

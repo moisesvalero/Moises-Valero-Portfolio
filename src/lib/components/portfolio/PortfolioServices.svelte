@@ -93,6 +93,7 @@
 
   .card-servicio {
     flex: 1;
+    min-width: 0;
     background: #ffffff;
     padding: 40px;
     border: 1px solid #f1f5f9;

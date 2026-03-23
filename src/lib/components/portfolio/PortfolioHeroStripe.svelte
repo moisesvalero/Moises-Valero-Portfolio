@@ -309,6 +309,13 @@
     }
   }
 
+  /* iPad horizontal y portátiles estrechos: evitar desbordes del título */
+  @media (max-width: 1199px) {
+    .hero-stripe-pro-v2 h1 {
+      white-space: normal;
+    }
+  }
+
   @media (max-width: 1024px) {
     .hero-viewport-root {
       min-height: 100svh;
@@ -320,7 +327,6 @@
     }
 
     .hero-stripe-pro-v2 h1 {
-      white-space: normal;
       font-size: clamp(48px, 11vw, 64px) !important;
     }
 
