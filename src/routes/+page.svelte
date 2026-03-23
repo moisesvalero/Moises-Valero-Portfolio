@@ -154,19 +154,18 @@
 <style>
   .reveal-block {
     opacity: 0;
-    transform: translate3d(0, 48px, 0) scale(0.96) rotateX(8deg);
-    transform-origin: 50% 100%;
+    transform: translate3d(0, 36px, 0);
     clip-path: inset(0 0 18% 0);
     transition:
       opacity 860ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 860ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 760ms cubic-bezier(0.22, 1, 0.36, 1),
       clip-path 820ms cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, transform;
   }
 
   .reveal-block.is-visible {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1) rotateX(0deg);
+    transform: translate3d(0, 0, 0);
     clip-path: inset(0 0 0 0);
   }
 
@@ -207,11 +206,11 @@
   @keyframes cardIn {
     from {
       opacity: 0;
-      transform: translateY(34px) scale(0.94);
+      transform: translateY(24px);
     }
     to {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: translateY(0);
     }
   }
 
