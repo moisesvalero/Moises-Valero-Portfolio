@@ -270,6 +270,6 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
       'Desarrollo Web de Alto Rendimiento | Sistemas & SEO Alcoy(Alicante) | Disponible para proyectos en remoto y presenciales. Moisés Valero © 2026 | Especialista en SvelteKit, WordPress y Sanity CMS.',
     githubHref: 'https://github.com/moisesvalero',
     linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
-    emailHref: 'mailto:ludicrous_fastball804@simplelogin.com'
+    emailHref: 'mailto:info@moisesvalero.es'
   }
 };
