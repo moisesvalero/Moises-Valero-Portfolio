@@ -14,6 +14,29 @@
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
   const site = $derived(data.site);
+  const absoluteOgImage = $derived(
+    site.seo.ogImage.startsWith('http') ? site.seo.ogImage : `${baseUrl}${site.seo.ogImage}`
+  );
+  const personJsonLd = $derived(
+    JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: 'Moisés Valero',
+      url: `${baseUrl}/`,
+      jobTitle: 'Desarrollador Web',
+      sameAs: [site.footer.githubHref, site.footer.linkedinHref],
+      knowsAbout: ['SvelteKit', 'WordPress', 'SEO Técnico', 'Sanity CMS']
+    })
+  );
+  const websiteJsonLd = $derived(
+    JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: site.header.logoText,
+      url: `${baseUrl}/`,
+      inLanguage: data.locale
+    })
+  );
 
   $effect(() => {
     const s = site;
@@ -24,7 +47,7 @@
       ogDescription: s.seo.ogDescription,
       canonical: `${baseUrl}/`,
       ogUrl: `${baseUrl}/`,
-      ogImage: s.seo.ogImage,
+      ogImage: absoluteOgImage,
       twitterCard: s.seo.twitterCard
     });
   });
@@ -41,11 +64,15 @@
   <meta property="og:description" content={$seo.ogDescription} />
   <meta property="og:url" content={$seo.ogUrl} />
   <meta property="og:image" content={$seo.ogImage} />
+  <meta property="og:site_name" content={site.header.logoText} />
+  <meta property="og:locale" content={data.locale === 'en' ? 'en_US' : 'es_ES'} />
 
   <meta name="twitter:card" content={$seo.twitterCard} />
   <meta name="twitter:title" content={$seo.ogTitle} />
   <meta name="twitter:description" content={$seo.ogDescription} />
   <meta name="twitter:image" content={$seo.ogImage} />
+  <script type="application/ld+json">{websiteJsonLd}</script>
+  <script type="application/ld+json">{personJsonLd}</script>
 </svelte:head>
 
 <PortfolioHeroStripe {...site.hero} />

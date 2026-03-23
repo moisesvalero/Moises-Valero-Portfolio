@@ -13,6 +13,21 @@
   const c = $derived(getGaleriaNovaPageCopy(data.locale));
   const L = $derived(getProyectoPageLabels(data.locale));
   const seoEs = getGaleriaNovaPageCopy('es');
+  const projectJsonLd = $derived(
+    JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'CreativeWork',
+      name: seoEs.heroTitle,
+      description: seoEs.headDescription,
+      url: canonical,
+      inLanguage: data.locale,
+      author: {
+        '@type': 'Person',
+        name: 'Moisés Valero'
+      },
+      image: `${baseUrl}/og-image.png`
+    })
+  );
 
   $effect(() => {
     setSeo({
@@ -33,6 +48,9 @@
   <title>{seoEs.headTitle}</title>
   <meta name="description" content={seoEs.headDescription} />
   <link rel="canonical" href={canonical} />
+  <link rel="alternate" hreflang="es" href={canonical} />
+  <link rel="alternate" hreflang="x-default" href={canonical} />
+  <script type="application/ld+json">{projectJsonLd}</script>
 </svelte:head>
 
 <div class="galeria-nova-page">
