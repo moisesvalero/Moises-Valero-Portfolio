@@ -8,7 +8,6 @@
   import PortfolioQuality from '$lib/components/portfolio/PortfolioQuality.svelte';
   import PortfolioProjects from '$lib/components/portfolio/PortfolioProjects.svelte';
   import PortfolioContactCta from '$lib/components/portfolio/PortfolioContactCta.svelte';
-  import { seo, setSeo } from '$lib/seo';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -38,20 +37,6 @@
       inLanguage: data.locale
     })
   );
-
-  $effect(() => {
-    const s = site;
-    setSeo({
-      title: s.seo.title,
-      description: s.seo.description,
-      ogTitle: s.seo.ogTitle,
-      ogDescription: s.seo.ogDescription,
-      canonical: `${baseUrl}/`,
-      ogUrl: `${baseUrl}/`,
-      ogImage: absoluteOgImage,
-      twitterCard: s.seo.twitterCard
-    });
-  });
 
   let prefersReducedMotion = false;
   onMount(() => {
@@ -118,23 +103,23 @@
 </script>
 
 <svelte:head>
-  <title>{$seo.title}</title>
-  <meta name="description" content={$seo.description} />
+  <title>{site.seo.title}</title>
+  <meta name="description" content={site.seo.description} />
 
-  <link rel="canonical" href={$seo.canonical} />
+  <link rel="canonical" href={`${baseUrl}/`} />
 
   <meta property="og:type" content="website" />
-  <meta property="og:title" content={$seo.ogTitle} />
-  <meta property="og:description" content={$seo.ogDescription} />
-  <meta property="og:url" content={$seo.ogUrl} />
-  <meta property="og:image" content={$seo.ogImage} />
+  <meta property="og:title" content={site.seo.ogTitle} />
+  <meta property="og:description" content={site.seo.ogDescription} />
+  <meta property="og:url" content={`${baseUrl}/`} />
+  <meta property="og:image" content={absoluteOgImage} />
   <meta property="og:site_name" content={site.header.logoText} />
   <meta property="og:locale" content={data.locale === 'en' ? 'en_US' : 'es_ES'} />
 
-  <meta name="twitter:card" content={$seo.twitterCard} />
-  <meta name="twitter:title" content={$seo.ogTitle} />
-  <meta name="twitter:description" content={$seo.ogDescription} />
-  <meta name="twitter:image" content={$seo.ogImage} />
+  <meta name="twitter:card" content={site.seo.twitterCard} />
+  <meta name="twitter:title" content={site.seo.ogTitle} />
+  <meta name="twitter:description" content={site.seo.ogDescription} />
+  <meta name="twitter:image" content={absoluteOgImage} />
   <script type="application/ld+json">{websiteJsonLd}</script>
   <script type="application/ld+json">{personJsonLd}</script>
 </svelte:head>

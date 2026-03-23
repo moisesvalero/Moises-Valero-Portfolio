@@ -1,6 +1,5 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
-  import { seo, setSeo } from '$lib/seo';
   import type { LandingSectionKey } from '$lib/types/landing-alcoy';
   import type { PageData } from './$types';
 
@@ -12,6 +11,12 @@
     landing.seo.canonicalPath.startsWith('http')
       ? landing.seo.canonicalPath
       : `${baseUrl}${landing.seo.canonicalPath.startsWith('/') ? '' : '/'}${landing.seo.canonicalPath}`
+  );
+
+  const absoluteOgImage = $derived(
+    landing.seo.ogImage.startsWith('http')
+      ? landing.seo.ogImage
+      : `${baseUrl}${landing.seo.ogImage.startsWith('/') ? '' : '/'}${landing.seo.ogImage}`
   );
 
   const orderedSections = $derived(
@@ -67,36 +72,24 @@
     })
   );
 
-  $effect(() => {
-    setSeo({
-      title: landing.seo.title,
-      description: landing.seo.description,
-      ogTitle: landing.seo.ogTitle,
-      ogDescription: landing.seo.ogDescription,
-      canonical: canonicalUrl,
-      ogUrl: canonicalUrl,
-      ogImage: landing.seo.ogImage,
-      twitterCard: landing.seo.twitterCard
-    });
-  });
 </script>
 
 <svelte:head>
-  <title>{$seo.title}</title>
-  <meta name="description" content={$seo.description} />
-  <link rel="canonical" href={$seo.canonical} />
+  <title>{landing.seo.title}</title>
+  <meta name="description" content={landing.seo.description} />
+  <link rel="canonical" href={canonicalUrl} />
 
   <meta property="og:type" content="website" />
-  <meta property="og:title" content={$seo.ogTitle} />
-  <meta property="og:description" content={$seo.ogDescription} />
-  <meta property="og:url" content={$seo.ogUrl} />
-  <meta property="og:image" content={$seo.ogImage} />
+  <meta property="og:title" content={landing.seo.ogTitle} />
+  <meta property="og:description" content={landing.seo.ogDescription} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:image" content={absoluteOgImage} />
   <meta property="og:locale" content="es_ES" />
 
-  <meta name="twitter:card" content={$seo.twitterCard} />
-  <meta name="twitter:title" content={$seo.ogTitle} />
-  <meta name="twitter:description" content={$seo.ogDescription} />
-  <meta name="twitter:image" content={$seo.ogImage} />
+  <meta name="twitter:card" content={landing.seo.twitterCard} />
+  <meta name="twitter:title" content={landing.seo.ogTitle} />
+  <meta name="twitter:description" content={landing.seo.ogDescription} />
+  <meta name="twitter:image" content={absoluteOgImage} />
 
   <script type="application/ld+json">{localBusinessJsonLd}</script>
   <script type="application/ld+json">{webPageJsonLd}</script>

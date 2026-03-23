@@ -9,7 +9,7 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
     ogTitle: 'Diseno web en Alcoy para empresas y profesionales',
     ogDescription:
       'Landing pages y webs corporativas con enfoque comercial, SEO local y mantenimiento continuo para Alcoy y Alicante.',
-    ogImage: '/og-image.png',
+    ogImage: '/imagenes/Moises-Valero-Sanchez.png',
     canonicalPath: '/diseno-web-alcoy',
     twitterCard: 'summary_large_image'
   },

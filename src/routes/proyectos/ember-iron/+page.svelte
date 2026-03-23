@@ -2,13 +2,16 @@
   import { env } from '$env/dynamic/public';
   import { getProyectoPageLabels } from '$lib/i18n/proyecto-page-labels';
   import { getEmberPageCopy } from '$lib/i18n/proyectos/ember-copy';
-  import { setSeo } from '$lib/seo';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/ember-iron`;
+  const ogImage = `${baseUrl}/imagenes/Moises-Valero-Sanchez.png`;
+  const ogTitleShort = 'Ember & Iron — Caso de Estudio';
+  const ogDesc =
+    'Alto impacto visual sin sacrificar rendimiento: Kadence, child theme, Handbrake, XnConvert y formulario sin plugins.';
 
   const c = $derived(getEmberPageCopy(data.locale));
   const L = $derived(getProyectoPageLabels(data.locale));
@@ -25,23 +28,9 @@
         '@type': 'Person',
         name: 'Moisés Valero'
       },
-      image: `${baseUrl}/og-image.png`
+      image: ogImage
     })
   );
-
-  $effect(() => {
-    setSeo({
-      title: seoEs.headTitle,
-      description: seoEs.headDescription,
-      ogTitle: 'Ember & Iron — Caso de Estudio',
-      ogDescription:
-        'Alto impacto visual sin sacrificar rendimiento: Kadence, child theme, Handbrake, XnConvert y formulario sin plugins.',
-      canonical,
-      ogUrl: canonical,
-      ogImage: `${baseUrl}/og-image.png`,
-      twitterCard: 'summary_large_image'
-    });
-  });
 </script>
 
 <svelte:head>
@@ -50,6 +39,16 @@
   <link rel="canonical" href={canonical} />
   <link rel="alternate" hreflang="es" href={canonical} />
   <link rel="alternate" hreflang="x-default" href={canonical} />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content={ogTitleShort} />
+  <meta property="og:description" content={ogDesc} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:site_name" content="Moisés Valero" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={ogTitleShort} />
+  <meta name="twitter:description" content={ogDesc} />
+  <meta name="twitter:image" content={ogImage} />
   <script type="application/ld+json">{projectJsonLd}</script>
 </svelte:head>
 
