@@ -18,6 +18,15 @@ export const deskStructure: StructureResolver = (S) =>
             .documentId('portfolioSite')
             .title('🏠 Web principal')
         ),
+      S.listItem()
+        .title('📍 Landing - Diseño web en Alcoy')
+        .id('landingDisenoWebAlcoySingleton')
+        .child(
+          S.document()
+            .schemaType('landingDisenoWebAlcoy')
+            .documentId('landingDisenoWebAlcoy')
+            .title('📍 Landing - Diseño web en Alcoy')
+        ),
       S.divider(),
       S.documentTypeListItem('caseStudy').title('🧱 Proyectos')
     ]);

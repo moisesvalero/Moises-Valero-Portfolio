@@ -349,4 +349,37 @@
       display: none;
     }
   }
+
+  /* Cabecera fija: el label gris no debe quedar tapado en móvil */
+  @media (max-width: 768px) {
+    .hero-stripe-pro-v2 {
+      align-items: flex-start;
+      padding-top: max(6.25rem, calc(env(safe-area-inset-top, 0px) + 5.25rem));
+      padding-bottom: 72px;
+    }
+
+    .label-top {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      line-height: 1.45;
+      margin-bottom: 14px;
+      padding: 0 4px;
+      max-width: 100%;
+    }
+
+    .hero-stripe-pro-v2 h1 {
+      font-size: clamp(32px, 9.5vw, 52px) !important;
+    }
+
+    .sub-frase {
+      font-size: 16px !important;
+      margin: 0 0 20px 0 !important;
+    }
+
+    .texto-bio {
+      font-size: 15px;
+      line-height: 1.65;
+      margin-bottom: 28px;
+    }
+  }
 </style>

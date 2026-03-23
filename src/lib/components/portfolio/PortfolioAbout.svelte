@@ -157,4 +157,39 @@
       height: 300px;
     }
   }
+
+  @media (max-width: 768px) {
+    .sobre-mi-minimal {
+      margin: 48px auto;
+      padding: 0 20px;
+      scroll-margin-top: 96px;
+    }
+
+    .meta-sobre {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+    }
+
+    .col-texto h2 {
+      font-size: 28px !important;
+      letter-spacing: -0.04em;
+      margin: 0 0 14px 0 !important;
+    }
+
+    .texto-contenido :global(p) {
+      font-size: 15px;
+      line-height: 1.55;
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .sobre-mi-flex {
+      text-align: left;
+      align-items: flex-start;
+    }
+
+    .col-foto {
+      align-self: center;
+    }
+  }
 </style>

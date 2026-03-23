@@ -3,6 +3,7 @@ import { env } from '$env/dynamic/public';
 const DEFAULT_SITE_URL = 'http://localhost:5173';
 const staticRoutes = [
 	'/',
+	'/diseno-web-alcoy',
 	'/proyectos/vshield',
 	'/proyectos/ember-iron',
 	'/proyectos/galeria-nova',

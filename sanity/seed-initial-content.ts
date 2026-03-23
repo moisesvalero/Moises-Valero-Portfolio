@@ -1,5 +1,6 @@
 import { getCliClient } from 'sanity/cli';
 import { getAllCaseStudies } from '../src/lib/data/case-studies';
+import { landingAlcoyDefaults } from '../src/lib/data/landing-alcoy-defaults';
 import { sitePortfolioDefaults } from '../src/lib/data/site-portfolio-defaults';
 
 type LocaleString = { es: string; en?: string };
@@ -111,18 +112,71 @@ function mapCaseStudyDocuments() {
   }));
 }
 
+function mapLandingDisenoWebAlcoyDocument() {
+  const landing = landingAlcoyDefaults;
+  return {
+    _id: 'landingDisenoWebAlcoy',
+    _type: 'landingDisenoWebAlcoy',
+    internalTitle: 'Landing Diseno web en Alcoy',
+    sectionOrder: landing.sectionOrder,
+    seo: {
+      title: landing.seo.title,
+      description: landing.seo.description,
+      ogTitle: landing.seo.ogTitle,
+      ogDescription: landing.seo.ogDescription,
+      ogImagePath: landing.seo.ogImage,
+      canonicalPath: landing.seo.canonicalPath,
+      twitterCard: landing.seo.twitterCard
+    },
+    hero: landing.hero,
+    problemSolution: landing.problemSolution,
+    services: {
+      heading: landing.services.heading,
+      items: landing.services.items.map((item, index) => ({
+        _key: keyOf('landing-service', index),
+        ...item
+      }))
+    },
+    benefits: {
+      heading: landing.benefits.heading,
+      items: landing.benefits.items.map((item, index) => ({
+        _key: keyOf('landing-benefit', index),
+        ...item
+      }))
+    },
+    cases: {
+      heading: landing.cases.heading,
+      items: landing.cases.items.map((item, index) => ({
+        _key: keyOf('landing-case', index),
+        ...item
+      }))
+    },
+    faq: {
+      heading: landing.faq.heading,
+      items: landing.faq.items.map((item, index) => ({
+        _key: keyOf('landing-faq', index),
+        ...item
+      }))
+    },
+    finalCta: landing.finalCta,
+    localBusiness: landing.localBusiness
+  };
+}
+
 async function main() {
   const client = getCliClient({ apiVersion: '2025-01-01' });
   const siteDoc = mapSitePortfolioDocument();
+  const landingDoc = mapLandingDisenoWebAlcoyDocument();
   const caseStudies = mapCaseStudyDocuments();
 
   await client.createOrReplace(siteDoc);
+  await client.createOrReplace(landingDoc);
   for (const study of caseStudies) {
     await client.createOrReplace(study);
   }
 
   console.log(
-    `Seed completado: 1 documento global y ${caseStudies.length} proyecto(s) cargados en Sanity.`
+    `Seed completado: 2 documentos globales y ${caseStudies.length} proyecto(s) cargados en Sanity.`
   );
 }
 

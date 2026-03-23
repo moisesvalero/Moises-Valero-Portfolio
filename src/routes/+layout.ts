@@ -1,4 +1,2 @@
-import { dev } from '$app/environment';
-import { injectAnalytics } from '@vercel/analytics/sveltekit';
-
-injectAnalytics({ mode: dev ? 'development' : 'production' });
+// Analytics desactivado temporalmente para evitar fallos de carga en desarrollo.
+export {};

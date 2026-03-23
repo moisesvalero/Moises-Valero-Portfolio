@@ -1,0 +1,259 @@
+import type {
+  LandingBenefitItem,
+  LandingCaseItem,
+  LandingDisenoWebAlcoy,
+  LandingFaqItem,
+  LandingSectionKey,
+  LandingServiceItem
+} from '$lib/types/landing-alcoy';
+import { imageUrl } from './image-builder';
+
+function asRecord(v: unknown): Record<string, unknown> | undefined {
+  return v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : undefined;
+}
+
+function asString(v: unknown, fallback: string): string {
+  return typeof v === 'string' && v.trim() ? v.trim() : fallback;
+}
+
+function asStringOpt(v: unknown): string | undefined {
+  return typeof v === 'string' && v.trim() ? v.trim() : undefined;
+}
+
+function asStringArray(v: unknown, fallback: string[] = []): string[] {
+  if (!Array.isArray(v)) {
+    return fallback;
+  }
+  const out = v.filter((i): i is string => typeof i === 'string' && i.trim().length > 0).map((i) => i.trim());
+  return out.length ? out : fallback;
+}
+
+function absolutize(pathOrUrl: string, baseUrl: string): string {
+  if (/^https?:\/\//i.test(pathOrUrl)) {
+    return pathOrUrl;
+  }
+  const base = baseUrl.replace(/\/$/, '');
+  const path = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
+  return `${base}${path}`;
+}
+
+const sectionSet = new Set<LandingSectionKey>([
+  'hero',
+  'problemSolution',
+  'services',
+  'benefits',
+  'cases',
+  'faq',
+  'finalCta'
+]);
+
+function mapSectionOrder(raw: unknown, fallback: LandingSectionKey[]): LandingSectionKey[] {
+  if (!Array.isArray(raw)) {
+    return fallback;
+  }
+  const clean = raw.filter((item): item is LandingSectionKey => typeof item === 'string' && sectionSet.has(item as LandingSectionKey));
+  return clean.length ? clean : fallback;
+}
+
+function mapServiceItems(raw: unknown, fallback: LandingServiceItem[]): LandingServiceItem[] {
+  if (!Array.isArray(raw)) {
+    return fallback;
+  }
+  const mapped = raw
+    .map((item, index) => {
+      const o = asRecord(item);
+      if (!o) {
+        return null;
+      }
+      const title = asStringOpt(o.title) ?? fallback[index]?.title ?? '';
+      if (!title) {
+        return null;
+      }
+      return {
+        title,
+        description: asString(o.description, fallback[index]?.description ?? '')
+      };
+    })
+    .filter(Boolean) as LandingServiceItem[];
+  return mapped.length ? mapped : fallback;
+}
+
+function mapBenefitItems(raw: unknown, fallback: LandingBenefitItem[]): LandingBenefitItem[] {
+  if (!Array.isArray(raw)) {
+    return fallback;
+  }
+  const mapped = raw
+    .map((item, index) => {
+      const o = asRecord(item);
+      if (!o) {
+        return null;
+      }
+      const title = asStringOpt(o.title) ?? fallback[index]?.title ?? '';
+      if (!title) {
+        return null;
+      }
+      return {
+        title,
+        description: asString(o.description, fallback[index]?.description ?? '')
+      };
+    })
+    .filter(Boolean) as LandingBenefitItem[];
+  return mapped.length ? mapped : fallback;
+}
+
+function mapCaseItems(raw: unknown, fallback: LandingCaseItem[]): LandingCaseItem[] {
+  if (!Array.isArray(raw)) {
+    return fallback;
+  }
+  const mapped = raw
+    .map((item, index) => {
+      const o = asRecord(item);
+      if (!o) {
+        return null;
+      }
+      const title = asStringOpt(o.title) ?? fallback[index]?.title ?? '';
+      if (!title) {
+        return null;
+      }
+      return {
+        title,
+        summary: asString(o.summary, fallback[index]?.summary ?? ''),
+        outcome: asString(o.outcome, fallback[index]?.outcome ?? ''),
+        href: asStringOpt(o.href) ?? fallback[index]?.href,
+        linkLabel: asStringOpt(o.linkLabel) ?? fallback[index]?.linkLabel
+      };
+    })
+    .filter(Boolean) as LandingCaseItem[];
+  return mapped.length ? mapped : fallback;
+}
+
+function mapFaqItems(raw: unknown, fallback: LandingFaqItem[]): LandingFaqItem[] {
+  if (!Array.isArray(raw)) {
+    return fallback;
+  }
+  const mapped = raw
+    .map((item, index) => {
+      const o = asRecord(item);
+      if (!o) {
+        return null;
+      }
+      const question = asStringOpt(o.question) ?? fallback[index]?.question ?? '';
+      if (!question) {
+        return null;
+      }
+      return {
+        question,
+        answer: asString(o.answer, fallback[index]?.answer ?? '')
+      };
+    })
+    .filter(Boolean) as LandingFaqItem[];
+  return mapped.length ? mapped : fallback;
+}
+
+export function mapLandingDisenoWebAlcoy(
+  raw: Record<string, unknown> | null | undefined,
+  defaults: LandingDisenoWebAlcoy,
+  ctx: { projectId: string; dataset: string; baseUrl: string }
+): LandingDisenoWebAlcoy {
+  if (!raw) {
+    return {
+      ...defaults,
+      seo: {
+        ...defaults.seo,
+        ogImage: absolutize(defaults.seo.ogImage, ctx.baseUrl)
+      }
+    };
+  }
+
+  const seo = asRecord(raw.seo);
+  const hero = asRecord(raw.hero);
+  const problemSolution = asRecord(raw.problemSolution);
+  const services = asRecord(raw.services);
+  const benefits = asRecord(raw.benefits);
+  const cases = asRecord(raw.cases);
+  const faq = asRecord(raw.faq);
+  const finalCta = asRecord(raw.finalCta);
+  const localBusiness = asRecord(raw.localBusiness);
+
+  const seoImageFromAsset = seo ? imageUrl(ctx.projectId, ctx.dataset, seo.ogImage, 1600) : undefined;
+  const seoImageFallback = seo ? asStringOpt(seo.ogImagePath) : undefined;
+  const seoImage = seoImageFromAsset || seoImageFallback || defaults.seo.ogImage;
+
+  const heroCta = asRecord(hero?.cta);
+  const heroVisualImage = hero ? imageUrl(ctx.projectId, ctx.dataset, hero.visualImage, 1400) : undefined;
+  const finalCtaNode = asRecord(finalCta?.cta);
+
+  return {
+    sectionOrder: mapSectionOrder(raw.sectionOrder, defaults.sectionOrder),
+    seo: {
+      title: asString(seo?.title, defaults.seo.title),
+      description: asString(seo?.description, defaults.seo.description),
+      ogTitle: asString(seo?.ogTitle, defaults.seo.ogTitle),
+      ogDescription: asString(seo?.ogDescription, defaults.seo.ogDescription),
+      ogImage: absolutize(seoImage, ctx.baseUrl),
+      canonicalPath: asString(seo?.canonicalPath, defaults.seo.canonicalPath),
+      twitterCard: seo?.twitterCard === 'summary' ? 'summary' : 'summary_large_image'
+    },
+    hero: {
+      badge: asString(hero?.badge, defaults.hero.badge),
+      title: asString(hero?.title, defaults.hero.title),
+      subtitle: asString(hero?.subtitle, defaults.hero.subtitle),
+      visualTitle: asStringOpt(hero?.visualTitle) ?? defaults.hero.visualTitle,
+      visualDescription: asStringOpt(hero?.visualDescription) ?? defaults.hero.visualDescription,
+      visualImageSrc:
+        heroVisualImage || asStringOpt(hero?.visualImageSrc) || defaults.hero.visualImageSrc,
+      visualImageAlt: asStringOpt(hero?.visualImageAlt) ?? defaults.hero.visualImageAlt,
+      splineUrl: asStringOpt(hero?.splineUrl) ?? defaults.hero.splineUrl,
+      cta: {
+        label: asString(heroCta?.label, defaults.hero.cta.label),
+        href: asString(heroCta?.href, defaults.hero.cta.href),
+        secondaryLabel: asStringOpt(heroCta?.secondaryLabel) ?? defaults.hero.cta.secondaryLabel,
+        secondaryHref: asStringOpt(heroCta?.secondaryHref) ?? defaults.hero.cta.secondaryHref
+      }
+    },
+    problemSolution: {
+      heading: asString(problemSolution?.heading, defaults.problemSolution.heading),
+      intro: asString(problemSolution?.intro, defaults.problemSolution.intro),
+      problems: asStringArray(problemSolution?.problems, defaults.problemSolution.problems),
+      solutionTitle: asString(problemSolution?.solutionTitle, defaults.problemSolution.solutionTitle),
+      solutionText: asString(problemSolution?.solutionText, defaults.problemSolution.solutionText)
+    },
+    services: {
+      heading: asString(services?.heading, defaults.services.heading),
+      items: mapServiceItems(services?.items, defaults.services.items)
+    },
+    benefits: {
+      heading: asString(benefits?.heading, defaults.benefits.heading),
+      items: mapBenefitItems(benefits?.items, defaults.benefits.items)
+    },
+    cases: {
+      heading: asString(cases?.heading, defaults.cases.heading),
+      items: mapCaseItems(cases?.items, defaults.cases.items)
+    },
+    faq: {
+      heading: asString(faq?.heading, defaults.faq.heading),
+      items: mapFaqItems(faq?.items, defaults.faq.items)
+    },
+    finalCta: {
+      heading: asString(finalCta?.heading, defaults.finalCta.heading),
+      text: asString(finalCta?.text, defaults.finalCta.text),
+      cta: {
+        label: asString(finalCtaNode?.label, defaults.finalCta.cta.label),
+        href: asString(finalCtaNode?.href, defaults.finalCta.cta.href),
+        secondaryLabel: asStringOpt(finalCtaNode?.secondaryLabel) ?? defaults.finalCta.cta.secondaryLabel,
+        secondaryHref: asStringOpt(finalCtaNode?.secondaryHref) ?? defaults.finalCta.cta.secondaryHref
+      }
+    },
+    localBusiness: {
+      businessName: asString(localBusiness?.businessName, defaults.localBusiness.businessName),
+      serviceType: asString(localBusiness?.serviceType, defaults.localBusiness.serviceType),
+      areaServed: asStringArray(localBusiness?.areaServed, defaults.localBusiness.areaServed),
+      addressLocality: asString(localBusiness?.addressLocality, defaults.localBusiness.addressLocality),
+      addressRegion: asString(localBusiness?.addressRegion, defaults.localBusiness.addressRegion),
+      addressCountry: asString(localBusiness?.addressCountry, defaults.localBusiness.addressCountry),
+      telephone: asStringOpt(localBusiness?.telephone) ?? defaults.localBusiness.telephone,
+      email: asStringOpt(localBusiness?.email) ?? defaults.localBusiness.email,
+      priceRange: asStringOpt(localBusiness?.priceRange) ?? defaults.localBusiness.priceRange
+    }
+  };
+}
