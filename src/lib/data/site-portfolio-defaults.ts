@@ -213,7 +213,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
         imageSrc:
           '/imagenes/Captura-de-pantalla_27-2-2026_114525_moisesvalero.es_.jpeg',
         imageAlt: 'Asador de Carne Premium',
-        href: '/proyectos/ember-iron',
+        href: 'https://ember.moisesvalero.es',
         external: false,
         linkLabel: 'Ver Proyecto',
         title: 'Ember & Iron | Asador de Carne Premium',
@@ -224,7 +224,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
       {
         imageSrc: '/imagenes/vshield-1.jpeg',
         imageAlt: 'V-Shield Cybersecurity',
-        href: '/proyectos/vshield',
+        href: 'https://v-shield.moisesvalero.es',
         external: false,
         linkLabel: 'Ver Proyecto',
         title: 'V-Shield | Cybersecurity',

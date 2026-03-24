@@ -95,14 +95,14 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
         title: 'Landing de servicios B2B',
         summary: 'Rediseño completo de mensaje, estructura y CTA para un servicio tecnico.',
         outcome: 'Mejor tasa de contacto y mas consultas cualificadas.',
-        href: '/proyectos/vshield',
+        href: 'https://v-shield.moisesvalero.es',
         linkLabel: 'Ver caso'
       },
       {
         title: 'Web comercial para marca local',
         summary: 'Trabajo de UX y contenido para mostrar oferta de forma mas clara.',
         outcome: 'Aumento del tiempo en pagina y mejor percepcion de marca.',
-        href: '/proyectos/ember-iron',
+        href: 'https://ember.moisesvalero.es',
         linkLabel: 'Ver proyecto'
       }
     ]
