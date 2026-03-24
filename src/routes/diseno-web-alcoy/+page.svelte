@@ -522,7 +522,11 @@
 
       <div class="mt-12 pt-6 border-t border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-sm text-slate-500">
         <p>
-          © {year} {site.header.logoText}. Todos los derechos reservados.
+          © {year}
+          <a
+            href={`${baseUrl}/`}
+            class="text-slate-500 hover:text-[#002045] transition-colors no-underline">{site.header.logoText}</a>.
+          Todos los derechos reservados.
         </p>
         <div class="flex flex-wrap items-center gap-4">
           <a class="hover:text-[#002045] transition-colors no-underline" href="/privacidad">Privacidad</a>
