@@ -465,7 +465,7 @@
             {site.header.logoText}
           </a>
           <p class="text-slate-600 leading-relaxed max-w-xs">
-            Diseño y desarrollo web rápido para negocios de Alcoy y Alicante.
+            Diseño y desarrollo web rápido para negocios de Alcoy, Alicante y alrededores.
           </p>
         </div>
 
