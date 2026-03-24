@@ -299,7 +299,13 @@ function mapProject(
   if (!title) {
     return null;
   }
-  const href = asString(o.destinationUrl, '/');
+  const sourceHref = asString(o.destinationUrl, '/');
+  const normalizedHref = sourceHref
+    .replace(/^https?:\/\/ember\.moisesvalero\.es\/?$/i, '/proyectos/ember-iron')
+    .replace(/^https?:\/\/v-shield\.moisesvalero\.es\/?$/i, '/proyectos/vshield')
+    .replace(/^https?:\/\/moisesvalero\.es\/ember\/?$/i, '/proyectos/ember-iron')
+    .replace(/^https?:\/\/moisesvalero\.es\/v-shield\/?$/i, '/proyectos/vshield');
+  const href = normalizedHref;
   const external = /^https?:\/\//i.test(href);
   const imageSrc =
     imageUrl(ctx.projectId, ctx.dataset, o.thumbnail, 900) ||
