@@ -39,7 +39,6 @@ function absolutize(pathOrUrl: string, baseUrl: string): string {
 
 const sectionSet = new Set<LandingSectionKey>([
   'hero',
-  'problemSolution',
   'services',
   'benefits',
   'cases',
@@ -167,7 +166,6 @@ export function mapLandingDisenoWebAlcoy(
 
   const seo = asRecord(raw.seo);
   const hero = asRecord(raw.hero);
-  const problemSolution = asRecord(raw.problemSolution);
   const services = asRecord(raw.services);
   const benefits = asRecord(raw.benefits);
   const cases = asRecord(raw.cases);
@@ -211,13 +209,6 @@ export function mapLandingDisenoWebAlcoy(
         secondaryLabel: asStringOpt(heroCta?.secondaryLabel) ?? defaults.hero.cta.secondaryLabel,
         secondaryHref: asStringOpt(heroCta?.secondaryHref) ?? defaults.hero.cta.secondaryHref
       }
-    },
-    problemSolution: {
-      heading: asString(problemSolution?.heading, defaults.problemSolution.heading),
-      intro: asString(problemSolution?.intro, defaults.problemSolution.intro),
-      problems: asStringArray(problemSolution?.problems, defaults.problemSolution.problems),
-      solutionTitle: asString(problemSolution?.solutionTitle, defaults.problemSolution.solutionTitle),
-      solutionText: asString(problemSolution?.solutionText, defaults.problemSolution.solutionText)
     },
     services: {
       heading: asString(services?.heading, defaults.services.heading),

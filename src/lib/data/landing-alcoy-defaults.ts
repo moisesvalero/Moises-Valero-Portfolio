@@ -1,7 +1,7 @@
 import type { LandingDisenoWebAlcoy } from '$lib/types/landing-alcoy';
 
 export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
-  sectionOrder: ['hero', 'problemSolution', 'services', 'benefits', 'cases', 'faq', 'finalCta'],
+  sectionOrder: ['hero', 'services', 'benefits', 'cases', 'faq', 'finalCta'],
   seo: {
     title: 'Diseno web en Alcoy para captar clientes | Moises Valero',
     description:
@@ -29,20 +29,6 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
       secondaryLabel: 'Ver servicios',
       secondaryHref: '#services'
     }
-  },
-  problemSolution: {
-    heading: 'Si tu web no genera contactos, no esta trabajando para tu negocio',
-    intro:
-      'Muchas empresas tienen web, pero no una herramienta comercial. Sin estrategia ni estructura, el sitio no posiciona ni transmite confianza.',
-    problems: [
-      'Web lenta o desactualizada que da mala imagen.',
-      'Contenido poco claro, sin propuesta de valor y sin CTA visible.',
-      'No aparece para busquedas como diseno web Alcoy o servicios en Alicante.',
-      'Dependencia tecnica para cambios simples de contenido.'
-    ],
-    solutionTitle: 'La solucion: desarrollo web en Alcoy con enfoque en resultados',
-    solutionText:
-      'Diseno una landing o web corporativa pensada para captar leads: estructura SEO local, mensajes claros, CTA estrategicos y base tecnica solida para crecer.'
   },
   services: {
     heading: 'Servicios de diseño web en Alcoy',

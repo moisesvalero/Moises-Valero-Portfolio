@@ -1,4 +1,4 @@
-export type LandingSectionKey = 'hero' | 'problemSolution' | 'services' | 'benefits' | 'cases' | 'faq' | 'finalCta';
+export type LandingSectionKey = 'hero' | 'services' | 'benefits' | 'cases' | 'faq' | 'finalCta';
 
 export type LandingCta = {
   label: string;
@@ -27,14 +27,6 @@ export type LandingHero = {
   visualImageAlt?: string;
   splineUrl?: string;
   cta: LandingCta;
-};
-
-export type LandingProblemSolution = {
-  heading: string;
-  intro: string;
-  problems: string[];
-  solutionTitle: string;
-  solutionText: string;
 };
 
 export type LandingServiceItem = {
@@ -85,7 +77,6 @@ export type LandingDisenoWebAlcoy = {
   sectionOrder: LandingSectionKey[];
   seo: LandingSeo;
   hero: LandingHero;
-  problemSolution: LandingProblemSolution;
   services: {
     heading: string;
     items: LandingServiceItem[];

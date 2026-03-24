@@ -14,7 +14,6 @@ export const landingDisenoWebAlcoyQuery = `coalesce(
     twitterCard
   },
   hero,
-  problemSolution,
   services,
   benefits,
   cases,

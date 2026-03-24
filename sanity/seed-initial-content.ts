@@ -150,7 +150,6 @@ function mapLandingDisenoWebAlcoyDocument() {
       twitterCard: landing.seo.twitterCard
     },
     hero: landing.hero,
-    problemSolution: landing.problemSolution,
     services: {
       heading: landing.services.heading,
       items: landing.services.items.map((item, index) => ({

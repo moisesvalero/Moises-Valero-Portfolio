@@ -317,7 +317,7 @@
         <div class="grid md:grid-cols-3 gap-8">
           {#each landing.services.items as service, idx (service.title + idx)}
             <div
-              class="card-b bg-surface-container-lowest p-8 rounded-xl group hover:translate-y-[-4px] transition-transform duration-300"
+              class="card-b bg-surface-container-lowest p-8 rounded-xl group hover:translate-y-[-4px] transition-transform duration-300 h-full flex flex-col"
             >
               <div
                 class="w-12 h-12 bg-secondary-container flex items-center justify-center rounded-full mb-6"
@@ -327,7 +327,7 @@
               <h3 class="font-headline text-2xl font-bold text-primary mb-4">{service.title}</h3>
               <p class="text-on-surface-variant leading-relaxed mb-6">{service.description}</p>
               <a
-                class="text-secondary font-bold inline-flex items-center gap-2 group-hover:gap-4 transition-all no-underline"
+                class="mt-auto text-secondary font-bold inline-flex items-center gap-2 group-hover:gap-4 transition-all no-underline"
                 href={landing.finalCta.cta.href}
               >
                 Quiero esta opción <span class="material-symbols-outlined">arrow_forward</span>

@@ -24,7 +24,7 @@ export const landingDisenoWebAlcoy = defineType({
   type: 'document',
   initialValue: {
     internalTitle: 'Landing Diseno web en Alcoy',
-    sectionOrder: ['hero', 'problemSolution', 'services', 'benefits', 'cases', 'faq', 'finalCta']
+    sectionOrder: ['hero', 'services', 'benefits', 'cases', 'faq', 'finalCta']
   },
   groups: [
     { name: 'panel', title: 'Panel', default: true },
@@ -52,7 +52,6 @@ export const landingDisenoWebAlcoy = defineType({
           options: {
             list: [
               { title: 'Hero', value: 'hero' },
-              { title: 'Problema / Solucion', value: 'problemSolution' },
               { title: 'Servicios', value: 'services' },
               { title: 'Beneficios', value: 'benefits' },
               { title: 'Casos / Proyectos', value: 'cases' },
@@ -163,24 +162,6 @@ export const landingDisenoWebAlcoy = defineType({
           title: 'CTA hero',
           fields: ctaFields
         })
-      ]
-    }),
-    defineField({
-      name: 'problemSolution',
-      type: 'object',
-      title: 'Bloque problema / solucion',
-      group: 'content',
-      fields: [
-        defineField({ name: 'heading', type: 'string', title: 'Titulo bloque' }),
-        defineField({ name: 'intro', type: 'text', title: 'Intro', rows: 3 }),
-        defineField({
-          name: 'problems',
-          type: 'array',
-          title: 'Lista de problemas',
-          of: [{ type: 'string' }]
-        }),
-        defineField({ name: 'solutionTitle', type: 'string', title: 'Titulo solucion' }),
-        defineField({ name: 'solutionText', type: 'text', title: 'Texto solucion', rows: 4 })
       ]
     }),
     defineField({
