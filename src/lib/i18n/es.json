@@ -380,6 +380,11 @@
     "cookies": "Cookies",
     "preferences": "Preferencias de cookies"
   },
+  "contactCta": {
+    "mobileIntro": "También puedes escribirme directo:",
+    "whatsappShort": "WhatsApp",
+    "formShort": "Formulario"
+  },
   "contactChatBlocked": {
     "title": "Chat con asistente",
     "body": "El chat usa un servicio externo (Typebot). Para activarlo, elige «Aceptar todas» en el aviso de cookies o pulsa abajo. Siempre puedes escribirme por WhatsApp.",

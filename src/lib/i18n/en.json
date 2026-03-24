@@ -376,6 +376,11 @@
     "cookies": "Cookies",
     "preferences": "Cookie preferences"
   },
+  "contactCta": {
+    "mobileIntro": "Or reach me directly:",
+    "whatsappShort": "WhatsApp",
+    "formShort": "Form"
+  },
   "contactChatBlocked": {
     "title": "Assistant chat",
     "body": "The chat uses an external service (Typebot). To enable it, choose “Accept all” in the cookie banner or tap below. You can always use WhatsApp.",

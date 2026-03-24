@@ -247,7 +247,7 @@
     </div>
   </nav>
 
-  <main class="pt-6 md:pt-8">
+  <main class="pt-12 md:pt-8">
     <section
       class="hero-b section-glow relative min-h-0 py-10 md:py-0 md:min-h-[820px] lg:min-h-[860px] flex items-start md:items-center overflow-x-clip overflow-y-visible bg-primary px-6"
     >
@@ -471,7 +471,7 @@
             {site.header.logoText}
           </a>
           <p class="text-slate-600 leading-relaxed max-w-xs">
-            Diseño y desarrollo web rápido para negocios de Alcoy, Alicante y alrededores.
+            Diseño y desarrollo web para negocios de Alcoy, Alicante y alrededores.
           </p>
         </div>
 

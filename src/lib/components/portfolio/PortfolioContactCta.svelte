@@ -121,21 +121,26 @@
     </div>
 
     <div class="botones-final">
+      <p class="contact-cta-mobile-intro">{$t('contactCta.mobileIntro')}</p>
       <div class="cta-stack">
-        <p class="texto-whatsapp-final">{whatsappLead}</p>
+        <p class="texto-whatsapp-final texto-cta-lead-desktop">{whatsappLead}</p>
         <a
           href={whatsappHref}
           target="_blank"
           rel="noopener noreferrer"
           class="btn-whatsapp-final"
         >
-          {whatsappButtonLabel} <span aria-hidden="true">→</span>
+          <span class="btn-cta-label-long">{whatsappButtonLabel}</span>
+          <span class="btn-cta-label-short">{$t('contactCta.whatsappShort')}</span>
+          <span aria-hidden="true" class="btn-cta-arrow">→</span>
         </a>
       </div>
       <div class="cta-stack">
-        <p class="texto-whatsapp-final">{formLead}</p>
+        <p class="texto-whatsapp-final texto-cta-lead-desktop">{formLead}</p>
         <button type="button" class="btn-form-final" onclick={openFormModal}>
-          {formButtonLabel} <span aria-hidden="true">→</span>
+          <span class="btn-cta-label-long">{formButtonLabel}</span>
+          <span class="btn-cta-label-short">{$t('contactCta.formShort')}</span>
+          <span aria-hidden="true" class="btn-cta-arrow">→</span>
         </button>
       </div>
     </div>
@@ -305,6 +310,18 @@
     transform: translateY(-1px);
   }
 
+  .contact-cta-mobile-intro {
+    display: none;
+  }
+
+  .btn-cta-label-short {
+    display: none;
+  }
+
+  .btn-cta-label-long {
+    display: inline;
+  }
+
   .texto-whatsapp-final {
     color: #a1a1a6;
     font-size: 16px;
@@ -328,7 +345,8 @@
   .btn-whatsapp-final {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 8px;
     background: rgb(37, 211, 102);
     color: #ffffff !important;
     padding: 14px 30px;
@@ -337,6 +355,8 @@
     font-size: 16px;
     font-weight: 600;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    max-width: 100%;
   }
 
   .btn-whatsapp-final:hover {
@@ -349,7 +369,8 @@
   .btn-form-final {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 8px;
     background: transparent;
     color: #f5f5f7;
     padding: 14px 30px;
@@ -359,6 +380,8 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    max-width: 100%;
   }
 
   .btn-form-final:hover {
@@ -526,21 +549,81 @@
 
   @media (max-width: 768px) {
     .seccion-final-unificada {
-      padding: 40px 20px;
+      padding: 32px 16px 36px;
       scroll-margin-top: 88px;
     }
 
+    .header-final {
+      margin-bottom: 16px;
+    }
+
     .seccion-final-unificada h3 {
-      font-size: 30px !important;
+      font-size: 26px !important;
+      letter-spacing: -0.5px !important;
+    }
+
+    .header-final p {
+      font-size: 15px !important;
+      margin-bottom: 16px !important;
+    }
+
+    .chat-container-final {
+      margin-bottom: 12px;
     }
 
     .typebot-frame {
-      height: 420px;
+      height: min(52vh, 360px);
+    }
+
+    .chat-blocked {
+      min-height: 220px;
+      padding: 20px 16px;
+    }
+
+    .contact-cta-mobile-intro {
+      display: block;
+      grid-column: 1 / -1;
+      margin: 0 0 10px;
+      color: #86868d;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .texto-cta-lead-desktop {
+      display: none;
+    }
+
+    .btn-cta-label-long {
+      display: none;
+    }
+
+    .btn-cta-label-short {
+      display: inline;
+    }
+
+    .btn-cta-arrow {
+      display: none;
     }
 
     .botones-final {
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
+      align-items: stretch;
+      margin-top: 0;
+    }
+
+    .cta-stack {
+      width: 100%;
+    }
+
+    .btn-whatsapp-final,
+    .btn-form-final {
+      width: 100%;
+      padding: 11px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 10px;
     }
 
     .modal-head h4 {
