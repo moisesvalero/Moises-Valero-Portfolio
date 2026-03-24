@@ -106,32 +106,14 @@
     JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      mainEntity: [
-        {
-          '@type': 'Question',
-          name: '¿En cuánto tiempo estará lista mi web?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'La mayoría de proyectos de diseño web en Alcoy se entregan en 2-4 semanas. El plazo final depende del alcance, funcionalidades y rapidez en la entrega de contenidos.'
-          }
-        },
-        {
-          '@type': 'Question',
-          name: '¿Trabajas con WordPress o desarrollo a medida?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'Sí. Trabajo con WordPress cuando buscas autogestión sencilla y con SvelteKit cuando priorizas velocidad, SEO técnico y mejor experiencia de usuario.'
-          }
-        },
-        {
-          '@type': 'Question',
-          name: '¿La web viene optimizada para SEO local en Alcoy?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'Sí. La estructura, los textos y el SEO on-page se preparan para posicionar búsquedas locales en Alcoy y Alicante y para convertir visitas en contactos reales.'
-          }
+      mainEntity: landing.faq.items.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.answer
         }
-      ]
+      }))
     })
   );
 
@@ -185,6 +167,8 @@
       ]
     })
   );
+
+  const serviceIcons = ['ads_click', 'business', 'code'];
 
   $effect(() => {
     setSeo({
@@ -278,24 +262,23 @@
           <h1
             class="font-headline text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-tight"
           >
-            Diseño web en Alcoy
+            {landing.hero.title}
           </h1>
           <p class="text-on-primary-container text-lg md:text-xl max-w-lg leading-relaxed">
-            Diseño webs rápidas, claras y orientadas a resultados para negocios de Alcoy y Alicante.
-            WordPress o SvelteKit según tu proyecto, presencial o remoto.
+            {landing.hero.subtitle}
           </p>
           <div class="flex flex-col sm:flex-row gap-4">
             <a
-              href="/api/contact/whatsapp"
+              href={landing.hero.cta.href}
               class="cta-hover cta-hover-primary bg-secondary text-on-secondary px-8 py-4 rounded-md font-bold text-lg hover:shadow-[0_0_20px_rgba(0,108,73,0.4)] transition-all active:scale-95 text-center no-underline inline-flex items-center justify-center"
             >
-              Presupuesto rápido
+              {landing.hero.cta.label}
             </a>
             <a
               class="cta-hover cta-hover-ghost inline-flex items-center text-white font-semibold py-4 px-8 border-b-2 border-secondary-container/30 hover:border-secondary transition-all no-underline"
-              href="#services"
+              href={landing.hero.cta.secondaryHref || '#services'}
             >
-              Ver servicios
+              {landing.hero.cta.secondaryLabel || 'Ver servicios'}
             </a>
           </div>
         </div>
@@ -328,71 +311,29 @@
           <span class="text-secondary font-bold tracking-widest uppercase text-sm block mb-4"
             >Servicios</span>
           <h2 class="font-headline text-4xl md:text-5xl font-extrabold text-primary mb-6">
-            Servicios de diseño web en Alcoy
+            {landing.services.heading}
           </h2>
-          <p class="text-on-surface-variant max-w-2xl leading-relaxed">
-            Webs rápidas, claras y enfocadas a conseguir contactos y ventas.
-          </p>
         </div>
         <div class="grid md:grid-cols-3 gap-8">
-          <div
-            class="card-b bg-surface-container-lowest p-8 rounded-xl group hover:translate-y-[-4px] transition-transform duration-300"
-          >
+          {#each landing.services.items as service, idx (service.title + idx)}
             <div
-              class="w-12 h-12 bg-secondary-container flex items-center justify-center rounded-full mb-6"
+              class="card-b bg-surface-container-lowest p-8 rounded-xl group hover:translate-y-[-4px] transition-transform duration-300"
             >
-              <span class="material-symbols-outlined text-on-secondary-container">ads_click</span>
+              <div
+                class="w-12 h-12 bg-secondary-container flex items-center justify-center rounded-full mb-6"
+              >
+                <span class="material-symbols-outlined text-on-secondary-container">{serviceIcons[idx] || 'code'}</span>
+              </div>
+              <h3 class="font-headline text-2xl font-bold text-primary mb-4">{service.title}</h3>
+              <p class="text-on-surface-variant leading-relaxed mb-6">{service.description}</p>
+              <a
+                class="text-secondary font-bold inline-flex items-center gap-2 group-hover:gap-4 transition-all no-underline"
+                href={landing.finalCta.cta.href}
+              >
+                Quiero esta opción <span class="material-symbols-outlined">arrow_forward</span>
+              </a>
             </div>
-            <h3 class="font-headline text-2xl font-bold text-primary mb-4">Web profesional</h3>
-            <p class="text-on-surface-variant leading-relaxed mb-6">
-              Diseño de landings y webs corporativas enfocadas a captar contactos, explicar servicios y transmitir confianza.
-            </p>
-            <a
-              class="text-secondary font-bold inline-flex items-center gap-2 group-hover:gap-4 transition-all no-underline"
-              href="/#contacto"
-            >
-              Quiero esta opción <span class="material-symbols-outlined">arrow_forward</span>
-            </a>
-          </div>
-          <div
-            class="card-b bg-surface-container-low p-8 rounded-xl group hover:translate-y-[-4px] transition-transform duration-300"
-          >
-            <div
-              class="w-12 h-12 bg-secondary-container flex items-center justify-center rounded-full mb-6"
-            >
-              <span class="material-symbols-outlined text-on-secondary-container">business</span>
-            </div>
-            <h3 class="font-headline text-2xl font-bold text-primary mb-4">Tienda online WooCommerce</h3>
-            <p class="text-on-surface-variant leading-relaxed mb-6">
-              Tiendas listas para vender con Stripe, envíos, impuestos y panel autogestionable.
-            </p>
-            <a
-              class="text-secondary font-bold inline-flex items-center gap-2 group-hover:gap-4 transition-all no-underline"
-              href="/#contacto"
-            >
-              Quiero esta opción <span class="material-symbols-outlined">arrow_forward</span>
-            </a>
-          </div>
-          <div
-            class="card-b bg-surface-container-lowest p-8 rounded-xl group hover:translate-y-[-4px] transition-transform duration-300"
-          >
-            <div
-              class="w-12 h-12 bg-secondary-container flex items-center justify-center rounded-full mb-6"
-            >
-              <span class="material-symbols-outlined text-on-secondary-container">code</span>
-            </div>
-            <h3 class="font-headline text-2xl font-bold text-primary mb-4">WordPress, SvelteKit y más</h3>
-            <p class="text-on-surface-variant leading-relaxed mb-6">
-              Elijo la tecnología según tu proyecto: WordPress para autogestión o SvelteKit para máximo
-              rendimiento.
-            </p>
-            <a
-              class="text-secondary font-bold inline-flex items-center gap-2 group-hover:gap-4 transition-all no-underline"
-              href="/#contacto"
-            >
-              Quiero esta opción <span class="material-symbols-outlined">arrow_forward</span>
-            </a>
-          </div>
+          {/each}
         </div>
       </div>
     </section>
@@ -418,52 +359,24 @@
             <h2
               class="font-headline text-4xl md:text-5xl font-extrabold text-primary leading-tight"
             >
-              Webs rápidas que ayudan a vender más
+              {landing.benefits.heading}
             </h2>
           </div>
           <div class="space-y-8">
-            <div class="flex gap-6">
-              <div
-                class="flex-shrink-0 w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center"
-              >
-                <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1"
-                  >check</span>
+            {#each landing.benefits.items as benefit (benefit.title)}
+              <div class="flex gap-6">
+                <div
+                  class="flex-shrink-0 w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center"
+                >
+                  <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1"
+                    >check</span>
+                </div>
+                <div>
+                  <h4 class="font-headline text-xl font-bold text-primary mb-2">{benefit.title}</h4>
+                  <p class="text-on-surface-variant leading-relaxed">{benefit.description}</p>
+                </div>
               </div>
-              <div>
-                <h4 class="font-headline text-xl font-bold text-primary mb-2">Más contactos reales</h4>
-                <p class="text-on-surface-variant leading-relaxed">
-                  Estructura y llamadas a la acción para generar más mensajes y llamadas.
-                </p>
-              </div>
-            </div>
-            <div class="flex gap-6">
-              <div
-                class="flex-shrink-0 w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center"
-              >
-                <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1"
-                  >check</span>
-              </div>
-              <div>
-                <h4 class="font-headline text-xl font-bold text-primary mb-2">Más confianza en tu marca</h4>
-                <p class="text-on-surface-variant leading-relaxed">
-                  Diseño profesional y claro para que tu negocio se vea serio y fiable.
-                </p>
-              </div>
-            </div>
-            <div class="flex gap-6">
-              <div
-                class="flex-shrink-0 w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center"
-              >
-                <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1"
-                  >check</span>
-              </div>
-              <div>
-                <h4 class="font-headline text-xl font-bold text-primary mb-2">SEO técnico desde el inicio</h4>
-                <p class="text-on-surface-variant leading-relaxed">
-                  Velocidad y buena estructura técnica desde el primer día.
-                </p>
-              </div>
-            </div>
+            {/each}
           </div>
         </div>
       </div>
@@ -473,36 +386,17 @@
       <div class="max-w-3xl mx-auto">
         <div class="text-center mb-16">
           <h2 class="font-headline text-3xl md:text-4xl font-extrabold text-primary mb-4">
-            Preguntas frecuentes
+            {landing.faq.heading}
           </h2>
           <p class="text-on-surface-variant">Respuestas rápidas antes de pedir presupuesto.</p>
         </div>
         <div class="space-y-6">
-          <div class="card-b bg-surface-container p-6 rounded-lg">
-            <h4 class="font-headline font-bold text-primary text-lg mb-3">¿En cuánto tiempo estará lista mi web?</h4>
-            <p class="text-on-surface-variant leading-relaxed">
-              En la mayoría de casos, entre 2 y 4 semanas. El plazo exacto depende del alcance, las
-              funcionalidades y la entrega de contenidos.
-            </p>
-          </div>
-          <div class="card-b bg-surface-container p-6 rounded-lg">
-            <h4 class="font-headline font-bold text-primary text-lg mb-3">
-              ¿Trabajas con WordPress o desarrollo a medida?
-            </h4>
-            <p class="text-on-surface-variant leading-relaxed">
-              Sí. WordPress cuando priorizas facilidad de gestión, y SvelteKit/headless cuando buscas máximo
-              rendimiento, SEO técnico y una experiencia premium.
-            </p>
-          </div>
-          <div class="card-b bg-surface-container p-6 rounded-lg">
-            <h4 class="font-headline font-bold text-primary text-lg mb-3">
-              ¿La web viene optimizada para SEO local en Alcoy?
-            </h4>
-            <p class="text-on-surface-variant leading-relaxed">
-              Sí. Se trabaja estructura, headings, copy local y rendimiento para posicionar en Alcoy y
-              Alicante sin sobreoptimizar.
-            </p>
-          </div>
+          {#each landing.faq.items as item (item.question)}
+            <div class="card-b bg-surface-container p-6 rounded-lg">
+              <h4 class="font-headline font-bold text-primary text-lg mb-3">{item.question}</h4>
+              <p class="text-on-surface-variant leading-relaxed">{item.answer}</p>
+            </div>
+          {/each}
         </div>
       </div>
     </section>
@@ -519,17 +413,17 @@
         </div>
         <div class="relative z-10 space-y-8">
           <h2 class="font-headline text-4xl md:text-6xl font-extrabold text-white">
-            ¿Hablamos de tu proyecto web en Alcoy?
+            {landing.finalCta.heading}
           </h2>
           <p class="text-on-primary-container text-lg max-w-2xl mx-auto leading-relaxed">
-            Te paso una propuesta clara, sin tecnicismos ni letra pequeña.
+            {landing.finalCta.text}
           </p>
           <div class="pt-6 flex flex-col items-center gap-6">
             <a
-              href="/api/contact/whatsapp"
+              href={landing.finalCta.cta.href}
               class="btn-shine bg-secondary text-on-secondary px-10 py-5 rounded-md font-bold text-xl hover:shadow-[0_0_25px_rgba(0,108,73,0.5)] transition-all active:scale-95 no-underline inline-flex items-center justify-center"
             >
-              Solicitar presupuesto
+              {landing.finalCta.cta.label}
             </a>
             <div
               class="flex flex-col md:flex-row items-center gap-8 text-on-primary-container font-medium mt-4"
@@ -588,8 +482,8 @@
         <div>
           <h3 class="text-sm font-bold tracking-wide uppercase text-slate-900 mb-4">Servicios</h3>
           <ul class="space-y-3">
-            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">Landing pages</a></li>
-            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">Web corporativa</a></li>
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">{landing.services.items[0]?.title || 'Servicio 1'}</a></li>
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">{landing.services.items[1]?.title || 'Servicio 2'}</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="/#proyectos">Proyectos</a></li>
           </ul>
         </div>

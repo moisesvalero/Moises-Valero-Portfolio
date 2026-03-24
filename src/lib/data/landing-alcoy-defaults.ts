@@ -15,9 +15,9 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
   },
   hero: {
     badge: 'Diseno web en Alcoy y Alicante',
-    title: 'Diseno web en Alcoy que convierte visitas en oportunidades reales',
+    title: 'Diseño web en Alcoy',
     subtitle:
-      'Creo webs rapidas y orientadas a negocio con SvelteKit y WordPress para pymes y profesionales que quieren mas contactos, mejor presencia y libertad para crecer en Alcoy, Alicante o remoto.',
+      'Diseño webs rápidas, claras y orientadas a resultados para negocios de Alcoy y Alicante. WordPress o SvelteKit según tu proyecto, presencial o remoto.',
     visualTitle: 'Web comercial + tecnologia seria',
     visualDescription:
       'Diseño, desarrollo web en Alcoy, SEO local y stack WordPress/SvelteKit para resultados medibles.',
@@ -26,8 +26,8 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
     cta: {
       label: 'Presupuesto rápido',
       href: '/api/contact/whatsapp',
-      secondaryLabel: 'Ver proyectos',
-      secondaryHref: '/#proyectos'
+      secondaryLabel: 'Ver servicios',
+      secondaryHref: '#services'
     }
   },
   problemSolution: {
@@ -45,46 +45,39 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
       'Diseno una landing o web corporativa pensada para captar leads: estructura SEO local, mensajes claros, CTA estrategicos y base tecnica solida para crecer.'
   },
   services: {
-    heading: 'Servicios principales',
+    heading: 'Servicios de diseño web en Alcoy',
     items: [
       {
-        title: 'Landing SEO local',
+        title: 'Web profesional',
         description:
-          'Pagina orientada a conversion para posicionar tu servicio en Alcoy y Alicante con una propuesta clara y medible.'
+          'Diseño de landings y webs corporativas enfocadas a captar contactos, explicar servicios y transmitir confianza.'
       },
       {
-        title: 'Web corporativa profesional (SvelteKit o WordPress)',
+        title: 'Tienda online WooCommerce',
         description:
-          'Sitio completo para presentar tu empresa, servicios, casos y contacto con arquitectura preparada para escalar, ya sea en stack moderno o en WordPress.'
+          'Tiendas listas para vender con Stripe, envíos, impuestos y panel autogestionable.'
       },
       {
-        title: 'Mantenimiento y mejoras continuas',
+        title: 'WordPress, SvelteKit y más',
         description:
-          'Soporte tecnico, optimizacion de velocidad y evolucion del contenido sin romper la web ni depender de soluciones improvisadas.'
+          'Elijo la tecnología según tu proyecto: WordPress para autogestión o SvelteKit para máximo rendimiento.'
       }
     ]
   },
   benefits: {
-    heading: 'Beneficios que se notan en negocio',
+    heading: 'Webs rápidas que ayudan a vender más',
     items: [
       {
-        title: 'Mas conversion',
-        description: 'CTAs visibles y mensajes comerciales para convertir trafico en conversaciones reales.'
+        title: 'Más contactos reales',
+        description: 'Estructura y llamadas a la acción para generar más mensajes y llamadas.'
       },
       {
-        title: 'Mejor posicionamiento local',
-        description:
-          'Base SEO on-page y contenidos orientados a terminos como diseno web en Alcoy y desarrollo web en Alcoy.'
+        title: 'Más confianza en tu marca',
+        description: 'Diseño profesional y claro para que tu negocio se vea serio y fiable.'
       },
       {
-        title: 'Web rapida y mantenible',
-        description:
-          'Codigo limpio y estructura escalable para que tu web no se quede obsoleta en unos meses.'
-      },
-      {
-        title: 'Trabajo cercano y flexible',
-        description:
-          'Colaboracion para empresas de Alcoy y Alicante, con opcion presencial o remoto segun el proyecto.'
+        title: 'SEO técnico desde el inicio',
+        description: 'Velocidad y buena estructura técnica desde el primer día.'
       }
     ]
   },
@@ -111,30 +104,25 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
     heading: 'Preguntas frecuentes',
     items: [
       {
-        question: 'Cuanto tarda un proyecto de diseno web en Alcoy?',
+        question: '¿En cuánto tiempo estará lista mi web?',
         answer:
-          'Depende del alcance, pero una landing optimizada suele estar entre 2 y 4 semanas, incluyendo contenido, SEO base y ajustes finales.'
+          'En la mayoría de casos, entre 2 y 4 semanas. El plazo exacto depende del alcance, las funcionalidades y la entrega de contenidos.'
       },
       {
-        question: 'Trabajas solo en Alcoy?',
+        question: '¿Trabajas con WordPress o desarrollo a medida?',
         answer:
-          'Trabajo con empresas de Alcoy y Alicante de forma cercana, y tambien colaboro en remoto con clientes de otras zonas.'
+          'Sí. WordPress cuando priorizas facilidad de gestión, y SvelteKit/headless cuando buscas máximo rendimiento, SEO técnico y una experiencia premium.'
       },
       {
-        question: 'Puedo editar los textos despues?',
+        question: '¿La web viene optimizada para SEO local en Alcoy?',
         answer:
-          'Si. La landing queda conectada a Sanity para editar textos, bloques, FAQs y CTAs sin tocar codigo.'
-      },
-      {
-        question: 'Incluyes mantenimiento?',
-        answer:
-          'Si, puedo incluir soporte y evolucion continua para mantener la web actualizada, segura y alineada con tus objetivos.'
+          'Sí. Se trabaja estructura, headings, copy local y rendimiento para posicionar en Alcoy y Alicante sin sobreoptimizar.'
       }
     ]
   },
   finalCta: {
-    heading: 'Hablemos de tu web y de como convertirla en un canal de captacion',
-    text: 'Si buscas diseno web en Alcoy con enfoque real en resultados, te preparo una propuesta clara y adaptada a tu negocio.',
+    heading: '¿Hablamos de tu proyecto web en Alcoy?',
+    text: 'Te paso una propuesta clara, sin tecnicismos ni letra pequeña.',
     cta: {
       label: 'Solicitar presupuesto',
       href: '/api/contact/whatsapp',
