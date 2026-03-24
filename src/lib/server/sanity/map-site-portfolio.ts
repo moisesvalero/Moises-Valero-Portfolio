@@ -387,6 +387,7 @@ function mergeFooter(raw: unknown, d: SitePortfolioContent['footer']): SitePortf
     copyrightTemplate: asString(o.copyrightTemplate, d.copyrightTemplate),
     githubHref: asString(o.githubHref, d.githubHref),
     linkedinHref: asString(o.linkedinHref, d.linkedinHref),
+    maltHref: asString(o.maltHref, d.maltHref),
     emailHref: asString(o.emailHref, d.emailHref)
   };
 }

@@ -24,7 +24,7 @@
       name: 'Moisés Valero',
       url: `${baseUrl}/`,
       jobTitle: 'Desarrollador Web',
-      sameAs: [site.footer.githubHref, site.footer.linkedinHref],
+      sameAs: [site.footer.githubHref, site.footer.linkedinHref, site.footer.maltHref],
       knowsAbout: ['SvelteKit', 'WordPress', 'SEO Técnico', 'Sanity CMS']
     })
   );

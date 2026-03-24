@@ -238,6 +238,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
       'High-Performance Web Development | Systems & SEO Alcoy(Alicante) | Available for remote and on-site projects. Moisés Valero © {{year}} | Specialist in SvelteKit, WordPress and Sanity CMS.',
     githubHref: 'https://github.com/moisesvalero',
     linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
+    maltHref: 'https://www.malt.es/profile/moisesvalerosanchez',
     emailHref: 'mailto:info@moisesvalero.es'
   },
   careerModal: {

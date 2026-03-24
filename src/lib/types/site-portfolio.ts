@@ -130,6 +130,7 @@ export type SiteFooter = {
   copyrightTemplate: string;
   githubHref: string;
   linkedinHref: string;
+  maltHref: string;
   emailHref: string;
 };
 
