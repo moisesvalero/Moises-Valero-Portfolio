@@ -231,11 +231,11 @@
   <script type="application/ld+json">{breadcrumbJsonLd}</script>
 </svelte:head>
 
-<div class="scroll-smooth stitch-landing font-body text-on-surface bg-surface min-h-screen">
+<div id="top" class="scroll-smooth stitch-landing font-body text-on-surface bg-surface min-h-screen">
   <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm">
     <div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
       <HeaderBrand
-        href="/"
+        href="#top"
         ariaLabel="Moisés Valero — Desarrollador web"
       />
       <div class="hidden md:flex space-x-8">
