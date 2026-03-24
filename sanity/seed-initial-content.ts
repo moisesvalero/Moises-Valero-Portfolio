@@ -180,6 +180,7 @@ function mapLandingDisenoWebAlcoyDocument() {
       }))
     },
     finalCta: landing.finalCta,
+    contactModal: landing.contactModal,
     localBusiness: landing.localBusiness
   };
 }
