@@ -20,10 +20,10 @@ const ctaFields = [
 
 export const landingDisenoWebAlcoy = defineType({
   name: 'landingDisenoWebAlcoy',
-  title: 'Landing SEO - Diseno web en Alcoy',
+  title: 'Landing SEO - Diseño web en Alcoy',
   type: 'document',
   initialValue: {
-    internalTitle: 'Landing Diseno web en Alcoy',
+    internalTitle: 'Landing Diseño web en Alcoy',
     sectionOrder: ['hero', 'services', 'benefits', 'cases', 'faq', 'finalCta']
   },
   groups: [
@@ -314,6 +314,6 @@ export const landingDisenoWebAlcoy = defineType({
   ],
   preview: {
     select: { t: 'internalTitle' },
-    prepare: ({ t }) => ({ title: t || 'Landing Diseno web en Alcoy' })
+    prepare: ({ t }) => ({ title: t || 'Landing Diseño web en Alcoy' })
   }
 });

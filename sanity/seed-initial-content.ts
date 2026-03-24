@@ -138,7 +138,7 @@ function mapLandingDisenoWebAlcoyDocument() {
   return {
     _id: 'landingDisenoWebAlcoy',
     _type: 'landingDisenoWebAlcoy',
-    internalTitle: 'Landing Diseno web en Alcoy',
+    internalTitle: 'Landing Diseño web en Alcoy',
     sectionOrder: landing.sectionOrder,
     seo: {
       title: landing.seo.title,

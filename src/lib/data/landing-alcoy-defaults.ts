@@ -3,10 +3,10 @@ import type { LandingDisenoWebAlcoy } from '$lib/types/landing-alcoy';
 export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
   sectionOrder: ['hero', 'services', 'benefits', 'cases', 'faq', 'finalCta'],
   seo: {
-    title: 'Diseno web en Alcoy para captar clientes | Moises Valero',
+    title: 'Diseño web en Alcoy para captar clientes | Moisés Valero',
     description:
-      'Servicio de diseno web en Alcoy orientado a conversion y SEO local. Desarrollo web en Alcoy y Alicante con enfoque en rendimiento, negocio y soporte real.',
-    ogTitle: 'Diseno web en Alcoy para empresas y profesionales',
+      'Servicio de diseño web en Alcoy orientado a conversión y SEO local. Desarrollo web en Alcoy y Alicante con enfoque en rendimiento, negocio y soporte real.',
+    ogTitle: 'Diseño web en Alcoy para empresas y profesionales',
     ogDescription:
       'Landing pages y webs corporativas con enfoque comercial, SEO local y mantenimiento continuo para Alcoy y Alicante.',
     ogImage: '/og-image.png',
@@ -14,11 +14,11 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
     twitterCard: 'summary_large_image'
   },
   hero: {
-    badge: 'Diseno web en Alcoy y Alicante',
+    badge: 'Diseño web en Alcoy y Alicante',
     title: 'Diseño web en Alcoy',
     subtitle:
       'Diseño webs rápidas, claras y orientadas a resultados para negocios de Alcoy y Alicante. WordPress o SvelteKit según tu proyecto, presencial o remoto.',
-    visualTitle: 'Web comercial + tecnologia seria',
+    visualTitle: 'Web comercial + tecnología seria',
     visualDescription:
       'Diseño, desarrollo web en Alcoy, SEO local y stack WordPress/SvelteKit para resultados medibles.',
     visualImageSrc: '/imagenes/captura-portfolio_ember-scaled.avif',
@@ -72,15 +72,15 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
     items: [
       {
         title: 'Landing de servicios B2B',
-        summary: 'Rediseño completo de mensaje, estructura y CTA para un servicio tecnico.',
-        outcome: 'Mejor tasa de contacto y mas consultas cualificadas.',
+        summary: 'Rediseño completo de mensaje, estructura y CTA para un servicio técnico.',
+        outcome: 'Mejor tasa de contacto y más consultas cualificadas.',
         href: 'https://v-shield.moisesvalero.es',
         linkLabel: 'Ver caso'
       },
       {
         title: 'Web comercial para marca local',
-        summary: 'Trabajo de UX y contenido para mostrar oferta de forma mas clara.',
-        outcome: 'Aumento del tiempo en pagina y mejor percepcion de marca.',
+        summary: 'Trabajo de UX y contenido para mostrar oferta de forma más clara.',
+        outcome: 'Aumento del tiempo en página y mejor percepción de marca.',
         href: 'https://ember.moisesvalero.es',
         linkLabel: 'Ver proyecto'
       }
@@ -125,8 +125,8 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
     privacyLabel: 'He leído y acepto la política de privacidad.'
   },
   localBusiness: {
-    businessName: 'Moises Valero - Desarrollo Web',
-    serviceType: 'Diseno y desarrollo web',
+    businessName: 'Moisés Valero - Desarrollo Web',
+    serviceType: 'Diseño y desarrollo web',
     areaServed: ['Alcoy', 'Alicante'],
     addressLocality: 'Alcoy',
     addressRegion: 'Alicante',
