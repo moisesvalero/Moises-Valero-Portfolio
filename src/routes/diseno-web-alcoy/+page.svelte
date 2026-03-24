@@ -2,6 +2,7 @@
   import { env } from '$env/dynamic/public';
   import { onMount } from 'svelte';
   import HeaderBrand from '$lib/components/HeaderBrand.svelte';
+  import JsonLdScript from '$lib/components/JsonLdScript.svelte';
   import HeroMacMockup from '$lib/components/landing/HeroMacMockup.svelte';
   import { stringifyJsonLdForHtml } from '$lib/json-ld-html.js';
   import { seo, setSeo } from '$lib/seo';
@@ -210,10 +211,10 @@
   />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="/js/landing-tailwind-config.js"></script>
-  <script type="application/ld+json">{localBusinessJsonLd}</script>
-  <script type="application/ld+json">{webPageJsonLd}</script>
-  <script type="application/ld+json">{faqJsonLd}</script>
-  <script type="application/ld+json">{breadcrumbJsonLd}</script>
+  <JsonLdScript json={localBusinessJsonLd} />
+  <JsonLdScript json={webPageJsonLd} />
+  <JsonLdScript json={faqJsonLd} />
+  <JsonLdScript json={breadcrumbJsonLd} />
 </svelte:head>
 
 <div id="top" class="scroll-smooth stitch-landing font-body text-on-surface bg-surface min-h-screen">

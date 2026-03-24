@@ -8,6 +8,7 @@
   import PortfolioQuality from '$lib/components/portfolio/PortfolioQuality.svelte';
   import PortfolioProjects from '$lib/components/portfolio/PortfolioProjects.svelte';
   import PortfolioContactCta from '$lib/components/portfolio/PortfolioContactCta.svelte';
+  import JsonLdScript from '$lib/components/JsonLdScript.svelte';
   import { stringifyJsonLdForHtml } from '$lib/json-ld-html.js';
   import type { PageData } from './$types';
 
@@ -123,8 +124,8 @@
   <meta name="twitter:title" content={site.seo.ogTitle} />
   <meta name="twitter:description" content={site.seo.ogDescription} />
   <meta name="twitter:image" content={absoluteOgImage} />
-  <script type="application/ld+json">{websiteJsonLd}</script>
-  <script type="application/ld+json">{personJsonLd}</script>
+  <JsonLdScript json={websiteJsonLd} />
+  <JsonLdScript json={personJsonLd} />
 </svelte:head>
 
 <div class="reveal-block hero-block is-visible">

@@ -2,6 +2,7 @@
   import { env } from '$env/dynamic/public';
   import { getProyectoPageLabels } from '$lib/i18n/proyecto-page-labels';
   import { getVshieldPageCopy } from '$lib/i18n/proyectos/vshield-copy';
+  import JsonLdScript from '$lib/components/JsonLdScript.svelte';
   import { stringifyJsonLdForHtml } from '$lib/json-ld-html.js';
   import type { PageData } from './$types';
 
@@ -50,7 +51,7 @@
   <meta name="twitter:title" content={ogTitleShort} />
   <meta name="twitter:description" content={ogDesc} />
   <meta name="twitter:image" content={ogImage} />
-  <script type="application/ld+json">{projectJsonLd}</script>
+  <JsonLdScript json={projectJsonLd} />
 </svelte:head>
 
 <div class="vshield-page">

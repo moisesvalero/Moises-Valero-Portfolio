@@ -1,6 +1,7 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
   import CaseStudyPage from '$lib/components/case-study/CaseStudyPage.svelte';
+  import JsonLdScript from '$lib/components/JsonLdScript.svelte';
   import { stringifyJsonLdForHtml } from '$lib/json-ld-html.js';
   import type { PageData } from './$types';
 
@@ -44,7 +45,7 @@
   <meta name="twitter:title" content={ogTitle} />
   <meta name="twitter:description" content={ogDescription} />
   <meta name="twitter:image" content={ogImageDefault} />
-  <script type="application/ld+json">{projectJsonLd}</script>
+  <JsonLdScript json={projectJsonLd} />
 </svelte:head>
 
 <CaseStudyPage study={data.study} locale={data.locale} />
