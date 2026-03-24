@@ -1,6 +1,7 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
   import CaseStudyPage from '$lib/components/case-study/CaseStudyPage.svelte';
+  import { stringifyJsonLdForHtml } from '$lib/json-ld-html.js';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -11,7 +12,7 @@
   const ogDescription = $derived(data.studySeo.seoDescription ?? data.studySeo.heroDescription);
   const ogTitle = $derived(`${data.studySeo.title} | Caso de Estudio`);
   const projectJsonLd = $derived(
-    JSON.stringify({
+    stringifyJsonLdForHtml({
       '@context': 'https://schema.org',
       '@type': 'CreativeWork',
       name: data.studySeo.title,

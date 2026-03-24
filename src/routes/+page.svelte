@@ -8,6 +8,7 @@
   import PortfolioQuality from '$lib/components/portfolio/PortfolioQuality.svelte';
   import PortfolioProjects from '$lib/components/portfolio/PortfolioProjects.svelte';
   import PortfolioContactCta from '$lib/components/portfolio/PortfolioContactCta.svelte';
+  import { stringifyJsonLdForHtml } from '$lib/json-ld-html.js';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -18,18 +19,20 @@
     site.seo.ogImage.startsWith('http') ? site.seo.ogImage : `${baseUrl}${site.seo.ogImage}`
   );
   const personJsonLd = $derived(
-    JSON.stringify({
+    stringifyJsonLdForHtml({
       '@context': 'https://schema.org',
       '@type': 'Person',
       name: 'Moisés Valero',
       url: `${baseUrl}/`,
       jobTitle: 'Desarrollador Web',
-      sameAs: [site.footer.githubHref, site.footer.linkedinHref, site.footer.maltHref],
+      sameAs: [site.footer.githubHref, site.footer.linkedinHref, site.footer.maltHref].filter(
+        (u): u is string => typeof u === 'string' && u.length > 0
+      ),
       knowsAbout: ['SvelteKit', 'WordPress', 'SEO Técnico', 'Sanity CMS']
     })
   );
   const websiteJsonLd = $derived(
-    JSON.stringify({
+    stringifyJsonLdForHtml({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: site.header.logoText,

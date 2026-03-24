@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import HeaderBrand from '$lib/components/HeaderBrand.svelte';
   import HeroMacMockup from '$lib/components/landing/HeroMacMockup.svelte';
+  import { stringifyJsonLdForHtml } from '$lib/json-ld-html.js';
   import { seo, setSeo } from '$lib/seo';
   import type { PageData } from './$types';
 
@@ -103,7 +104,7 @@
   }
 
   const faqJsonLd = $derived(
-    JSON.stringify({
+    stringifyJsonLdForHtml({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
       mainEntity: landing.faq.items.map((item) => ({
@@ -118,7 +119,7 @@
   );
 
   const localBusinessJsonLd = $derived(
-    JSON.stringify({
+    stringifyJsonLdForHtml({
       '@context': 'https://schema.org',
       '@type': 'ProfessionalService',
       name: landing.localBusiness.businessName,
@@ -137,7 +138,7 @@
   );
 
   const webPageJsonLd = $derived(
-    JSON.stringify({
+    stringifyJsonLdForHtml({
       '@context': 'https://schema.org',
       '@type': 'WebPage',
       name: landing.seo.title,
@@ -148,7 +149,7 @@
   );
 
   const breadcrumbJsonLd = $derived(
-    JSON.stringify({
+    stringifyJsonLdForHtml({
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [

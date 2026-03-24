@@ -2,6 +2,7 @@
   import { env } from '$env/dynamic/public';
   import { getChatbotPageCopy } from '$lib/i18n/proyectos/chatbot-copy';
   import { getProyectoPageLabels } from '$lib/i18n/proyecto-page-labels';
+  import { stringifyJsonLdForHtml } from '$lib/json-ld-html.js';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -17,7 +18,7 @@
   const L = $derived(getProyectoPageLabels(data.locale));
   const seoEs = getChatbotPageCopy('es');
   const projectJsonLd = $derived(
-    JSON.stringify({
+    stringifyJsonLdForHtml({
       '@context': 'https://schema.org',
       '@type': 'CreativeWork',
       name: seoEs.headTitle,
