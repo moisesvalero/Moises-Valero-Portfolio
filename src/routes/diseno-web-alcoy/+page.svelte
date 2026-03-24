@@ -248,7 +248,9 @@
   </nav>
 
   <main class="pt-6 md:pt-8">
-    <section class="hero-b section-glow relative min-h-[820px] lg:min-h-[860px] flex items-center overflow-x-clip overflow-y-visible bg-primary px-6">
+    <section
+      class="hero-b section-glow relative min-h-0 py-10 md:py-0 md:min-h-[820px] lg:min-h-[860px] flex items-start md:items-center overflow-x-clip overflow-y-visible bg-primary px-6"
+    >
       <div class="absolute inset-0 opacity-20 pointer-events-none">
         <div
           class="absolute top-0 right-0 w-[600px] h-[600px] bg-secondary-container blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2"
@@ -284,13 +286,15 @@
             </a>
           </div>
         </div>
-        <div class="hidden md:block relative min-w-0 overflow-visible md:pl-4 lg:pl-8">
+        <div class="relative min-w-0 w-full overflow-visible md:pl-4 lg:pl-8">
           <div
-            class="relative ml-auto w-full max-w-[900px] flex justify-center lg:justify-end [&_.mac-mockup-root]:w-full [&_.mac-mockup-root]:max-w-none"
+            class="relative mx-auto w-full max-w-[min(100%,440px)] md:max-w-[900px] md:ml-auto md:mr-0 flex flex-col items-center [&_.mac-mockup-root]:w-full [&_.mac-mockup-root]:max-w-none"
           >
-            <HeroMacMockup />
+            <div class="w-full flex justify-center lg:justify-end">
+              <HeroMacMockup />
+            </div>
             <div
-              class="absolute bottom-0 -left-20 lg:-left-28 translate-y-[56%] md:translate-y-[60%] lg:translate-y-[64%] glass-card p-5 lg:p-6 rounded-xl shadow-xl border border-white/20 max-w-[280px] z-20"
+              class="relative mt-5 mx-auto w-full max-w-[280px] z-20 glass-card p-5 lg:p-6 rounded-xl shadow-xl border border-white/20 md:absolute md:mt-0 md:mx-0 md:w-auto md:max-w-[280px] md:bottom-0 md:-left-20 lg:-left-28 md:translate-y-[60%] lg:translate-y-[64%]"
             >
               <div class="flex items-center gap-4 mb-2">
                 <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1"
