@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '$lib/styles/alcoy-landing-fonts.css';
   import { env } from '$env/dynamic/public';
   import { onMount } from 'svelte';
   import HeaderBrand from '$lib/components/HeaderBrand.svelte';
@@ -201,14 +202,6 @@
   <meta name="twitter:title" content={$seo.ogTitle} />
   <meta name="twitter:description" content={$seo.ogDescription} />
   <meta name="twitter:image" content={$seo.ogImage} />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&display=swap"
-    rel="stylesheet"
-  />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
-    rel="stylesheet"
-  />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="/js/landing-tailwind-config.js"></script>
   <JsonLdScript json={localBusinessJsonLd} />

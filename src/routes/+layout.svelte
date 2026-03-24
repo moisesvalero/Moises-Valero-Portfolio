@@ -55,11 +55,23 @@
     document.body.style.overflow = '';
   };
 
+  let linkMoveRaf = 0;
+  let pendingLinkMove: { el: HTMLElement; cx: number; cy: number } | null = null;
+
+  /** getBoundingClientRect en cada mousemove fuerza reflow; una lectura por frame basta. */
   const handleLinkMove = (event: MouseEvent) => {
-    const target = event.currentTarget as HTMLElement;
-    const rect = target.getBoundingClientRect();
-    target.style.setProperty('--mx', `${event.clientX - rect.left}px`);
-    target.style.setProperty('--my', `${event.clientY - rect.top}px`);
+    const el = event.currentTarget as HTMLElement;
+    pendingLinkMove = { el, cx: event.clientX, cy: event.clientY };
+    if (linkMoveRaf) return;
+    linkMoveRaf = requestAnimationFrame(() => {
+      linkMoveRaf = 0;
+      const p = pendingLinkMove;
+      pendingLinkMove = null;
+      if (!p) return;
+      const rect = p.el.getBoundingClientRect();
+      p.el.style.setProperty('--mx', `${p.cx - rect.left}px`);
+      p.el.style.setProperty('--my', `${p.cy - rect.top}px`);
+    });
   };
 
 </script>

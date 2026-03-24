@@ -92,6 +92,7 @@
       0 18px 50px rgba(29, 29, 31, 0.14),
       0 1px 0 rgba(255, 255, 255, 0.9) inset;
     backdrop-filter: blur(12px);
+    contain: layout style paint;
   }
 
   .cookie-title {

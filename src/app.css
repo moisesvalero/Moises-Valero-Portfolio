@@ -1,9 +1,9 @@
 /* src/app.css */
-/* Importamos la fuente Inter para ese look moderno y limpio */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* Inter autoalojada (Fontsource): evita solicitud bloqueante a fonts.googleapis.com en la ruta crítica */
+@import '@fontsource-variable/inter/index.css';
 
 :root {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
 
   /* Tus colores de marca NovaKit */
   --accent: #6366f1;

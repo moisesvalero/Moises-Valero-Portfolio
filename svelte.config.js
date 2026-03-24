@@ -3,9 +3,7 @@ import adapter from '@sveltejs/adapter-auto';
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
-		// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
-		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
-		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
+		// En Vercel (VERCEL=1) adapter-auto usa @sveltejs/adapter-vercel. En Windows local puede avisar sin adaptar.
 		adapter: adapter()
 	},
 	vitePlugin: {

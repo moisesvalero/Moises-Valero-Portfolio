@@ -112,20 +112,20 @@
     box-sizing: border-box;
   }
 
+  /* Solo translateY: el texto permanece opaco para que el <h1> sea candidato a LCP desde el primer pintado.
+     Opacity 0 en la entrada retrasa LCP y Lighthouse puede atribuir el LCP al banner de cookies. */
   @keyframes aparecer {
     from {
-      opacity: 0;
-      transform: translateY(18px);
+      transform: translateY(14px);
     }
     to {
-      opacity: 1;
       transform: translateY(0);
     }
   }
 
   .anim-fade-up {
-    animation: aparecer 0.9s ease-out forwards;
-    opacity: 0;
+    animation: aparecer 0.75s ease-out forwards;
+    opacity: 1;
   }
 
   .label-top {
@@ -357,6 +357,13 @@
   }
 
   /* Cabecera fija: el label gris no debe quedar tapado en móvil */
+  @media (prefers-reduced-motion: reduce) {
+    .anim-fade-up {
+      animation: none;
+      transform: none;
+    }
+  }
+
   @media (max-width: 768px) {
     .hero-stripe-pro-v2 {
       align-items: flex-start;

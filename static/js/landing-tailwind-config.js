@@ -53,9 +53,9 @@ tailwind.config = {
         'error-container': '#ffdad6'
       },
       fontFamily: {
-        headline: ['Manrope', 'system-ui', 'sans-serif'],
-        body: ['Inter', 'system-ui', 'sans-serif'],
-        label: ['Inter', 'system-ui', 'sans-serif']
+        headline: ['Manrope Variable', 'Manrope', 'system-ui', 'sans-serif'],
+        body: ['Inter Variable', 'Inter', 'system-ui', 'sans-serif'],
+        label: ['Inter Variable', 'Inter', 'system-ui', 'sans-serif']
       },
       borderRadius: { DEFAULT: '0.125rem', lg: '0.25rem', xl: '0.5rem', full: '0.75rem' }
     }
