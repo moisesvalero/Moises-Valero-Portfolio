@@ -261,8 +261,15 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     heading: '¿Hablamos?',
     subtitle: '',
     typebotSrc: 'https://typebot.io/asistente-mois-s-valero-sud5oya',
-    whatsappLead: '¿Prefieres WhatsApp? Escríbeme sin salir de un clic.',
+    whatsappLead: '¿Prefieres WhatsApp? Te respondo rápido por ahí.',
     whatsappButtonLabel: 'Escribir por WhatsApp',
+    formLead: '¿Prefieres formulario? Déjame tus datos y te escribo por email.',
+    formButtonLabel: 'Abrir formulario',
+    formModalHeading: 'Cuéntame tu proyecto',
+    formModalText: 'Déjame tus datos y te responderé lo antes posible.',
+    formModalSubmitLabel: 'Enviar solicitud',
+    formModalPrivacyLabel: 'He leído y acepto la política de privacidad.',
+    formModalSuccessMessage: 'Mensaje enviado. Te responderé en breve.',
     iframeTitle: 'Asistente de chat — Moisés Valero'
   },
   footer: {
@@ -271,5 +278,46 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     githubHref: 'https://github.com/moisesvalero',
     linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
     emailHref: 'mailto:info@moisesvalero.es'
+  },
+  careerModal: {
+    pdfHref: '/imagenes/MOISES-VALERO-CV.pdf',
+    closeAria: 'Cerrar',
+    title: 'Trayectoria profesional de Moisés Valero',
+    profileTitle: 'Perfil',
+    profileHtml: `<p class="career-p">
+            Cuento con el <strong>Certificado de Profesionalidad de Nivel 3 en Desarrollo Web</strong>
+            (equivalente a formación de <strong>Grado Superior</strong>), que avala competencias
+            actualizadas en desarrollo y entornos web profesionales.
+          </p>`,
+    expTitle: 'Experiencia',
+    timeline: [
+      {
+        range: '2019 – 2022',
+        role: 'Autónomo',
+        descHtml:
+          'Digitalización de negocios, gestión de proyectos técnicos y mantenimiento de sistemas.'
+      },
+      {
+        range: '2012 – 2014',
+        role: 'MutuaSAD',
+        descHtml:
+          'Administración WordPress, comercio electrónico (WooCommerce / PrestaShop) y soporte microinformático y de redes.'
+      },
+      {
+        range: '2001 – 2026',
+        role: 'Trayectoria adicional',
+        descHtml: `Más de dos décadas aportando <strong>madurez profesional</strong> y
+                <strong>capacidad de liderazgo</strong> como oficial especialista en entornos
+                industriales y en <strong>carpintería técnica</strong>, con fuerte orientación a la
+                calidad, la coordinación y la resolución de problemas complejos.`,
+        span: true
+      }
+    ],
+    stackTitle: 'Stack técnico',
+    pdfHide: 'Ocultar CV en PDF',
+    pdfShow: 'Ver CV original en PDF',
+    pdfIframeTitle: 'CV de Moisés Valero (PDF)',
+    pdfHintBefore: 'Si no se muestra el documento, ',
+    pdfHintLink: 'ábrelo en una pestaña nueva'
   }
 };

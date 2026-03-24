@@ -173,6 +173,7 @@ export function mapLandingDisenoWebAlcoy(
   const cases = asRecord(raw.cases);
   const faq = asRecord(raw.faq);
   const finalCta = asRecord(raw.finalCta);
+  const contactModal = asRecord(raw.contactModal);
   const localBusiness = asRecord(raw.localBusiness);
 
   const seoImageFromAsset = seo ? imageUrl(ctx.projectId, ctx.dataset, seo.ogImage, 1600) : undefined;
@@ -243,6 +244,14 @@ export function mapLandingDisenoWebAlcoy(
         secondaryLabel: asStringOpt(finalCtaNode?.secondaryLabel) ?? defaults.finalCta.cta.secondaryLabel,
         secondaryHref: asStringOpt(finalCtaNode?.secondaryHref) ?? defaults.finalCta.cta.secondaryHref
       }
+    },
+    contactModal: {
+      triggerLabel: asString(contactModal?.triggerLabel, defaults.contactModal.triggerLabel),
+      heading: asString(contactModal?.heading, defaults.contactModal.heading),
+      text: asString(contactModal?.text, defaults.contactModal.text),
+      submitLabel: asString(contactModal?.submitLabel, defaults.contactModal.submitLabel),
+      successMessage: asString(contactModal?.successMessage, defaults.contactModal.successMessage),
+      privacyLabel: asString(contactModal?.privacyLabel, defaults.contactModal.privacyLabel)
     },
     localBusiness: {
       businessName: asString(localBusiness?.businessName, defaults.localBusiness.businessName),

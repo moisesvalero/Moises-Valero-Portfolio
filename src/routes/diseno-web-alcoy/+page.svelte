@@ -1,10 +1,14 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
-  import type { LandingSectionKey } from '$lib/types/landing-alcoy';
+  import { onMount } from 'svelte';
+  import HeaderBrand from '$lib/components/HeaderBrand.svelte';
+  import HeroMacMockup from '$lib/components/landing/HeroMacMockup.svelte';
+  import { seo, setSeo } from '$lib/seo';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
   const landing = $derived(data.landing);
+  const site = $derived(data.site);
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
   const canonicalUrl = $derived(
@@ -13,16 +17,122 @@
       : `${baseUrl}${landing.seo.canonicalPath.startsWith('/') ? '' : '/'}${landing.seo.canonicalPath}`
   );
 
-  const absoluteOgImage = $derived(
-    landing.seo.ogImage.startsWith('http')
-      ? landing.seo.ogImage
-      : `${baseUrl}${landing.seo.ogImage.startsWith('/') ? '' : '/'}${landing.seo.ogImage}`
-  );
+  const emailDisplay = $derived(site.footer.emailHref.replace(/^mailto:/i, ''));
+  const contactModal = $derived(landing.contactModal);
+  const year = new Date().getFullYear();
+  let isContactModalOpen = $state(false);
+  let prefersReducedMotion = false;
+  let contactForm = $state({
+    name: '',
+    email: '',
+    phone: '',
+    message: '',
+    privacyAccepted: false
+  });
+  let contactStatus = $state<'idle' | 'sending' | 'success' | 'error'>('idle');
+  let contactError = $state('');
 
-  const orderedSections = $derived(
-    Array.from(new Set(landing.sectionOrder)).filter((section): section is LandingSectionKey =>
-      ['hero', 'problemSolution', 'services', 'benefits', 'cases', 'faq', 'finalCta'].includes(section)
-    )
+  function openContactModal() {
+    isContactModalOpen = true;
+    contactStatus = 'idle';
+    contactError = '';
+  }
+
+  function closeContactModal() {
+    isContactModalOpen = false;
+  }
+
+  async function submitContactModalForm(event: SubmitEvent) {
+    event.preventDefault();
+    if (contactStatus === 'sending') return;
+    contactStatus = 'sending';
+    contactError = '';
+
+    const response = await fetch('/api/contact/form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(contactForm)
+    });
+
+    const data = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+    if (!response.ok || !data?.ok) {
+      contactStatus = 'error';
+      contactError = data?.error || 'No se pudo enviar el formulario.';
+      return;
+    }
+
+    contactStatus = 'success';
+    contactForm = {
+      name: '',
+      email: '',
+      phone: '',
+      message: '',
+      privacyAccepted: false
+    };
+  }
+
+  onMount(() => {
+    prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
+  function revealOnScroll(node: HTMLElement) {
+    if (prefersReducedMotion) {
+      node.classList.add('reveal-visible');
+      return;
+    }
+    const desktop = window.matchMedia('(min-width: 1025px)').matches;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            node.classList.add('reveal-visible');
+            observer.unobserve(node);
+          }
+        }
+      },
+      desktop
+        ? { threshold: 0.38, rootMargin: '0px 0px -18% 0px' }
+        : { threshold: 0.2, rootMargin: '0px 0px -10% 0px' }
+    );
+    observer.observe(node);
+    return {
+      destroy() {
+        observer.disconnect();
+      }
+    };
+  }
+
+  const faqJsonLd = $derived(
+    JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: '¿En cuánto tiempo estará lista mi web?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'La mayoría de proyectos de diseño web en Alcoy se entregan en 2-4 semanas. El plazo final depende del alcance, funcionalidades y rapidez en la entrega de contenidos.'
+          }
+        },
+        {
+          '@type': 'Question',
+          name: '¿Trabajas con WordPress o desarrollo a medida?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Sí. Trabajo con WordPress cuando buscas autogestión sencilla y con SvelteKit cuando priorizas velocidad, SEO técnico y mejor experiencia de usuario.'
+          }
+        },
+        {
+          '@type': 'Question',
+          name: '¿La web viene optimizada para SEO local en Alcoy?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Sí. La estructura, los textos y el SEO on-page se preparan para posicionar búsquedas locales en Alcoy y Alicante y para convertir visitas en contactos reales.'
+          }
+        }
+      ]
+    })
   );
 
   const localBusinessJsonLd = $derived(
@@ -40,7 +150,6 @@
       },
       telephone: landing.localBusiness.telephone,
       email: landing.localBusiness.email,
-      priceRange: landing.localBusiness.priceRange,
       url: canonicalUrl
     })
   );
@@ -52,395 +161,813 @@
       name: landing.seo.title,
       description: landing.seo.description,
       inLanguage: 'es',
-      url: canonicalUrl,
-      about: ['diseno web en Alcoy', 'desarrollo web en Alcoy', 'Alcoy y Alicante']
+      url: canonicalUrl
     })
   );
 
-  const faqJsonLd = $derived(
+  const breadcrumbJsonLd = $derived(
     JSON.stringify({
       '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: landing.faq.items.map((item) => ({
-        '@type': 'Question',
-        name: item.question,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: item.answer
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Inicio',
+          item: `${baseUrl}/`
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Diseño web en Alcoy',
+          item: canonicalUrl
         }
-      }))
+      ]
     })
   );
 
+  $effect(() => {
+    setSeo({
+      title: landing.seo.title,
+      description: landing.seo.description,
+      ogTitle: landing.seo.ogTitle,
+      ogDescription: landing.seo.ogDescription,
+      canonical: canonicalUrl,
+      ogUrl: canonicalUrl,
+      ogImage: landing.seo.ogImage,
+      twitterCard: landing.seo.twitterCard
+    });
+  });
 </script>
 
 <svelte:head>
-  <title>{landing.seo.title}</title>
-  <meta name="description" content={landing.seo.description} />
-  <link rel="canonical" href={canonicalUrl} />
-
+  <title>{$seo.title}</title>
+  <meta name="description" content={$seo.description} />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <link rel="canonical" href={$seo.canonical} />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content={landing.seo.ogTitle} />
-  <meta property="og:description" content={landing.seo.ogDescription} />
-  <meta property="og:url" content={canonicalUrl} />
-  <meta property="og:image" content={absoluteOgImage} />
+  <meta property="og:title" content={$seo.ogTitle} />
+  <meta property="og:description" content={$seo.ogDescription} />
+  <meta property="og:url" content={$seo.ogUrl} />
+  <meta property="og:image" content={$seo.ogImage} />
   <meta property="og:locale" content="es_ES" />
-
-  <meta name="twitter:card" content={landing.seo.twitterCard} />
-  <meta name="twitter:title" content={landing.seo.ogTitle} />
-  <meta name="twitter:description" content={landing.seo.ogDescription} />
-  <meta name="twitter:image" content={absoluteOgImage} />
-
+  <meta name="twitter:card" content={$seo.twitterCard} />
+  <meta name="twitter:title" content={$seo.ogTitle} />
+  <meta name="twitter:description" content={$seo.ogDescription} />
+  <meta name="twitter:image" content={$seo.ogImage} />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/js/landing-tailwind-config.js"></script>
   <script type="application/ld+json">{localBusinessJsonLd}</script>
   <script type="application/ld+json">{webPageJsonLd}</script>
-  {#if landing.faq.items.length}
-    <script type="application/ld+json">{faqJsonLd}</script>
-  {/if}
+  <script type="application/ld+json">{faqJsonLd}</script>
+  <script type="application/ld+json">{breadcrumbJsonLd}</script>
 </svelte:head>
 
-<main class="landing-alcoy">
-  {#each orderedSections as section (section)}
-    {#if section === 'hero'}
-      <section class="hero section-shell">
-        <div class="hero-grid">
-          <div class="hero-copy">
-            <div class="badge">{landing.hero.badge}</div>
-            <h1>{landing.hero.title}</h1>
-            <p class="lead">{landing.hero.subtitle}</p>
-            <div class="cta-row">
-              <a class="btn-primary" href={landing.hero.cta.href}>{landing.hero.cta.label}</a>
-              {#if landing.hero.cta.secondaryLabel && landing.hero.cta.secondaryHref}
-                <a class="btn-secondary" href={landing.hero.cta.secondaryHref}>{landing.hero.cta.secondaryLabel}</a>
-              {/if}
+<div class="scroll-smooth stitch-landing font-body text-on-surface bg-surface min-h-screen">
+  <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm">
+    <div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+      <HeaderBrand
+        href="/"
+        ariaLabel="Moisés Valero — Desarrollador web"
+      />
+      <div class="hidden md:flex space-x-8">
+        <a
+          class="text-slate-600 font-medium hover:text-[#006c49] transition-colors duration-200 no-underline"
+          href="#services">Servicios</a>
+        <a
+          class="text-slate-600 font-medium hover:text-[#006c49] transition-colors duration-200 no-underline"
+          href="#benefits">Beneficios</a>
+        <a
+          class="text-slate-600 font-medium hover:text-[#006c49] transition-colors duration-200 no-underline"
+          href="#faq">FAQ</a>
+        <a
+          class="text-slate-600 font-medium hover:text-[#006c49] transition-colors duration-200 no-underline"
+          href="#contact">Contacto</a>
+      </div>
+      <a
+        href="#contact"
+        class="cta-hover cta-hover-header bg-secondary text-on-secondary px-5 py-2 rounded-md font-semibold hover:shadow-[0_0_15px_rgba(0,108,73,0.3)] transition-all active:scale-95 no-underline inline-flex items-center justify-center"
+      >
+        Contactar
+      </a>
+    </div>
+  </nav>
+
+  <main class="pt-6 md:pt-8">
+    <section class="hero-b section-glow relative min-h-[820px] lg:min-h-[860px] flex items-center overflow-x-clip overflow-y-visible bg-primary px-6">
+      <div class="absolute inset-0 opacity-20 pointer-events-none">
+        <div
+          class="absolute top-0 right-0 w-[600px] h-[600px] bg-secondary-container blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2"
+        ></div>
+        <div
+          class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary-container blur-[100px] rounded-full -translate-x-1/4 translate-y-1/4"
+        ></div>
+      </div>
+      <div
+        class="max-w-7xl mx-auto w-full grid grid-cols-1 gap-12 md:gap-14 items-center relative z-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:grid-cols-[minmax(0,30rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] lg:gap-20 xl:gap-24"
+      >
+        <div class="space-y-8 max-w-xl lg:max-w-2xl">
+          <h1
+            class="font-headline text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-tight"
+          >
+            Diseño web en Alcoy
+          </h1>
+          <p class="text-on-primary-container text-lg md:text-xl max-w-lg leading-relaxed">
+            Diseño webs rápidas, claras y orientadas a resultados para negocios de Alcoy y Alicante.
+            WordPress o SvelteKit según tu proyecto, presencial o remoto.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a
+              href="/api/contact/whatsapp"
+              class="cta-hover cta-hover-primary bg-secondary text-on-secondary px-8 py-4 rounded-md font-bold text-lg hover:shadow-[0_0_20px_rgba(0,108,73,0.4)] transition-all active:scale-95 text-center no-underline inline-flex items-center justify-center"
+            >
+              Presupuesto rápido
+            </a>
+            <a
+              class="cta-hover cta-hover-ghost inline-flex items-center text-white font-semibold py-4 px-8 border-b-2 border-secondary-container/30 hover:border-secondary transition-all no-underline"
+              href="#services"
+            >
+              Ver servicios
+            </a>
+          </div>
+        </div>
+        <div class="hidden md:block relative min-w-0 overflow-visible md:pl-4 lg:pl-8">
+          <div
+            class="relative ml-auto w-full max-w-[900px] flex justify-center lg:justify-end [&_.mac-mockup-root]:w-full [&_.mac-mockup-root]:max-w-none"
+          >
+            <HeroMacMockup />
+            <div
+              class="absolute bottom-0 -left-20 lg:-left-28 translate-y-[56%] md:translate-y-[60%] lg:translate-y-[64%] glass-card p-5 lg:p-6 rounded-xl shadow-xl border border-white/20 max-w-[280px] z-20"
+            >
+              <div class="flex items-center gap-4 mb-2">
+                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1"
+                  >trending_up</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-primary">SEO local Alcoy</span>
+              </div>
+              <p class="text-2xl font-black text-primary">+ visibilidad</p>
+              <p class="text-xs text-on-surface-variant leading-relaxed">
+                Estructura y contenido pensados para buscadores y clientes en la zona.
+              </p>
             </div>
           </div>
-          <aside class="hero-visual" aria-label="Visual de servicios de diseno y desarrollo web">
-            {#if landing.hero.splineUrl}
-              <iframe
-                src={landing.hero.splineUrl}
-                title={landing.hero.visualTitle || 'Visual interactivo de proyecto web'}
-                loading="lazy"
-                referrerpolicy="strict-origin-when-cross-origin"
-                allowfullscreen
-              ></iframe>
-            {:else if landing.hero.visualImageSrc}
-              <img src={landing.hero.visualImageSrc} alt={landing.hero.visualImageAlt || 'Vista de proyecto web'} />
-            {/if}
-            {#if landing.hero.visualTitle || landing.hero.visualDescription}
-              <div class="hero-visual-copy">
-                {#if landing.hero.visualTitle}
-                  <strong>{landing.hero.visualTitle}</strong>
-                {/if}
-                {#if landing.hero.visualDescription}
-                  <p>{landing.hero.visualDescription}</p>
-                {/if}
-              </div>
-            {/if}
-          </aside>
         </div>
-      </section>
-    {/if}
+      </div>
+    </section>
 
-    {#if section === 'problemSolution'}
-      <section class="section-shell">
-        <h2>{landing.problemSolution.heading}</h2>
-        <p class="muted">{landing.problemSolution.intro}</p>
-        <div class="grid two">
-          <article class="card">
-            <h3>Problemas habituales</h3>
-            <ul>
-              {#each landing.problemSolution.problems as problem (problem)}
-                <li>{problem}</li>
-              {/each}
-            </ul>
-          </article>
-          <article class="card">
-            <h3>{landing.problemSolution.solutionTitle}</h3>
-            <p>{landing.problemSolution.solutionText}</p>
-          </article>
+    <section class="reveal-b py-24 bg-surface px-6" id="services" use:revealOnScroll>
+      <div class="max-w-7xl mx-auto">
+        <div class="mb-16">
+          <span class="text-secondary font-bold tracking-widest uppercase text-sm block mb-4"
+            >Servicios</span>
+          <h2 class="font-headline text-4xl md:text-5xl font-extrabold text-primary mb-6">
+            Servicios de diseño web en Alcoy
+          </h2>
+          <p class="text-on-surface-variant max-w-2xl leading-relaxed">
+            Webs rápidas, claras y enfocadas a conseguir contactos y ventas.
+          </p>
         </div>
-      </section>
-    {/if}
-
-    {#if section === 'services'}
-      <section class="section-shell">
-        <h2>{landing.services.heading}</h2>
-        <div class="grid three">
-          {#each landing.services.items as item (item.title)}
-            <article class="card">
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-            </article>
-          {/each}
-        </div>
-      </section>
-    {/if}
-
-    {#if section === 'benefits'}
-      <section class="section-shell">
-        <h2>{landing.benefits.heading}</h2>
-        <div class="grid two">
-          {#each landing.benefits.items as item (item.title)}
-            <article class="card">
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-            </article>
-          {/each}
-        </div>
-      </section>
-    {/if}
-
-    {#if section === 'cases'}
-      <section class="section-shell">
-        <h2>{landing.cases.heading}</h2>
-        <div class="grid two">
-          {#each landing.cases.items as item (item.title)}
-            <article class="card">
-              <h3>{item.title}</h3>
-              <p>{item.summary}</p>
-              <p class="muted"><strong>Resultado:</strong> {item.outcome}</p>
-              {#if item.href}
-                <a class="inline-link" href={item.href}>{item.linkLabel || 'Ver caso'}</a>
-              {/if}
-            </article>
-          {/each}
-        </div>
-      </section>
-    {/if}
-
-    {#if section === 'faq'}
-      <section class="section-shell">
-        <h2>{landing.faq.heading}</h2>
-        <div class="faq-list">
-          {#each landing.faq.items as item (item.question)}
-            <details class="faq-item">
-              <summary>{item.question}</summary>
-              <p>{item.answer}</p>
-            </details>
-          {/each}
-        </div>
-      </section>
-    {/if}
-
-    {#if section === 'finalCta'}
-      <section class="section-shell final-cta">
-        <h2>{landing.finalCta.heading}</h2>
-        <p class="lead">{landing.finalCta.text}</p>
-        <div class="cta-row">
-          <a class="btn-primary" href={landing.finalCta.cta.href}>{landing.finalCta.cta.label}</a>
-          {#if landing.finalCta.cta.secondaryLabel && landing.finalCta.cta.secondaryHref}
-            <a class="btn-secondary" href={landing.finalCta.cta.secondaryHref}>
-              {landing.finalCta.cta.secondaryLabel}
+        <div class="grid md:grid-cols-3 gap-8">
+          <div
+            class="card-b bg-surface-container-lowest p-8 rounded-xl group hover:translate-y-[-4px] transition-transform duration-300"
+          >
+            <div
+              class="w-12 h-12 bg-secondary-container flex items-center justify-center rounded-full mb-6"
+            >
+              <span class="material-symbols-outlined text-on-secondary-container">ads_click</span>
+            </div>
+            <h3 class="font-headline text-2xl font-bold text-primary mb-4">Web profesional</h3>
+            <p class="text-on-surface-variant leading-relaxed mb-6">
+              Diseño de landings y webs corporativas enfocadas a captar contactos, explicar servicios y transmitir confianza.
+            </p>
+            <a
+              class="text-secondary font-bold inline-flex items-center gap-2 group-hover:gap-4 transition-all no-underline"
+              href="/#contacto"
+            >
+              Quiero esta opción <span class="material-symbols-outlined">arrow_forward</span>
             </a>
-          {/if}
+          </div>
+          <div
+            class="card-b bg-surface-container-low p-8 rounded-xl group hover:translate-y-[-4px] transition-transform duration-300"
+          >
+            <div
+              class="w-12 h-12 bg-secondary-container flex items-center justify-center rounded-full mb-6"
+            >
+              <span class="material-symbols-outlined text-on-secondary-container">business</span>
+            </div>
+            <h3 class="font-headline text-2xl font-bold text-primary mb-4">Tienda online WooCommerce</h3>
+            <p class="text-on-surface-variant leading-relaxed mb-6">
+              Tiendas listas para vender con Stripe, envíos, impuestos y panel autogestionable.
+            </p>
+            <a
+              class="text-secondary font-bold inline-flex items-center gap-2 group-hover:gap-4 transition-all no-underline"
+              href="/#contacto"
+            >
+              Quiero esta opción <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+          </div>
+          <div
+            class="card-b bg-surface-container-lowest p-8 rounded-xl group hover:translate-y-[-4px] transition-transform duration-300"
+          >
+            <div
+              class="w-12 h-12 bg-secondary-container flex items-center justify-center rounded-full mb-6"
+            >
+              <span class="material-symbols-outlined text-on-secondary-container">code</span>
+            </div>
+            <h3 class="font-headline text-2xl font-bold text-primary mb-4">WordPress, SvelteKit y más</h3>
+            <p class="text-on-surface-variant leading-relaxed mb-6">
+              Elijo la tecnología según tu proyecto: WordPress para autogestión o SvelteKit para máximo
+              rendimiento.
+            </p>
+            <a
+              class="text-secondary font-bold inline-flex items-center gap-2 group-hover:gap-4 transition-all no-underline"
+              href="/#contacto"
+            >
+              Quiero esta opción <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+          </div>
         </div>
-      </section>
-    {/if}
-  {/each}
-</main>
+      </div>
+    </section>
+
+    <section class="reveal-b py-24 bg-surface-container-low px-6 overflow-hidden" id="benefits" use:revealOnScroll>
+      <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
+        <div class="order-2 md:order-1 relative">
+          <div
+            class="relative z-10 rounded-2xl overflow-hidden shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500"
+          >
+            <img
+              alt="Diseño web en Alcoy — referencia visual del servicio"
+              class="w-full h-[500px] object-cover"
+              src="/imagenes/DISEÑO-WEB-ALCOY.webp"
+            />
+          </div>
+          <div class="absolute -top-10 -left-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl"></div>
+        </div>
+        <div class="order-1 md:order-2 space-y-10">
+          <div>
+            <span class="text-secondary font-bold tracking-widest uppercase text-sm block mb-4"
+              >Por qué elegirme</span>
+            <h2
+              class="font-headline text-4xl md:text-5xl font-extrabold text-primary leading-tight"
+            >
+              Webs rápidas que ayudan a vender más
+            </h2>
+          </div>
+          <div class="space-y-8">
+            <div class="flex gap-6">
+              <div
+                class="flex-shrink-0 w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1"
+                  >check</span>
+              </div>
+              <div>
+                <h4 class="font-headline text-xl font-bold text-primary mb-2">Más contactos reales</h4>
+                <p class="text-on-surface-variant leading-relaxed">
+                  Estructura y llamadas a la acción para generar más mensajes y llamadas.
+                </p>
+              </div>
+            </div>
+            <div class="flex gap-6">
+              <div
+                class="flex-shrink-0 w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1"
+                  >check</span>
+              </div>
+              <div>
+                <h4 class="font-headline text-xl font-bold text-primary mb-2">Más confianza en tu marca</h4>
+                <p class="text-on-surface-variant leading-relaxed">
+                  Diseño profesional y claro para que tu negocio se vea serio y fiable.
+                </p>
+              </div>
+            </div>
+            <div class="flex gap-6">
+              <div
+                class="flex-shrink-0 w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1"
+                  >check</span>
+              </div>
+              <div>
+                <h4 class="font-headline text-xl font-bold text-primary mb-2">SEO técnico desde el inicio</h4>
+                <p class="text-on-surface-variant leading-relaxed">
+                  Velocidad y buena estructura técnica desde el primer día.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal-b py-24 bg-surface px-6" id="faq" use:revealOnScroll>
+      <div class="max-w-3xl mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="font-headline text-3xl md:text-4xl font-extrabold text-primary mb-4">
+            Preguntas frecuentes
+          </h2>
+          <p class="text-on-surface-variant">Respuestas rápidas antes de pedir presupuesto.</p>
+        </div>
+        <div class="space-y-6">
+          <div class="card-b bg-surface-container p-6 rounded-lg">
+            <h4 class="font-headline font-bold text-primary text-lg mb-3">¿En cuánto tiempo estará lista mi web?</h4>
+            <p class="text-on-surface-variant leading-relaxed">
+              En la mayoría de casos, entre 2 y 4 semanas. El plazo exacto depende del alcance, las
+              funcionalidades y la entrega de contenidos.
+            </p>
+          </div>
+          <div class="card-b bg-surface-container p-6 rounded-lg">
+            <h4 class="font-headline font-bold text-primary text-lg mb-3">
+              ¿Trabajas con WordPress o desarrollo a medida?
+            </h4>
+            <p class="text-on-surface-variant leading-relaxed">
+              Sí. WordPress cuando priorizas facilidad de gestión, y SvelteKit/headless cuando buscas máximo
+              rendimiento, SEO técnico y una experiencia premium.
+            </p>
+          </div>
+          <div class="card-b bg-surface-container p-6 rounded-lg">
+            <h4 class="font-headline font-bold text-primary text-lg mb-3">
+              ¿La web viene optimizada para SEO local en Alcoy?
+            </h4>
+            <p class="text-on-surface-variant leading-relaxed">
+              Sí. Se trabaja estructura, headings, copy local y rendimiento para posicionar en Alcoy y
+              Alicante sin sobreoptimizar.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal-b py-24 px-6 relative overflow-hidden" id="contact" use:revealOnScroll>
+      <div
+        class="max-w-7xl mx-auto bg-primary-container rounded-3xl p-12 md:p-20 text-center relative overflow-hidden"
+      >
+        <div class="absolute inset-0 opacity-10">
+          <div class="absolute -top-10 -right-10 w-96 h-96 border-4 border-secondary rounded-full"></div>
+          <div
+            class="absolute -bottom-20 -left-20 w-[500px] h-[500px] border-2 border-secondary-container rounded-full"
+          ></div>
+        </div>
+        <div class="relative z-10 space-y-8">
+          <h2 class="font-headline text-4xl md:text-6xl font-extrabold text-white">
+            ¿Hablamos de tu proyecto web en Alcoy?
+          </h2>
+          <p class="text-on-primary-container text-lg max-w-2xl mx-auto leading-relaxed">
+            Te paso una propuesta clara, sin tecnicismos ni letra pequeña.
+          </p>
+          <div class="pt-6 flex flex-col items-center gap-6">
+            <a
+              href="/api/contact/whatsapp"
+              class="btn-shine bg-secondary text-on-secondary px-10 py-5 rounded-md font-bold text-xl hover:shadow-[0_0_25px_rgba(0,108,73,0.5)] transition-all active:scale-95 no-underline inline-flex items-center justify-center"
+            >
+              Solicitar presupuesto
+            </a>
+            <div
+              class="flex flex-col md:flex-row items-center gap-8 text-on-primary-container font-medium mt-4"
+            >
+              <a
+                class="flex items-center gap-2 hover:text-white transition-colors no-underline"
+                href={site.footer.emailHref}
+              >
+                <span class="material-symbols-outlined text-secondary">mail</span>
+                {emailDisplay}
+              </a>
+              <a
+                class="flex items-center gap-2 hover:text-white transition-colors no-underline"
+                href="/api/contact/whatsapp"
+              >
+                <span class="material-symbols-outlined text-secondary">phone_iphone</span>
+                WhatsApp
+              </a>
+              <button
+                type="button"
+                onclick={openContactModal}
+                class="flex items-center gap-2 hover:text-white transition-colors bg-transparent border-0 p-0 text-on-primary-container font-medium cursor-pointer"
+              >
+                <span class="material-symbols-outlined text-secondary">edit_square</span>
+                {contactModal.triggerLabel}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-[#f7f9fb] py-14 px-6 w-full border-t border-slate-200/80">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+        <div class="space-y-4">
+          <a href="/" class="inline-block text-xl font-black tracking-tight text-[#002045] no-underline hover:opacity-90">
+            {site.header.logoText}
+          </a>
+          <p class="text-slate-600 leading-relaxed max-w-xs">
+            Diseño y desarrollo web rápido para negocios de Alcoy y Alicante.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-bold tracking-wide uppercase text-slate-900 mb-4">Navegación</h3>
+          <ul class="space-y-3">
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">Servicios</a></li>
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#benefits">Beneficios</a></li>
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#faq">FAQ</a></li>
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#contact">Contacto</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-bold tracking-wide uppercase text-slate-900 mb-4">Servicios</h3>
+          <ul class="space-y-3">
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">Landing pages</a></li>
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">Web corporativa</a></li>
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="/#proyectos">Proyectos</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-bold tracking-wide uppercase text-slate-900 mb-4">Contacto</h3>
+          <ul class="space-y-3">
+            <li>
+              <a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href={site.footer.emailHref}>
+                {emailDisplay}
+              </a>
+            </li>
+            <li>
+              <a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="/api/contact/whatsapp">
+                WhatsApp
+              </a>
+            </li>
+            <li>
+              <button
+                type="button"
+                onclick={openContactModal}
+                class="text-slate-600 hover:text-[#002045] transition-colors bg-transparent p-0 border-0 cursor-pointer"
+              >
+                {contactModal.triggerLabel}
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-12 pt-6 border-t border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-sm text-slate-500">
+        <p>
+          © {year} {site.header.logoText}. Todos los derechos reservados.
+        </p>
+        <div class="flex flex-wrap items-center gap-4">
+          <a class="hover:text-[#002045] transition-colors no-underline" href="/privacidad">Privacidad</a>
+          <a class="hover:text-[#002045] transition-colors no-underline" href="/cookies">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  {#if isContactModalOpen}
+    <div class="fixed inset-0 z-[90] flex items-center justify-center p-4 md:p-6">
+      <button
+        type="button"
+        onclick={closeContactModal}
+        class="absolute inset-0 bg-[#001a39]/70 backdrop-blur-sm"
+        aria-label="Cerrar modal"
+      ></button>
+      <div
+        class="relative z-10 w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden"
+      >
+        <div class="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-slate-100">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h3 class="font-headline text-2xl md:text-3xl font-extrabold text-primary">{contactModal.heading}</h3>
+              <p class="text-slate-600 mt-2">{contactModal.text}</p>
+            </div>
+            <button
+              type="button"
+              onclick={closeContactModal}
+              class="text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full w-9 h-9 inline-flex items-center justify-center"
+              aria-label="Cerrar"
+            >
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        </div>
+
+        <form class="px-6 md:px-8 py-6 space-y-4" onsubmit={submitContactModalForm}>
+          <div class="grid md:grid-cols-2 gap-4">
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Nombre *</span>
+              <input
+                class="mt-1 w-full rounded-lg border-slate-300 focus:border-[#006c49] focus:ring-[#006c49]"
+                required
+                bind:value={contactForm.name}
+                maxlength="100"
+              />
+            </label>
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Email *</span>
+              <input
+                type="email"
+                class="mt-1 w-full rounded-lg border-slate-300 focus:border-[#006c49] focus:ring-[#006c49]"
+                required
+                bind:value={contactForm.email}
+                maxlength="120"
+              />
+            </label>
+          </div>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Teléfono (opcional)</span>
+            <input
+              class="mt-1 w-full rounded-lg border-slate-300 focus:border-[#006c49] focus:ring-[#006c49]"
+              bind:value={contactForm.phone}
+              maxlength="40"
+            />
+          </label>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Cuéntame qué necesitas *</span>
+            <textarea
+              class="mt-1 w-full rounded-lg border-slate-300 focus:border-[#006c49] focus:ring-[#006c49] min-h-[130px]"
+              required
+              bind:value={contactForm.message}
+              maxlength="2000"
+            ></textarea>
+          </label>
+
+          <label class="flex items-start gap-3 text-sm text-slate-600">
+            <input
+              type="checkbox"
+              class="mt-0.5 rounded border-slate-300 text-[#006c49] focus:ring-[#006c49]"
+              required
+              bind:checked={contactForm.privacyAccepted}
+            />
+            <span
+              >{contactModal.privacyLabel}
+              <a class="text-[#006c49] font-semibold hover:underline no-underline" href="/privacidad"
+                >Ver política</a
+              ></span
+            >
+          </label>
+
+          {#if contactStatus === 'error' && contactError}
+            <p class="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{contactError}</p>
+          {/if}
+          {#if contactStatus === 'success'}
+            <p class="text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">
+              {contactModal.successMessage}
+            </p>
+          {/if}
+
+          <div class="pt-2 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+            <button
+              type="button"
+              onclick={closeContactModal}
+              class="px-5 py-3 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50"
+            >
+              Cerrar
+            </button>
+            <button
+              type="submit"
+              disabled={contactStatus === 'sending'}
+              class="px-6 py-3 rounded-lg bg-white text-[#111] border border-[#1f1f1f] font-bold hover:bg-slate-50 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {contactStatus === 'sending' ? 'Enviando...' : contactModal.submitLabel}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  {/if}
+</div>
 
 <style>
-  .landing-alcoy {
-    width: min(1100px, 92%);
-    margin: 9rem auto 4rem;
-    display: grid;
-    gap: 2.5rem;
-    color: #0f172a;
+  @keyframes bHeroIn {
+    from {
+      opacity: 0;
+      transform: translateY(34px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
-  .section-shell {
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    border: 1px solid #e2e8f0;
-    border-radius: 24px;
-    padding: 2rem;
-    box-shadow: 0 16px 44px rgba(15, 23, 42, 0.08);
+
+  @keyframes bGlowPulse {
+    0%,
+    100% {
+      opacity: 0.38;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.11);
+    }
   }
-  .hero {
-    text-align: left;
-    padding: 0;
-    overflow: hidden;
-    background:
-      radial-gradient(1200px 420px at 15% -10%, rgba(37, 99, 235, 0.18), transparent 58%),
-      radial-gradient(900px 360px at 95% 95%, rgba(124, 58, 237, 0.2), transparent 62%),
-      linear-gradient(130deg, #ffffff 0%, #f8fbff 42%, #f5f3ff 100%);
-    border: 1px solid rgba(148, 163, 184, 0.35);
+
+  @keyframes bShineMove {
+    0% {
+      transform: translateX(-120%) skewX(-18deg);
+    }
+    100% {
+      transform: translateX(220%) skewX(-18deg);
+    }
   }
-  .hero-grid {
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 1.35rem;
-    align-items: center;
-    min-height: 470px;
-    padding: 2rem;
+
+  .hero-b {
+    animation: bHeroIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  .hero-copy {
+
+  .section-glow::after {
+    content: '';
+    position: absolute;
+    width: min(60vw, 640px);
+    height: min(60vw, 640px);
+    right: -16%;
+    top: -20%;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(89, 139, 255, 0.2) 0%, rgba(0, 108, 73, 0.08) 42%, transparent 70%);
+    filter: blur(20px);
+    pointer-events: none;
+    animation: bGlowPulse 6.2s ease-in-out infinite;
+    z-index: 0;
+  }
+
+  .reveal-b {
+    opacity: 0;
+    transform: translateY(56px) scale(0.95);
+    transition:
+      opacity 1200ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 1200ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  :global(.reveal-b.reveal-visible) {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .card-b {
     position: relative;
+    transition:
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 420ms ease,
+      border-color 420ms ease;
+    border: 1px solid rgba(0, 32, 69, 0.06);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+  }
+
+  .card-b:hover {
+    transform: translateY(-14px) scale(1.015);
+    box-shadow:
+      0 30px 42px rgba(0, 32, 69, 0.2),
+      0 0 0 1px rgba(0, 108, 73, 0.34);
+    border-color: rgba(0, 108, 73, 0.36);
+  }
+
+  .btn-shine {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .btn-shine::after {
+    content: '';
+    position: absolute;
+    inset: -40% auto -40% -30%;
+    width: 28%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+    pointer-events: none;
+    animation: bShineMove 2.3s ease-in-out infinite;
     z-index: 1;
   }
-  .badge {
-    display: inline-flex;
-    margin-bottom: 1rem;
-    border-radius: 999px;
-    border: 1px solid rgba(37, 99, 235, 0.25);
-    background: rgba(37, 99, 235, 0.08);
-    color: #1d4ed8;
-    font-size: 0.85rem;
-    font-weight: 600;
-    padding: 0.35rem 0.8rem;
-  }
-  h1 {
-    font-size: clamp(1.9rem, 3.2vw, 3rem);
-    line-height: 1.12;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.75rem;
-  }
-  h2 {
-    font-size: clamp(1.35rem, 2.2vw, 2rem);
-    line-height: 1.2;
-    letter-spacing: -0.015em;
-    margin-bottom: 0.75rem;
-  }
-  h3 {
-    font-size: 1.08rem;
-    margin-bottom: 0.5rem;
-  }
-  p {
-    color: #1e293b;
-  }
-  .lead {
-    color: #334155;
-    font-size: 1.05rem;
-    max-width: 58ch;
-    margin: 0;
-  }
-  .hero-visual {
-    border: 1px solid rgba(148, 163, 184, 0.35);
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.82);
-    backdrop-filter: blur(6px);
-    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.14);
+
+  .cta-hover {
+    position: relative;
     overflow: hidden;
-    min-height: 380px;
-    display: grid;
-    grid-template-rows: 1fr auto;
+    transform: translateZ(0);
+    transition:
+      transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 260ms ease,
+      filter 260ms ease;
+    isolation: isolate;
   }
-  .hero-visual iframe,
-  .hero-visual img {
-    width: 100%;
-    height: 100%;
-    min-height: 300px;
-    border: 0;
-    object-fit: cover;
-    display: block;
+
+  .cta-hover::after {
+    content: '';
+    position: absolute;
+    top: -40%;
+    left: -34%;
+    width: 28%;
+    height: 180%;
+    background: linear-gradient(100deg, transparent 5%, rgba(255, 255, 255, 0.55) 48%, transparent 92%);
+    transform: translateX(-180%) skewX(-16deg);
+    opacity: 0;
+    pointer-events: none;
   }
-  .hero-visual-copy {
-    border-top: 1px solid rgba(148, 163, 184, 0.3);
-    padding: 0.85rem 1rem;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, #f8fafc 100%);
+
+  .cta-hover:hover {
+    transform: translateY(-2px) scale(1.015);
+    filter: saturate(1.08);
   }
-  .hero-visual-copy strong {
-    color: #0f172a;
-    font-size: 0.98rem;
+
+  .cta-hover:hover::after {
+    opacity: 1;
+    animation: bShineMove 0.95s ease-out;
   }
-  .hero-visual-copy p {
-    color: #475569;
-    font-size: 0.9rem;
-    margin-top: 0.28rem;
+
+  .cta-hover-primary:hover {
+    box-shadow:
+      0 10px 24px rgba(0, 108, 73, 0.38),
+      0 0 0 1px rgba(255, 255, 255, 0.22) inset;
   }
-  .muted {
-    color: #475569;
+
+  .cta-hover-ghost:hover {
+    text-shadow: 0 0 16px rgba(255, 255, 255, 0.26);
+    border-color: rgba(182, 245, 224, 0.7);
   }
-  .grid {
-    display: grid;
-    gap: 1rem;
-    margin-top: 1.1rem;
+
+  .cta-hover-header:hover {
+    box-shadow:
+      0 8px 20px rgba(0, 108, 73, 0.36),
+      0 0 0 1px rgba(255, 255, 255, 0.18) inset;
   }
-  .grid.two {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  :global(.stitch-landing .material-symbols-outlined) {
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24;
+    display: inline-block;
+    vertical-align: middle;
   }
-  .grid.three {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  :global(.stitch-landing .glass-card) {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
-  .card {
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 1rem;
-    background: #fff;
-  }
-  ul {
-    padding-left: 1.1rem;
-    display: grid;
-    gap: 0.4rem;
-  }
-  .cta-row {
-    margin-top: 1.25rem;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-  .btn-primary,
-  .btn-secondary {
-    text-decoration: none;
-    border-radius: 999px;
-    padding: 0.68rem 1.1rem;
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-  .btn-primary {
-    background: #2563eb;
-    color: #fff;
-    border: 1px solid #2563eb;
-  }
-  .btn-secondary {
-    border: 1px solid #cbd5e1;
-    background: #fff;
-    color: #0f172a;
-  }
-  .inline-link {
-    display: inline-flex;
-    margin-top: 0.6rem;
-    color: #1d4ed8;
-    text-decoration: none;
-    font-weight: 600;
-  }
-  .faq-list {
-    margin-top: 1rem;
-    display: grid;
-    gap: 0.75rem;
-  }
-  .faq-item {
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    background: #fff;
-    padding: 0.9rem 1rem;
-  }
-  .faq-item summary {
-    cursor: pointer;
-    font-weight: 600;
-    color: #0f172a;
-  }
-  .faq-item p {
-    margin-top: 0.65rem;
-    color: #334155;
-  }
-  .final-cta {
-    text-align: center;
-  }
-  @media (max-width: 900px) {
-    .hero-grid {
-      grid-template-columns: 1fr;
-      padding: 1.3rem;
-      min-height: auto;
+
+  @media (max-width: 1024px) {
+    .section-glow::after {
+      width: 66vw;
+      height: 66vw;
+      right: -22%;
+      top: -16%;
     }
-    .hero {
-      text-align: center;
+    .card-b:hover {
+      transform: translateY(-7px) scale(1.01);
     }
-    .lead {
-      margin: 0 auto;
+  }
+
+  @media (max-width: 768px) {
+    .reveal-b {
+      transform: translateY(24px);
+      transition:
+        opacity 680ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 680ms cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .grid.two,
-    .grid.three {
-      grid-template-columns: 1fr;
+    .section-glow::after {
+      width: 84vw;
+      height: 84vw;
+      right: -40%;
+      top: -14%;
+      opacity: 0.55;
+    }
+    .card-b,
+    .card-b:hover {
+      transform: none;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .cta-hover:hover {
+      transform: none;
+      filter: none;
+    }
+
+    .cta-hover::after,
+    .cta-hover:hover::after {
+      opacity: 0;
+      animation: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-b,
+    .section-glow::after,
+    .reveal-b,
+    .card-b,
+    .btn-shine::after {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+      opacity: 1 !important;
     }
   }
 </style>

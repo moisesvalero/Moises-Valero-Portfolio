@@ -6,9 +6,10 @@ import {
 import { fetchSitePortfolio } from '$lib/server/fetch-site-portfolio';
 import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ cookies, depends }) => {
+export const load: LayoutServerLoad = async ({ cookies, depends, url }) => {
   depends(LOCALE_LOAD_DEPENDENCY);
   const locale = resolveSiteLocale(cookies.get(PORTFOLIO_LOCALE_COOKIE));
   const site = await fetchSitePortfolio(locale);
-  return { site, locale };
+  const hideSiteChrome = url.pathname === '/diseno-web-alcoy';
+  return { site, locale, hideSiteChrome };
 };

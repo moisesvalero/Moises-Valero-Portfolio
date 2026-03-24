@@ -295,6 +295,20 @@ export const landingDisenoWebAlcoy = defineType({
       ]
     }),
     defineField({
+      name: 'contactModal',
+      type: 'object',
+      title: 'Formulario modal de contacto',
+      group: 'content',
+      fields: [
+        defineField({ name: 'triggerLabel', type: 'string', title: 'Texto boton abrir modal' }),
+        defineField({ name: 'heading', type: 'string', title: 'Titulo modal' }),
+        defineField({ name: 'text', type: 'text', title: 'Texto modal', rows: 3 }),
+        defineField({ name: 'submitLabel', type: 'string', title: 'Texto boton enviar' }),
+        defineField({ name: 'successMessage', type: 'string', title: 'Mensaje de exito' }),
+        defineField({ name: 'privacyLabel', type: 'string', title: 'Texto checkbox privacidad' })
+      ]
+    }),
+    defineField({
       name: 'localBusiness',
       type: 'object',
       title: 'Datos LocalBusiness / ProfessionalService',

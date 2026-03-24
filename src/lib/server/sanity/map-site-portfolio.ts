@@ -361,6 +361,13 @@ function mergeContact(raw: unknown, d: SitePortfolioContent['contact']): SitePor
         (o.linkedinButtonLabel as string | undefined),
       d.whatsappButtonLabel
     ),
+    formLead: asString(o.formLead, d.formLead),
+    formButtonLabel: asString(o.formButtonLabel, d.formButtonLabel),
+    formModalHeading: asString(o.formModalHeading, d.formModalHeading),
+    formModalText: asString(o.formModalText, d.formModalText),
+    formModalSubmitLabel: asString(o.formModalSubmitLabel, d.formModalSubmitLabel),
+    formModalPrivacyLabel: asString(o.formModalPrivacyLabel, d.formModalPrivacyLabel),
+    formModalSuccessMessage: asString(o.formModalSuccessMessage, d.formModalSuccessMessage),
     iframeTitle: asString(o.iframeTitle, d.iframeTitle)
   };
 }
@@ -375,6 +382,55 @@ function mergeFooter(raw: unknown, d: SitePortfolioContent['footer']): SitePortf
     githubHref: asString(o.githubHref, d.githubHref),
     linkedinHref: asString(o.linkedinHref, d.linkedinHref),
     emailHref: asString(o.emailHref, d.emailHref)
+  };
+}
+
+function mergeCareerModal(
+  raw: unknown,
+  d: SitePortfolioContent['careerModal'],
+  locale: SiteLocale
+): SitePortfolioContent['careerModal'] {
+  const o = asRecord(raw);
+  if (!o) {
+    return d;
+  }
+  const timelineRaw = Array.isArray(o.timeline) ? (o.timeline as unknown[]) : [];
+  const timeline = timelineRaw
+    .map((x, i) => {
+      const r = asRecord(x);
+      if (!r) {
+        return null;
+      }
+      const fallback = d.timeline[i] ?? d.timeline[0];
+      const range = asStringOpt(r.range) ?? fallback?.range ?? '';
+      const role = pickLocalized(r.role, locale, fallback?.role ?? '');
+      const descHtml = pickLocalized(r.descHtml, locale, fallback?.descHtml ?? '');
+      if (!range || !role || !descHtml) {
+        return null;
+      }
+      return {
+        range,
+        role,
+        descHtml,
+        span: r.span === true
+      };
+    })
+    .filter(Boolean) as SitePortfolioContent['careerModal']['timeline'];
+
+  return {
+    pdfHref: asString(o.pdfHref, d.pdfHref),
+    closeAria: pickLocalized(o.closeAria, locale, d.closeAria),
+    title: pickLocalized(o.title, locale, d.title),
+    profileTitle: pickLocalized(o.profileTitle, locale, d.profileTitle),
+    profileHtml: pickLocalized(o.profileHtml, locale, d.profileHtml),
+    expTitle: pickLocalized(o.expTitle, locale, d.expTitle),
+    timeline: timeline.length ? timeline : d.timeline,
+    stackTitle: pickLocalized(o.stackTitle, locale, d.stackTitle),
+    pdfHide: pickLocalized(o.pdfHide, locale, d.pdfHide),
+    pdfShow: pickLocalized(o.pdfShow, locale, d.pdfShow),
+    pdfIframeTitle: pickLocalized(o.pdfIframeTitle, locale, d.pdfIframeTitle),
+    pdfHintBefore: pickLocalized(o.pdfHintBefore, locale, d.pdfHintBefore),
+    pdfHintLink: pickLocalized(o.pdfHintLink, locale, d.pdfHintLink)
   };
 }
 
@@ -480,7 +536,8 @@ export function mapSanitySitePortfolio(
     quality: mergeQuality(raw.quality, defaults.quality),
     projects: mergeProjects(raw.projects, defaults.projects, ctx),
     contact: mergeContact(raw.contact, defaults.contact),
-    footer: mergeFooter(raw.footer, defaults.footer)
+    footer: mergeFooter(raw.footer, defaults.footer),
+    careerModal: mergeCareerModal(raw.careerModal, defaults.careerModal, ctx.locale)
   };
   return finalizePortfolioLocale(merged, ctx.locale, hasEnglishServicesOrProjects(raw));
 }

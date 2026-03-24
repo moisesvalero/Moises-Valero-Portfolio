@@ -115,6 +115,13 @@ export type SiteContact = {
   /** Texto encima del botón (el enlace va a /api/contact/whatsapp; el número solo en WHATSAPP_E164). */
   whatsappLead: string;
   whatsappButtonLabel: string;
+  formLead: string;
+  formButtonLabel: string;
+  formModalHeading: string;
+  formModalText: string;
+  formModalSubmitLabel: string;
+  formModalPrivacyLabel: string;
+  formModalSuccessMessage: string;
   iframeTitle: string;
 };
 
@@ -124,6 +131,30 @@ export type SiteFooter = {
   githubHref: string;
   linkedinHref: string;
   emailHref: string;
+};
+
+export type SiteCareerTimelineItem = {
+  range: string;
+  role: string;
+  descHtml: string;
+  span?: boolean;
+};
+
+/** Contenido editable del modal de trayectoria. */
+export type SiteCareerModal = {
+  pdfHref: string;
+  closeAria: string;
+  title: string;
+  profileTitle: string;
+  profileHtml: string;
+  expTitle: string;
+  timeline: SiteCareerTimelineItem[];
+  stackTitle: string;
+  pdfHide: string;
+  pdfShow: string;
+  pdfIframeTitle: string;
+  pdfHintBefore: string;
+  pdfHintLink: string;
 };
 
 export type SitePortfolioContent = {
@@ -137,4 +168,5 @@ export type SitePortfolioContent = {
   projects: SiteProjectsSection;
   contact: SiteContact;
   footer: SiteFooter;
+  careerModal: SiteCareerModal;
 };

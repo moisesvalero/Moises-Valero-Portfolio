@@ -222,8 +222,15 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     heading: "Let's talk",
     subtitle: '',
     typebotSrc: 'https://typebot.io/asistente-mois-s-valero-sud5oya',
-    whatsappLead: 'Prefer WhatsApp? Message me in one click.',
+    whatsappLead: 'Prefer WhatsApp? I reply quickly there.',
     whatsappButtonLabel: 'Message on WhatsApp',
+    formLead: 'Prefer a form? Leave your details and I will email you back.',
+    formButtonLabel: 'Open form',
+    formModalHeading: 'Tell me about your project',
+    formModalText: 'Leave your details and I will get back to you soon.',
+    formModalSubmitLabel: 'Send request',
+    formModalPrivacyLabel: 'I have read and accept the privacy policy.',
+    formModalSuccessMessage: 'Message sent. I will reply soon.',
     iframeTitle: 'Chat assistant — Moisés Valero'
   },
   footer: {
@@ -232,6 +239,47 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     githubHref: 'https://github.com/moisesvalero',
     linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
     emailHref: 'mailto:info@moisesvalero.es'
+  },
+  careerModal: {
+    pdfHref: '/imagenes/MOISES-VALERO-CV.pdf',
+    closeAria: 'Close',
+    title: 'Professional background of Moisés Valero',
+    profileTitle: 'Profile',
+    profileHtml: `<p class="career-p">
+            I hold a <strong>Level 3 Vocational Certificate in Web Development</strong>
+            (equivalent to <strong>higher vocational training</strong>), covering up-to-date skills
+            for professional web development environments.
+          </p>`,
+    expTitle: 'Experience',
+    timeline: [
+      {
+        range: '2019 – 2022',
+        role: 'Freelance',
+        descHtml:
+          'Business digitalisation, technical project management, and systems maintenance.'
+      },
+      {
+        range: '2012 – 2014',
+        role: 'MutuaSAD',
+        descHtml:
+          'WordPress administration, e-commerce (WooCommerce / PrestaShop), and IT and network support.'
+      },
+      {
+        range: '2001 – 2026',
+        role: 'Additional background',
+        descHtml: `Over two decades bringing <strong>professional maturity</strong> and
+                <strong>leadership</strong> as a specialist in industrial environments and
+                <strong>technical woodworking</strong>, with a strong focus on quality, coordination,
+                and solving complex problems.`,
+        span: true
+      }
+    ],
+    stackTitle: 'Technical stack',
+    pdfHide: 'Hide PDF résumé',
+    pdfShow: 'View original PDF résumé',
+    pdfIframeTitle: 'Moisés Valero résumé (PDF)',
+    pdfHintBefore: 'If the document does not display, ',
+    pdfHintLink: 'open it in a new tab'
   }
 };
 

@@ -39,5 +39,6 @@ export const sitePortfolioQuery = `coalesce(
     )
   },
   contact,
-  footer
+  footer,
+  careerModal
 }`;

@@ -325,6 +325,13 @@ export const portfolioSite = defineType({
           description: 'El número no va aquí: se configura en el servidor (WHATSAPP_E164).'
         },
         { name: 'whatsappButtonLabel', type: 'string', title: 'Texto del botón WhatsApp' },
+        { name: 'formLead', type: 'string', title: 'Texto sobre el botón formulario' },
+        { name: 'formButtonLabel', type: 'string', title: 'Texto del botón formulario' },
+        { name: 'formModalHeading', type: 'string', title: 'Título modal formulario' },
+        { name: 'formModalText', type: 'string', title: 'Texto modal formulario' },
+        { name: 'formModalSubmitLabel', type: 'string', title: 'Texto botón enviar formulario' },
+        { name: 'formModalPrivacyLabel', type: 'string', title: 'Texto privacidad formulario' },
+        { name: 'formModalSuccessMessage', type: 'string', title: 'Mensaje éxito formulario' },
         { name: 'iframeTitle', type: 'string' }
       ]
     }),
@@ -344,6 +351,57 @@ export const portfolioSite = defineType({
         { name: 'githubHref', type: 'url' },
         { name: 'linkedinHref', type: 'url' },
         { name: 'emailHref', type: 'string', title: 'mailto:…' }
+      ]
+    }),
+    defineField({
+      name: 'careerModal',
+      type: 'object',
+      title: 'Modal de trayectoria + CV',
+      description: 'Contenido del modal que se abre al pulsar «Trayectoria».',
+      group: 'contacto',
+      fields: [
+        {
+          name: 'pdfHref',
+          type: 'string',
+          title: 'Ruta o URL del CV (PDF)',
+          description: 'Ej. /imagenes/MOISES-VALERO-CV.pdf o URL externa.'
+        },
+        { name: 'closeAria', type: 'localeString', title: 'Etiqueta cerrar (accesibilidad)' },
+        { name: 'title', type: 'localeString', title: 'Título del modal' },
+        { name: 'profileTitle', type: 'localeString', title: 'Título bloque perfil' },
+        {
+          name: 'profileHtml',
+          type: 'localeText',
+          title: 'Texto perfil (HTML permitido)',
+          description: 'Puedes usar <p>, <strong> y enlaces.'
+        },
+        { name: 'expTitle', type: 'localeString', title: 'Título bloque experiencia' },
+        {
+          name: 'timeline',
+          type: 'array',
+          title: 'Línea de tiempo',
+          of: [
+            {
+              type: 'object',
+              fields: [
+                { name: 'range', type: 'string', title: 'Rango (ej. 2019 - 2022)' },
+                { name: 'role', type: 'localeString', title: 'Rol / Empresa' },
+                {
+                  name: 'descHtml',
+                  type: 'localeText',
+                  title: 'Descripción (HTML permitido)'
+                },
+                { name: 'span', type: 'boolean', title: 'Destacar este bloque' }
+              ]
+            }
+          ]
+        },
+        { name: 'stackTitle', type: 'localeString', title: 'Título stack' },
+        { name: 'pdfHide', type: 'localeString', title: 'Texto botón ocultar PDF' },
+        { name: 'pdfShow', type: 'localeString', title: 'Texto botón ver PDF' },
+        { name: 'pdfIframeTitle', type: 'localeString', title: 'Título iframe PDF' },
+        { name: 'pdfHintBefore', type: 'localeString', title: 'Texto antes del enlace' },
+        { name: 'pdfHintLink', type: 'localeString', title: 'Texto del enlace' }
       ]
     })
   ],

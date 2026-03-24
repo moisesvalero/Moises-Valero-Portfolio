@@ -72,6 +72,15 @@ export type LandingLocalBusiness = {
   priceRange?: string;
 };
 
+export type LandingContactModal = {
+  triggerLabel: string;
+  heading: string;
+  text: string;
+  submitLabel: string;
+  successMessage: string;
+  privacyLabel: string;
+};
+
 export type LandingDisenoWebAlcoy = {
   sectionOrder: LandingSectionKey[];
   seo: LandingSeo;
@@ -98,5 +107,6 @@ export type LandingDisenoWebAlcoy = {
     text: string;
     cta: LandingCta;
   };
+  contactModal: LandingContactModal;
   localBusiness: LandingLocalBusiness;
 };

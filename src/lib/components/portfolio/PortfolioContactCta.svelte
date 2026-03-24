@@ -9,6 +9,13 @@
     typebotSrc?: string;
     whatsappLead?: string;
     whatsappButtonLabel?: string;
+    formLead?: string;
+    formButtonLabel?: string;
+    formModalHeading?: string;
+    formModalText?: string;
+    formModalSubmitLabel?: string;
+    formModalPrivacyLabel?: string;
+    formModalSuccessMessage?: string;
     iframeTitle?: string;
   }
 
@@ -16,8 +23,15 @@
     heading = '¿Hablamos?',
     subtitle = '',
     typebotSrc = 'https://typebot.io/asistente-mois-s-valero-sud5oya',
-    whatsappLead = '¿Prefieres WhatsApp? Escríbeme sin salir de un clic.',
+    whatsappLead = '¿Prefieres WhatsApp? Te respondo rápido por ahí.',
     whatsappButtonLabel = 'Escribir por WhatsApp',
+    formLead = '¿Prefieres formulario? Déjame tus datos y te escribo por email.',
+    formButtonLabel = 'Abrir formulario',
+    formModalHeading = 'Cuéntame tu proyecto',
+    formModalText = 'Déjame tus datos y te responderé lo antes posible.',
+    formModalSubmitLabel = 'Enviar solicitud',
+    formModalPrivacyLabel = 'He leído y acepto la política de privacidad.',
+    formModalSuccessMessage = 'Mensaje enviado. Te responderé en breve.',
     iframeTitle = 'Asistente de chat — Moisés Valero'
   }: Props = $props();
 
@@ -25,6 +39,16 @@
   const whatsappHref = '/api/contact/whatsapp';
 
   let allowTypebot = $state(false);
+  let isFormModalOpen = $state(false);
+  let formStatus = $state<'idle' | 'sending' | 'success' | 'error'>('idle');
+  let formError = $state('');
+  let form = $state({
+    name: '',
+    email: '',
+    phone: '',
+    message: '',
+    privacyAccepted: false
+  });
   const unsub = cookieConsent.subscribe((v) => {
     allowTypebot = v === 'all';
   });
@@ -32,6 +56,37 @@
 
   function enableChat() {
     setCookieConsent('all');
+  }
+
+  function openFormModal() {
+    isFormModalOpen = true;
+    formStatus = 'idle';
+    formError = '';
+  }
+
+  function closeFormModal() {
+    isFormModalOpen = false;
+  }
+
+  async function submitForm(event: SubmitEvent) {
+    event.preventDefault();
+    if (formStatus === 'sending') return;
+    formStatus = 'sending';
+    formError = '';
+
+    const response = await fetch('/api/contact/form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form)
+    });
+    const data = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+    if (!response.ok || !data?.ok) {
+      formStatus = 'error';
+      formError = data?.error || 'No se pudo enviar el formulario.';
+      return;
+    }
+    formStatus = 'success';
+    form = { name: '', email: '', phone: '', message: '', privacyAccepted: false };
   }
 </script>
 
@@ -66,18 +121,72 @@
     </div>
 
     <div class="botones-final">
-      <p class="texto-whatsapp-final">{whatsappLead}</p>
-      <a
-        href={whatsappHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="btn-whatsapp-final"
-      >
-        {whatsappButtonLabel} <span aria-hidden="true">→</span>
-      </a>
+      <div class="cta-stack">
+        <p class="texto-whatsapp-final">{whatsappLead}</p>
+        <a
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-whatsapp-final"
+        >
+          {whatsappButtonLabel} <span aria-hidden="true">→</span>
+        </a>
+      </div>
+      <div class="cta-stack">
+        <p class="texto-whatsapp-final">{formLead}</p>
+        <button type="button" class="btn-form-final" onclick={openFormModal}>
+          {formButtonLabel} <span aria-hidden="true">→</span>
+        </button>
+      </div>
     </div>
   </div>
 </section>
+
+{#if isFormModalOpen}
+  <div class="modal-shell" role="dialog" aria-modal="true" aria-labelledby="form-modal-title">
+    <button type="button" class="modal-backdrop" onclick={closeFormModal} aria-label="Cerrar"></button>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h4 id="form-modal-title">{formModalHeading}</h4>
+        <p>{formModalText}</p>
+      </div>
+      <form class="modal-form" onsubmit={submitForm}>
+        <label>
+          <span>Nombre *</span>
+          <input required bind:value={form.name} maxlength="100" />
+        </label>
+        <label>
+          <span>Email *</span>
+          <input type="email" required bind:value={form.email} maxlength="120" />
+        </label>
+        <label>
+          <span>Teléfono (opcional)</span>
+          <input bind:value={form.phone} maxlength="40" />
+        </label>
+        <label>
+          <span>Mensaje *</span>
+          <textarea required bind:value={form.message} maxlength="2000"></textarea>
+        </label>
+        <label class="checkline">
+          <input type="checkbox" required bind:checked={form.privacyAccepted} />
+          <span>{formModalPrivacyLabel} <a href="/privacidad">Ver política</a></span>
+        </label>
+        {#if formStatus === 'error' && formError}
+          <p class="form-feedback error">{formError}</p>
+        {/if}
+        {#if formStatus === 'success'}
+          <p class="form-feedback success">{formModalSuccessMessage}</p>
+        {/if}
+        <div class="modal-actions">
+          <button type="button" class="btn-modal-ghost" onclick={closeFormModal}>Cerrar</button>
+          <button type="submit" class="btn-modal-primary" disabled={formStatus === 'sending'}>
+            {formStatus === 'sending' ? 'Enviando...' : formModalSubmitLabel}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+{/if}
 
 <style>
   .seccion-final-unificada {
@@ -202,6 +311,20 @@
     margin-bottom: 10px;
   }
 
+  .botones-final {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+
+  .cta-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   .btn-whatsapp-final {
     display: inline-flex;
     align-items: center;
@@ -223,6 +346,184 @@
     color: #ffffff !important;
   }
 
+  .btn-form-final {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    color: #f5f5f7;
+    padding: 14px 30px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-form-final:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  .modal-shell {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(4, 7, 13, 0.72);
+    border: 0;
+    cursor: pointer;
+  }
+
+  .modal-card {
+    position: relative;
+    z-index: 1;
+    width: min(700px, 100%);
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    text-align: left;
+  }
+
+  .modal-head {
+    padding: 24px 24px 8px;
+  }
+
+  .modal-head h4 {
+    margin: 0;
+    color: #1d1d1f;
+    font-size: 28px;
+    font-weight: 800;
+  }
+
+  .modal-head p {
+    margin: 10px 0 0;
+    color: #65656b;
+    font-size: 15px;
+  }
+
+  .modal-form {
+    padding: 16px 24px 24px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .modal-form label {
+    display: grid;
+    gap: 6px;
+  }
+
+  .modal-form span {
+    color: #232328;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .modal-form input,
+  .modal-form textarea {
+    width: 100%;
+    border: 1px solid #d4d4dc;
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-size: 15px;
+    font-family: inherit;
+  }
+
+  .modal-form textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  .checkline {
+    display: flex !important;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .checkline input {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+  }
+
+  .checkline span {
+    color: #5d5d65;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .checkline a {
+    color: #006c49;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .form-feedback {
+    margin: 4px 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .form-feedback.error {
+    color: #a61d24;
+    background: #fdecec;
+    border: 1px solid #f7cfd1;
+  }
+
+  .form-feedback.success {
+    color: #116a3b;
+    background: #e8f7ef;
+    border: 1px solid #c8ebd7;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .btn-modal-ghost,
+  .btn-modal-primary {
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .btn-modal-ghost {
+    background: #f1f2f5;
+    color: #2e2f34;
+  }
+
+  .btn-modal-primary {
+    background: #ffffff;
+    color: #111111;
+    border: 1px solid #1f1f1f;
+  }
+
+  .btn-modal-primary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
   @media (max-width: 768px) {
     .seccion-final-unificada {
       padding: 40px 20px;
@@ -235,6 +536,23 @@
 
     .typebot-frame {
       height: 420px;
+    }
+
+    .botones-final {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .modal-head h4 {
+      font-size: 22px;
+    }
+
+    .modal-head {
+      padding: 18px 16px 4px;
+    }
+
+    .modal-form {
+      padding: 12px 16px 16px;
     }
   }
 </style>

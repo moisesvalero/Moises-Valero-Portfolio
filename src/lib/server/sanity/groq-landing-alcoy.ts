@@ -20,5 +20,6 @@ export const landingDisenoWebAlcoyQuery = `coalesce(
   cases,
   faq,
   finalCta,
+  contactModal,
   localBusiness
 }`;

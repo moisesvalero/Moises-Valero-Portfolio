@@ -24,8 +24,8 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
     visualImageSrc: '/imagenes/captura-portfolio_ember-scaled.avif',
     visualImageAlt: 'Muestra visual de proyecto web profesional',
     cta: {
-      label: 'Solicitar propuesta',
-      href: '/#contacto',
+      label: 'Presupuesto rápido',
+      href: '/api/contact/whatsapp',
       secondaryLabel: 'Ver proyectos',
       secondaryHref: '/#proyectos'
     }
@@ -136,11 +136,19 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
     heading: 'Hablemos de tu web y de como convertirla en un canal de captacion',
     text: 'Si buscas diseno web en Alcoy con enfoque real en resultados, te preparo una propuesta clara y adaptada a tu negocio.',
     cta: {
-      label: 'Quiero mi propuesta',
-      href: '/#contacto',
+      label: 'Solicitar presupuesto',
+      href: '/api/contact/whatsapp',
       secondaryLabel: 'Escribirme por email',
       secondaryHref: 'mailto:info@moisesvalero.es'
     }
+  },
+  contactModal: {
+    triggerLabel: 'Prefiero formulario',
+    heading: 'Cuéntame tu proyecto',
+    text: 'Déjame tus datos y te responderé por email lo antes posible.',
+    submitLabel: 'Enviar solicitud',
+    successMessage: 'Mensaje enviado. Te responderé en breve.',
+    privacyLabel: 'He leído y acepto la política de privacidad.'
   },
   localBusiness: {
     businessName: 'Moises Valero - Desarrollo Web',

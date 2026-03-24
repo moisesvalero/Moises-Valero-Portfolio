@@ -1,18 +1,41 @@
 <script lang="ts">
   import type { SiteLocale } from '$lib/i18n/site-locale';
+  import type { SiteCareerModal } from '$lib/types/site-portfolio';
   import { getCareerModalCopy } from './career-modal-copy';
 
   let {
     open = $bindable(false),
     pdfHref = '/imagenes/MOISES-VALERO-CV.pdf',
-    locale = 'es' as SiteLocale
+    locale = 'es' as SiteLocale,
+    career = undefined as SiteCareerModal | undefined
   }: {
     open?: boolean;
     pdfHref?: string;
     locale?: SiteLocale;
+    career?: SiteCareerModal;
   } = $props();
 
-  const c = $derived(getCareerModalCopy(locale));
+  const baseCopy = $derived(getCareerModalCopy(locale));
+  const c = $derived({
+    ...baseCopy,
+    ...(career
+      ? {
+          closeAria: career.closeAria,
+          title: career.title,
+          profileTitle: career.profileTitle,
+          profileHtml: career.profileHtml,
+          expTitle: career.expTitle,
+          timeline: career.timeline,
+          stackTitle: career.stackTitle,
+          pdfHide: career.pdfHide,
+          pdfShow: career.pdfShow,
+          pdfIframeTitle: career.pdfIframeTitle,
+          pdfHintBefore: career.pdfHintBefore,
+          pdfHintLink: career.pdfHintLink
+        }
+      : {})
+  });
+  const effectivePdfHref = $derived(career?.pdfHref || pdfHref);
   type StackIcon = {
     src?: string;
     iconify?: string;
@@ -175,11 +198,11 @@
             <div class="career-pdf-wrap">
               <iframe
                 class="career-pdf-frame"
-                src={pdfHref}
+                src={effectivePdfHref}
                 title={c.pdfIframeTitle}
               ></iframe>
               <p class="career-pdf-hint">
-                {c.pdfHintBefore}<a href={pdfHref} target="_blank" rel="noopener noreferrer"
+                {c.pdfHintBefore}<a href={effectivePdfHref} target="_blank" rel="noopener noreferrer"
                   >{c.pdfHintLink}</a
                 >.
               </p>

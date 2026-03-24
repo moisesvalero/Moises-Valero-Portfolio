@@ -76,7 +76,28 @@ function mapSitePortfolioDocument() {
       }))
     },
     contact: site.contact,
-    footer: site.footer
+    footer: site.footer,
+    careerModal: {
+      pdfHref: site.careerModal.pdfHref,
+      closeAria: asLocaleString(site.careerModal.closeAria),
+      title: asLocaleString(site.careerModal.title),
+      profileTitle: asLocaleString(site.careerModal.profileTitle),
+      profileHtml: asLocaleText(site.careerModal.profileHtml),
+      expTitle: asLocaleString(site.careerModal.expTitle),
+      timeline: site.careerModal.timeline.map((item, index) => ({
+        _key: keyOf('career-timeline', index),
+        range: item.range,
+        role: asLocaleString(item.role),
+        descHtml: asLocaleText(item.descHtml),
+        span: item.span === true
+      })),
+      stackTitle: asLocaleString(site.careerModal.stackTitle),
+      pdfHide: asLocaleString(site.careerModal.pdfHide),
+      pdfShow: asLocaleString(site.careerModal.pdfShow),
+      pdfIframeTitle: asLocaleString(site.careerModal.pdfIframeTitle),
+      pdfHintBefore: asLocaleString(site.careerModal.pdfHintBefore),
+      pdfHintLink: asLocaleString(site.careerModal.pdfHintLink)
+    }
   };
 }
 

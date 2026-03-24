@@ -59,6 +59,8 @@
     <button type="button" class="footer-legal-btn" onclick={() => openCookiePreferences()}>
       {$t('legalFooter.preferences')}
     </button>
+    <span class="footer-dot" aria-hidden="true">·</span>
+    <a href="/diseno-web-alcoy" class="footer-landing-link">Diseño web en Alcoy</a>
   </nav>
 
   <div class="footer-icons">
@@ -117,12 +119,23 @@
   }
 
   .footer-legal a {
-    color: #2563eb;
+    color: #64748b;
+    text-decoration: none;
+  }
+
+  .footer-landing-link {
+    color: #64748b !important;
+    font-weight: 500;
+  }
+
+  .footer-landing-link:hover {
+    color: #334155 !important;
     text-decoration: none;
   }
 
   .footer-legal a:hover {
-    text-decoration: underline;
+    color: #334155;
+    text-decoration: none;
   }
 
   .footer-dot {
@@ -136,14 +149,13 @@
     padding: 0;
     font: inherit;
     font-weight: 600;
-    color: #2563eb;
+    color: #64748b;
     cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 2px;
+    text-decoration: none;
   }
 
   .footer-legal-btn:hover {
-    color: #1d4ed8;
+    color: #334155;
   }
 
   .footer-primary,

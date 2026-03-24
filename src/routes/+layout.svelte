@@ -20,6 +20,7 @@
   } = $props();
 
   const site = $derived(data.site);
+  const hideSiteChrome = $derived(data.hideSiteChrome === true);
 
   $effect(() => {
     locale.set(data.locale);
@@ -63,6 +64,7 @@
 
 </script>
 
+  {#if !hideSiteChrome}
   <header class="header" class:menu-open={menuOpen}>
 	<div class="header-inner">
 	  <HeaderBrand
@@ -178,14 +180,19 @@
 	  </div>
 	{/if}
   </header>
+  {/if}
 
-  <CareerModal bind:open={careerOpen} locale={data.locale} />
+  {#if !hideSiteChrome}
+  <CareerModal bind:open={careerOpen} locale={data.locale} career={site.careerModal} />
+  {/if}
   
   {@render children()}
 
+  {#if !hideSiteChrome}
   <SmoothHashScroll />
   <PortfolioCustomCursor />
   <PortfolioFooter {...site.footer} />
+  {/if}
 
   <CookieBanner />
   <GoogleAnalytics />
