@@ -44,6 +44,12 @@
   let activeMaintenanceIndex = $state<number | null>(null);
   let faqOpenIndex = $state<number | null>(null);
   let isMobileNavOpen = $state(false);
+  let heroSectionEl: HTMLElement | null = null;
+  let heroCursorFxEnabled = false;
+  let heroPointerInside = false;
+  let heroMobileParallaxEnabled = false;
+  let heroParallaxRaf = 0;
+  let isHeaderScrolled = $state(false);
 
   type TailwindRuntime = {
     refresh?: () => void;
@@ -94,6 +100,54 @@
 
   function closeMobileNav() {
     isMobileNavOpen = false;
+  }
+
+  function handleHeroPointerMove(event: PointerEvent) {
+    if (!heroSectionEl || !heroCursorFxEnabled) return;
+    const rect = heroSectionEl.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const isInside =
+      event.clientX >= rect.left &&
+      event.clientX <= rect.right &&
+      event.clientY >= rect.top &&
+      event.clientY <= rect.bottom;
+    if (!isInside) {
+      if (heroPointerInside) {
+        heroPointerInside = false;
+        resetHeroPointerFx();
+      }
+      return;
+    }
+    heroPointerInside = true;
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    heroSectionEl.style.setProperty('--hero-cx', `${Math.min(100, Math.max(0, x))}%`);
+    heroSectionEl.style.setProperty('--hero-cy', `${Math.min(100, Math.max(0, y))}%`);
+  }
+
+  function resetHeroPointerFx() {
+    if (!heroSectionEl) return;
+    heroSectionEl.style.setProperty('--hero-cx', '74%');
+    heroSectionEl.style.setProperty('--hero-cy', '42%');
+  }
+
+  function syncHeaderScrollState() {
+    isHeaderScrolled = window.scrollY > 12;
+  }
+
+  function resetHeroMobileParallaxFx() {
+    if (!heroSectionEl) return;
+    heroSectionEl.style.setProperty('--hero-mobile-shift-y', '0px');
+    heroSectionEl.style.setProperty('--hero-aurora-y', '0px');
+  }
+
+  function applyHeroMobileParallax(scrollY: number) {
+    if (!heroSectionEl || !heroMobileParallaxEnabled) return;
+    const clampedY = Math.min(240, Math.max(0, scrollY));
+    const mockupShift = -(clampedY * 0.06);
+    const auroraShift = -(clampedY * 0.04);
+    heroSectionEl.style.setProperty('--hero-mobile-shift-y', `${mockupShift.toFixed(2)}px`);
+    heroSectionEl.style.setProperty('--hero-aurora-y', `${auroraShift.toFixed(2)}px`);
   }
 
   function ensureExternalScript(src: string, id: string) {
@@ -178,12 +232,43 @@
 
   onMount(() => {
     prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    heroCursorFxEnabled =
+      !prefersReducedMotion &&
+      window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 1024px)').matches;
+    heroMobileParallaxEnabled =
+      !prefersReducedMotion &&
+      window.matchMedia('(max-width: 640px)').matches &&
+      window.matchMedia('(hover: none), (pointer: coarse)').matches;
+    resetHeroPointerFx();
+    resetHeroMobileParallaxFx();
+    syncHeaderScrollState();
+    const onMobileScroll = () => {
+      if (!heroMobileParallaxEnabled) return;
+      if (heroParallaxRaf) return;
+      heroParallaxRaf = window.requestAnimationFrame(() => {
+        heroParallaxRaf = 0;
+        applyHeroMobileParallax(window.scrollY);
+      });
+    };
+    const onHeaderScroll = () => {
+      syncHeaderScrollState();
+    };
+    window.addEventListener('scroll', onMobileScroll, { passive: true });
+    window.addEventListener('scroll', onHeaderScroll, { passive: true });
+    onMobileScroll();
     if (window.matchMedia('(min-width: 1024px)').matches && landing.faq.items.length > 0) {
       faqOpenIndex = 0;
     }
     // En SPA la carga del runtime/config de Tailwind puede llegar tarde.
     // Blindamos scripts + refresh para evitar render blanco sin fondo.
     void ensureLandingTailwindReady();
+    return () => {
+      window.removeEventListener('scroll', onMobileScroll);
+      window.removeEventListener('scroll', onHeaderScroll);
+      if (heroParallaxRaf) {
+        window.cancelAnimationFrame(heroParallaxRaf);
+      }
+    };
   });
 
   $effect(() => {
@@ -334,12 +419,20 @@
   <JsonLdScript json={breadcrumbJsonLd} />
 </svelte:head>
 
+<svelte:window onpointermove={handleHeroPointerMove} />
+
 <div
   id="top"
   class="scroll-smooth stitch-landing font-body text-on-surface bg-surface min-h-screen"
   style="background:#f7f9fb;color:#191c1e;"
 >
-  <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm">
+  <nav
+    class={`alcoy-dynamic-header fixed top-0 w-full z-50 transition-[background-color,backdrop-filter,border-color,box-shadow] duration-[460ms] ${
+      isHeaderScrolled
+        ? 'is-scrolled bg-white/70 backdrop-blur-md border-b border-white/55 shadow-[0_10px_28px_rgba(15,23,42,0.08)]'
+        : 'is-top bg-transparent border-b border-transparent shadow-none'
+    }`}
+  >
     <div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
       <HeaderBrand
         href="#top"
@@ -347,57 +440,97 @@
       />
       <div class="hidden md:flex space-x-8">
         <a
-          class="text-slate-600 font-medium hover:text-[#006c49] transition-colors duration-200 no-underline"
+          class={`alcoy-nav-link header-link-premium font-medium transition-colors duration-200 no-underline ${
+            isHeaderScrolled ? 'is-scrolled text-slate-700 hover:text-[#006c49]' : 'is-top text-white/90 hover:text-white'
+          }`}
           href="#services">Servicios</a>
         <a
-          class="text-slate-600 font-medium hover:text-[#006c49] transition-colors duration-200 no-underline"
+          class={`alcoy-nav-link header-link-premium font-medium transition-colors duration-200 no-underline ${
+            isHeaderScrolled ? 'is-scrolled text-slate-700 hover:text-[#006c49]' : 'is-top text-white/90 hover:text-white'
+          }`}
           href="#benefits">Beneficios</a>
         <a
-          class="text-slate-600 font-medium hover:text-[#006c49] transition-colors duration-200 no-underline"
+          class={`alcoy-nav-link header-link-premium font-medium transition-colors duration-200 no-underline ${
+            isHeaderScrolled ? 'is-scrolled text-slate-700 hover:text-[#006c49]' : 'is-top text-white/90 hover:text-white'
+          }`}
           href="#faq">FAQ</a>
         <a
-          class="text-slate-600 font-medium hover:text-[#006c49] transition-colors duration-200 no-underline"
+          class={`alcoy-nav-link header-link-premium font-medium transition-colors duration-200 no-underline ${
+            isHeaderScrolled ? 'is-scrolled text-slate-700 hover:text-[#006c49]' : 'is-top text-white/90 hover:text-white'
+          }`}
           href="#contact">Contacto</a>
       </div>
       <div class="flex items-center gap-3">
         <a
           href="#contact"
-          class="hidden md:inline-flex cta-hover cta-hover-header bg-secondary text-on-secondary px-5 py-2 rounded-md font-semibold hover:shadow-[0_0_15px_rgba(0,108,73,0.3)] transition-all active:scale-95 no-underline items-center justify-center"
+          class={`hidden md:inline-flex cta-hover cta-hover-header alcoy-contact-cta px-5 py-2 rounded-md font-semibold transition-all active:scale-95 no-underline items-center justify-center ${
+            isHeaderScrolled
+              ? 'bg-secondary text-on-secondary hover:shadow-[0_0_15px_rgba(0,108,73,0.3)]'
+              : 'bg-white/10 text-white border border-white/35 hover:bg-white/16 hover:shadow-[0_8px_22px_rgba(9,13,34,0.3)]'
+          }`}
         >
           Contactar
         </a>
         <button
           type="button"
-          class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-md border border-slate-200 text-slate-700 bg-white/80"
+          class={`hamburger-toggle md:hidden inline-flex items-center justify-center w-10 h-10 rounded-md transition-colors ${
+            isMobileNavOpen ? 'is-open' : ''
+          } ${
+            isHeaderScrolled
+              ? 'border border-slate-200 text-slate-700 bg-white/80'
+              : 'border border-white/30 text-white bg-white/10'
+          }`}
           onclick={toggleMobileNav}
           aria-expanded={isMobileNavOpen}
-          aria-label="Abrir menú"
+          aria-label={isMobileNavOpen ? 'Cerrar menú' : 'Abrir menú'}
         >
-          <span class="material-symbols-outlined">{isMobileNavOpen ? 'close' : 'menu'}</span>
+          <span class="hamburger-icon" aria-hidden="true">
+            <span class="hamburger-line line-top"></span>
+            <span class="hamburger-line line-mid"></span>
+            <span class="hamburger-line line-bot"></span>
+          </span>
         </button>
       </div>
     </div>
     {#if isMobileNavOpen}
-      <div class="mobile-nav-panel md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-md shadow-sm">
+      <div
+        class={`mobile-nav-panel md:hidden border-t backdrop-blur-md ${
+          isHeaderScrolled
+            ? 'border-slate-200 bg-white/95 shadow-sm'
+            : 'border-white/20 bg-white/8 shadow-[0_14px_28px_rgba(8,12,34,0.28)]'
+        }`}
+      >
         <div class="px-6 py-4 flex flex-col gap-3">
           <a
-            class="text-slate-700 font-medium no-underline py-1"
+            class={`font-medium no-underline py-1 ${
+              isHeaderScrolled ? 'text-slate-700' : 'text-white/90 hover:text-white'
+            }`}
             href="#services"
             onclick={closeMobileNav}>Servicios</a>
           <a
-            class="text-slate-700 font-medium no-underline py-1"
+            class={`font-medium no-underline py-1 ${
+              isHeaderScrolled ? 'text-slate-700' : 'text-white/90 hover:text-white'
+            }`}
             href="#benefits"
             onclick={closeMobileNav}>Beneficios</a>
           <a
-            class="text-slate-700 font-medium no-underline py-1"
+            class={`font-medium no-underline py-1 ${
+              isHeaderScrolled ? 'text-slate-700' : 'text-white/90 hover:text-white'
+            }`}
             href="#faq"
             onclick={closeMobileNav}>FAQ</a>
           <a
-            class="text-slate-700 font-medium no-underline py-1"
+            class={`font-medium no-underline py-1 ${
+              isHeaderScrolled ? 'text-slate-700' : 'text-white/90 hover:text-white'
+            }`}
             href="#contact"
             onclick={closeMobileNav}>Contacto</a>
           <a
-            class="mt-2 inline-flex items-center justify-center bg-secondary text-on-secondary px-4 py-2 rounded-md font-semibold no-underline"
+            class={`mt-2 inline-flex items-center justify-center px-4 py-2 rounded-md font-semibold no-underline ${
+              isHeaderScrolled
+                ? 'bg-secondary text-on-secondary'
+                : 'bg-white/14 text-white border border-white/30 hover:bg-white/20'
+            }`}
             href="#contact"
             onclick={closeMobileNav}
           >
@@ -408,10 +541,11 @@
     {/if}
   </nav>
 
-  <main class="pt-12 md:pt-8">
+  <main class="pt-0">
     <section
-      class="hero-b section-glow relative min-h-0 py-10 md:py-0 md:min-h-[820px] lg:min-h-[860px] flex items-start md:items-center overflow-x-clip overflow-y-visible bg-primary px-6"
-      style="background:#002045;"
+      class="hero-b section-glow relative min-h-0 pt-24 pb-10 md:py-0 md:min-h-[820px] lg:min-h-[860px] flex items-start md:items-center overflow-x-clip overflow-y-visible bg-primary px-6"
+      style="background: radial-gradient(circle at 74% 40%, #3a4aa0 0%, #2a377f 34%, #1a2258 66%, #0f1538 100%);"
+      bind:this={heroSectionEl}
     >
       <div class="absolute inset-0 opacity-20 pointer-events-none">
         <div
@@ -421,6 +555,11 @@
           class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary-container blur-[100px] rounded-full -translate-x-1/4 translate-y-1/4"
         ></div>
       </div>
+      <div class="hero-tech-pattern" aria-hidden="true"></div>
+      <div class="hero-depth-grid" aria-hidden="true"></div>
+      <div class="hero-depth-aurora" aria-hidden="true"></div>
+      <div class="hero-cursor-light" aria-hidden="true"></div>
+      <div class="hero-depth-vignette" aria-hidden="true"></div>
       <div
         class="max-w-7xl mx-auto w-full grid grid-cols-1 gap-12 md:gap-14 items-center relative z-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:grid-cols-[minmax(0,30rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] lg:gap-20 xl:gap-24"
       >
@@ -430,6 +569,7 @@
           >
             {landing.hero.title}
           </h1>
+          <div class="hero-title-accent" aria-hidden="true"></div>
           <p class="text-on-primary-container text-lg md:text-xl max-w-lg leading-relaxed">
             {landing.hero.subtitle}
           </p>
@@ -448,7 +588,7 @@
             </a>
           </div>
         </div>
-        <div class="relative min-w-0 w-full overflow-visible md:pl-4 lg:pl-8">
+        <div class="hero-visual-col relative min-w-0 w-full overflow-visible md:pl-4 lg:pl-8">
           <div
             class="relative mx-auto w-full max-w-[min(100%,360px)] sm:max-w-[min(100%,420px)] md:max-w-[900px] md:ml-auto md:mr-0 flex flex-col items-center [&_.mac-mockup-root]:w-full [&_.mac-mockup-root]:max-w-none"
           >
@@ -634,14 +774,11 @@
 
     <section class="reveal-b py-24 px-6 relative overflow-hidden" id="contact" use:revealOnScroll>
       <div
-        class="max-w-7xl mx-auto bg-primary-container rounded-3xl p-12 md:p-20 text-center relative overflow-hidden"
+        class="final-cta-shell max-w-7xl mx-auto rounded-3xl p-12 md:p-20 text-center relative overflow-hidden"
       >
-        <div class="absolute inset-0 opacity-10">
-          <div class="absolute -top-10 -right-10 w-96 h-96 border-4 border-secondary rounded-full"></div>
-          <div
-            class="absolute -bottom-20 -left-20 w-[500px] h-[500px] border-2 border-secondary-container rounded-full"
-          ></div>
-        </div>
+        <div class="final-cta-bg final-cta-bg--pattern" aria-hidden="true"></div>
+        <div class="final-cta-bg final-cta-bg--grid" aria-hidden="true"></div>
+        <div class="final-cta-bg final-cta-bg--spotlight" aria-hidden="true"></div>
         <div class="relative z-10 space-y-8">
           <h2 class="font-headline text-4xl md:text-6xl font-extrabold text-white">
             {landing.finalCta.heading}
@@ -652,7 +789,7 @@
           <div class="pt-6 flex flex-col items-center gap-6">
             <a
               href={landing.finalCta.cta.href}
-              class="btn-shine bg-secondary text-on-secondary px-10 py-5 rounded-md font-bold text-xl hover:shadow-[0_0_25px_rgba(0,108,73,0.5)] transition-all active:scale-95 no-underline inline-flex items-center justify-center"
+              class="btn-shine final-cta-main-btn bg-secondary text-on-secondary px-10 py-5 rounded-md font-bold text-xl hover:shadow-[0_0_25px_rgba(0,108,73,0.5)] transition-all active:scale-95 no-underline inline-flex items-center justify-center"
             >
               {landing.finalCta.cta.label}
             </a>
@@ -1092,6 +1229,18 @@
     }
   }
 
+  @keyframes bAuroraDrift {
+    0%,
+    100% {
+      transform: translate3d(0, var(--hero-aurora-y), 0) scale(1);
+      opacity: 0.28;
+    }
+    50% {
+      transform: translate3d(1.5%, calc(-1.8% + var(--hero-aurora-y)), 0) scale(1.03);
+      opacity: 0.42;
+    }
+  }
+
   @keyframes bMobileNavIn {
     from {
       opacity: 0;
@@ -1103,8 +1252,104 @@
     }
   }
 
+  @keyframes bHeroAccentPulse {
+    0%,
+    100% {
+      transform: scaleX(1);
+      filter: saturate(1) brightness(1);
+      opacity: 0.9;
+    }
+    50% {
+      transform: scaleX(1.14);
+      filter: saturate(1.38) brightness(1.1);
+      opacity: 1;
+    }
+  }
+
   .hero-b {
+    --hero-cx: 74%;
+    --hero-cy: 42%;
+    --hero-mobile-shift-y: 0px;
+    --hero-aurora-y: 0px;
     animation: bHeroIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hero-tech-pattern {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.45;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(175, 191, 255, 0.32) 1.2px, transparent 1.3px),
+      linear-gradient(
+        115deg,
+        rgba(164, 189, 255, 0.06) 0%,
+        transparent 38%,
+        rgba(164, 189, 255, 0.08) 60%,
+        transparent 100%
+      );
+    background-size:
+      24px 24px,
+      100% 100%;
+  }
+
+  .hero-depth-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      linear-gradient(rgba(192, 210, 255, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(192, 210, 255, 0.08) 1px, transparent 1px);
+    background-size: 38px 38px;
+    transform: perspective(950px) rotateX(62deg) translateY(52%);
+    transform-origin: center bottom;
+    opacity: 0.23;
+    mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.92) 12%, transparent 74%);
+    -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.92) 12%, transparent 74%);
+  }
+
+  .hero-depth-aurora {
+    position: absolute;
+    inset: -8% -6%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(circle at 74% 42%, rgba(115, 173, 255, 0.38), transparent 46%),
+      radial-gradient(circle at 66% 58%, rgba(76, 221, 172, 0.2), transparent 42%);
+    filter: blur(34px);
+    animation: bAuroraDrift 11s ease-in-out infinite;
+  }
+
+  .hero-visual-col {
+    transform: translateY(var(--hero-mobile-shift-y));
+    transition: transform 120ms linear;
+    will-change: transform;
+  }
+
+  .hero-cursor-light {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(
+      circle 380px at var(--hero-cx) var(--hero-cy),
+      rgba(173, 208, 255, 0.2) 0%,
+      rgba(139, 196, 255, 0.12) 22%,
+      transparent 58%
+    );
+    transition: background-position 80ms linear;
+  }
+
+  .hero-depth-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(circle at 74% 42%, transparent 34%, rgba(7, 11, 30, 0.26) 100%),
+      radial-gradient(circle at center, transparent 66%, rgba(8, 12, 34, 0.2) 100%);
   }
 
   .hero-b::before {
@@ -1130,10 +1375,78 @@
   .hero-mockup-wrap {
     animation: bHeroMockupFloat 7.4s ease-in-out infinite;
     will-change: transform;
+    filter: drop-shadow(0 24px 44px rgba(8, 12, 34, 0.34)) drop-shadow(0 10px 24px rgba(12, 20, 54, 0.26));
   }
 
   .mobile-nav-panel {
     animation: bMobileNavIn 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hamburger-toggle {
+    overflow: hidden;
+    transition:
+      transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 220ms ease,
+      border-color 220ms ease,
+      color 220ms ease;
+  }
+
+  .hamburger-toggle:active {
+    transform: scale(0.96);
+  }
+
+  .hamburger-icon {
+    width: 18px;
+    height: 14px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hamburger-line {
+    position: absolute;
+    left: 0;
+    width: 18px;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    transform-origin: center;
+    transition:
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 220ms ease,
+      width 260ms ease;
+  }
+
+  .line-top {
+    top: 0;
+  }
+
+  .line-mid {
+    top: 6px;
+  }
+
+  .line-bot {
+    top: 12px;
+  }
+
+  .hamburger-toggle.is-open .line-top {
+    top: 6px;
+    transform: rotate(45deg);
+  }
+
+  .hamburger-toggle.is-open .line-mid {
+    opacity: 0;
+    width: 0;
+  }
+
+  .hamburger-toggle.is-open .line-bot {
+    top: 6px;
+    transform: rotate(-45deg);
+  }
+
+  .hamburger-toggle.is-open {
+    transform: scale(1.04);
   }
 
   .section-glow::after {
@@ -1150,6 +1463,72 @@
     animation: bGlowPulse 6.2s ease-in-out infinite;
     z-index: 0;
   }
+
+  .final-cta-shell {
+    background: radial-gradient(circle at 50% 42%, #3a4aa0 0%, #2a377f 36%, #1a2258 68%, #0f1538 100%);
+    border: 1px solid rgba(184, 199, 255, 0.14);
+    box-shadow:
+      0 22px 56px rgba(11, 17, 44, 0.34),
+      0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  }
+
+  .final-cta-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .final-cta-bg--pattern {
+    opacity: 0.3;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(175, 191, 255, 0.28) 1.15px, transparent 1.3px),
+      linear-gradient(
+        115deg,
+        rgba(164, 189, 255, 0.07) 0%,
+        transparent 38%,
+        rgba(164, 189, 255, 0.08) 60%,
+        transparent 100%
+      );
+    background-size:
+      24px 24px,
+      100% 100%;
+  }
+
+  .final-cta-bg--grid {
+    opacity: 0.16;
+    background-image:
+      linear-gradient(rgba(192, 210, 255, 0.11) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(192, 210, 255, 0.11) 1px, transparent 1px);
+    background-size: 34px 34px;
+    transform: perspective(980px) rotateX(62deg) translateY(58%);
+    transform-origin: center bottom;
+    mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.92) 14%, transparent 76%);
+    -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.92) 14%, transparent 76%);
+  }
+
+  .final-cta-bg--spotlight {
+    background:
+      radial-gradient(
+        circle 430px at 50% 67%,
+        rgba(0, 110, 72, 0.35) 0%,
+        rgba(18, 176, 118, 0.21) 32%,
+        transparent 68%
+      ),
+      radial-gradient(
+        circle 650px at 50% 60%,
+        rgba(116, 174, 255, 0.18) 0%,
+        transparent 70%
+      );
+    filter: blur(2px);
+  }
+
+  .final-cta-main-btn {
+    box-shadow:
+      0 12px 28px rgba(0, 108, 73, 0.33),
+      0 0 0 1px rgba(255, 255, 255, 0.16) inset;
+  }
+
 
   .reveal-b {
     opacity: 0;
@@ -1386,6 +1765,80 @@
     display: inline-block;
     vertical-align: middle;
   }
+
+  :global(.alcoy-dynamic-header.is-top .header-brand-mv path) {
+    fill: #ffffff;
+  }
+
+  :global(.alcoy-dynamic-header.is-top .header-brand-tag) {
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  :global(.alcoy-dynamic-header.is-top .header-brand) {
+    filter:
+      drop-shadow(0 1px 1px rgba(8, 12, 34, 0.12))
+      drop-shadow(0 4px 12px rgba(8, 12, 34, 0.28));
+  }
+
+  .alcoy-dynamic-header {
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .header-link-premium {
+    position: relative;
+    padding-bottom: 0.2rem;
+  }
+
+  .header-link-premium::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.24rem;
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(0, 110, 72, 0.95) 0%, rgba(0, 110, 72, 0.48) 55%, rgba(0, 110, 72, 0) 100%);
+    transform: scaleX(0.08);
+    transform-origin: left center;
+    opacity: 0;
+    transition:
+      transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 220ms ease;
+  }
+
+  .header-link-premium:hover::after,
+  .header-link-premium:focus-visible::after {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+
+  :global(.alcoy-dynamic-header.is-top .header-link-premium::after) {
+    opacity: 0.88;
+    background: linear-gradient(90deg, rgba(0, 110, 72, 0.95) 0%, rgba(0, 110, 72, 0.38) 50%, rgba(0, 110, 72, 0) 100%);
+  }
+
+  .alcoy-contact-cta {
+    box-shadow: 0 0 0 1px rgba(0, 110, 72, 0.18) inset;
+  }
+
+  .alcoy-contact-cta:hover {
+    box-shadow:
+      0 0 0 1px rgba(0, 110, 72, 0.38) inset,
+      0 10px 22px rgba(0, 110, 72, 0.24);
+  }
+
+  .hero-title-accent {
+    width: clamp(92px, 24vw, 172px);
+    height: 4px;
+    border-radius: 999px;
+    margin-top: -0.3rem;
+    background: linear-gradient(90deg, rgba(0, 110, 72, 1) 0%, rgba(21, 180, 121, 0.85) 44%, rgba(21, 180, 121, 0) 100%);
+    transform-origin: left center;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.12) inset,
+      0 10px 24px rgba(0, 110, 72, 0.4);
+    animation: bHeroAccentPulse 4.2s ease-in-out infinite;
+  }
   :global(.stitch-landing .glass-card) {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(20px);
@@ -1433,6 +1886,24 @@
       opacity: 0;
       animation: none;
     }
+
+    .hero-depth-grid {
+      opacity: 0.16;
+      transform: perspective(900px) rotateX(66deg) translateY(56%);
+    }
+
+    .hero-depth-aurora {
+      opacity: 0.82;
+      filter: blur(28px);
+    }
+
+    .hero-visual-col {
+      transition: transform 160ms linear;
+    }
+
+    .hero-cursor-light {
+      display: none;
+    }
   }
 
   @media (hover: none), (pointer: coarse) {
@@ -1441,14 +1912,22 @@
       transform: none;
       transition: none;
     }
+
+    .hero-cursor-light {
+      display: none;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .hero-b,
     .hero-b::before,
     .hero-mockup-wrap,
+    .hero-visual-col,
     .mobile-nav-panel,
+    .hero-depth-aurora,
+    .hero-cursor-light,
     .section-glow::after,
+    .hero-title-accent,
     .reveal-b,
     .card-b,
     .btn-shine::after,
