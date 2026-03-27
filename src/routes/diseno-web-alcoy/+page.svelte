@@ -20,7 +20,6 @@
       : `${baseUrl}${landing.seo.canonicalPath.startsWith('/') ? '' : '/'}${landing.seo.canonicalPath}`
   );
 
-  const emailDisplay = $derived(site.footer.emailHref.replace(/^mailto:/i, ''));
   const contactModal = $derived(landing.contactModal);
   const sectionData = $derived({
     eyebrow: 'Por qué elegirme',
@@ -44,10 +43,15 @@
   let activeServiceIndex = $state<number | null>(null);
   let activeMaintenanceIndex = $state<number | null>(null);
   let faqOpenIndex = $state<number | null>(null);
+  let isMobileNavOpen = $state(false);
+  let showEntryLoader = $state(true);
 
   type TailwindRuntime = {
     refresh?: () => void;
   };
+
+  const TAILWIND_CDN_SRC = 'https://cdn.tailwindcss.com?plugins=forms,container-queries';
+  const TAILWIND_CONFIG_SRC = '/js/landing-tailwind-config.js';
 
   const serviceOffers = $derived(landing.services.items);
   const maintenanceOptions = $derived(landing.maintenance.items);
@@ -55,6 +59,7 @@
   const maintenanceFooterLabel = $derived(landing.maintenance.footerLabel || 'Mantenimiento');
 
   function openContactModal() {
+    isMobileNavOpen = false;
     isContactModalOpen = true;
     contactStatus = 'idle';
     contactError = '';
@@ -82,6 +87,65 @@
 
   function toggleFaq(index: number) {
     faqOpenIndex = faqOpenIndex === index ? null : index;
+  }
+
+  function toggleMobileNav() {
+    isMobileNavOpen = !isMobileNavOpen;
+  }
+
+  function closeMobileNav() {
+    isMobileNavOpen = false;
+  }
+
+  function ensureExternalScript(src: string, id: string) {
+    return new Promise<void>((resolve, reject) => {
+      const existing = document.getElementById(id) as HTMLScriptElement | null;
+      if (existing) {
+        // Si ya existe en el head (SSR/cliente), continuamos y delegamos en los reintentos de refresh.
+        resolve();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.id = id;
+      script.src = src;
+      script.async = true;
+      script.onload = () => {
+        script.dataset.loaded = 'true';
+        resolve();
+      };
+      script.onerror = () => reject(new Error(`No se pudo cargar ${src}`));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function ensureLandingTailwindReady() {
+    try {
+      await ensureExternalScript(TAILWIND_CDN_SRC, 'alcoy-tailwind-cdn');
+      await ensureExternalScript(TAILWIND_CONFIG_SRC, 'alcoy-tailwind-config');
+    } catch {
+      // Si falla la carga externa, mantenemos los estilos fallback inline del layout.
+    }
+
+    await new Promise<void>((resolve) => {
+      let attempts = 0;
+      const retryRefresh = () => {
+        const tw = (window as Window & { tailwind?: TailwindRuntime }).tailwind;
+        if (tw?.refresh) {
+          tw.refresh();
+          window.setTimeout(() => tw.refresh?.(), 30);
+          resolve();
+          return;
+        }
+        attempts += 1;
+        if (attempts < 80) {
+          window.setTimeout(retryRefresh, 80);
+          return;
+        }
+        resolve();
+      };
+      retryRefresh();
+    });
   }
 
   async function submitContactModalForm(event: SubmitEvent) {
@@ -114,25 +178,22 @@
   }
 
   onMount(() => {
+    showEntryLoader = true;
     prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (window.matchMedia('(min-width: 1024px)').matches && landing.faq.items.length > 0) {
       faqOpenIndex = 0;
     }
-    // En navegación SPA, el runtime CDN de Tailwind puede tardar en rehidratar clases.
-    // Forzamos refresh con reintentos cortos para evitar "flash" sin fondo.
-    let attempts = 0;
-    const refreshTailwindRuntime = () => {
-      const tw = (window as Window & { tailwind?: TailwindRuntime }).tailwind;
-      if (tw?.refresh) {
-        tw.refresh();
-        return;
+    // En SPA la carga del runtime/config de Tailwind puede llegar tarde.
+    // Blindamos scripts + refresh para evitar render blanco sin fondo.
+    const hardStop = window.setTimeout(() => {
+      showEntryLoader = false;
+    }, 1800);
+    void Promise.all([ensureLandingTailwindReady(), new Promise((r) => window.setTimeout(r, 220))]).finally(
+      () => {
+        window.clearTimeout(hardStop);
+        showEntryLoader = false;
       }
-      attempts += 1;
-      if (attempts < 20) {
-        window.setTimeout(refreshTailwindRuntime, 50);
-      }
-    };
-    refreshTailwindRuntime();
+    );
   });
 
   $effect(() => {
@@ -275,15 +336,24 @@
   <meta name="twitter:title" content={$seo.ogTitle} />
   <meta name="twitter:description" content={$seo.ogDescription} />
   <meta name="twitter:image" content={$seo.ogImage} />
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script src="/js/landing-tailwind-config.js"></script>
+  <script id="alcoy-tailwind-cdn" src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="alcoy-tailwind-config" src="/js/landing-tailwind-config.js"></script>
   <JsonLdScript json={localBusinessJsonLd} />
   <JsonLdScript json={webPageJsonLd} />
   <JsonLdScript json={faqJsonLd} />
   <JsonLdScript json={breadcrumbJsonLd} />
 </svelte:head>
 
-<div id="top" class="scroll-smooth stitch-landing font-body text-on-surface bg-surface min-h-screen">
+<div
+  id="top"
+  class="scroll-smooth stitch-landing font-body text-on-surface bg-surface min-h-screen"
+  style="background:#f7f9fb;color:#191c1e;"
+>
+  {#if showEntryLoader}
+    <div class="landing-loader" aria-hidden="true">
+      <div class="landing-loader-glow"></div>
+    </div>
+  {/if}
   <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm">
     <div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
       <HeaderBrand
@@ -304,18 +374,59 @@
           class="text-slate-600 font-medium hover:text-[#006c49] transition-colors duration-200 no-underline"
           href="#contact">Contacto</a>
       </div>
-      <a
-        href="#contact"
-        class="cta-hover cta-hover-header bg-secondary text-on-secondary px-5 py-2 rounded-md font-semibold hover:shadow-[0_0_15px_rgba(0,108,73,0.3)] transition-all active:scale-95 no-underline inline-flex items-center justify-center"
-      >
-        Contactar
-      </a>
+      <div class="flex items-center gap-3">
+        <a
+          href="#contact"
+          class="hidden md:inline-flex cta-hover cta-hover-header bg-secondary text-on-secondary px-5 py-2 rounded-md font-semibold hover:shadow-[0_0_15px_rgba(0,108,73,0.3)] transition-all active:scale-95 no-underline items-center justify-center"
+        >
+          Contactar
+        </a>
+        <button
+          type="button"
+          class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-md border border-slate-200 text-slate-700 bg-white/80"
+          onclick={toggleMobileNav}
+          aria-expanded={isMobileNavOpen}
+          aria-label="Abrir menú"
+        >
+          <span class="material-symbols-outlined">{isMobileNavOpen ? 'close' : 'menu'}</span>
+        </button>
+      </div>
     </div>
+    {#if isMobileNavOpen}
+      <div class="mobile-nav-panel md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-md shadow-sm">
+        <div class="px-6 py-4 flex flex-col gap-3">
+          <a
+            class="text-slate-700 font-medium no-underline py-1"
+            href="#services"
+            onclick={closeMobileNav}>Servicios</a>
+          <a
+            class="text-slate-700 font-medium no-underline py-1"
+            href="#benefits"
+            onclick={closeMobileNav}>Beneficios</a>
+          <a
+            class="text-slate-700 font-medium no-underline py-1"
+            href="#faq"
+            onclick={closeMobileNav}>FAQ</a>
+          <a
+            class="text-slate-700 font-medium no-underline py-1"
+            href="#contact"
+            onclick={closeMobileNav}>Contacto</a>
+          <a
+            class="mt-2 inline-flex items-center justify-center bg-secondary text-on-secondary px-4 py-2 rounded-md font-semibold no-underline"
+            href="#contact"
+            onclick={closeMobileNav}
+          >
+            Contactar
+          </a>
+        </div>
+      </div>
+    {/if}
   </nav>
 
   <main class="pt-12 md:pt-8">
     <section
       class="hero-b section-glow relative min-h-0 py-10 md:py-0 md:min-h-[820px] lg:min-h-[860px] flex items-start md:items-center overflow-x-clip overflow-y-visible bg-primary px-6"
+      style="background:#002045;"
     >
       <div class="absolute inset-0 opacity-20 pointer-events-none">
         <div
@@ -996,6 +1107,31 @@
     }
   }
 
+  @keyframes bMobileNavIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes bLoaderSweep {
+    0% {
+      transform: translateX(-120%);
+      opacity: 0.18;
+    }
+    50% {
+      opacity: 0.36;
+    }
+    100% {
+      transform: translateX(130%);
+      opacity: 0.1;
+    }
+  }
+
   .hero-b {
     animation: bHeroIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
@@ -1023,6 +1159,34 @@
   .hero-mockup-wrap {
     animation: bHeroMockupFloat 7.4s ease-in-out infinite;
     will-change: transform;
+  }
+
+  .mobile-nav-panel {
+    animation: bMobileNavIn 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .landing-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(247, 249, 251, 0.55), rgba(247, 249, 251, 0.15));
+    backdrop-filter: blur(1px);
+  }
+
+  .landing-loader-glow {
+    position: absolute;
+    top: 0;
+    left: -25%;
+    width: 34%;
+    height: 100%;
+    background: linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.95) 52%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    animation: bLoaderSweep 700ms ease-out infinite;
   }
 
   .section-glow::after {
@@ -1336,6 +1500,8 @@
     .hero-b,
     .hero-b::before,
     .hero-mockup-wrap,
+    .mobile-nav-panel,
+    .landing-loader-glow,
     .section-glow::after,
     .reveal-b,
     .card-b,

@@ -1,5 +1,6 @@
-/** Tailwind CDN config for /diseno-web-alcoy (Stitch export). Loaded after tailwindcss.com script. */
-tailwind.config = {
+/** Tailwind CDN config for /diseno-web-alcoy (Stitch export). Safe for SPA and script reorder. */
+window.tailwind = window.tailwind || {};
+window.tailwind.config = {
   darkMode: 'class',
   theme: {
     extend: {
