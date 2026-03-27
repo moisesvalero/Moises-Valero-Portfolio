@@ -416,7 +416,7 @@
         {#if landing.services.pricingFootnote}
           <p class="mt-6 text-sm text-on-surface-variant text-right">{landing.services.pricingFootnote}</p>
         {/if}
-        <div class="mt-12 card-b bg-surface-container p-8 md:p-10 rounded-xl">
+        <div id="maintenance" class="mt-12 card-b bg-surface-container p-8 md:p-10 rounded-xl scroll-mt-28 md:scroll-mt-32">
           <h3 class="font-headline text-2xl md:text-3xl font-extrabold text-primary mb-3">
             {landing.maintenance.heading}
           </h3>
@@ -625,7 +625,7 @@
               </li>
             {/each}
             <li>
-              <a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">
+              <a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#maintenance">
                 {maintenanceFooterLabel}
               </a>
             </li>
