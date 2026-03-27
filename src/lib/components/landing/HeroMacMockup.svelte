@@ -15,7 +15,7 @@
               class="search-pill"
               style="background:#fff;border:1px solid #e2e6ee;border-radius:999px;padding:9px 16px;box-shadow:0 2px 8px rgba(60,64,67,0.12);"
             >
-              Diseno web profesional...
+              <span class="typing-text">Diseño web profesional...</span>
             </div>
           </div>
 
@@ -74,7 +74,7 @@
               class="search-pill"
               style="background:#fff;border:1px solid #e2e6ee;border-radius:999px;padding:9px 16px;box-shadow:0 2px 8px rgba(60,64,67,0.12);"
             >
-              Diseno web profesional...
+              <span class="typing-text">Diseño web profesional...</span>
             </div>
           </div>
           <article
@@ -114,7 +114,7 @@
               class="search-pill"
               style="background:#fff;border:1px solid #e2e6ee;border-radius:999px;padding:8px 12px;box-shadow:0 2px 8px rgba(60,64,67,0.12);"
             >
-              Diseno web profesional...
+              <span class="typing-text">Diseño web profesional...</span>
             </div>
           </div>
           <article
@@ -253,6 +253,20 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+  }
+
+  .typing-text {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 100%;
+    width: 0;
+    border-right: 1.5px solid #9aa0a6;
+    animation:
+      typingText 4.2s steps(26, end) infinite,
+      typingCaret 900ms step-end infinite;
   }
 
   .serp-main {
@@ -620,6 +634,30 @@
     }
   }
 
+  @keyframes typingText {
+    0% {
+      width: 0;
+    }
+    38%,
+    62% {
+      width: 23ch;
+    }
+    100% {
+      width: 0;
+    }
+  }
+
+  @keyframes typingCaret {
+    0%,
+    49% {
+      border-right-color: #9aa0a6;
+    }
+    50%,
+    100% {
+      border-right-color: transparent;
+    }
+  }
+
   @media (min-width: 1101px) {
     .tri-scene > .mockup-imac {
       display: block !important;
@@ -662,10 +700,15 @@
     .serp-result.primary,
     .result-stars,
     .value-badge,
+    .typing-text,
     .mockup-imac,
     .mockup-ipad,
     .mockup-iphone {
       animation: none !important;
+    }
+    .typing-text {
+      width: auto;
+      border-right-color: transparent;
     }
   }
 </style>
