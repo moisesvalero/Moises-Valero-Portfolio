@@ -62,8 +62,6 @@
       {$t('legalFooter.preferences')}
     </button>
     <span class="footer-dot" aria-hidden="true">·</span>
-    <a href="/diseno-web-alcoy#services" class="footer-services-link">Servicios</a>
-    <span class="footer-dot" aria-hidden="true">·</span>
     <a href="/diseno-web-alcoy" class="footer-landing-link">Diseño web en Alcoy</a>
     <span class="footer-dot" aria-hidden="true">·</span>
     <a
@@ -146,14 +144,12 @@
   }
 
   .footer-landing-link,
-  .footer-services-link,
   .footer-portfolio-link {
     color: #64748b !important;
     font-weight: 500;
   }
 
   .footer-landing-link:hover,
-  .footer-services-link:hover,
   .footer-portfolio-link:hover {
     color: #334155 !important;
     text-decoration: none;
