@@ -645,7 +645,7 @@
   </footer>
 
   {#if isContactModalOpen}
-    <div class="fixed inset-0 z-[90] flex items-center justify-center p-4 md:p-6">
+    <div class="fixed inset-0 z-[90] flex items-start md:items-center justify-center p-3 md:p-6 overflow-y-auto">
       <button
         type="button"
         onclick={closeContactModal}
@@ -653,7 +653,7 @@
         aria-label="Cerrar modal"
       ></button>
       <div
-        class="relative z-10 w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden"
+        class="relative z-10 w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col my-3 md:my-0"
       >
         <div class="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-slate-100">
           <div class="flex items-start justify-between gap-4">
@@ -672,7 +672,7 @@
           </div>
         </div>
 
-        <form class="px-6 md:px-8 py-6 space-y-4" onsubmit={submitContactModalForm}>
+        <form class="px-6 md:px-8 py-6 space-y-4 overflow-y-auto" onsubmit={submitContactModalForm}>
           <div class="grid md:grid-cols-2 gap-4">
             <label class="block">
               <span class="text-sm font-medium text-slate-700">Nombre *</span>
@@ -760,7 +760,7 @@
   {/if}
 
   {#if activeServiceIndex !== null}
-    <div class="fixed inset-0 z-[95] flex items-center justify-center p-4 md:p-6">
+    <div class="fixed inset-0 z-[95] flex items-start md:items-center justify-center p-3 md:p-6 overflow-y-auto">
       <button
         type="button"
         onclick={closeServiceModal}
@@ -768,7 +768,7 @@
         aria-label="Cerrar detalles del servicio"
       ></button>
       <div
-        class="relative z-10 w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden"
+        class="relative z-10 w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col my-3 md:my-0"
       >
         <div class="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-slate-100">
           <div class="flex items-start justify-between gap-4">
@@ -796,7 +796,7 @@
           </div>
         </div>
 
-        <div class="px-6 md:px-8 py-6">
+        <div class="px-6 md:px-8 py-6 overflow-y-auto">
           <ul class="space-y-3">
             {#each serviceOffers[activeServiceIndex].details as detail (detail)}
               <li class="flex items-start gap-3">
@@ -812,7 +812,7 @@
             </p>
           {/if}
 
-          <div class="pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+          <div class="pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end sticky bottom-0 bg-white border-t border-slate-100 -mx-6 md:-mx-8 px-6 md:px-8 pb-1">
             <button
               type="button"
               onclick={closeServiceModal}
@@ -833,7 +833,7 @@
   {/if}
 
   {#if activeMaintenanceIndex !== null}
-    <div class="fixed inset-0 z-[96] flex items-center justify-center p-4 md:p-6">
+    <div class="fixed inset-0 z-[96] flex items-start md:items-center justify-center p-3 md:p-6 overflow-y-auto">
       <button
         type="button"
         onclick={closeMaintenanceModal}
@@ -841,7 +841,7 @@
         aria-label="Cerrar detalles de mantenimiento"
       ></button>
       <div
-        class="relative z-10 w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden"
+        class="relative z-10 w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col my-3 md:my-0"
       >
         <div class="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-slate-100">
           <div class="flex items-start justify-between gap-4">
@@ -864,7 +864,7 @@
           </div>
         </div>
 
-        <div class="px-6 md:px-8 py-6">
+        <div class="px-6 md:px-8 py-6 overflow-y-auto">
           <ul class="space-y-3">
             {#each maintenanceOptions[activeMaintenanceIndex].checklist as detail (detail)}
               <li class="flex items-start gap-3">
@@ -877,7 +877,7 @@
             Nota: {maintenanceOptions[activeMaintenanceIndex].note}
           </p>
 
-          <div class="pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+          <div class="pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end sticky bottom-0 bg-white border-t border-slate-100 -mx-6 md:-mx-8 px-6 md:px-8 pb-1">
             <button
               type="button"
               onclick={closeMaintenanceModal}
