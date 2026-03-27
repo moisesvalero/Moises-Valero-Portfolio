@@ -33,7 +33,7 @@
                 class="value-badge"
                 style="display:inline-flex;border:1px solid #95dfc6;background:#e9fbf3;color:#0d6f4f;border-radius:999px;padding:4px 8px;"
               >
-                Posicionamiento Garantizado
+                Core Web Vitals OK
               </p>
             </article>
 
@@ -89,7 +89,7 @@
               class="value-badge"
               style="display:inline-flex;border:1px solid #95dfc6;background:#e9fbf3;color:#0d6f4f;border-radius:999px;padding:4px 8px;"
             >
-              Posicionamiento Garantizado
+              Core Web Vitals OK
             </p>
           </article>
         </div>
@@ -129,7 +129,7 @@
               class="value-badge"
               style="display:inline-flex;border:1px solid #95dfc6;background:#e9fbf3;color:#0d6f4f;border-radius:999px;padding:4px 8px;"
             >
-              Posicionamiento Garantizado
+              LCP &lt; 1.8s
             </p>
           </article>
         </div>
