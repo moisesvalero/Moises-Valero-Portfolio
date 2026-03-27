@@ -300,13 +300,6 @@
     color: #86868b;
   }
 
-  .career-p {
-    margin: 0;
-    font-size: 0.9375rem;
-    line-height: 1.65;
-    color: #424245;
-  }
-
   .career-timeline {
     list-style: none;
     margin: 0;

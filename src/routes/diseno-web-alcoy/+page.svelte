@@ -22,6 +22,13 @@
 
   const emailDisplay = $derived(site.footer.emailHref.replace(/^mailto:/i, ''));
   const contactModal = $derived(landing.contactModal);
+  const sectionData = $derived({
+    eyebrow: 'Por qué elegirme',
+    title: landing.benefits.heading,
+    features: landing.benefits.items,
+    buttonLabel: landing.benefits.buttonLabel || 'Contactar ahora',
+    buttonUrl: landing.benefits.buttonUrl || landing.finalCta.cta.href
+  });
   const year = new Date().getFullYear();
   let isContactModalOpen = $state(false);
   let prefersReducedMotion = false;
@@ -34,6 +41,15 @@
   });
   let contactStatus = $state<'idle' | 'sending' | 'success' | 'error'>('idle');
   let contactError = $state('');
+  let activeServiceIndex = $state<number | null>(null);
+  let activeMaintenanceIndex = $state<number | null>(null);
+
+  type TailwindRuntime = {
+    refresh?: () => void;
+  };
+
+  const serviceOffers = $derived(landing.services.items);
+  const maintenanceOptions = $derived(landing.maintenance.items);
 
   function openContactModal() {
     isContactModalOpen = true;
@@ -43,6 +59,22 @@
 
   function closeContactModal() {
     isContactModalOpen = false;
+  }
+
+  function openServiceModal(index: number) {
+    activeServiceIndex = index;
+  }
+
+  function closeServiceModal() {
+    activeServiceIndex = null;
+  }
+
+  function openMaintenanceModal(index: number) {
+    activeMaintenanceIndex = index;
+  }
+
+  function closeMaintenanceModal() {
+    activeMaintenanceIndex = null;
   }
 
   async function submitContactModalForm(event: SubmitEvent) {
@@ -76,6 +108,31 @@
 
   onMount(() => {
     prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // En navegación SPA, el runtime CDN de Tailwind puede tardar en rehidratar clases.
+    // Forzamos refresh con reintentos cortos para evitar "flash" sin fondo.
+    let attempts = 0;
+    const refreshTailwindRuntime = () => {
+      const tw = (window as Window & { tailwind?: TailwindRuntime }).tailwind;
+      if (tw?.refresh) {
+        tw.refresh();
+        return;
+      }
+      attempts += 1;
+      if (attempts < 20) {
+        window.setTimeout(refreshTailwindRuntime, 50);
+      }
+    };
+    refreshTailwindRuntime();
+  });
+
+  $effect(() => {
+    if (typeof document === 'undefined') return;
+    const hasOpenModal =
+      isContactModalOpen || activeServiceIndex !== null || activeMaintenanceIndex !== null;
+    document.body.style.overflow = hasOpenModal ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
   });
 
   function revealOnScroll(node: HTMLElement) {
@@ -314,7 +371,7 @@
           </h2>
         </div>
         <div class="grid md:grid-cols-3 gap-8">
-          {#each landing.services.items as service, idx (service.title + idx)}
+          {#each serviceOffers as service, idx (service.title + idx)}
             <div
               class="card-b bg-surface-container-lowest p-8 rounded-xl group hover:translate-y-[-4px] transition-transform duration-300 h-full flex flex-col"
             >
@@ -323,23 +380,75 @@
               >
                 <span class="material-symbols-outlined text-on-secondary-container">{serviceIcons[idx] || 'code'}</span>
               </div>
+              {#if service.offerBadge}
+                <span class="inline-flex items-center self-start mb-3 rounded-full bg-amber-100 text-amber-800 px-3 py-1 text-xs font-semibold">
+                  {service.offerBadge}
+                </span>
+              {/if}
               <h3 class="font-headline text-2xl font-bold text-primary mb-4">{service.title}</h3>
-              <p class="text-on-surface-variant leading-relaxed mb-6">{service.description}</p>
-              <a
-                class="mt-auto text-secondary font-bold inline-flex items-center gap-2 group-hover:gap-4 transition-all no-underline"
-                href={landing.finalCta.cta.href}
+              {#if service.subtitle}
+                <p class="text-sm font-semibold text-on-surface-variant -mt-2 mb-4">{service.subtitle}</p>
+              {/if}
+              <p class="text-on-surface-variant leading-relaxed mb-4">{service.summary}</p>
+              <div class="mt-auto">
+              <p class="text-primary font-extrabold text-xl mb-1">
+                {service.hideFromLabel ? service.priceFrom : `Desde ${service.priceFrom}`}
+              </p>
+                {#if service.delivery}
+                  <p class="text-sm text-on-surface-variant mb-6">Entrega estimada: {service.delivery}</p>
+                {:else}
+                  <p class="text-sm text-on-surface-variant mb-6">Entrega estimada según alcance</p>
+                {/if}
+              </div>
+              <button
+                type="button"
+                class="text-secondary font-bold inline-flex items-center gap-2 group-hover:gap-4 transition-all bg-transparent border-0 p-0 cursor-pointer"
+                onclick={() => openServiceModal(idx)}
               >
-                Quiero esta opción <span class="material-symbols-outlined">arrow_forward</span>
-              </a>
+                Ver detalles <span class="material-symbols-outlined">arrow_forward</span>
+              </button>
             </div>
           {/each}
+        </div>
+        {#if landing.services.pricingFootnote}
+          <p class="mt-6 text-sm text-on-surface-variant text-right">{landing.services.pricingFootnote}</p>
+        {/if}
+        <div class="mt-12 card-b bg-surface-container p-8 md:p-10 rounded-xl">
+          <h3 class="font-headline text-2xl md:text-3xl font-extrabold text-primary mb-3">
+            {landing.maintenance.heading}
+          </h3>
+          <p class="text-on-surface-variant mb-8">
+            {landing.maintenance.lead}
+          </p>
+          <div class="grid md:grid-cols-2 gap-6 items-stretch">
+            {#each maintenanceOptions as option, idx (option.title)}
+              <article class="bg-surface-container-lowest border border-slate-200 rounded-lg p-6 h-full flex flex-col">
+                <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-secondary-container mb-3">
+                  <span class="material-symbols-outlined text-on-secondary-container" style="font-size:20px;">{option.icon}</span>
+                </div>
+                <h4 class="font-bold text-primary mb-2">{option.title}</h4>
+                <p class="font-extrabold text-secondary text-lg mb-3">{option.price}</p>
+                <p class="text-on-surface-variant leading-relaxed mb-4">{option.detail}</p>
+                <button
+                  type="button"
+                  class="mt-auto text-secondary font-bold inline-flex items-center gap-2 group-hover:gap-4 transition-all bg-transparent border-0 p-0 cursor-pointer"
+                  onclick={() => openMaintenanceModal(idx)}
+                >
+                  Ver detalles <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+              </article>
+            {/each}
+          </div>
+          {#if landing.maintenance.pricingFootnote}
+            <p class="mt-6 text-sm text-on-surface-variant text-right">{landing.maintenance.pricingFootnote}</p>
+          {/if}
         </div>
       </div>
     </section>
 
     <section class="reveal-b py-24 bg-surface-container-low px-6 overflow-hidden" id="benefits" use:revealOnScroll>
       <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
-        <div class="order-2 md:order-1 relative">
+        <div class="order-2 md:order-1 relative flex items-center">
           <div
             class="relative z-10 rounded-2xl overflow-hidden shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500"
           >
@@ -351,18 +460,18 @@
           </div>
           <div class="absolute -top-10 -left-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl"></div>
         </div>
-        <div class="order-1 md:order-2 space-y-10">
+        <div class="order-1 md:order-2 flex flex-col gap-10 md:gap-12">
           <div>
             <span class="text-secondary font-bold tracking-widest uppercase text-sm block mb-4"
-              >Por qué elegirme</span>
+              >{sectionData.eyebrow}</span>
             <h2
-              class="font-headline text-4xl md:text-5xl font-extrabold text-primary leading-tight"
+              class="font-headline text-4xl md:text-5xl font-extrabold text-primary leading-tight md:max-w-[16ch]"
             >
-              {landing.benefits.heading}
+              {sectionData.title}
             </h2>
           </div>
           <div class="space-y-8">
-            {#each landing.benefits.items as benefit (benefit.title)}
+            {#each sectionData.features as benefit (benefit.title)}
               <div class="flex gap-6">
                 <div
                   class="flex-shrink-0 w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center"
@@ -376,6 +485,12 @@
                 </div>
               </div>
             {/each}
+            <a
+              href={sectionData.buttonUrl}
+              class="cta-hover cta-hover-primary inline-flex items-center justify-center bg-secondary text-on-secondary px-8 py-4 rounded-md font-bold text-base hover:shadow-[0_0_20px_rgba(0,108,73,0.4)] transition-all active:scale-95 mt-8 no-underline"
+            >
+              {sectionData.buttonLabel}
+            </a>
           </div>
         </div>
       </div>
@@ -389,12 +504,12 @@
           </h2>
           <p class="text-on-surface-variant">Respuestas rápidas antes de pedir presupuesto.</p>
         </div>
-        <div class="space-y-6">
+        <div class="space-y-7">
           {#each landing.faq.items as item (item.question)}
-            <div class="card-b bg-surface-container p-6 rounded-lg">
-              <h4 class="font-headline font-bold text-primary text-lg mb-3">{item.question}</h4>
-              <p class="text-on-surface-variant leading-relaxed">{item.answer}</p>
-            </div>
+            <article class="bg-surface-container p-6 rounded-lg transition-all duration-300 hover:shadow-md">
+              <h3 class="font-headline font-bold text-[#002045] text-lg mb-3">{item.question}</h3>
+              <p class="text-gray-600 leading-relaxed">{item.answer}</p>
+            </article>
           {/each}
         </div>
       </div>
@@ -640,6 +755,144 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  {/if}
+
+  {#if activeServiceIndex !== null}
+    <div class="fixed inset-0 z-[95] flex items-center justify-center p-4 md:p-6">
+      <button
+        type="button"
+        onclick={closeServiceModal}
+        class="absolute inset-0 bg-[#001a39]/70 backdrop-blur-sm"
+        aria-label="Cerrar detalles del servicio"
+      ></button>
+      <div
+        class="relative z-10 w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden"
+      >
+        <div class="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-slate-100">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h3 class="font-headline text-2xl md:text-3xl font-extrabold text-primary">
+                {serviceOffers[activeServiceIndex].title}
+              </h3>
+              <p class="text-slate-700 mt-2 font-semibold">
+                Precio desde: {serviceOffers[activeServiceIndex].priceFrom}
+              </p>
+              {#if serviceOffers[activeServiceIndex].delivery}
+                <p class="text-slate-600 mt-1">
+                  Tiempo de entrega: {serviceOffers[activeServiceIndex].delivery}
+                </p>
+              {/if}
+            </div>
+            <button
+              type="button"
+              onclick={closeServiceModal}
+              class="text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full w-9 h-9 inline-flex items-center justify-center"
+              aria-label="Cerrar"
+            >
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="px-6 md:px-8 py-6">
+          <ul class="space-y-3">
+            {#each serviceOffers[activeServiceIndex].details as detail (detail)}
+              <li class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-secondary mt-0.5" style="font-size:18px;">check_circle</span>
+                <span class="text-slate-700 leading-relaxed">{detail}</span>
+              </li>
+            {/each}
+          </ul>
+
+          {#if serviceOffers[activeServiceIndex].note}
+            <p class="mt-5 text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3">
+              Nota: {serviceOffers[activeServiceIndex].note}
+            </p>
+          {/if}
+
+          <div class="pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+            <button
+              type="button"
+              onclick={closeServiceModal}
+              class="px-5 py-3 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50"
+            >
+              Cerrar
+            </button>
+            <a
+              href={serviceOffers[activeServiceIndex].modalActionHref || landing.finalCta.cta.href}
+              class="px-6 py-3 rounded-lg bg-white text-[#111] border border-[#1f1f1f] font-bold hover:bg-slate-50 no-underline inline-flex items-center justify-center"
+            >
+              {serviceOffers[activeServiceIndex].modalActionLabel || landing.finalCta.cta.label}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  {#if activeMaintenanceIndex !== null}
+    <div class="fixed inset-0 z-[96] flex items-center justify-center p-4 md:p-6">
+      <button
+        type="button"
+        onclick={closeMaintenanceModal}
+        class="absolute inset-0 bg-[#001a39]/70 backdrop-blur-sm"
+        aria-label="Cerrar detalles de mantenimiento"
+      ></button>
+      <div
+        class="relative z-10 w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden"
+      >
+        <div class="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-slate-100">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h3 class="font-headline text-2xl md:text-3xl font-extrabold text-primary">
+                {maintenanceOptions[activeMaintenanceIndex].modalTitle}
+              </h3>
+              <p class="text-slate-700 mt-2 font-semibold">
+                Precio: {maintenanceOptions[activeMaintenanceIndex].price}
+              </p>
+            </div>
+            <button
+              type="button"
+              onclick={closeMaintenanceModal}
+              class="text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full w-9 h-9 inline-flex items-center justify-center"
+              aria-label="Cerrar"
+            >
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="px-6 md:px-8 py-6">
+          <ul class="space-y-3">
+            {#each maintenanceOptions[activeMaintenanceIndex].checklist as detail (detail)}
+              <li class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-secondary mt-0.5" style="font-size:18px;">check_circle</span>
+                <span class="text-slate-700 leading-relaxed">{detail}</span>
+              </li>
+            {/each}
+          </ul>
+          <p class="mt-5 text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3">
+            Nota: {maintenanceOptions[activeMaintenanceIndex].note}
+          </p>
+
+          <div class="pt-6 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+            <button
+              type="button"
+              onclick={closeMaintenanceModal}
+              class="px-5 py-3 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50"
+            >
+              Cerrar
+            </button>
+            <a
+              href={maintenanceOptions[activeMaintenanceIndex].actionHref || '/api/contact/whatsapp'}
+              class="px-6 py-3 rounded-lg bg-white text-[#111] border border-[#1f1f1f] font-bold hover:bg-slate-50 no-underline inline-flex items-center justify-center"
+            >
+              {maintenanceOptions[activeMaintenanceIndex].actionLabel}
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   {/if}

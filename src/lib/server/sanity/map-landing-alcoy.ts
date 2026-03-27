@@ -3,6 +3,7 @@ import type {
   LandingCaseItem,
   LandingDisenoWebAlcoy,
   LandingFaqItem,
+  LandingMaintenanceItem,
   LandingSectionKey,
   LandingServiceItem
 } from '$lib/types/landing-alcoy';
@@ -70,10 +71,52 @@ function mapServiceItems(raw: unknown, fallback: LandingServiceItem[]): LandingS
       }
       return {
         title,
-        description: asString(o.description, fallback[index]?.description ?? '')
+        offerBadge: asStringOpt(o.offerBadge) ?? fallback[index]?.offerBadge,
+        subtitle: asStringOpt(o.subtitle) ?? fallback[index]?.subtitle,
+        summary: asString(o.summary, asString(o.description, fallback[index]?.summary ?? '')),
+        priceFrom: asString(o.priceFrom, fallback[index]?.priceFrom ?? ''),
+        hideFromLabel:
+          typeof o.hideFromLabel === 'boolean'
+            ? o.hideFromLabel
+            : (fallback[index]?.hideFromLabel ?? false),
+        delivery: asStringOpt(o.delivery) ?? fallback[index]?.delivery,
+        details: asStringArray(o.details, fallback[index]?.details ?? []),
+        note: asStringOpt(o.note) ?? fallback[index]?.note,
+        modalActionLabel: asStringOpt(o.modalActionLabel) ?? fallback[index]?.modalActionLabel,
+        modalActionHref: asStringOpt(o.modalActionHref) ?? fallback[index]?.modalActionHref
       };
     })
     .filter(Boolean) as LandingServiceItem[];
+  return mapped.length ? mapped : fallback;
+}
+
+function mapMaintenanceItems(raw: unknown, fallback: LandingMaintenanceItem[]): LandingMaintenanceItem[] {
+  if (!Array.isArray(raw)) {
+    return fallback;
+  }
+  const mapped = raw
+    .map((item, index) => {
+      const o = asRecord(item);
+      if (!o) {
+        return null;
+      }
+      const title = asStringOpt(o.title) ?? fallback[index]?.title ?? '';
+      if (!title) {
+        return null;
+      }
+      return {
+        title,
+        price: asString(o.price, fallback[index]?.price ?? ''),
+        icon: asString(o.icon, fallback[index]?.icon ?? 'build'),
+        detail: asString(o.detail, fallback[index]?.detail ?? ''),
+        modalTitle: asString(o.modalTitle, fallback[index]?.modalTitle ?? title),
+        checklist: asStringArray(o.checklist, fallback[index]?.checklist ?? []),
+        note: asStringOpt(o.note) ?? fallback[index]?.note,
+        actionLabel: asString(o.actionLabel, fallback[index]?.actionLabel ?? 'Contactar'),
+        actionHref: asStringOpt(o.actionHref) ?? fallback[index]?.actionHref
+      };
+    })
+    .filter(Boolean) as LandingMaintenanceItem[];
   return mapped.length ? mapped : fallback;
 }
 
@@ -168,6 +211,7 @@ export function mapLandingDisenoWebAlcoy(
   const hero = asRecord(raw.hero);
   const services = asRecord(raw.services);
   const benefits = asRecord(raw.benefits);
+  const maintenance = asRecord(raw.maintenance);
   const cases = asRecord(raw.cases);
   const faq = asRecord(raw.faq);
   const finalCta = asRecord(raw.finalCta);
@@ -212,10 +256,20 @@ export function mapLandingDisenoWebAlcoy(
     },
     services: {
       heading: asString(services?.heading, defaults.services.heading),
-      items: mapServiceItems(services?.items, defaults.services.items)
+      items: mapServiceItems(services?.items, defaults.services.items),
+      pricingFootnote: asStringOpt(services?.pricingFootnote) ?? defaults.services.pricingFootnote
+    },
+    maintenance: {
+      heading: asString(maintenance?.heading, defaults.maintenance.heading),
+      lead: asString(maintenance?.lead, defaults.maintenance.lead),
+      items: mapMaintenanceItems(maintenance?.items, defaults.maintenance.items),
+      pricingFootnote:
+        asStringOpt(maintenance?.pricingFootnote) ?? defaults.maintenance.pricingFootnote
     },
     benefits: {
       heading: asString(benefits?.heading, defaults.benefits.heading),
+      buttonLabel: asStringOpt(benefits?.buttonLabel) ?? defaults.benefits.buttonLabel,
+      buttonUrl: asStringOpt(benefits?.buttonUrl) ?? defaults.benefits.buttonUrl,
       items: mapBenefitItems(benefits?.items, defaults.benefits.items)
     },
     cases: {

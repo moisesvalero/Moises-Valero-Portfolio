@@ -31,7 +31,28 @@ export type LandingHero = {
 
 export type LandingServiceItem = {
   title: string;
-  description: string;
+  offerBadge?: string;
+  subtitle?: string;
+  summary: string;
+  priceFrom: string;
+  hideFromLabel?: boolean;
+  delivery?: string;
+  details: string[];
+  note?: string;
+  modalActionLabel?: string;
+  modalActionHref?: string;
+};
+
+export type LandingMaintenanceItem = {
+  title: string;
+  price: string;
+  icon: string;
+  detail: string;
+  modalTitle: string;
+  checklist: string[];
+  note?: string;
+  actionLabel: string;
+  actionHref?: string;
 };
 
 export type LandingBenefitItem = {
@@ -80,9 +101,18 @@ export type LandingDisenoWebAlcoy = {
   services: {
     heading: string;
     items: LandingServiceItem[];
+    pricingFootnote?: string;
+  };
+  maintenance: {
+    heading: string;
+    lead: string;
+    items: LandingMaintenanceItem[];
+    pricingFootnote?: string;
   };
   benefits: {
     heading: string;
+    buttonLabel?: string;
+    buttonUrl?: string;
     items: LandingBenefitItem[];
   };
   cases: {

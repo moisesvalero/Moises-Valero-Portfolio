@@ -306,6 +306,7 @@
 	  border: 1px solid rgba(0, 113, 227, 0.35);
 	  box-shadow: 0 8px 24px rgba(0, 113, 227, 0.22);
 	  min-height: 44px;
+	  min-width: 96px;
 	  display: inline-flex;
 	  align-items: center;
 	  justify-content: center;
@@ -313,6 +314,8 @@
 	  border-radius:999px;
 	  font-size: 0.9rem;
 	  font-weight:600;
+	  white-space: nowrap;
+	  flex: 0 0 auto;
 	  position: relative;
 	  overflow: hidden;
 	  transition:
@@ -361,7 +364,27 @@
 	.mobile-nav .mobile-nav-text { border:none; background:transparent; cursor:pointer; font-family:inherit; }
 	.mobile-nav a:hover,
 	.mobile-nav .mobile-nav-text:hover { color: var(--header-accent); transform:translateX(4px); }
-	.mobile-cta { margin-top:12px; text-align:center; border-bottom:none !important; padding:10px 14px !important; min-height:36px; font-size:13px; }
+	.mobile-nav a.mobile-cta {
+	  margin-top: 12px;
+	  width: 100%;
+	  display: inline-flex;
+	  align-items: center;
+	  justify-content: center;
+	  text-align: center;
+	  border-bottom: none;
+	  padding: 10px 14px;
+	  min-height: 40px;
+	  font-size: 0.9rem;
+	  font-weight: 600;
+	  line-height: 1;
+	  letter-spacing: 0;
+	  white-space: nowrap;
+	  transform: none;
+	}
+	.mobile-nav a.mobile-cta:hover {
+	  color: #fff;
+	  transform: translateY(-1px);
+	}
 	.lang-btn {
 	  display: flex;
 	  align-items: center;
@@ -406,7 +429,7 @@
 	@keyframes fadeIn { from{opacity:0} to{opacity:1} }
 	@keyframes slideIn { from{transform:translateX(100%)} to{transform:translateX(0)} }
 
-	@media (max-width: 768px) {
+	@media (max-width: 980px) {
 	  .header { padding-top:0.5rem; pointer-events:auto; }
 	  .header-inner {
 		width:min(95%, 560px);
@@ -425,7 +448,7 @@
 	  .hamburger { display:flex; }
 	}
 
-	@media (min-width: 769px) {
+	@media (min-width: 981px) {
 	  .mobile-menu { display:none; }
 	}
   </style>

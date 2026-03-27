@@ -152,13 +152,43 @@ function mapLandingDisenoWebAlcoyDocument() {
     hero: landing.hero,
     services: {
       heading: landing.services.heading,
+      pricingFootnote: landing.services.pricingFootnote,
       items: landing.services.items.map((item, index) => ({
         _key: keyOf('landing-service', index),
-        ...item
+        title: item.title,
+        offerBadge: item.offerBadge,
+        subtitle: item.subtitle,
+        summary: item.summary,
+        priceFrom: item.priceFrom,
+        hideFromLabel: item.hideFromLabel === true,
+        delivery: item.delivery,
+        details: item.details,
+        note: item.note,
+        modalActionLabel: item.modalActionLabel,
+        modalActionHref: item.modalActionHref
+      }))
+    },
+    maintenance: {
+      heading: landing.maintenance.heading,
+      lead: landing.maintenance.lead,
+      pricingFootnote: landing.maintenance.pricingFootnote,
+      items: landing.maintenance.items.map((item, index) => ({
+        _key: keyOf('landing-maintenance', index),
+        title: item.title,
+        price: item.price,
+        icon: item.icon,
+        detail: item.detail,
+        modalTitle: item.modalTitle,
+        checklist: item.checklist,
+        note: item.note,
+        actionLabel: item.actionLabel,
+        actionHref: item.actionHref
       }))
     },
     benefits: {
       heading: landing.benefits.heading,
+      buttonLabel: landing.benefits.buttonLabel,
+      buttonUrl: landing.benefits.buttonUrl,
       items: landing.benefits.items.map((item, index) => ({
         _key: keyOf('landing-benefit', index),
         ...item

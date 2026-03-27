@@ -172,6 +172,12 @@ export const landingDisenoWebAlcoy = defineType({
       fields: [
         defineField({ name: 'heading', type: 'string', title: 'Titulo bloque' }),
         defineField({
+          name: 'pricingFootnote',
+          type: 'string',
+          title: 'Nota de precios (opcional)',
+          description: 'Ejemplo: Precios base (IVA no incluido)'
+        }),
+        defineField({
           name: 'items',
           type: 'array',
           title: 'Items de servicio',
@@ -180,7 +186,90 @@ export const landingDisenoWebAlcoy = defineType({
               type: 'object',
               fields: [
                 defineField({ name: 'title', type: 'string', title: 'Titulo' }),
-                defineField({ name: 'description', type: 'text', title: 'Descripcion', rows: 3 })
+                defineField({
+                  name: 'offerBadge',
+                  type: 'string',
+                  title: 'Badge de oferta (opcional)',
+                  description: 'Ejemplo: Oferta de lanzamiento'
+                }),
+                defineField({ name: 'subtitle', type: 'string', title: 'Subtitulo (opcional)' }),
+                defineField({ name: 'summary', type: 'text', title: 'Resumen visible', rows: 3 }),
+                defineField({ name: 'priceFrom', type: 'string', title: 'Precio' }),
+                defineField({
+                  name: 'hideFromLabel',
+                  type: 'boolean',
+                  title: 'Ocultar prefijo "Desde"',
+                  initialValue: false
+                }),
+                defineField({ name: 'delivery', type: 'string', title: 'Entrega (opcional)' }),
+                defineField({
+                  name: 'details',
+                  type: 'array',
+                  title: 'Checklist del modal',
+                  of: [{ type: 'string' }]
+                }),
+                defineField({ name: 'note', type: 'text', title: 'Nota modal (opcional)', rows: 3 }),
+                defineField({
+                  name: 'modalActionLabel',
+                  type: 'string',
+                  title: 'Texto boton modal (opcional)'
+                }),
+                defineField({
+                  name: 'modalActionHref',
+                  type: 'string',
+                  title: 'Enlace boton modal (opcional)'
+                })
+              ]
+            }
+          ]
+        })
+      ]
+    }),
+    defineField({
+      name: 'maintenance',
+      type: 'object',
+      title: 'Mantenimiento y soporte',
+      group: 'content',
+      fields: [
+        defineField({ name: 'heading', type: 'string', title: 'Titulo bloque' }),
+        defineField({ name: 'lead', type: 'text', title: 'Texto introductorio', rows: 3 }),
+        defineField({
+          name: 'pricingFootnote',
+          type: 'string',
+          title: 'Nota de precios (opcional)',
+          description: 'Ejemplo: Precios base (IVA no incluido)'
+        }),
+        defineField({
+          name: 'items',
+          type: 'array',
+          title: 'Tarjetas de mantenimiento',
+          of: [
+            {
+              type: 'object',
+              fields: [
+                defineField({ name: 'title', type: 'string', title: 'Titulo' }),
+                defineField({ name: 'price', type: 'string', title: 'Precio' }),
+                defineField({
+                  name: 'icon',
+                  type: 'string',
+                  title: 'Icono Material Symbols',
+                  description: 'Ejemplo: construction, cloud_done'
+                }),
+                defineField({ name: 'detail', type: 'text', title: 'Texto corto', rows: 3 }),
+                defineField({ name: 'modalTitle', type: 'string', title: 'Titulo del modal' }),
+                defineField({
+                  name: 'checklist',
+                  type: 'array',
+                  title: 'Checklist del modal',
+                  of: [{ type: 'string' }]
+                }),
+                defineField({ name: 'note', type: 'text', title: 'Nota modal (opcional)', rows: 3 }),
+                defineField({ name: 'actionLabel', type: 'string', title: 'Texto boton modal' }),
+                defineField({
+                  name: 'actionHref',
+                  type: 'string',
+                  title: 'Enlace boton modal (opcional)'
+                })
               ]
             }
           ]
@@ -194,6 +283,18 @@ export const landingDisenoWebAlcoy = defineType({
       group: 'content',
       fields: [
         defineField({ name: 'heading', type: 'string', title: 'Titulo bloque' }),
+        defineField({
+          name: 'buttonLabel',
+          type: 'string',
+          title: 'Texto del boton (opcional)',
+          description: 'Ejemplo: Contactar ahora'
+        }),
+        defineField({
+          name: 'buttonUrl',
+          type: 'string',
+          title: 'Enlace del boton (opcional)',
+          description: 'Acepta rutas relativas o URL absoluta.'
+        }),
         defineField({
           name: 'items',
           type: 'array',
