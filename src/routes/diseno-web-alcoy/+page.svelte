@@ -44,7 +44,6 @@
   let activeMaintenanceIndex = $state<number | null>(null);
   let faqOpenIndex = $state<number | null>(null);
   let isMobileNavOpen = $state(false);
-  let showEntryLoader = $state(true);
 
   type TailwindRuntime = {
     refresh?: () => void;
@@ -178,22 +177,13 @@
   }
 
   onMount(() => {
-    showEntryLoader = true;
     prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (window.matchMedia('(min-width: 1024px)').matches && landing.faq.items.length > 0) {
       faqOpenIndex = 0;
     }
     // En SPA la carga del runtime/config de Tailwind puede llegar tarde.
     // Blindamos scripts + refresh para evitar render blanco sin fondo.
-    const hardStop = window.setTimeout(() => {
-      showEntryLoader = false;
-    }, 1800);
-    void Promise.all([ensureLandingTailwindReady(), new Promise((r) => window.setTimeout(r, 220))]).finally(
-      () => {
-        window.clearTimeout(hardStop);
-        showEntryLoader = false;
-      }
-    );
+    void ensureLandingTailwindReady();
   });
 
   $effect(() => {
@@ -349,11 +339,6 @@
   class="scroll-smooth stitch-landing font-body text-on-surface bg-surface min-h-screen"
   style="background:#f7f9fb;color:#191c1e;"
 >
-  {#if showEntryLoader}
-    <div class="landing-loader" aria-hidden="true">
-      <div class="landing-loader-glow"></div>
-    </div>
-  {/if}
   <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md shadow-sm">
     <div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
       <HeaderBrand
@@ -1118,20 +1103,6 @@
     }
   }
 
-  @keyframes bLoaderSweep {
-    0% {
-      transform: translateX(-120%);
-      opacity: 0.18;
-    }
-    50% {
-      opacity: 0.36;
-    }
-    100% {
-      transform: translateX(130%);
-      opacity: 0.1;
-    }
-  }
-
   .hero-b {
     animation: bHeroIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
@@ -1163,30 +1134,6 @@
 
   .mobile-nav-panel {
     animation: bMobileNavIn 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .landing-loader {
-    position: fixed;
-    inset: 0;
-    z-index: 70;
-    pointer-events: none;
-    background: linear-gradient(180deg, rgba(247, 249, 251, 0.55), rgba(247, 249, 251, 0.15));
-    backdrop-filter: blur(1px);
-  }
-
-  .landing-loader-glow {
-    position: absolute;
-    top: 0;
-    left: -25%;
-    width: 34%;
-    height: 100%;
-    background: linear-gradient(
-      100deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.95) 52%,
-      rgba(255, 255, 255, 0) 100%
-    );
-    animation: bLoaderSweep 700ms ease-out infinite;
   }
 
   .section-glow::after {
@@ -1501,7 +1448,6 @@
     .hero-b::before,
     .hero-mockup-wrap,
     .mobile-nav-panel,
-    .landing-loader-glow,
     .section-glow::after,
     .reveal-b,
     .card-b,
