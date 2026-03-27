@@ -1,7 +1,7 @@
 import type { LandingDisenoWebAlcoy } from '$lib/types/landing-alcoy';
 
 export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
-  sectionOrder: ['hero', 'services', 'benefits', 'cases', 'faq', 'finalCta'],
+  sectionOrder: ['hero', 'services', 'benefits', 'faq', 'finalCta'],
   seo: {
     title: 'Diseño web en Alcoy para captar clientes | Moisés Valero',
     description:
@@ -97,6 +97,7 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
   },
   maintenance: {
     heading: 'Mantenimiento y soporte post-venta',
+    footerLabel: 'Mantenimiento',
     lead: 'Opciones para mantener tu web al día con tranquilidad y sin sorpresas.',
     pricingFootnote: 'Precios base (IVA no incluido)',
     items: [
@@ -158,25 +159,6 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
         title: 'Estrategia y SEO Local',
         description:
           'Desarrollo webs ultrarrápidas y optimizadas para que Google te sitúe en las primeras posiciones de Alcoy.'
-      }
-    ]
-  },
-  cases: {
-    heading: 'Casos y proyectos relacionados',
-    items: [
-      {
-        title: 'Landing de servicios B2B',
-        summary: 'Rediseño completo de mensaje, estructura y CTA para un servicio técnico.',
-        outcome: 'Mejor tasa de contacto y más consultas cualificadas.',
-        href: 'https://v-shield.moisesvalero.es',
-        linkLabel: 'Ver caso'
-      },
-      {
-        title: 'Web comercial para marca local',
-        summary: 'Trabajo de UX y contenido para mostrar oferta de forma más clara.',
-        outcome: 'Aumento del tiempo en página y mejor percepción de marca.',
-        href: 'https://ember.moisesvalero.es',
-        linkLabel: 'Ver proyecto'
       }
     ]
   },

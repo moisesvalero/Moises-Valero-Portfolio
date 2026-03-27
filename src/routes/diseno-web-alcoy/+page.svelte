@@ -43,6 +43,7 @@
   let contactError = $state('');
   let activeServiceIndex = $state<number | null>(null);
   let activeMaintenanceIndex = $state<number | null>(null);
+  let faqOpenIndex = $state<number | null>(null);
 
   type TailwindRuntime = {
     refresh?: () => void;
@@ -51,6 +52,7 @@
   const serviceOffers = $derived(landing.services.items);
   const maintenanceOptions = $derived(landing.maintenance.items);
   const footerServices = $derived(landing.services.items.filter((item) => item.title?.trim().length));
+  const maintenanceFooterLabel = $derived(landing.maintenance.footerLabel || 'Mantenimiento');
 
   function openContactModal() {
     isContactModalOpen = true;
@@ -76,6 +78,10 @@
 
   function closeMaintenanceModal() {
     activeMaintenanceIndex = null;
+  }
+
+  function toggleFaq(index: number) {
+    faqOpenIndex = faqOpenIndex === index ? null : index;
   }
 
   async function submitContactModalForm(event: SubmitEvent) {
@@ -109,6 +115,9 @@
 
   onMount(() => {
     prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (window.matchMedia('(min-width: 1024px)').matches && landing.faq.items.length > 0) {
+      faqOpenIndex = 0;
+    }
     // En navegación SPA, el runtime CDN de Tailwind puede tardar en rehidratar clases.
     // Forzamos refresh con reintentos cortos para evitar "flash" sin fondo.
     let attempts = 0;
@@ -142,7 +151,8 @@
       return;
     }
     const mobile = window.matchMedia('(max-width: 768px)').matches;
-    if (mobile) {
+    const touchLikeDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+    if (mobile || touchLikeDevice) {
       node.classList.add('reveal-visible');
       return;
     }
@@ -157,8 +167,8 @@
         }
       },
       desktop
-        ? { threshold: 0.24, rootMargin: '0px 0px -10% 0px' }
-        : { threshold: 0.08, rootMargin: '0px 0px -4% 0px' }
+        ? { threshold: 0.16, rootMargin: '0px 0px -6% 0px' }
+        : { threshold: 0.04, rootMargin: '0px 0px -2% 0px' }
     );
     observer.observe(node);
     return {
@@ -346,7 +356,7 @@
           <div
             class="relative mx-auto w-full max-w-[min(100%,360px)] sm:max-w-[min(100%,420px)] md:max-w-[900px] md:ml-auto md:mr-0 flex flex-col items-center [&_.mac-mockup-root]:w-full [&_.mac-mockup-root]:max-w-none"
           >
-            <div class="w-full flex justify-center md:pt-10 lg:pt-16 xl:pt-20">
+            <div class="hero-mockup-wrap w-full flex justify-center md:pt-10 lg:pt-16 xl:pt-20">
               <HeroMacMockup />
             </div>
           </div>
@@ -373,16 +383,16 @@
               >
                 <span class="material-symbols-outlined text-on-secondary-container">{serviceIcons[idx] || 'code'}</span>
               </div>
-              {#if service.offerBadge}
-                <span class="inline-flex items-center self-start mb-3 rounded-full bg-amber-100 text-amber-800 px-3 py-1 text-xs font-semibold">
-                  {service.offerBadge}
-                </span>
-              {/if}
               <h3 class="font-headline text-2xl font-bold text-primary mb-4">{service.title}</h3>
               {#if service.subtitle}
                 <p class="text-sm font-semibold text-on-surface-variant -mt-2 mb-4">{service.subtitle}</p>
               {/if}
               <p class="text-on-surface-variant leading-relaxed mb-4">{service.summary}</p>
+              {#if service.offerBadge}
+                <span class="inline-flex items-center self-start mb-4 rounded-full bg-amber-100 text-amber-800 px-3 py-1 text-xs font-semibold">
+                  {service.offerBadge}
+                </span>
+              {/if}
               <div class="mt-auto">
               <p class="text-primary font-extrabold text-xl mb-1">
                 {service.hideFromLabel ? service.priceFrom : `Desde ${service.priceFrom}`}
@@ -489,19 +499,37 @@
       </div>
     </section>
 
-    <section class="reveal-b py-24 bg-surface px-6" id="faq" use:revealOnScroll>
-      <div class="max-w-3xl mx-auto">
-        <div class="text-center mb-16">
-          <h2 class="font-headline text-3xl md:text-4xl font-extrabold text-primary mb-4">
+    <section class="reveal-b faq-premium py-24 bg-surface px-6" id="faq" use:revealOnScroll>
+      <div class="faq-shell max-w-6xl mx-auto">
+        <div class="text-center mb-16 relative z-10">
+          <span class="faq-kicker">Preguntas frecuentes</span>
+          <h2 class="font-headline text-3xl md:text-4xl font-extrabold text-primary mb-4 mt-3">
             {landing.faq.heading}
           </h2>
-          <p class="text-on-surface-variant">Respuestas rápidas antes de pedir presupuesto.</p>
+          <p class="text-on-surface-variant">Respuestas claras para tomar decisiones con confianza.</p>
         </div>
-        <div class="space-y-7">
-          {#each landing.faq.items as item (item.question)}
-            <article class="bg-surface-container p-6 rounded-lg transition-all duration-300 hover:shadow-md">
-              <h3 class="font-headline font-bold text-[#002045] text-lg mb-3">{item.question}</h3>
-              <p class="text-gray-600 leading-relaxed">{item.answer}</p>
+        <div class="grid lg:grid-cols-2 gap-5 lg:gap-6 items-start relative z-10">
+          {#each landing.faq.items as item, idx (item.question)}
+            <article class={`faq-item ${faqOpenIndex === idx ? 'is-open' : ''}`}>
+              <button
+                type="button"
+                class="faq-question"
+                onclick={() => toggleFaq(idx)}
+                aria-expanded={faqOpenIndex === idx}
+                aria-label={`Mostrar respuesta: ${item.question}`}
+                aria-controls={`faq-panel-${idx}`}
+              >
+                <h3 class="faq-title">
+                  {item.question}
+                </h3>
+                <span class={`faq-plus ${faqOpenIndex === idx ? 'is-open' : ''}`} aria-hidden="true">+</span>
+              </button>
+
+              <div id={`faq-panel-${idx}`} class={`faq-answer-wrap ${faqOpenIndex === idx ? 'is-open' : ''}`}>
+                <div class="faq-answer-inner">
+                  <p class="faq-answer-text">{item.answer}</p>
+                </div>
+              </div>
             </article>
           {/each}
         </div>
@@ -540,7 +568,7 @@
                 href={site.footer.emailHref}
               >
                 <span class="material-symbols-outlined text-secondary">mail</span>
-                {emailDisplay}
+                Email
               </a>
               <a
                 class="flex items-center gap-2 hover:text-white transition-colors no-underline"
@@ -596,6 +624,11 @@
                 </a>
               </li>
             {/each}
+            <li>
+              <a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">
+                {maintenanceFooterLabel}
+              </a>
+            </li>
           </ul>
         </div>
 
@@ -604,7 +637,7 @@
           <ul class="space-y-3">
             <li>
               <a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href={site.footer.emailHref}>
-                {emailDisplay}
+                Email
               </a>
             </li>
             <li>
@@ -620,6 +653,16 @@
               >
                 {contactModal.triggerLabel}
               </button>
+            </li>
+            <li>
+              <a
+                class="text-slate-600 hover:text-[#002045] transition-colors no-underline"
+                href="https://moisesvalero.es"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Portfolio
+              </a>
             </li>
           </ul>
         </div>
@@ -928,8 +971,58 @@
     }
   }
 
+  @keyframes bHeroSweep {
+    0% {
+      transform: translateX(-24%) translateY(0) scale(1);
+      opacity: 0.18;
+    }
+    50% {
+      transform: translateX(14%) translateY(-4px) scale(1.03);
+      opacity: 0.28;
+    }
+    100% {
+      transform: translateX(-24%) translateY(0) scale(1);
+      opacity: 0.18;
+    }
+  }
+
+  @keyframes bHeroMockupFloat {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-7px);
+    }
+  }
+
   .hero-b {
     animation: bHeroIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hero-b::before {
+    content: '';
+    position: absolute;
+    width: min(52vw, 580px);
+    height: min(20vw, 220px);
+    right: -8%;
+    top: 10%;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      rgba(134, 188, 255, 0) 0%,
+      rgba(134, 188, 255, 0.28) 48%,
+      rgba(134, 188, 255, 0) 100%
+    );
+    filter: blur(18px);
+    pointer-events: none;
+    z-index: 0;
+    animation: bHeroSweep 9s ease-in-out infinite;
+  }
+
+  .hero-mockup-wrap {
+    animation: bHeroMockupFloat 7.4s ease-in-out infinite;
+    will-change: transform;
   }
 
   .section-glow::after {
@@ -958,6 +1051,133 @@
   :global(.reveal-b.reveal-visible) {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+
+  .faq-premium {
+    position: relative;
+  }
+
+  .faq-shell {
+    position: relative;
+  }
+
+  .faq-shell::before {
+    content: '';
+    position: absolute;
+    inset: 2% 6% auto;
+    height: 160px;
+    border-radius: 999px;
+    background: radial-gradient(circle at center, rgba(56, 189, 248, 0.1), transparent 70%);
+    filter: blur(18px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .faq-kicker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: rgba(255, 255, 255, 0.82);
+    color: #475569;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .faq-item {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 14px;
+    overflow: hidden;
+    transition:
+      border-color 280ms ease,
+      box-shadow 320ms ease,
+      background-color 280ms ease,
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .faq-item:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .faq-item.is-open {
+    border-color: #10b981;
+    background: #ffffff;
+    box-shadow:
+      0 14px 34px rgba(15, 23, 42, 0.09),
+      0 0 0 1px rgba(16, 185, 129, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .faq-question {
+    width: 100%;
+    text-align: left;
+    padding: 1.25rem 1.3rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .faq-title {
+    margin: 0;
+    font-family: var(--font-headline, var(--font-sans));
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.35;
+    padding-right: 0.4rem;
+  }
+
+  .faq-plus {
+    margin-top: -0.05rem;
+    font-size: 1.75rem;
+    line-height: 1;
+    font-weight: 300;
+    color: #64748b;
+    transition:
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      color 300ms ease;
+    user-select: none;
+  }
+
+  .faq-plus.is-open {
+    transform: rotate(45deg);
+    color: #059669;
+  }
+
+  .faq-answer-wrap {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition:
+      max-height 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 280ms ease;
+  }
+
+  .faq-answer-wrap.is-open {
+    max-height: 540px;
+    opacity: 1;
+  }
+
+  .faq-answer-inner {
+    padding: 0 1.3rem 1.3rem;
+  }
+
+  .faq-answer-text {
+    margin: 0;
+    color: #475569;
+    line-height: 1.85;
+    font-size: 0.99rem;
   }
 
   .card-b {
@@ -1104,12 +1324,25 @@
     }
   }
 
+  @media (hover: none), (pointer: coarse) {
+    .reveal-b {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hero-b,
+    .hero-b::before,
+    .hero-mockup-wrap,
     .section-glow::after,
     .reveal-b,
     .card-b,
-    .btn-shine::after {
+    .btn-shine::after,
+    .faq-item,
+    .faq-plus,
+    .faq-answer-wrap {
       animation: none !important;
       transition: none !important;
       transform: none !important;

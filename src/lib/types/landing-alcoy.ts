@@ -1,4 +1,4 @@
-export type LandingSectionKey = 'hero' | 'services' | 'benefits' | 'cases' | 'faq' | 'finalCta';
+export type LandingSectionKey = 'hero' | 'services' | 'benefits' | 'faq' | 'finalCta';
 
 export type LandingCta = {
   label: string;
@@ -60,14 +60,6 @@ export type LandingBenefitItem = {
   description: string;
 };
 
-export type LandingCaseItem = {
-  title: string;
-  summary: string;
-  outcome: string;
-  href?: string;
-  linkLabel?: string;
-};
-
 export type LandingFaqItem = {
   question: string;
   answer: string;
@@ -105,6 +97,7 @@ export type LandingDisenoWebAlcoy = {
   };
   maintenance: {
     heading: string;
+    footerLabel?: string;
     lead: string;
     items: LandingMaintenanceItem[];
     pricingFootnote?: string;
@@ -114,10 +107,6 @@ export type LandingDisenoWebAlcoy = {
     buttonLabel?: string;
     buttonUrl?: string;
     items: LandingBenefitItem[];
-  };
-  cases: {
-    heading: string;
-    items: LandingCaseItem[];
   };
   faq: {
     heading: string;

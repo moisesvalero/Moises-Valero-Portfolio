@@ -17,7 +17,6 @@ export const landingDisenoWebAlcoyQuery = `coalesce(
   services,
   maintenance,
   benefits,
-  cases,
   faq,
   finalCta,
   contactModal,

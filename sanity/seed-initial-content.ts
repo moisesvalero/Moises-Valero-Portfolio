@@ -170,6 +170,7 @@ function mapLandingDisenoWebAlcoyDocument() {
     },
     maintenance: {
       heading: landing.maintenance.heading,
+      footerLabel: landing.maintenance.footerLabel,
       lead: landing.maintenance.lead,
       pricingFootnote: landing.maintenance.pricingFootnote,
       items: landing.maintenance.items.map((item, index) => ({
@@ -191,13 +192,6 @@ function mapLandingDisenoWebAlcoyDocument() {
       buttonUrl: landing.benefits.buttonUrl,
       items: landing.benefits.items.map((item, index) => ({
         _key: keyOf('landing-benefit', index),
-        ...item
-      }))
-    },
-    cases: {
-      heading: landing.cases.heading,
-      items: landing.cases.items.map((item, index) => ({
-        _key: keyOf('landing-case', index),
         ...item
       }))
     },

@@ -1,6 +1,5 @@
 import type {
   LandingBenefitItem,
-  LandingCaseItem,
   LandingDisenoWebAlcoy,
   LandingFaqItem,
   LandingMaintenanceItem,
@@ -42,7 +41,6 @@ const sectionSet = new Set<LandingSectionKey>([
   'hero',
   'services',
   'benefits',
-  'cases',
   'faq',
   'finalCta'
 ]);
@@ -143,32 +141,6 @@ function mapBenefitItems(raw: unknown, fallback: LandingBenefitItem[]): LandingB
   return mapped.length ? mapped : fallback;
 }
 
-function mapCaseItems(raw: unknown, fallback: LandingCaseItem[]): LandingCaseItem[] {
-  if (!Array.isArray(raw)) {
-    return fallback;
-  }
-  const mapped = raw
-    .map((item, index) => {
-      const o = asRecord(item);
-      if (!o) {
-        return null;
-      }
-      const title = asStringOpt(o.title) ?? fallback[index]?.title ?? '';
-      if (!title) {
-        return null;
-      }
-      return {
-        title,
-        summary: asString(o.summary, fallback[index]?.summary ?? ''),
-        outcome: asString(o.outcome, fallback[index]?.outcome ?? ''),
-        href: asStringOpt(o.href) ?? fallback[index]?.href,
-        linkLabel: asStringOpt(o.linkLabel) ?? fallback[index]?.linkLabel
-      };
-    })
-    .filter(Boolean) as LandingCaseItem[];
-  return mapped.length ? mapped : fallback;
-}
-
 function mapFaqItems(raw: unknown, fallback: LandingFaqItem[]): LandingFaqItem[] {
   if (!Array.isArray(raw)) {
     return fallback;
@@ -212,7 +184,6 @@ export function mapLandingDisenoWebAlcoy(
   const services = asRecord(raw.services);
   const benefits = asRecord(raw.benefits);
   const maintenance = asRecord(raw.maintenance);
-  const cases = asRecord(raw.cases);
   const faq = asRecord(raw.faq);
   const finalCta = asRecord(raw.finalCta);
   const contactModal = asRecord(raw.contactModal);
@@ -261,6 +232,7 @@ export function mapLandingDisenoWebAlcoy(
     },
     maintenance: {
       heading: asString(maintenance?.heading, defaults.maintenance.heading),
+      footerLabel: asStringOpt(maintenance?.footerLabel) ?? defaults.maintenance.footerLabel,
       lead: asString(maintenance?.lead, defaults.maintenance.lead),
       items: mapMaintenanceItems(maintenance?.items, defaults.maintenance.items),
       pricingFootnote:
@@ -271,10 +243,6 @@ export function mapLandingDisenoWebAlcoy(
       buttonLabel: asStringOpt(benefits?.buttonLabel) ?? defaults.benefits.buttonLabel,
       buttonUrl: asStringOpt(benefits?.buttonUrl) ?? defaults.benefits.buttonUrl,
       items: mapBenefitItems(benefits?.items, defaults.benefits.items)
-    },
-    cases: {
-      heading: asString(cases?.heading, defaults.cases.heading),
-      items: mapCaseItems(cases?.items, defaults.cases.items)
     },
     faq: {
       heading: asString(faq?.heading, defaults.faq.heading),

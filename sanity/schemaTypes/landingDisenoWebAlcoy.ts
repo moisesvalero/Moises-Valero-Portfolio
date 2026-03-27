@@ -24,7 +24,7 @@ export const landingDisenoWebAlcoy = defineType({
   type: 'document',
   initialValue: {
     internalTitle: 'Landing Diseño web en Alcoy',
-    sectionOrder: ['hero', 'services', 'benefits', 'cases', 'faq', 'finalCta']
+    sectionOrder: ['hero', 'services', 'benefits', 'faq', 'finalCta']
   },
   groups: [
     { name: 'panel', title: 'Panel', default: true },
@@ -54,7 +54,6 @@ export const landingDisenoWebAlcoy = defineType({
               { title: 'Hero', value: 'hero' },
               { title: 'Servicios', value: 'services' },
               { title: 'Beneficios', value: 'benefits' },
-              { title: 'Casos / Proyectos', value: 'cases' },
               { title: 'FAQ', value: 'faq' },
               { title: 'CTA final', value: 'finalCta' }
             ]
@@ -232,6 +231,13 @@ export const landingDisenoWebAlcoy = defineType({
       group: 'content',
       fields: [
         defineField({ name: 'heading', type: 'string', title: 'Titulo bloque' }),
+        defineField({
+          name: 'footerLabel',
+          type: 'string',
+          title: 'Texto en footer (opcional)',
+          description: 'Ejemplo: Mantenimiento',
+          initialValue: 'Mantenimiento'
+        }),
         defineField({ name: 'lead', type: 'text', title: 'Texto introductorio', rows: 3 }),
         defineField({
           name: 'pricingFootnote',
@@ -305,32 +311,6 @@ export const landingDisenoWebAlcoy = defineType({
               fields: [
                 defineField({ name: 'title', type: 'string', title: 'Titulo' }),
                 defineField({ name: 'description', type: 'text', title: 'Descripcion', rows: 3 })
-              ]
-            }
-          ]
-        })
-      ]
-    }),
-    defineField({
-      name: 'cases',
-      type: 'object',
-      title: 'Casos / proyectos',
-      group: 'content',
-      fields: [
-        defineField({ name: 'heading', type: 'string', title: 'Titulo bloque' }),
-        defineField({
-          name: 'items',
-          type: 'array',
-          title: 'Casos',
-          of: [
-            {
-              type: 'object',
-              fields: [
-                defineField({ name: 'title', type: 'string', title: 'Titulo' }),
-                defineField({ name: 'summary', type: 'text', title: 'Resumen', rows: 3 }),
-                defineField({ name: 'outcome', type: 'text', title: 'Resultado', rows: 2 }),
-                defineField({ name: 'href', type: 'string', title: 'Enlace (opcional)' }),
-                defineField({ name: 'linkLabel', type: 'string', title: 'Texto enlace (opcional)' })
               ]
             }
           ]
