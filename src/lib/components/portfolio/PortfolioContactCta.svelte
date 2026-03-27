@@ -35,7 +35,7 @@
     iframeTitle = 'Asistente de chat — Moisés Valero'
   }: Props = $props();
 
-  /** El número no va en el HTML: redirección en servidor (WHATSAPP_E164 en .env). */
+  /** El número no va en el HTML: redirección en servidor al WhatsApp activo. */
   const whatsappHref = '/api/contact/whatsapp';
 
   let allowTypebot = $state(false);

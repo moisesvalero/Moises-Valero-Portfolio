@@ -222,6 +222,7 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
     addressLocality: 'Alcoy',
     addressRegion: 'Alicante',
     addressCountry: 'ES',
+    telephone: '+34 660 47 12 98',
     email: 'info@moisesvalero.es'
   }
 };

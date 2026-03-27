@@ -1,5 +1,4 @@
 import { redirect } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
 
 function normalizeE164(raw: string | undefined): string | null {
@@ -11,10 +10,10 @@ function normalizeE164(raw: string | undefined): string | null {
 
 /**
  * Redirige a wa.me sin poner el número en el HTML de la página.
- * Configura WHATSAPP_E164 en .env (ej. 34627950559, sin + ni espacios).
+ * Número activo: +34 660 47 12 98.
  */
 export const GET: RequestHandler = () => {
-  const id = normalizeE164(env.WHATSAPP_E164);
+  const id = normalizeE164('34660471298');
   if (!id) {
     throw redirect(302, '/');
   }

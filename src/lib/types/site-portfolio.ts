@@ -112,7 +112,7 @@ export type SiteContact = {
   heading: string;
   subtitle: string;
   typebotSrc: string;
-  /** Texto encima del botón (el enlace va a /api/contact/whatsapp; el número solo en WHATSAPP_E164). */
+  /** Texto encima del botón (el enlace va a /api/contact/whatsapp; el número se resuelve en servidor). */
   whatsappLead: string;
   whatsappButtonLabel: string;
   formLead: string;

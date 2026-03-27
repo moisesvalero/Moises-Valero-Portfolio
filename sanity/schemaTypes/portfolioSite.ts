@@ -322,7 +322,7 @@ export const portfolioSite = defineType({
           name: 'whatsappLead',
           type: 'string',
           title: 'Texto sobre el botón WhatsApp',
-          description: 'El número no va aquí: se configura en el servidor (WHATSAPP_E164).'
+          description: 'El número no va aquí: se gestiona en el endpoint /api/contact/whatsapp.'
         },
         { name: 'whatsappButtonLabel', type: 'string', title: 'Texto del botón WhatsApp' },
         { name: 'formLead', type: 'string', title: 'Texto sobre el botón formulario' },
