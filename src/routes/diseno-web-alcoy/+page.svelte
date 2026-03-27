@@ -140,6 +140,11 @@
       node.classList.add('reveal-visible');
       return;
     }
+    const mobile = window.matchMedia('(max-width: 768px)').matches;
+    if (mobile) {
+      node.classList.add('reveal-visible');
+      return;
+    }
     const desktop = window.matchMedia('(min-width: 1025px)').matches;
     const observer = new IntersectionObserver(
       (entries) => {
@@ -151,8 +156,8 @@
         }
       },
       desktop
-        ? { threshold: 0.38, rootMargin: '0px 0px -18% 0px' }
-        : { threshold: 0.2, rootMargin: '0px 0px -10% 0px' }
+        ? { threshold: 0.24, rootMargin: '0px 0px -10% 0px' }
+        : { threshold: 0.08, rootMargin: '0px 0px -4% 0px' }
     );
     observer.observe(node);
     return {
@@ -338,23 +343,10 @@
         </div>
         <div class="relative min-w-0 w-full overflow-visible md:pl-4 lg:pl-8">
           <div
-            class="relative mx-auto w-full max-w-[min(100%,440px)] md:max-w-[900px] md:ml-auto md:mr-0 flex flex-col items-center [&_.mac-mockup-root]:w-full [&_.mac-mockup-root]:max-w-none"
+            class="relative mx-auto w-full max-w-[min(100%,360px)] sm:max-w-[min(100%,420px)] md:max-w-[900px] md:ml-auto md:mr-0 flex flex-col items-center [&_.mac-mockup-root]:w-full [&_.mac-mockup-root]:max-w-none"
           >
-            <div class="w-full flex justify-center lg:justify-end">
+            <div class="w-full flex justify-center md:pt-10 lg:pt-16 xl:pt-20">
               <HeroMacMockup />
-            </div>
-            <div
-              class="relative mt-5 mx-auto w-full max-w-[280px] z-20 glass-card p-5 lg:p-6 rounded-xl shadow-xl border border-white/20 md:absolute md:mt-0 md:mx-0 md:w-auto md:max-w-[280px] md:bottom-0 md:-left-20 lg:-left-28 md:translate-y-[60%] lg:translate-y-[64%]"
-            >
-              <div class="flex items-center gap-4 mb-2">
-                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1"
-                  >trending_up</span>
-                <span class="text-xs font-bold uppercase tracking-wider text-primary">SEO local Alcoy</span>
-              </div>
-              <p class="text-2xl font-black text-primary">+ visibilidad</p>
-              <p class="text-xs text-on-surface-variant leading-relaxed">
-                Estructura y contenido pensados para buscadores y clientes en la zona.
-              </p>
             </div>
           </div>
         </div>
@@ -952,10 +944,10 @@
 
   .reveal-b {
     opacity: 0;
-    transform: translateY(56px) scale(0.95);
+    transform: translateY(28px) scale(0.985);
     transition:
-      opacity 1200ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 1200ms cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 760ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 760ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   :global(.reveal-b.reveal-visible) {
@@ -1078,10 +1070,9 @@
 
   @media (max-width: 768px) {
     .reveal-b {
-      transform: translateY(24px);
-      transition:
-        opacity 680ms cubic-bezier(0.22, 1, 0.36, 1),
-        transform 680ms cubic-bezier(0.22, 1, 0.36, 1);
+      opacity: 1;
+      transform: none;
+      transition: none;
     }
     .section-glow::after {
       width: 84vw;
