@@ -263,7 +263,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     typebotSrc: 'https://typebot.io/asistente-mois-s-valero-sud5oya',
     whatsappLead: '¿Prefieres WhatsApp? Te respondo rápido por ahí.',
     whatsappButtonLabel: 'Escribir por WhatsApp',
-    formLead: '¿Prefieres formulario? Déjame tus datos y te escribo por email.',
+    formLead: 'Formulario',
     formButtonLabel: 'Abrir formulario',
     formModalHeading: 'Cuéntame tu proyecto',
     formModalText: 'Déjame tus datos y te responderé lo antes posible.',
@@ -274,7 +274,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
   },
   footer: {
     copyrightTemplate:
-      'Desarrollo Web de Alto Rendimiento | Sistemas & SEO Alcoy(Alicante) | Disponible para proyectos en remoto y presenciales. Moisés Valero © 2026 | Especialista en SvelteKit, WordPress y Sanity CMS.',
+      'Servicios Web: One Page, Web Profesional, E-commerce y Mantenimiento | SEO Local en Alcoy (Alicante) | Disponible para proyectos en remoto y presenciales. Moisés Valero © {{year}} | Especialista en SvelteKit, WordPress y Sanity CMS.',
     githubHref: 'https://github.com/moisesvalero',
     linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
     maltHref: 'https://www.malt.es/profile/moisesvalerosanchez',

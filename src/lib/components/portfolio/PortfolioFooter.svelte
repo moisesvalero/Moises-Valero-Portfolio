@@ -15,7 +15,7 @@
 
   let {
     copyrightTemplate =
-      'Desarrollo Web de Alto Rendimiento | Sistemas & SEO Alcoy(Alicante) | Disponible para proyectos en remoto y presenciales. Moisés Valero © 2026 | Especialista en SvelteKit, WordPress y Sanity CMS.',
+      'Servicios Web: One Page, Web Profesional, E-commerce y Mantenimiento | SEO Local en Alcoy (Alicante) | Disponible para proyectos en remoto y presenciales. Moisés Valero © {{year}} | Especialista en SvelteKit, WordPress y Sanity CMS.',
     githubHref = 'https://github.com/moisesvalero',
     linkedinHref = 'https://www.linkedin.com/in/moisesvalero',
     maltHref = 'https://www.malt.es/profile/moisesvalerosanchez',
@@ -62,7 +62,17 @@
       {$t('legalFooter.preferences')}
     </button>
     <span class="footer-dot" aria-hidden="true">·</span>
+    <a href="/diseno-web-alcoy#services" class="footer-services-link">Servicios</a>
+    <span class="footer-dot" aria-hidden="true">·</span>
     <a href="/diseno-web-alcoy" class="footer-landing-link">Diseño web en Alcoy</a>
+    <span class="footer-dot" aria-hidden="true">·</span>
+    <a
+      href="http://moisesvalero.es"
+      class="footer-portfolio-link"
+      target="_blank"
+      rel="noopener noreferrer"
+      >Portfolio</a
+    >
   </nav>
 
   <div class="footer-icons">
@@ -135,12 +145,16 @@
     text-decoration: none;
   }
 
-  .footer-landing-link {
+  .footer-landing-link,
+  .footer-services-link,
+  .footer-portfolio-link {
     color: #64748b !important;
     font-weight: 500;
   }
 
-  .footer-landing-link:hover {
+  .footer-landing-link:hover,
+  .footer-services-link:hover,
+  .footer-portfolio-link:hover {
     color: #334155 !important;
     text-decoration: none;
   }

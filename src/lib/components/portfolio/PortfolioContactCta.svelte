@@ -25,7 +25,7 @@
     typebotSrc = 'https://typebot.io/asistente-mois-s-valero-sud5oya',
     whatsappLead = '¿Prefieres WhatsApp? Te respondo rápido por ahí.',
     whatsappButtonLabel = 'Escribir por WhatsApp',
-    formLead = '¿Prefieres formulario? Déjame tus datos y te escribo por email.',
+    formLead = 'Formulario',
     formButtonLabel = 'Abrir formulario',
     formModalHeading = 'Cuéntame tu proyecto',
     formModalText = 'Déjame tus datos y te responderé lo antes posible.',

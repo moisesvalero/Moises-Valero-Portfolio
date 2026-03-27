@@ -226,7 +226,7 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
     }
   },
   contactModal: {
-    triggerLabel: 'Prefiero formulario',
+    triggerLabel: 'Formulario',
     heading: 'Cuéntame tu proyecto',
     text: 'Déjame tus datos y te responderé por email lo antes posible.',
     submitLabel: 'Enviar solicitud',

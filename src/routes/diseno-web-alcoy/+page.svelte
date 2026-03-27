@@ -50,6 +50,7 @@
 
   const serviceOffers = $derived(landing.services.items);
   const maintenanceOptions = $derived(landing.maintenance.items);
+  const footerServices = $derived(landing.services.items.filter((item) => item.title?.trim().length));
 
   function openContactModal() {
     isContactModalOpen = true;
@@ -588,9 +589,13 @@
         <div>
           <h3 class="text-sm font-bold tracking-wide uppercase text-slate-900 mb-4">Servicios</h3>
           <ul class="space-y-3">
-            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">{landing.services.items[0]?.title || 'Servicio 1'}</a></li>
-            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">{landing.services.items[1]?.title || 'Servicio 2'}</a></li>
-            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="/#proyectos">Proyectos</a></li>
+            {#each footerServices as footerService, idx (footerService.title + idx)}
+              <li>
+                <a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">
+                  {footerService.title}
+                </a>
+              </li>
+            {/each}
           </ul>
         </div>
 
