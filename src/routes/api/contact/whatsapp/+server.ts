@@ -17,6 +17,8 @@ export const GET: RequestHandler = () => {
   if (!id) {
     throw redirect(302, '/');
   }
-  const text = encodeURIComponent('Hola, te escribo desde tu web.');
+  const text = encodeURIComponent(
+    'Hola, Moisés! He visto tu web y me gustaría pedirte presupuesto para un proyecto. ¿Hablamos?'
+  );
   throw redirect(302, `https://wa.me/${id}?text=${text}`);
 };

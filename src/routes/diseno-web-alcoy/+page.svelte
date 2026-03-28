@@ -570,7 +570,9 @@
             {landing.hero.title}
           </h1>
           <div class="hero-title-accent" aria-hidden="true"></div>
-          <p class="text-on-primary-container text-lg md:text-xl max-w-lg leading-relaxed">
+          <p
+            class="hero-lead-on-blue text-lg md:text-xl max-w-lg leading-relaxed font-medium"
+          >
             {landing.hero.subtitle}
           </p>
           <div class="flex flex-col sm:flex-row gap-4">
@@ -783,40 +785,38 @@
           <h2 class="font-headline text-4xl md:text-6xl font-extrabold text-white">
             {landing.finalCta.heading}
           </h2>
-          <p class="text-on-primary-container text-lg max-w-2xl mx-auto leading-relaxed">
+          <p class="final-cta-lead-on-blue text-lg max-w-2xl mx-auto leading-relaxed font-medium">
             {landing.finalCta.text}
           </p>
           <div class="pt-6 flex flex-col items-center gap-6">
             <a
               href={landing.finalCta.cta.href}
-              class="btn-shine final-cta-main-btn bg-secondary text-on-secondary px-10 py-5 rounded-md font-bold text-xl hover:shadow-[0_0_25px_rgba(0,108,73,0.5)] transition-all active:scale-95 no-underline inline-flex items-center justify-center"
+              class="btn-shine final-cta-main-btn bg-secondary text-on-secondary px-10 py-5 rounded-md font-bold text-xl hover:shadow-[0_0_25px_rgba(0,108,73,0.5)] transition-all active:scale-95 no-underline inline-flex items-center justify-center text-center whitespace-normal sm:whitespace-nowrap max-w-full"
             >
               {landing.finalCta.cta.label}
             </a>
-            <div
-              class="flex flex-col md:flex-row items-center gap-8 text-on-primary-container font-medium mt-4"
-            >
+            <div class="final-cta-alt-links flex flex-col md:flex-row items-center gap-6 md:gap-10 mt-2">
               <a
-                class="flex items-center gap-2 hover:text-white transition-colors no-underline"
+                class="final-cta-alt-link flex items-center gap-2.5 no-underline"
                 href={site.footer.emailHref}
               >
-                <span class="material-symbols-outlined text-secondary">mail</span>
-                Email
+                <span class="material-symbols-outlined final-cta-alt-icon" aria-hidden="true">mail</span>
+                <span>Email</span>
               </a>
               <a
-                class="flex items-center gap-2 hover:text-white transition-colors no-underline"
+                class="final-cta-alt-link flex items-center gap-2.5 no-underline"
                 href="/api/contact/whatsapp"
               >
-                <span class="material-symbols-outlined text-secondary">phone_iphone</span>
-                WhatsApp
+                <span class="material-symbols-outlined final-cta-alt-icon" aria-hidden="true">phone_iphone</span>
+                <span>WhatsApp</span>
               </a>
               <button
                 type="button"
                 onclick={openContactModal}
-                class="flex items-center gap-2 hover:text-white transition-colors bg-transparent border-0 p-0 text-on-primary-container font-medium cursor-pointer"
+                class="final-cta-alt-link final-cta-alt-link--btn flex items-center gap-2.5 cursor-pointer"
               >
-                <span class="material-symbols-outlined text-secondary">edit_square</span>
-                {contactModal.triggerLabel}
+                <span class="material-symbols-outlined final-cta-alt-icon" aria-hidden="true">edit_square</span>
+                <span>{contactModal.triggerLabel}</span>
               </button>
             </div>
           </div>
@@ -1529,6 +1529,55 @@
       0 0 0 1px rgba(255, 255, 255, 0.16) inset;
   }
 
+  /** Legibilidad sobre azul: más claro que `on-primary-container` (#86a0cd). */
+  .hero-lead-on-blue {
+    color: #d8e6fc !important;
+    text-shadow: 0 1px 2px rgba(8, 12, 34, 0.28);
+  }
+
+  .final-cta-lead-on-blue {
+    color: #d8e6fc !important;
+    text-shadow: 0 1px 2px rgba(8, 12, 34, 0.38);
+  }
+
+  .final-cta-alt-links {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .final-cta-alt-link {
+    color: #eef4ff !important;
+    transition:
+      color 0.2s ease,
+      transform 0.2s ease;
+    min-height: 44px;
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.5rem;
+  }
+
+  .final-cta-alt-link:hover {
+    color: #ffffff !important;
+  }
+
+  .final-cta-alt-link--btn {
+    background: transparent;
+    border: 0;
+    font: inherit;
+    text-align: inherit;
+  }
+
+  .final-cta-alt-icon {
+    font-size: 22px !important;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    color: #8ef5c8 !important;
+  }
+
+  .final-cta-alt-link:hover .final-cta-alt-icon {
+    color: #c6ffe6 !important;
+  }
 
   .reveal-b {
     opacity: 0;
