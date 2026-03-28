@@ -362,13 +362,7 @@ export const landingDisenoWebAlcoy = defineType({
       title: 'Formulario modal de contacto',
       group: 'content',
       fields: [
-        defineField({
-          name: 'triggerLabel',
-          type: 'string',
-          title: 'Texto boton abrir modal',
-          description: 'Visible en el CTA final y en el footer (ej. «Formulario»).',
-          initialValue: 'Formulario'
-        }),
+        defineField({ name: 'triggerLabel', type: 'string', title: 'Texto boton abrir modal' }),
         defineField({ name: 'heading', type: 'string', title: 'Titulo modal' }),
         defineField({ name: 'text', type: 'text', title: 'Texto modal', rows: 3 }),
         defineField({ name: 'submitLabel', type: 'string', title: 'Texto boton enviar' }),

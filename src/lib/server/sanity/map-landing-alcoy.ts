@@ -20,14 +20,6 @@ function asStringOpt(v: unknown): string | undefined {
   return typeof v === 'string' && v.trim() ? v.trim() : undefined;
 }
 
-/** Copia antigua en Sanity/CMS; unificar etiqueta del modal en CTA final y footer. */
-function mapContactModalTriggerLabel(raw: unknown, fallback: string): string {
-  const s = asString(raw, fallback);
-  const n = s.toLowerCase().replace(/\s+/g, ' ').trim();
-  if (n === 'prefiero formulario') return 'Formulario';
-  return s;
-}
-
 function asStringArray(v: unknown, fallback: string[] = []): string[] {
   if (!Array.isArray(v)) {
     return fallback;
@@ -267,10 +259,7 @@ export function mapLandingDisenoWebAlcoy(
       }
     },
     contactModal: {
-      triggerLabel: mapContactModalTriggerLabel(
-        contactModal?.triggerLabel,
-        defaults.contactModal.triggerLabel
-      ),
+      triggerLabel: asString(contactModal?.triggerLabel, defaults.contactModal.triggerLabel),
       heading: asString(contactModal?.heading, defaults.contactModal.heading),
       text: asString(contactModal?.text, defaults.contactModal.text),
       submitLabel: asString(contactModal?.submitLabel, defaults.contactModal.submitLabel),
