@@ -51,13 +51,6 @@
   let heroParallaxRaf = 0;
   let isHeaderScrolled = $state(false);
 
-  type TailwindRuntime = {
-    refresh?: () => void;
-  };
-
-  const TAILWIND_CDN_SRC = 'https://cdn.tailwindcss.com?plugins=forms,container-queries';
-  const TAILWIND_CONFIG_SRC = '/js/landing-tailwind-config.js';
-
   const serviceOffers = $derived(landing.services.items);
   const maintenanceOptions = $derived(landing.maintenance.items);
   const footerServices = $derived(landing.services.items.filter((item) => item.title?.trim().length));
@@ -150,57 +143,6 @@
     heroSectionEl.style.setProperty('--hero-aurora-y', `${auroraShift.toFixed(2)}px`);
   }
 
-  function ensureExternalScript(src: string, id: string) {
-    return new Promise<void>((resolve, reject) => {
-      const existing = document.getElementById(id) as HTMLScriptElement | null;
-      if (existing) {
-        // Si ya existe en el head (SSR/cliente), continuamos y delegamos en los reintentos de refresh.
-        resolve();
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.id = id;
-      script.src = src;
-      script.async = true;
-      script.onload = () => {
-        script.dataset.loaded = 'true';
-        resolve();
-      };
-      script.onerror = () => reject(new Error(`No se pudo cargar ${src}`));
-      document.head.appendChild(script);
-    });
-  }
-
-  async function ensureLandingTailwindReady() {
-    try {
-      await ensureExternalScript(TAILWIND_CDN_SRC, 'alcoy-tailwind-cdn');
-      await ensureExternalScript(TAILWIND_CONFIG_SRC, 'alcoy-tailwind-config');
-    } catch {
-      // Si falla la carga externa, mantenemos los estilos fallback inline del layout.
-    }
-
-    await new Promise<void>((resolve) => {
-      let attempts = 0;
-      const retryRefresh = () => {
-        const tw = (window as Window & { tailwind?: TailwindRuntime }).tailwind;
-        if (tw?.refresh) {
-          tw.refresh();
-          window.setTimeout(() => tw.refresh?.(), 30);
-          resolve();
-          return;
-        }
-        attempts += 1;
-        if (attempts < 80) {
-          window.setTimeout(retryRefresh, 80);
-          return;
-        }
-        resolve();
-      };
-      retryRefresh();
-    });
-  }
-
   async function submitContactModalForm(event: SubmitEvent) {
     event.preventDefault();
     if (contactStatus === 'sending') return;
@@ -259,9 +201,6 @@
     if (window.matchMedia('(min-width: 1024px)').matches && landing.faq.items.length > 0) {
       faqOpenIndex = 0;
     }
-    // En SPA la carga del runtime/config de Tailwind puede llegar tarde.
-    // Blindamos scripts + refresh para evitar render blanco sin fondo.
-    void ensureLandingTailwindReady();
     return () => {
       window.removeEventListener('scroll', onMobileScroll);
       window.removeEventListener('scroll', onHeaderScroll);
@@ -411,8 +350,6 @@
   <meta name="twitter:title" content={$seo.ogTitle} />
   <meta name="twitter:description" content={$seo.ogDescription} />
   <meta name="twitter:image" content={$seo.ogImage} />
-  <script id="alcoy-tailwind-cdn" src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script id="alcoy-tailwind-config" src="/js/landing-tailwind-config.js"></script>
   <JsonLdScript json={localBusinessJsonLd} />
   <JsonLdScript json={webPageJsonLd} />
   <JsonLdScript json={faqJsonLd} />
@@ -422,7 +359,7 @@
 <svelte:window onpointermove={handleHeroPointerMove} />
 
 <div
-  id="top"
+  id="alcoy-landing-root"
   class="scroll-smooth stitch-landing font-body text-on-surface bg-surface min-h-screen"
   style="background:#f7f9fb;color:#191c1e;"
 >
@@ -435,7 +372,7 @@
   >
     <div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
       <HeaderBrand
-        href="#top"
+        href="#alcoy-landing-root"
         ariaLabel="Moisés Valero — Desarrollador web"
       />
       <div class="hidden md:flex space-x-8">
@@ -544,7 +481,7 @@
   <main class="pt-0">
     <section
       class="hero-b section-glow relative min-h-0 pt-24 pb-10 md:py-0 md:min-h-[820px] lg:min-h-[860px] flex items-start md:items-center overflow-x-clip overflow-y-visible bg-primary px-6"
-      style="background: radial-gradient(circle at 74% 40%, #3a4aa0 0%, #2a377f 34%, #1a2258 66%, #0f1538 100%);"
+      style="background: radial-gradient(circle at 74% 40%, #3a4aa0 0%, #2a377f 34%, #1a2258 66%, #0f1538 100%); color: #ffffff;"
       bind:this={heroSectionEl}
     >
       <div class="absolute inset-0 opacity-20 pointer-events-none">
@@ -563,26 +500,32 @@
       <div
         class="max-w-7xl mx-auto w-full grid grid-cols-1 gap-12 md:gap-14 items-center relative z-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:grid-cols-[minmax(0,30rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] lg:gap-20 xl:gap-24"
       >
-        <div class="space-y-8 max-w-xl lg:max-w-2xl">
+        <div class="space-y-8 max-w-xl lg:max-w-2xl hero-copy-col-fallback">
           <h1
             class="font-headline text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-tight"
+            style="color: #ffffff;"
           >
             {landing.hero.title}
           </h1>
           <div class="hero-title-accent" aria-hidden="true"></div>
-          <p class="text-on-primary-container text-lg md:text-xl max-w-lg leading-relaxed">
+          <p
+            class="hero-subtitle-fallback text-on-primary-container text-lg md:text-xl max-w-lg leading-relaxed"
+            style="color: #86a0cd;"
+          >
             {landing.hero.subtitle}
           </p>
-          <div class="flex flex-col sm:flex-row gap-4">
+          <div class="hero-cta-row-fallback flex flex-col sm:flex-row gap-4">
             <a
               href={landing.hero.cta.href}
-              class="cta-hover cta-hover-primary bg-secondary text-on-secondary px-8 py-4 rounded-md font-bold text-lg hover:shadow-[0_0_20px_rgba(0,108,73,0.4)] transition-all active:scale-95 text-center no-underline inline-flex items-center justify-center"
+              class="hero-cta-primary-fallback cta-hover cta-hover-primary bg-secondary text-on-secondary px-8 py-4 rounded-md font-bold text-lg hover:shadow-[0_0_20px_rgba(0,108,73,0.4)] transition-all active:scale-95 text-center no-underline inline-flex items-center justify-center"
+              style="background-color: #006c49; color: #ffffff;"
             >
               {landing.hero.cta.label}
             </a>
             <a
-              class="cta-hover cta-hover-ghost inline-flex items-center text-white font-semibold py-4 px-8 border-b-2 border-secondary-container/30 hover:border-secondary transition-all no-underline"
+              class="hero-cta-ghost-fallback cta-hover cta-hover-ghost inline-flex items-center text-white font-semibold py-4 px-8 border-b-2 border-secondary-container/30 hover:border-secondary transition-all no-underline"
               href={landing.hero.cta.secondaryHref || '#services'}
+              style="color: #ffffff; border-bottom: 2px solid rgba(108, 248, 187, 0.35);"
             >
               {landing.hero.cta.secondaryLabel || 'Ver servicios'}
             </a>
@@ -1272,6 +1215,73 @@
     --hero-mobile-shift-y: 0px;
     --hero-aurora-y: 0px;
     animation: bHeroIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /*
+   * Fallbacks SPA: subtítulo y CTAs del hero no dependen solo del JIT de Tailwind CDN
+   * (navegación cliente desde el portfolio).
+   */
+  :global(#alcoy-landing-root) .hero-b .hero-subtitle-fallback {
+    color: #86a0cd;
+    font-size: 1.125rem;
+    line-height: 1.65;
+    max-width: 32rem;
+  }
+
+  @media (min-width: 768px) {
+    :global(#alcoy-landing-root) .hero-b .hero-subtitle-fallback {
+      font-size: 1.25rem;
+    }
+  }
+
+  :global(#alcoy-landing-root) .hero-b .hero-cta-primary-fallback {
+    background-color: #006c49 !important;
+    color: #ffffff !important;
+    border-radius: 0.375rem;
+    padding: 1rem 2rem;
+    font-weight: 700;
+    font-size: 1.125rem;
+    line-height: 1.25;
+    box-shadow:
+      0 0 0 1px rgba(0, 110, 72, 0.22) inset,
+      0 8px 22px rgba(0, 108, 73, 0.22);
+  }
+
+  :global(#alcoy-landing-root) .hero-b .hero-cta-primary-fallback:hover {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.22) inset,
+      0 10px 24px rgba(0, 108, 73, 0.38);
+  }
+
+  :global(#alcoy-landing-root) .hero-b .hero-cta-ghost-fallback {
+    color: #ffffff !important;
+    border-bottom-width: 2px;
+    border-bottom-style: solid;
+    border-bottom-color: rgba(108, 248, 187, 0.35) !important;
+  }
+
+  :global(#alcoy-landing-root) .hero-b .hero-cta-ghost-fallback:hover {
+    border-bottom-color: #006c49 !important;
+  }
+
+  /*
+   * Primer paint (enlace externo / CSS del chunk aún no cargado): el root lleva color:#191c1e;
+   * las utilidades Tailwind y este bloque pueden no existir aún — layout mínimo sin depender del JIT.
+   */
+  :global(#alcoy-landing-root) .hero-b .hero-copy-col-fallback > * + * {
+    margin-top: 2rem;
+  }
+
+  :global(#alcoy-landing-root) .hero-b .hero-cta-row-fallback {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    :global(#alcoy-landing-root) .hero-b .hero-cta-row-fallback {
+      flex-direction: row;
+    }
   }
 
   .hero-tech-pattern {
