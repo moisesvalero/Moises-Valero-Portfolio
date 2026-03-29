@@ -712,11 +712,15 @@
           </p>
           <div class="grid md:grid-cols-2 gap-6 items-stretch">
             {#each maintenanceOptions as option, idx (option.title)}
-              <article class="bg-surface-container-lowest border border-slate-200 rounded-lg p-6 h-full flex flex-col">
-                <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-secondary-container mb-3">
-                  <span class="material-symbols-outlined text-on-secondary-container" style="font-size:20px;">{option.icon}</span>
+              <article
+                class="card-b bg-surface-container-lowest p-8 rounded-xl group hover:translate-y-[-4px] transition-transform duration-300 h-full flex flex-col"
+              >
+                <div
+                  class="w-12 h-12 bg-secondary-container flex items-center justify-center rounded-full mb-6"
+                >
+                  <span class="material-symbols-outlined text-on-secondary-container">{option.icon}</span>
                 </div>
-                <h4 class="font-bold text-primary mb-2">{option.title}</h4>
+                <h4 class="font-headline text-2xl font-bold text-primary mb-4">{option.title}</h4>
                 <p class="font-extrabold text-secondary text-lg mb-3">{option.price}</p>
                 <p class="text-on-surface-variant leading-relaxed mb-4">{option.detail}</p>
                 <button
