@@ -133,6 +133,18 @@ function mapCaseStudyDocuments() {
   }));
 }
 
+/** Hero para Sanity: sin `marquee` local (rutas estáticas); el carrusel se rellena en Studio con imágenes CDN. */
+function landingHeroForSanity() {
+  const { marquee, ...heroCore } = landingAlcoyDefaults.hero;
+  return {
+    ...heroCore,
+    heroMarquee: {
+      kicker: marquee.kicker,
+      items: []
+    }
+  };
+}
+
 function mapLandingDisenoWebAlcoyDocument() {
   const landing = landingAlcoyDefaults;
   return {
@@ -149,7 +161,7 @@ function mapLandingDisenoWebAlcoyDocument() {
       canonicalPath: landing.seo.canonicalPath,
       twitterCard: landing.seo.twitterCard
     },
-    hero: landing.hero,
+    hero: landingHeroForSanity(),
     services: {
       heading: landing.services.heading,
       pricingFootnote: landing.services.pricingFootnote,

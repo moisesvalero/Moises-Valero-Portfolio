@@ -11,7 +11,8 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --compiler-warnings \"css_unused_selector:ignore,slot_element_deprecated:ignore\"",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --compiler-warnings \"css_unused_selector:ignore,slot_element_deprecated:ignore\" --watch",
 		"studio": "npx sanity dev",
-		"sanity:patch-og": "sanity exec sanity/patch-og-image.ts --with-user-token"
+		"sanity:patch-og": "sanity exec sanity/patch-og-image.ts --with-user-token",
+		"sanity:hero-marquee": "sanity exec sanity/seed-hero-marquee.ts --with-user-token"
 	},
 	"devDependencies": {
 		"@iconify/svelte": "^5.2.1",

@@ -2,6 +2,8 @@ import type {
   LandingBenefitItem,
   LandingDisenoWebAlcoy,
   LandingFaqItem,
+  LandingHeroMarquee,
+  LandingHeroMarqueeItem,
   LandingMaintenanceItem,
   LandingSectionKey,
   LandingServiceItem
@@ -141,6 +143,41 @@ function mapBenefitItems(raw: unknown, fallback: LandingBenefitItem[]): LandingB
   return mapped.length ? mapped : fallback;
 }
 
+function mapHeroMarquee(
+  raw: unknown,
+  defaultsMarquee: LandingHeroMarquee,
+  ctx: { projectId: string; dataset: string }
+): LandingHeroMarquee {
+  const hm = asRecord(raw);
+  const kicker = hm ? asString(hm.kicker, defaultsMarquee.kicker) : defaultsMarquee.kicker;
+  if (!hm || !Array.isArray(hm.items) || hm.items.length === 0) {
+    return { kicker, items: defaultsMarquee.items };
+  }
+  const mapped = hm.items
+    .map((item) => {
+      const o = asRecord(item);
+      if (!o) {
+        return null;
+      }
+      const title = asStringOpt(o.title) ?? '';
+      const href = asStringOpt(o.href) ?? '';
+      if (!title || !href) {
+        return null;
+      }
+      const imageSrc =
+        ctx.projectId && ctx.dataset
+          ? imageUrl(ctx.projectId, ctx.dataset, o.image, 1200)
+          : undefined;
+      if (!imageSrc) {
+        return null;
+      }
+      const imageAlt = asStringOpt(o.imageAlt) || title;
+      return { title, href, imageSrc, imageAlt };
+    })
+    .filter(Boolean) as LandingHeroMarqueeItem[];
+  return mapped.length ? { kicker, items: mapped } : { kicker, items: defaultsMarquee.items };
+}
+
 function mapFaqItems(raw: unknown, fallback: LandingFaqItem[]): LandingFaqItem[] {
   if (!Array.isArray(raw)) {
     return fallback;
@@ -194,6 +231,7 @@ export function mapLandingDisenoWebAlcoy(
   const seoImage = seoImageFromAsset || seoImageFallback || defaults.seo.ogImage;
 
   const heroCta = asRecord(hero?.cta);
+  const heroMarqueeRaw = hero?.heroMarquee;
   const heroVisualImage = hero ? imageUrl(ctx.projectId, ctx.dataset, hero.visualImage, 1400) : undefined;
   const finalCtaNode = asRecord(finalCta?.cta);
 
@@ -223,7 +261,8 @@ export function mapLandingDisenoWebAlcoy(
         href: asString(heroCta?.href, defaults.hero.cta.href),
         secondaryLabel: asStringOpt(heroCta?.secondaryLabel) ?? defaults.hero.cta.secondaryLabel,
         secondaryHref: asStringOpt(heroCta?.secondaryHref) ?? defaults.hero.cta.secondaryHref
-      }
+      },
+      marquee: mapHeroMarquee(heroMarqueeRaw, defaults.hero.marquee, ctx)
     },
     services: {
       heading: asString(services?.heading, defaults.services.heading),

@@ -682,7 +682,8 @@
   @media (max-width: 640px) {
     .tri-scene {
       width: min(100%, 245px);
-      min-height: clamp(320px, 92vw, 430px);
+      /* Un poco menos alto en móvil para separar del carrusel sin perder el teléfono */
+      min-height: clamp(280px, 82vw, 380px);
       padding: 0;
     }
 

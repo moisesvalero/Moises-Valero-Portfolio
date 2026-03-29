@@ -7,6 +7,19 @@ export type LandingCta = {
   secondaryHref?: string;
 };
 
+/** Ítem de la marquesina de proyectos bajo el hero (CMS o fallback local). */
+export type LandingHeroMarqueeItem = {
+  title: string;
+  imageSrc: string;
+  imageAlt: string;
+  href: string;
+};
+
+export type LandingHeroMarquee = {
+  kicker: string;
+  items: LandingHeroMarqueeItem[];
+};
+
 export type LandingSeo = {
   title: string;
   description: string;
@@ -27,6 +40,8 @@ export type LandingHero = {
   visualImageAlt?: string;
   splineUrl?: string;
   cta: LandingCta;
+  /** Carrusel de capturas; siempre presente tras el load (defaults locales si Sanity vacío). */
+  marquee: LandingHeroMarquee;
 };
 
 export type LandingServiceItem = {

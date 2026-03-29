@@ -13,6 +13,12 @@
   const landing = $derived(data.landing);
   const site = $derived(data.site);
 
+  /** Dos series para bucle continuo sin salto (datos desde Sanity o defaults). */
+  const heroMarqueeLoop = $derived([
+    ...landing.hero.marquee.items,
+    ...landing.hero.marquee.items
+  ]);
+
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
   const canonicalUrl = $derived(
     landing.seo.canonicalPath.startsWith('http')
@@ -543,7 +549,7 @@
 
   <main class="pt-0">
     <section
-      class="hero-b section-glow relative min-h-0 pt-24 pb-10 md:py-0 md:min-h-[820px] lg:min-h-[860px] flex items-start md:items-center overflow-x-clip overflow-y-visible bg-primary px-6"
+      class="hero-b section-glow relative w-full min-w-0 min-h-0 pt-24 pb-6 md:pt-28 md:pb-6 lg:pt-32 md:min-h-[100svh] lg:min-h-[100svh] max-lg:landscape:min-h-0 max-lg:landscape:pt-[5.25rem] max-lg:landscape:pb-4 max-lg:landscape:md:pt-24 flex flex-col overflow-x-clip overflow-y-visible bg-primary px-6"
       style="background: radial-gradient(circle at 74% 40%, #3a4aa0 0%, #2a377f 34%, #1a2258 66%, #0f1538 100%);"
       bind:this={heroSectionEl}
     >
@@ -561,9 +567,12 @@
       <div class="hero-cursor-light" aria-hidden="true"></div>
       <div class="hero-depth-vignette" aria-hidden="true"></div>
       <div
-        class="max-w-7xl mx-auto w-full grid grid-cols-1 gap-12 md:gap-14 items-center relative z-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:grid-cols-[minmax(0,30rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] lg:gap-20 xl:gap-24"
+        class="hero-b-main flex flex-1 flex-col justify-center w-full max-w-7xl mx-auto min-h-0 min-w-0 relative z-10 max-lg:landscape:md:min-h-0 max-lg:landscape:md:justify-start max-lg:landscape:md:py-2"
       >
-        <div class="space-y-8 max-w-xl lg:max-w-2xl">
+        <div
+          class="w-full min-w-0 grid grid-cols-1 gap-14 max-md:gap-16 md:gap-14 items-center md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:grid-cols-[minmax(0,30rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] lg:gap-20 xl:gap-24 max-lg:landscape:gap-6 max-lg:landscape:md:gap-8 max-lg:landscape:md:items-start"
+        >
+        <div class="space-y-8 min-w-0 max-w-xl lg:max-w-2xl">
           <h1
             class="font-headline text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-tight"
           >
@@ -590,12 +599,52 @@
             </a>
           </div>
         </div>
-        <div class="hero-visual-col relative min-w-0 w-full overflow-visible md:pl-4 lg:pl-8">
+        <div
+          class="hero-visual-col relative z-[1] min-w-0 w-full overflow-visible max-md:mb-10 max-md:pb-3 md:pl-4 lg:pl-8"
+        >
           <div
             class="relative mx-auto w-full max-w-[min(100%,360px)] sm:max-w-[min(100%,420px)] md:max-w-[900px] md:ml-auto md:mr-0 flex flex-col items-center [&_.mac-mockup-root]:w-full [&_.mac-mockup-root]:max-w-none"
           >
-            <div class="hero-mockup-wrap w-full flex justify-center md:pt-10 lg:pt-16 xl:pt-20">
+            <div
+              class="hero-mockup-wrap w-full min-w-0 flex justify-center md:pt-6 lg:pt-10 xl:pt-12 max-lg:landscape:md:pt-4 max-lg:landscape:lg:pt-8"
+            >
               <HeroMacMockup />
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <div
+        class="hero-marquee-outer w-full max-w-7xl mx-auto min-w-0 shrink-0 mt-8 max-md:mt-10 md:mt-4 pt-3 md:pt-4 border-t border-white/[0.08] relative z-20 max-lg:landscape:mt-2 max-lg:landscape:pt-2 max-lg:landscape:md:mt-3"
+      >
+        <p class="hero-marquee-kicker">{landing.hero.marquee.kicker}</p>
+        <div
+          class="hero-marquee"
+          role="region"
+          aria-label="Capturas de proyectos, carrusel horizontal. Pausa al pasar el cursor o al enfocar un enlace."
+        >
+          <div class="hero-marquee-viewport">
+            <div class="hero-marquee-track">
+              {#each heroMarqueeLoop as item, i (item.title + '-' + i)}
+                <a
+                  class="hero-marquee-card"
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Abrir en nueva pestaña: {item.title}"
+                >
+                  <img
+                    src={item.imageSrc}
+                    alt={item.imageAlt}
+                    width="400"
+                    height="250"
+                    loading="lazy"
+                    decoding="async"
+                    draggable="false"
+                  />
+                </a>
+              {/each}
             </div>
           </div>
         </div>
@@ -1376,6 +1425,209 @@
     animation: bHeroMockupFloat 7.4s ease-in-out infinite;
     will-change: transform;
     filter: drop-shadow(0 24px 44px rgba(8, 12, 34, 0.34)) drop-shadow(0 10px 24px rgba(12, 20, 54, 0.26));
+  }
+
+  @media (max-width: 767px) {
+    .hero-mockup-wrap {
+      animation-name: bHeroMockupFloatMobile;
+      filter: drop-shadow(0 14px 26px rgba(8, 12, 34, 0.28)) drop-shadow(0 6px 14px rgba(12, 20, 54, 0.2));
+    }
+
+    .hero-marquee-viewport {
+      margin-top: 0;
+      padding-top: 28px;
+    }
+  }
+
+  @keyframes bHeroMockupFloatMobile {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  .hero-marquee-outer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .hero-marquee-kicker {
+    margin: 0 0 0.5rem;
+    text-align: center;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.42);
+  }
+
+  .hero-marquee {
+    position: relative;
+    width: 100%;
+  }
+
+  .hero-marquee-viewport {
+    overflow: hidden;
+    /* Equilibrio: aire bajo el kicker + espacio interno para hover sin recortar */
+    padding: 36px 0 28px;
+    margin: -18px 0 -28px;
+    mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  }
+
+  .hero-marquee-track {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: max-content;
+    animation: hero-marquee-scroll 52s linear infinite;
+    will-change: transform;
+  }
+
+  @media (min-width: 400px) {
+    .hero-marquee-track {
+      gap: 0.7rem;
+    }
+  }
+
+  .hero-marquee:hover .hero-marquee-track,
+  .hero-marquee:focus-within .hero-marquee-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes hero-marquee-scroll {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  .hero-marquee-card {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    width: 156px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(6, 10, 28, 0.45);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.38);
+    outline: none;
+    transform-origin: center bottom;
+    transition:
+      transform 0.48s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.48s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.4s ease;
+  }
+
+  @media (min-width: 640px) {
+    .hero-marquee-card {
+      width: 176px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero-marquee-card {
+      width: 198px;
+    }
+  }
+
+  .hero-marquee-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top center;
+    filter: grayscale(1) contrast(1.06) brightness(0.9);
+    opacity: 0.5;
+    transition:
+      filter 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.45s ease;
+  }
+
+  .hero-marquee:hover .hero-marquee-card:not(:hover):not(:focus-within) img {
+    opacity: 0.58;
+  }
+
+  .hero-marquee-card:hover,
+  .hero-marquee-card:focus-visible {
+    z-index: 8;
+    /* Lift suave + poco scale; la imagen gana contraste/color, no zoom extra */
+    transform: translateY(-6px) scale(1.04);
+    border-color: rgba(255, 255, 255, 0.34);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.18),
+      0 16px 32px rgba(0, 0, 0, 0.42),
+      0 6px 14px rgba(0, 0, 0, 0.22);
+  }
+
+  .hero-marquee-card:focus-visible {
+    outline: 2px solid rgba(108, 248, 187, 0.55);
+    outline-offset: 3px;
+  }
+
+  .hero-marquee-card:hover img,
+  .hero-marquee-card:focus-visible img {
+    filter: grayscale(0) contrast(1.14) saturate(1.22) brightness(1.04);
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .hero-marquee-card:hover,
+    .hero-marquee-card:focus-visible {
+      transform: translateY(-8px) scale(1.045);
+    }
+
+    .hero-marquee-card:hover img,
+    .hero-marquee-card:focus-visible img {
+      filter: grayscale(0) contrast(1.16) saturate(1.26) brightness(1.05);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-marquee-track {
+      animation: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 56rem;
+      margin-left: auto;
+      margin-right: auto;
+      row-gap: 0.65rem;
+    }
+
+    .hero-marquee-viewport {
+      overflow: visible;
+      padding: 0;
+      margin: 0;
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+
+    .hero-marquee-card img {
+      filter: grayscale(0.35) contrast(1.02);
+      opacity: 0.88;
+    }
+
+    .hero-marquee-card:hover,
+    .hero-marquee-card:focus-visible {
+      transform: none;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .hero-marquee-card:hover img,
+    .hero-marquee-card:focus-visible img {
+      filter: grayscale(0.22) contrast(1.06) brightness(1.04);
+      opacity: 1;
+      transform: none;
+    }
   }
 
   .mobile-nav-panel {

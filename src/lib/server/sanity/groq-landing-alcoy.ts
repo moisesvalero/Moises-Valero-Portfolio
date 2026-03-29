@@ -13,7 +13,28 @@ export const landingDisenoWebAlcoyQuery = `coalesce(
     canonicalPath,
     twitterCard
   },
-  hero,
+  hero{
+    badge,
+    title,
+    subtitle,
+    visualTitle,
+    visualDescription,
+    visualImage,
+    visualImageSrc,
+    visualImageAlt,
+    splineUrl,
+    cta,
+    heroMarquee{
+      kicker,
+      items[]{
+        _key,
+        title,
+        href,
+        image,
+        imageAlt
+      }
+    }
+  },
   services,
   maintenance,
   benefits,

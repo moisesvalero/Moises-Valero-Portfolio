@@ -1,4 +1,5 @@
 import type { LandingDisenoWebAlcoy } from '$lib/types/landing-alcoy';
+import { landingHeroMarqueeItems } from '$lib/data/landing-hero-marquee';
 
 export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
   sectionOrder: ['hero', 'services', 'benefits', 'faq', 'finalCta'],
@@ -28,6 +29,10 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
       href: '/api/contact/whatsapp',
       secondaryLabel: 'Ver servicios',
       secondaryHref: '#services'
+    },
+    marquee: {
+      kicker: 'Proyectos recientes · capturas reales',
+      items: landingHeroMarqueeItems
     }
   },
   services: {

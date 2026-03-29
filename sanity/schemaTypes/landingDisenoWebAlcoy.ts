@@ -160,6 +160,66 @@ export const landingDisenoWebAlcoy = defineType({
           type: 'object',
           title: 'CTA hero',
           fields: ctaFields
+        }),
+        defineField({
+          name: 'heroMarquee',
+          type: 'object',
+          title: 'Carrusel de proyectos (debajo del hero)',
+          description:
+            'Capturas que se muestran en la franja animada bajo el mockup. Sube imágenes nítidas (p. ej. 1200px de ancho o más).',
+          fields: [
+            defineField({
+              name: 'kicker',
+              type: 'string',
+              title: 'Texto encima del carrusel',
+              initialValue: 'Proyectos recientes · capturas reales'
+            }),
+            defineField({
+              name: 'items',
+              type: 'array',
+              title: 'Proyectos',
+              of: [
+                {
+                  type: 'object',
+                  name: 'heroMarqueeItem',
+                  fields: [
+                    defineField({
+                      name: 'title',
+                      type: 'string',
+                      title: 'Nombre del proyecto',
+                      validation: (rule) => rule.required()
+                    }),
+                    defineField({
+                      name: 'href',
+                      type: 'url',
+                      title: 'Enlace (web del proyecto)',
+                      validation: (rule) => rule.required().uri({ scheme: ['http', 'https'] })
+                    }),
+                    defineField({
+                      name: 'image',
+                      type: 'image',
+                      title: 'Captura de pantalla',
+                      options: { hotspot: true },
+                      validation: (rule) => rule.required()
+                    }),
+                    defineField({
+                      name: 'imageAlt',
+                      type: 'string',
+                      title: 'Texto alternativo (accesibilidad)',
+                      description: 'Opcional. Si lo dejas vacío, se usará el nombre del proyecto.'
+                    })
+                  ],
+                  preview: {
+                    select: { title: 'title', media: 'image' },
+                    prepare: ({ title, media }) => ({
+                      title: title || 'Proyecto',
+                      media
+                    })
+                  }
+                }
+              ]
+            })
+          ]
         })
       ]
     }),
