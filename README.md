@@ -369,3 +369,99 @@ Opciones recomendadas:
 - Editar textos, imágenes, SEO y páginas desde panel.
 - Mantener frontend moderno (SvelteKit) sin depender de plugins de WP.
 - Escalar proyectos con una misma base técnica.
+
+---
+
+## 13. Implementacion de hoy: analizador web para captacion
+
+Resumen de lo que se ha implementado en la landing `src/routes/diseno-web-alcoy/+page.svelte` para captar leads con un analizador de velocidad.
+
+### Objetivo de negocio
+
+- Convertir visitas en leads cualificados con una accion de muy baja friccion.
+- Ofrecer valor inmediato (analisis de URL) y cerrar con CTA a WhatsApp o email.
+
+### Cambios funcionales principales
+
+- En el hero, el CTA secundario abre un modal de **Analiza tu web gratis**.
+- El usuario introduce una URL (con o sin `https://`) y se lanza analisis via API.
+- Resultado con:
+  - score de rendimiento
+  - metricas simplificadas para no tecnicos
+  - etiquetas de estado visuales (rapida/lenta, ligera/pesada, etc.)
+- CTA dual tras resultado:
+  - `WhatsApp ahora`
+  - `Quiero propuesta por email`
+- Captura de email opcional en el mismo modal para enviar informe.
+
+### Endpoints API nuevos/actualizados
+
+- `src/routes/api/pagespeed/analyze/+server.ts`
+  - Llama a Google PageSpeed Insights.
+  - Soporta estrategia `mobile` y `desktop`.
+  - Fallback automatico (si falla mobile, intenta desktop desde frontend).
+  - Cache por URL para ahorrar cuota.
+  - Limites de uso por IP/hora y por dia.
+
+- `src/routes/api/pagespeed/lead/+server.ts`
+  - Envia email interno (owner) + email de informe al cliente.
+  - Guarda lead en Sanity (si hay token de escritura).
+  - Link de WhatsApp directo en email (`wa.me`) para mejor UX.
+  - Anti-bot/anti-spam: honeypot + rate limit + cooldown por email.
+
+- `src/routes/api/contact/form/+server.ts`
+  - Se reforzo con rate limit por IP para reducir spam.
+
+### Integracion con Sanity
+
+- Nuevo schema de leads: `sanity/schemaTypes/analyzerLead.ts`.
+- Nuevo bloque editable para textos del modal analizador:
+  - tipo `analyzerModal` dentro de `landingDisenoWebAlcoy`.
+- Se actualizaron:
+  - `sanity/schemaTypes/landingDisenoWebAlcoy.ts`
+  - `src/lib/types/landing-alcoy.ts`
+  - `src/lib/data/landing-alcoy-defaults.ts`
+  - `src/lib/server/sanity/groq-landing-alcoy.ts`
+  - `src/lib/server/sanity/map-landing-alcoy.ts`
+
+### Variables de entorno necesarias
+
+Obligatorias para funcionamiento completo del analizador:
+
+- `PAGESPEED_API_KEY`
+- `RESEND_API_KEY`
+- `CONTACT_TO_EMAIL`
+- `CONTACT_FROM_EMAIL`
+
+Recomendadas:
+
+- `WHATSAPP_E164` (solo numeros, sin `+`)
+- `PAGESPEED_MAX_CALLS_PER_DAY` (ej. `250`)
+- `PAGESPEED_RATE_LIMIT_PER_HOUR` (ej. `15`)
+- `PUBLIC_SITE_URL`
+
+Para guardar leads en Sanity:
+
+- `SANITY_PROJECT_ID`
+- `SANITY_DATASET`
+- `SANITY_API_VERSION`
+- `SANITY_WRITE_TOKEN`
+
+### Seguridad aplicada en esta iteracion
+
+- Rate limit en endpoints de analisis y formularios.
+- Honeypot en formularios de lead.
+- Cooldown por email para prevenir envios repetitivos.
+- Se evita devolver detalles internos de errores al cliente.
+
+### Verificacion recomendada antes de desplegar
+
+1. `npm run check`
+2. `npm run build`
+3. Probar en local:
+   - analisis URL
+   - envio informe por email
+   - clic WhatsApp
+4. Verificar en produccion:
+   - recepcion de emails
+   - guardado de lead en Sanity (si procede)
