@@ -101,6 +101,26 @@ export type LandingContactModal = {
   privacyLabel: string;
 };
 
+export type LandingAnalyzerModal = {
+  triggerLabel: string;
+  heading: string;
+  text: string;
+  urlLabel: string;
+  urlPlaceholder: string;
+  urlHelp: string;
+  submitLabel: string;
+  loadingTitle: string;
+  loadingText: string;
+  loadingSteps: string[];
+  scoreLabel: string;
+  whatsappCtaLabel: string;
+  emailCaptureTitle: string;
+  emailCaptureText: string;
+  emailCapturePlaceholder: string;
+  emailCaptureButton: string;
+  emailCaptureSuccess: string;
+};
+
 export type LandingDisenoWebAlcoy = {
   sectionOrder: LandingSectionKey[];
   seo: LandingSeo;
@@ -132,6 +152,7 @@ export type LandingDisenoWebAlcoy = {
     text: string;
     cta: LandingCta;
   };
+  analyzerModal: LandingAnalyzerModal;
   contactModal: LandingContactModal;
   localBusiness: LandingLocalBusiness;
 };

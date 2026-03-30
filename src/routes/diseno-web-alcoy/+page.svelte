@@ -27,6 +27,12 @@
   );
 
   const contactModal = $derived(landing.contactModal);
+  const analyzerModal = $derived(landing.analyzerModal);
+  const analyzerLoadingSteps = $derived([
+    analyzerModal.loadingSteps[0] || 'Midiendo tiempos de carga y respuesta',
+    analyzerModal.loadingSteps[1] || 'Detectando bloqueos y estabilidad visual',
+    analyzerModal.loadingSteps[2] || 'Generando mejoras concretas para captar mas clientes'
+  ]);
   const sectionData = $derived({
     eyebrow: 'Por qué elegirme',
     title: landing.benefits.heading,
@@ -36,6 +42,7 @@
   });
   const year = new Date().getFullYear();
   let isContactModalOpen = $state(false);
+  let isAnalyzerModalOpen = $state(false);
   let prefersReducedMotion = false;
   let contactForm = $state({
     name: '',
@@ -56,6 +63,28 @@
   let heroMobileParallaxEnabled = false;
   let heroParallaxRaf = 0;
   let isHeaderScrolled = $state(false);
+  let analyzerUrl = $state('');
+  let analyzerStatus = $state<'idle' | 'loading' | 'success' | 'error'>('idle');
+  let analyzerError = $state('');
+  let analyzerLeadEmail = $state('');
+  let analyzerLeadStatus = $state<'idle' | 'sending' | 'success' | 'error'>('idle');
+  let analyzerLeadError = $state('');
+  let analyzerLeadHoneypot = $state('');
+  type AnalyzerResult = {
+    requestedUrl: string;
+    strategy: string;
+    performanceScore: number;
+    severity: 'slow' | 'needs_improvement' | 'fast';
+    cached?: boolean;
+    metrics: {
+      fcp: string;
+      lcp: string;
+      imageWeight: string;
+      pageWeight: string;
+    };
+    highlights: string[];
+  };
+  let analyzerResult = $state<AnalyzerResult | null>(null);
 
   type TailwindRuntime = {
     refresh?: () => void;
@@ -78,6 +107,30 @@
 
   function closeContactModal() {
     isContactModalOpen = false;
+  }
+
+  function openAnalyzerModal() {
+    isMobileNavOpen = false;
+    isAnalyzerModalOpen = true;
+    analyzerStatus = 'idle';
+    analyzerError = '';
+    analyzerResult = null;
+    analyzerLeadEmail = '';
+    analyzerLeadHoneypot = '';
+    analyzerLeadStatus = 'idle';
+    analyzerLeadError = '';
+  }
+
+  function closeAnalyzerModal() {
+    isAnalyzerModalOpen = false;
+  }
+
+  function openProposalByEmail() {
+    const scoreInfo = analyzerResult ? `Score movil detectado: ${analyzerResult.performanceScore}/100.` : '';
+    const urlInfo = analyzerResult?.requestedUrl ? `URL analizada: ${analyzerResult.requestedUrl}.` : '';
+    contactForm.message = `Quiero una propuesta por email para mejorar mi web. ${urlInfo} ${scoreInfo}`.trim();
+    closeAnalyzerModal();
+    openContactModal();
   }
 
   function openServiceModal(index: number) {
@@ -106,6 +159,55 @@
 
   function closeMobileNav() {
     isMobileNavOpen = false;
+  }
+
+  function isWhatsappHref(href: string | undefined | null): boolean {
+    return typeof href === 'string' && href.includes('/api/contact/whatsapp');
+  }
+
+  function parsePageWeightMb(label: string): number | null {
+    const clean = label.trim().toLowerCase().replace(',', '.');
+    const match = clean.match(/([\d.]+)\s*(b|kb|mb)/);
+    if (!match) return null;
+    const value = Number(match[1]);
+    if (!Number.isFinite(value)) return null;
+    const unit = match[2];
+    if (unit === 'mb') return value;
+    if (unit === 'kb') return value / 1024;
+    if (unit === 'b') return value / (1024 * 1024);
+    return null;
+  }
+
+  function parseSeconds(label: string): number | null {
+    const clean = label.trim().toLowerCase().replace(',', '.');
+    const match = clean.match(/([\d.]+)\s*s/);
+    if (!match) return null;
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? value : null;
+  }
+
+  function loadTimeBadge(label: string): { text: string; className: string } {
+    const seconds = parseSeconds(label);
+    if (seconds === null) return { text: 'Sin datos', className: 'bg-slate-100 text-slate-700' };
+    if (seconds <= 1.8) return { text: 'Rapida', className: 'bg-emerald-100 text-emerald-700' };
+    if (seconds <= 3.5) return { text: 'Mejorable', className: 'bg-amber-100 text-amber-800' };
+    return { text: 'Lenta', className: 'bg-red-100 text-red-700' };
+  }
+
+  function pageWeightBadge(label: string): { text: string; className: string } {
+    const mb = parsePageWeightMb(label);
+    if (mb === null) return { text: 'Sin datos', className: 'bg-slate-100 text-slate-700' };
+    if (mb < 1) return { text: 'Ligera', className: 'bg-emerald-100 text-emerald-700' };
+    if (mb <= 2) return { text: 'Aceptable', className: 'bg-amber-100 text-amber-800' };
+    return { text: 'Pesada', className: 'bg-red-100 text-red-700' };
+  }
+
+  function imageWeightBadge(label: string): { text: string; className: string } {
+    const mb = parsePageWeightMb(label);
+    if (mb === null) return { text: 'Sin datos', className: 'bg-slate-100 text-slate-700' };
+    if (mb < 0.5) return { text: 'Optimas', className: 'bg-emerald-100 text-emerald-700' };
+    if (mb <= 1.5) return { text: 'Aceptables', className: 'bg-amber-100 text-amber-800' };
+    return { text: 'Pesadas', className: 'bg-red-100 text-red-700' };
   }
 
   function handleHeroPointerMove(event: PointerEvent) {
@@ -236,6 +338,96 @@
     };
   }
 
+  async function analyzeUrl() {
+    if (analyzerStatus === 'loading') return;
+    analyzerStatus = 'loading';
+    analyzerError = '';
+    analyzerResult = null;
+    analyzerLeadStatus = 'idle';
+    analyzerLeadError = '';
+
+    let response = await fetch('/api/pagespeed/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: analyzerUrl, strategy: 'mobile' })
+    });
+
+    let data = (await response.json().catch(() => null)) as
+      | ({ ok?: boolean; error?: string } & Partial<AnalyzerResult>)
+      | null;
+
+    // Fallback automatico: si falla en movil, intentamos desktop una vez.
+    if (!response.ok || !data?.ok) {
+      const desktopResponse = await fetch('/api/pagespeed/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: analyzerUrl, strategy: 'desktop' })
+      });
+      const desktopData = (await desktopResponse.json().catch(() => null)) as
+        | ({ ok?: boolean; error?: string } & Partial<AnalyzerResult>)
+        | null;
+
+      if (desktopResponse.ok && desktopData?.ok) {
+        response = desktopResponse;
+        data = desktopData;
+      }
+    }
+
+    if (!response.ok || !data?.ok) {
+      analyzerStatus = 'error';
+      analyzerError = data?.error || 'No se pudo analizar la URL.';
+      return;
+    }
+
+    analyzerStatus = 'success';
+    analyzerResult = {
+      requestedUrl: data.requestedUrl || '',
+      strategy: data.strategy || 'mobile',
+      performanceScore: typeof data.performanceScore === 'number' ? data.performanceScore : 0,
+      severity: (data.severity as AnalyzerResult['severity']) || 'needs_improvement',
+      cached: data.cached === true,
+      metrics: {
+        fcp: data.metrics?.fcp || 'N/D',
+        lcp: data.metrics?.lcp || 'N/D',
+        imageWeight: data.metrics?.imageWeight || 'N/D',
+        pageWeight: data.metrics?.pageWeight || 'N/D'
+      },
+      highlights: Array.isArray(data.highlights) ? data.highlights : []
+    };
+  }
+
+  async function submitAnalyzerLeadForm(event: SubmitEvent) {
+    event.preventDefault();
+    if (!analyzerResult || analyzerLeadStatus === 'sending') return;
+    analyzerLeadStatus = 'sending';
+    analyzerLeadError = '';
+
+    const response = await fetch('/api/pagespeed/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: analyzerLeadEmail,
+        url: analyzerResult.requestedUrl,
+        score: analyzerResult.performanceScore,
+        severity: analyzerResult.severity,
+        metrics: analyzerResult.metrics,
+        highlights: analyzerResult.highlights,
+        website: analyzerLeadHoneypot
+      })
+    });
+
+    const data = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+    if (!response.ok || !data?.ok) {
+      analyzerLeadStatus = 'error';
+      analyzerLeadError = data?.error || 'No se pudo guardar tu email.';
+      return;
+    }
+
+    analyzerLeadStatus = 'success';
+    analyzerLeadEmail = '';
+    analyzerLeadHoneypot = '';
+  }
+
   onMount(() => {
     prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     heroCursorFxEnabled =
@@ -280,7 +472,7 @@
   $effect(() => {
     if (typeof document === 'undefined') return;
     const hasOpenModal =
-      isContactModalOpen || activeServiceIndex !== null || activeMaintenanceIndex !== null;
+      isContactModalOpen || isAnalyzerModalOpen || activeServiceIndex !== null || activeMaintenanceIndex !== null;
     document.body.style.overflow = hasOpenModal ? 'hidden' : '';
     return () => {
       document.body.style.overflow = '';
@@ -587,16 +779,19 @@
           <div class="flex flex-col sm:flex-row gap-4">
             <a
               href={landing.hero.cta.href}
+              target={isWhatsappHref(landing.hero.cta.href) ? '_blank' : undefined}
+              rel={isWhatsappHref(landing.hero.cta.href) ? 'noopener noreferrer' : undefined}
               class="cta-hover cta-hover-primary bg-secondary text-on-secondary px-8 py-4 rounded-md font-bold text-lg hover:shadow-[0_0_20px_rgba(0,108,73,0.4)] transition-all active:scale-95 text-center no-underline inline-flex items-center justify-center"
             >
               {landing.hero.cta.label}
             </a>
-            <a
-              class="cta-hover cta-hover-ghost inline-flex items-center text-white font-semibold py-4 px-8 border-b-2 border-secondary-container/30 hover:border-secondary transition-all no-underline"
-              href={landing.hero.cta.secondaryHref || '#services'}
+            <button
+              type="button"
+              class="cta-hover cta-hover-ghost inline-flex items-center text-white font-semibold py-4 px-8 border-b-2 border-secondary-container/30 hover:border-secondary transition-all bg-transparent cursor-pointer"
+              onclick={openAnalyzerModal}
             >
-              {landing.hero.cta.secondaryLabel || 'Ver servicios'}
-            </a>
+              {analyzerModal.triggerLabel}
+            </button>
           </div>
         </div>
         <div
@@ -781,6 +976,8 @@
             {/each}
             <a
               href={sectionData.buttonUrl}
+              target={isWhatsappHref(sectionData.buttonUrl) ? '_blank' : undefined}
+              rel={isWhatsappHref(sectionData.buttonUrl) ? 'noopener noreferrer' : undefined}
               class="cta-hover cta-hover-primary inline-flex items-center justify-center bg-secondary text-on-secondary px-8 py-4 rounded-md font-bold text-base hover:shadow-[0_0_20px_rgba(0,108,73,0.4)] transition-all active:scale-95 mt-8 no-underline"
             >
               {sectionData.buttonLabel}
@@ -844,6 +1041,8 @@
           <div class="pt-6 flex flex-col items-center gap-6">
             <a
               href={landing.finalCta.cta.href}
+              target={isWhatsappHref(landing.finalCta.cta.href) ? '_blank' : undefined}
+              rel={isWhatsappHref(landing.finalCta.cta.href) ? 'noopener noreferrer' : undefined}
               class="btn-shine final-cta-main-btn bg-secondary text-on-secondary px-10 py-5 rounded-md font-bold text-xl hover:shadow-[0_0_25px_rgba(0,108,73,0.5)] transition-all active:scale-95 no-underline inline-flex items-center justify-center text-center whitespace-normal sm:whitespace-nowrap max-w-full"
             >
               {landing.finalCta.cta.label}
@@ -859,6 +1058,8 @@
               <a
                 class="final-cta-alt-link flex items-center gap-2.5 no-underline"
                 href="/api/contact/whatsapp"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <span class="material-symbols-outlined final-cta-alt-icon" aria-hidden="true">phone_iphone</span>
                 <span>WhatsApp</span>
@@ -927,7 +1128,12 @@
               </a>
             </li>
             <li>
-              <a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="/api/contact/whatsapp">
+              <a
+                class="text-slate-600 hover:text-[#002045] transition-colors no-underline"
+                href="/api/contact/whatsapp"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 WhatsApp
               </a>
             </li>
@@ -970,8 +1176,247 @@
     </div>
   </footer>
 
+  {#if isAnalyzerModalOpen}
+    <div class="premium-modal-overlay fixed inset-0 z-[89] flex items-start md:items-center justify-center p-3 md:p-6 overflow-y-auto">
+      <button
+        type="button"
+        onclick={closeAnalyzerModal}
+        class="absolute inset-0 bg-[#001a39]/70 backdrop-blur-sm"
+        aria-label="Cerrar analizador"
+      ></button>
+      <div
+        class="premium-modal-card relative z-10 w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col my-3 md:my-0"
+      >
+        <div class="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-slate-100">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h3 class="font-headline text-2xl md:text-3xl font-extrabold text-primary">{analyzerModal.heading}</h3>
+              <p class="text-slate-600 mt-2">
+                {analyzerModal.text}
+              </p>
+            </div>
+            <button
+              type="button"
+              onclick={closeAnalyzerModal}
+              class="text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full w-9 h-9 inline-flex items-center justify-center"
+              aria-label="Cerrar"
+            >
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="px-6 md:px-8 py-6 space-y-4 overflow-y-auto">
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">{analyzerModal.urlLabel}</span>
+            <input
+              type="text"
+              inputmode="url"
+              autocomplete="url"
+              required
+              placeholder={analyzerModal.urlPlaceholder}
+              class="mt-1 w-full rounded-lg border-slate-300 focus:border-[#006c49] focus:ring-[#006c49]"
+              bind:value={analyzerUrl}
+              aria-describedby="analyzer-url-help"
+              disabled={analyzerStatus === 'loading'}
+              onkeydown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  void analyzeUrl();
+                }
+              }}
+            />
+            <span id="analyzer-url-help" class="mt-1 block text-xs text-slate-500">
+              {analyzerModal.urlHelp}
+            </span>
+          </label>
+
+          <div class="pt-1 flex gap-3">
+            <button
+              type="button"
+              onclick={analyzeUrl}
+              disabled={analyzerStatus === 'loading'}
+              class="px-6 py-3 rounded-lg bg-white text-[#111] border border-[#1f1f1f] font-bold hover:bg-slate-50 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {analyzerStatus === 'loading' ? 'Analizando...' : analyzerModal.submitLabel}
+            </button>
+            {#if analyzerStatus === 'error'}
+              <button
+                type="button"
+                onclick={analyzeUrl}
+                class="px-6 py-3 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100"
+              >
+                Reintentar analisis
+              </button>
+            {/if}
+          </div>
+
+          {#if analyzerStatus === 'error' && analyzerError}
+            <p class="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{analyzerError}</p>
+          {/if}
+
+          {#if analyzerStatus === 'loading'}
+            <div class="analyzer-loading-shell rounded-xl border border-slate-200 bg-slate-50 p-4 md:p-5">
+              <div class="flex items-start gap-3">
+                <span class="analyzer-loading-spinner mt-0.5" aria-hidden="true"></span>
+                <div class="space-y-1">
+                  <p class="text-sm font-semibold text-slate-800">{analyzerModal.loadingTitle.replace(/movil/gi, '').replace(/\s{2,}/g, ' ').trim()}</p>
+                  <p class="text-xs text-slate-600">
+                    {analyzerModal.loadingText}
+                  </p>
+                </div>
+              </div>
+              <div class="analyzer-loading-progress mt-4" aria-hidden="true">
+                <span></span>
+              </div>
+              <ul class="mt-4 space-y-2 text-xs text-slate-600">
+                <li class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-slate-500" style="font-size:16px;">bolt</span>
+                  {analyzerLoadingSteps[0]}
+                </li>
+                <li class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-slate-500" style="font-size:16px;">developer_mode</span>
+                  {analyzerLoadingSteps[1]}
+                </li>
+                <li class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-slate-500" style="font-size:16px;">tips_and_updates</span>
+                  {analyzerLoadingSteps[2]}
+                </li>
+              </ul>
+            </div>
+          {/if}
+
+          {#if analyzerResult}
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 md:p-5 space-y-4">
+              <div class="flex flex-wrap items-center gap-3 justify-between">
+                <p class="text-sm text-slate-600 break-all">URL: {analyzerResult.requestedUrl}</p>
+                <span
+                  class={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                    analyzerResult.severity === 'slow'
+                      ? 'bg-red-100 text-red-700'
+                      : analyzerResult.severity === 'needs_improvement'
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-emerald-100 text-emerald-700'
+                  }`}
+                >
+                  {analyzerModal.scoreLabel}: {analyzerResult.performanceScore}/100
+                </span>
+              </div>
+              {#if analyzerResult.cached}
+                <p class="text-xs text-slate-500">Resultado desde cache para ahorrar cuota de la API.</p>
+              {/if}
+
+              <div class="grid grid-cols-2 gap-3 text-sm">
+                <div class="rounded-lg bg-white border border-slate-200 px-3 py-2">
+                  <p class="text-slate-500">Tiempo hasta ver la pagina</p>
+                  <div class="flex flex-wrap items-center gap-2 mt-0.5">
+                    <p class="font-bold text-primary">{analyzerResult.metrics.fcp}</p>
+                    <span class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${loadTimeBadge(analyzerResult.metrics.fcp).className}`}>
+                      {loadTimeBadge(analyzerResult.metrics.fcp).text}
+                    </span>
+                  </div>
+                </div>
+                <div class="rounded-lg bg-white border border-slate-200 px-3 py-2">
+                  <p class="text-slate-500">Tiempo de carga principal</p>
+                  <div class="flex flex-wrap items-center gap-2 mt-0.5">
+                    <p class="font-bold text-primary">{analyzerResult.metrics.lcp}</p>
+                    <span class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${loadTimeBadge(analyzerResult.metrics.lcp).className}`}>
+                      {loadTimeBadge(analyzerResult.metrics.lcp).text}
+                    </span>
+                  </div>
+                </div>
+                <div class="rounded-lg bg-white border border-slate-200 px-3 py-2">
+                  <p class="text-slate-500">Peso total de imagenes</p>
+                  <div class="flex flex-wrap items-center gap-2 mt-0.5">
+                    <p class="font-bold text-primary">{analyzerResult.metrics.imageWeight}</p>
+                    <span class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${imageWeightBadge(analyzerResult.metrics.imageWeight).className}`}>
+                      {imageWeightBadge(analyzerResult.metrics.imageWeight).text}
+                    </span>
+                  </div>
+                </div>
+                <div class="rounded-lg bg-white border border-slate-200 px-3 py-2">
+                  <p class="text-slate-500">Peso total de la pagina</p>
+                  <div class="flex flex-wrap items-center gap-2 mt-0.5">
+                    <p class="font-bold text-primary">{analyzerResult.metrics.pageWeight}</p>
+                    <span class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${pageWeightBadge(analyzerResult.metrics.pageWeight).className}`}>
+                      {pageWeightBadge(analyzerResult.metrics.pageWeight).text}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {#if analyzerResult.highlights.length > 0}
+                <ul class="space-y-2">
+                  {#each analyzerResult.highlights as tip (tip)}
+                    <li class="text-sm text-slate-700 flex items-start gap-2">
+                      <span class="material-symbols-outlined text-secondary" style="font-size:18px;">check_circle</span>
+                      <span>{tip}</span>
+                    </li>
+                  {/each}
+                </ul>
+              {/if}
+
+              <div class="pt-1">
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <a
+                    href="/gracias?canal=whatsapp&origen=analizador"
+                    class="inline-flex items-center justify-center px-5 py-3 rounded-lg bg-secondary text-on-secondary font-semibold no-underline"
+                  >
+                    WhatsApp ahora
+                  </a>
+                  <button
+                    type="button"
+                    onclick={openProposalByEmail}
+                    class="inline-flex items-center justify-center px-5 py-3 rounded-lg border border-slate-300 text-slate-800 font-semibold hover:bg-slate-100"
+                  >
+                    Quiero propuesta por email
+                  </button>
+                </div>
+              </div>
+
+              <div id="analyzer-email-capture" class="pt-2 border-t border-slate-200">
+                <p class="text-sm text-slate-700 font-semibold">{analyzerModal.emailCaptureTitle}</p>
+                <p class="text-xs text-slate-500 mt-1">
+                  {analyzerModal.emailCaptureText}
+                </p>
+                <form class="mt-3 flex flex-col sm:flex-row gap-2" onsubmit={submitAnalyzerLeadForm}>
+                  <input
+                    tabindex="-1"
+                    autocomplete="off"
+                    aria-hidden="true"
+                    class="sr-only absolute -left-[10000px] opacity-0 pointer-events-none"
+                    bind:value={analyzerLeadHoneypot}
+                  />
+                  <input
+                    type="email"
+                    placeholder={analyzerModal.emailCapturePlaceholder}
+                    class="w-full rounded-lg border-slate-300 focus:border-[#006c49] focus:ring-[#006c49]"
+                    bind:value={analyzerLeadEmail}
+                  />
+                  <button
+                    type="submit"
+                    disabled={analyzerLeadStatus === 'sending'}
+                    class="px-4 py-2 rounded-lg border border-slate-300 font-semibold hover:bg-slate-100 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {analyzerLeadStatus === 'sending' ? 'Enviando...' : analyzerModal.emailCaptureButton}
+                  </button>
+                </form>
+                {#if analyzerLeadStatus === 'error' && analyzerLeadError}
+                  <p class="text-xs text-red-600 mt-2">{analyzerLeadError}</p>
+                {/if}
+                {#if analyzerLeadStatus === 'success'}
+                  <p class="text-xs text-emerald-700 mt-2">{analyzerModal.emailCaptureSuccess}</p>
+                {/if}
+              </div>
+            </div>
+          {/if}
+        </div>
+      </div>
+    </div>
+  {/if}
+
   {#if isContactModalOpen}
-    <div class="fixed inset-0 z-[90] flex items-start md:items-center justify-center p-3 md:p-6 overflow-y-auto">
+    <div class="premium-modal-overlay fixed inset-0 z-[90] flex items-start md:items-center justify-center p-3 md:p-6 overflow-y-auto">
       <button
         type="button"
         onclick={closeContactModal}
@@ -979,7 +1424,7 @@
         aria-label="Cerrar modal"
       ></button>
       <div
-        class="relative z-10 w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col my-3 md:my-0"
+        class="premium-modal-card relative z-10 w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col my-3 md:my-0"
       >
         <div class="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-slate-100">
           <div class="flex items-start justify-between gap-4">
@@ -1086,7 +1531,7 @@
   {/if}
 
   {#if activeServiceIndex !== null}
-    <div class="fixed inset-0 z-[95] flex items-start md:items-center justify-center p-3 md:p-6 overflow-y-auto">
+    <div class="premium-modal-overlay fixed inset-0 z-[95] flex items-start md:items-center justify-center p-3 md:p-6 overflow-y-auto">
       <button
         type="button"
         onclick={closeServiceModal}
@@ -1094,7 +1539,7 @@
         aria-label="Cerrar detalles del servicio"
       ></button>
       <div
-        class="relative z-10 w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col my-3 md:my-0"
+        class="premium-modal-card relative z-10 w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col my-3 md:my-0"
       >
         <div class="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-slate-100">
           <div class="flex items-start justify-between gap-4">
@@ -1148,6 +1593,16 @@
             </button>
             <a
               href={serviceOffers[activeServiceIndex].modalActionHref || landing.finalCta.cta.href}
+              target={
+                isWhatsappHref(serviceOffers[activeServiceIndex].modalActionHref || landing.finalCta.cta.href)
+                  ? '_blank'
+                  : undefined
+              }
+              rel={
+                isWhatsappHref(serviceOffers[activeServiceIndex].modalActionHref || landing.finalCta.cta.href)
+                  ? 'noopener noreferrer'
+                  : undefined
+              }
               class="px-6 py-3 rounded-lg bg-white text-[#111] border border-[#1f1f1f] font-bold hover:bg-slate-50 no-underline inline-flex items-center justify-center"
             >
               {serviceOffers[activeServiceIndex].modalActionLabel || landing.finalCta.cta.label}
@@ -1159,7 +1614,7 @@
   {/if}
 
   {#if activeMaintenanceIndex !== null}
-    <div class="fixed inset-0 z-[96] flex items-start md:items-center justify-center p-3 md:p-6 overflow-y-auto">
+    <div class="premium-modal-overlay fixed inset-0 z-[96] flex items-start md:items-center justify-center p-3 md:p-6 overflow-y-auto">
       <button
         type="button"
         onclick={closeMaintenanceModal}
@@ -1167,7 +1622,7 @@
         aria-label="Cerrar detalles de mantenimiento"
       ></button>
       <div
-        class="relative z-10 w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col my-3 md:my-0"
+        class="premium-modal-card relative z-10 w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col my-3 md:my-0"
       >
         <div class="px-6 md:px-8 pt-6 md:pt-8 pb-4 border-b border-slate-100">
           <div class="flex items-start justify-between gap-4">
@@ -1213,6 +1668,16 @@
             </button>
             <a
               href={maintenanceOptions[activeMaintenanceIndex].actionHref || '/api/contact/whatsapp'}
+              target={
+                isWhatsappHref(maintenanceOptions[activeMaintenanceIndex].actionHref || '/api/contact/whatsapp')
+                  ? '_blank'
+                  : undefined
+              }
+              rel={
+                isWhatsappHref(maintenanceOptions[activeMaintenanceIndex].actionHref || '/api/contact/whatsapp')
+                  ? 'noopener noreferrer'
+                  : undefined
+              }
               class="px-6 py-3 rounded-lg bg-white text-[#111] border border-[#1f1f1f] font-bold hover:bg-slate-50 no-underline inline-flex items-center justify-center"
             >
               {maintenanceOptions[activeMaintenanceIndex].actionLabel}
@@ -1631,6 +2096,94 @@
       filter: grayscale(0.22) contrast(1.06) brightness(1.04);
       opacity: 1;
       transform: none;
+    }
+  }
+
+  .analyzer-loading-shell {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  }
+
+  .analyzer-loading-spinner {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    border: 2px solid #cbd5e1;
+    border-top-color: #0f766e;
+    animation: analyzerSpin 0.85s linear infinite;
+    flex-shrink: 0;
+  }
+
+  .analyzer-loading-progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .analyzer-loading-progress span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 42%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0f766e 0%, #14b8a6 100%);
+    animation: analyzerProgress 1.25s ease-in-out infinite;
+  }
+
+  @keyframes analyzerSpin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes analyzerProgress {
+    0% {
+      left: -42%;
+    }
+    50% {
+      left: 32%;
+    }
+    100% {
+      left: 100%;
+    }
+  }
+
+  .premium-modal-overlay {
+    background:
+      radial-gradient(circle at 20% 10%, rgba(20, 184, 166, 0.1) 0%, transparent 44%),
+      radial-gradient(circle at 80% 90%, rgba(56, 189, 248, 0.12) 0%, transparent 48%);
+    animation: modalBackdropIn 260ms ease-out both;
+  }
+
+  .premium-modal-card {
+    backdrop-filter: blur(2px);
+    box-shadow:
+      0 28px 60px rgba(15, 23, 42, 0.26),
+      0 0 0 1px rgba(255, 255, 255, 0.64) inset;
+    animation: modalCardIn 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes modalBackdropIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes modalCardIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
     }
   }
 

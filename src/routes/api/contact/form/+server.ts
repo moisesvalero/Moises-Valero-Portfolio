@@ -11,6 +11,10 @@ type ContactPayload = {
   website?: unknown; // honeypot
 };
 
+const CONTACT_WINDOW_MS = 60 * 60 * 1000;
+const CONTACT_MAX_PER_IP = 12;
+const contactHitsByIp = new Map<string, number[]>();
+
 function toCleanString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
@@ -20,6 +24,15 @@ function isValidEmail(value: string): boolean {
 }
 
 export const POST: RequestHandler = async ({ request, getClientAddress }) => {
+  const ip = getClientAddress();
+  const now = Date.now();
+  const ipHits = (contactHitsByIp.get(ip) || []).filter((at) => now - at < CONTACT_WINDOW_MS);
+  if (ipHits.length >= CONTACT_MAX_PER_IP) {
+    return json({ ok: false, error: 'Has superado el limite de envios por hora.' }, { status: 429 });
+  }
+  ipHits.push(now);
+  contactHitsByIp.set(ip, ipHits);
+
   let body: ContactPayload;
   try {
     body = (await request.json()) as ContactPayload;
@@ -56,7 +69,6 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
     return json({ ok: false, error: 'Falta configurar RESEND_API_KEY en el servidor.' }, { status: 500 });
   }
 
-  const ip = getClientAddress();
   const subject = `Nuevo lead web · ${name}`;
   const text = [
     'Nuevo formulario de contacto',
@@ -98,9 +110,10 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
+    const errorText = await response.text().catch(() => 'Sin detalles');
+    console.error('[contact-form] Resend error', errorText.slice(0, 400));
     return json(
-      { ok: false, error: 'No se pudo enviar el email.', details: errorText.slice(0, 280) },
+      { ok: false, error: 'No se pudo enviar el email.' },
       { status: 502 }
     );
   }

@@ -212,6 +212,29 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
       secondaryHref: 'mailto:info@moisesvalero.es'
     }
   },
+  analyzerModal: {
+    triggerLabel: 'Analiza tu web gratis',
+    heading: 'Analiza tu web gratis',
+    text: 'Recibe en 20 segundos un diagnostico de velocidad y mejoras clave para captar mas clientes.',
+    urlLabel: 'URL de tu web',
+    urlPlaceholder: 'tuweb.com',
+    urlHelp: 'Puedes escribir tu dominio con o sin https:// (ejemplo: tuweb.com).',
+    submitLabel: 'Analizar ahora',
+    loadingTitle: 'Analizando rendimiento...',
+    loadingText: 'Estamos consultando Google PageSpeed y preparando recomendaciones claras para tu web.',
+    loadingSteps: [
+      'Midiendo tiempos de carga y respuesta',
+      'Detectando bloqueos y estabilidad visual',
+      'Generando mejoras concretas para captar mas clientes'
+    ],
+    scoreLabel: 'Score movil',
+    whatsappCtaLabel: 'Quiero mejorar mi web',
+    emailCaptureTitle: 'Informe por email (opcional)',
+    emailCaptureText: 'Si quieres, te enviamos el resultado y te proponemos mejoras concretas.',
+    emailCapturePlaceholder: 'tu@email.com',
+    emailCaptureButton: 'Enviar informe',
+    emailCaptureSuccess: 'Perfecto, te enviaremos tu informe por email.'
+  },
   contactModal: {
     triggerLabel: 'Formulario',
     heading: 'Cuéntame tu proyecto',

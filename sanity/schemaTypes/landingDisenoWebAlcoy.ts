@@ -417,6 +417,36 @@ export const landingDisenoWebAlcoy = defineType({
       ]
     }),
     defineField({
+      name: 'analyzerModal',
+      type: 'object',
+      title: 'Modal analizador web',
+      group: 'content',
+      fields: [
+        defineField({ name: 'triggerLabel', type: 'string', title: 'Texto boton abrir modal' }),
+        defineField({ name: 'heading', type: 'string', title: 'Titulo modal' }),
+        defineField({ name: 'text', type: 'text', title: 'Texto modal', rows: 3 }),
+        defineField({ name: 'urlLabel', type: 'string', title: 'Label campo URL' }),
+        defineField({ name: 'urlPlaceholder', type: 'string', title: 'Placeholder URL' }),
+        defineField({ name: 'urlHelp', type: 'string', title: 'Texto ayuda URL' }),
+        defineField({ name: 'submitLabel', type: 'string', title: 'Texto boton analizar' }),
+        defineField({ name: 'loadingTitle', type: 'string', title: 'Titulo durante analisis' }),
+        defineField({ name: 'loadingText', type: 'text', title: 'Texto durante analisis', rows: 2 }),
+        defineField({
+          name: 'loadingSteps',
+          type: 'array',
+          title: 'Pasos de carga',
+          of: [{ type: 'string' }]
+        }),
+        defineField({ name: 'scoreLabel', type: 'string', title: 'Texto de score' }),
+        defineField({ name: 'whatsappCtaLabel', type: 'string', title: 'Texto boton WhatsApp' }),
+        defineField({ name: 'emailCaptureTitle', type: 'string', title: 'Titulo captura email' }),
+        defineField({ name: 'emailCaptureText', type: 'text', title: 'Texto captura email', rows: 2 }),
+        defineField({ name: 'emailCapturePlaceholder', type: 'string', title: 'Placeholder email' }),
+        defineField({ name: 'emailCaptureButton', type: 'string', title: 'Texto boton enviar informe' }),
+        defineField({ name: 'emailCaptureSuccess', type: 'string', title: 'Mensaje exito email' })
+      ]
+    }),
+    defineField({
       name: 'contactModal',
       type: 'object',
       title: 'Formulario modal de contacto',

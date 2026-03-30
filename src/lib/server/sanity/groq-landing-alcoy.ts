@@ -40,6 +40,7 @@ export const landingDisenoWebAlcoyQuery = `coalesce(
   benefits,
   faq,
   finalCta,
+  analyzerModal,
   contactModal,
   localBusiness
 }`;

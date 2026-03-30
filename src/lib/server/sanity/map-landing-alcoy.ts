@@ -224,6 +224,7 @@ export function mapLandingDisenoWebAlcoy(
   const faq = asRecord(raw.faq);
   const finalCta = asRecord(raw.finalCta);
   const contactModal = asRecord(raw.contactModal);
+  const analyzerModal = asRecord(raw.analyzerModal);
   const localBusiness = asRecord(raw.localBusiness);
 
   const seoImageFromAsset = seo ? imageUrl(ctx.projectId, ctx.dataset, seo.ogImage, 1600) : undefined;
@@ -296,6 +297,28 @@ export function mapLandingDisenoWebAlcoy(
         secondaryLabel: asStringOpt(finalCtaNode?.secondaryLabel) ?? defaults.finalCta.cta.secondaryLabel,
         secondaryHref: asStringOpt(finalCtaNode?.secondaryHref) ?? defaults.finalCta.cta.secondaryHref
       }
+    },
+    analyzerModal: {
+      triggerLabel: asString(analyzerModal?.triggerLabel, defaults.analyzerModal.triggerLabel),
+      heading: asString(analyzerModal?.heading, defaults.analyzerModal.heading),
+      text: asString(analyzerModal?.text, defaults.analyzerModal.text),
+      urlLabel: asString(analyzerModal?.urlLabel, defaults.analyzerModal.urlLabel),
+      urlPlaceholder: asString(analyzerModal?.urlPlaceholder, defaults.analyzerModal.urlPlaceholder),
+      urlHelp: asString(analyzerModal?.urlHelp, defaults.analyzerModal.urlHelp),
+      submitLabel: asString(analyzerModal?.submitLabel, defaults.analyzerModal.submitLabel),
+      loadingTitle: asString(analyzerModal?.loadingTitle, defaults.analyzerModal.loadingTitle),
+      loadingText: asString(analyzerModal?.loadingText, defaults.analyzerModal.loadingText),
+      loadingSteps: asStringArray(analyzerModal?.loadingSteps, defaults.analyzerModal.loadingSteps),
+      scoreLabel: asString(analyzerModal?.scoreLabel, defaults.analyzerModal.scoreLabel),
+      whatsappCtaLabel: asString(analyzerModal?.whatsappCtaLabel, defaults.analyzerModal.whatsappCtaLabel),
+      emailCaptureTitle: asString(analyzerModal?.emailCaptureTitle, defaults.analyzerModal.emailCaptureTitle),
+      emailCaptureText: asString(analyzerModal?.emailCaptureText, defaults.analyzerModal.emailCaptureText),
+      emailCapturePlaceholder: asString(
+        analyzerModal?.emailCapturePlaceholder,
+        defaults.analyzerModal.emailCapturePlaceholder
+      ),
+      emailCaptureButton: asString(analyzerModal?.emailCaptureButton, defaults.analyzerModal.emailCaptureButton),
+      emailCaptureSuccess: asString(analyzerModal?.emailCaptureSuccess, defaults.analyzerModal.emailCaptureSuccess)
     },
     contactModal: {
       triggerLabel: asString(contactModal?.triggerLabel, defaults.contactModal.triggerLabel),
