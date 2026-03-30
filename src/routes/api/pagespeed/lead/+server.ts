@@ -246,8 +246,8 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 
   const customerHtml = `
     <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#0f172a;">
-      <h2 style="margin:0 0 12px;">Tu informe web en lenguaje claro</h2>
-      <p style="margin:0 0 14px;color:#334155;">Gracias por confiar en nosotros. Aqui tienes un resumen facil de entender de tu web en movil.</p>
+      <h2 style="margin:0 0 12px;">Tu informe web esta listo</h2>
+      <p style="margin:0 0 14px;color:#334155;">Gracias por solicitarlo. Aqui tienes el resumen de rendimiento de tu web.</p>
       <div style="border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;background:#f8fafc;">
         <p style="margin:0 0 8px;"><strong>Web analizada:</strong> ${toSafeHtml(url || '-')}</p>
         <p style="margin:0 0 8px;"><strong>Nota de velocidad en movil (0-100):</strong> ${score ?? '-'}</p>
