@@ -356,6 +356,14 @@
     }
   }
 
+  /* En móviles y tablets táctiles no mostramos la pista de scroll:
+     evita que el chevron se perciba como una raya entre secciones. */
+  @media (max-width: 1199px), (hover: none), (pointer: coarse) {
+    .scroll-hint-fixed {
+      display: none !important;
+    }
+  }
+
   /* Cabecera fija: el label gris no debe quedar tapado en móvil */
   @media (prefers-reduced-motion: reduce) {
     .anim-fade-up {
