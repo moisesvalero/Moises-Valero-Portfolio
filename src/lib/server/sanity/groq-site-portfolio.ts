@@ -19,13 +19,20 @@ export const sitePortfolioQuery = `coalesce(
     meta,
     title,
     "projects": select(
-      count(coalesce(projects, [])) > 0 => coalesce(projects[] | order(sortOrder asc), []),
-      *[
+      count(*[
+        _type == "caseStudy" &&
+        defined(slug.current) &&
+        coalesce(showOnHome, true) == true
+      ]) > 0 => *[
         _type == "caseStudy" &&
         defined(slug.current) &&
         coalesce(showOnHome, true) == true
       ] | order(coalesce(homeSortOrder, 999) asc, _updatedAt desc){
-        "imageSrc": coalesce(images.principal, "/imagenes/captura-novakit_ember.avif"),
+        "thumbnail": images.principalImage,
+        "imageSrc": coalesce(
+          images.principal,
+          "/imagenes/captura-novakit_ember.avif"
+        ),
         "imageAlt": coalesce(title, "Proyecto"),
         "destinationUrl": "/proyectos/" + slug.current,
         "title": { "es": coalesce(title, "Proyecto"), "en": coalesce(title, "Project") },
@@ -35,7 +42,9 @@ export const sitePortfolioQuery = `coalesce(
         },
         "tags": coalesce(tags, []),
         "linkLabel": { "es": "Ver proyecto", "en": "View project" }
-      }
+      },
+      count(coalesce(projects, [])) > 0 => coalesce(projects[] | order(sortOrder asc), []),
+      []
     )
   },
   contact,
