@@ -1,5 +1,4 @@
-import { definePlugin } from 'sanity';
-import { DocumentActionComponent, DocumentActionsResolver } from 'sanity';
+import { definePlugin, type DocumentActionComponent } from 'sanity';
 
 export const deleteArticleAction = definePlugin(() => {
   return {
