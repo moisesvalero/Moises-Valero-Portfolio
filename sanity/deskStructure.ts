@@ -31,6 +31,14 @@ export const deskStructure: StructureResolver = (S) =>
         .title('📝 Articulos SEO local (Alcoy)')
         .id('landingSupportArticleList')
         .child(S.documentTypeList('landingSupportArticle').title('📝 Articulos SEO local (Alcoy)')),
+      S.listItem()
+        .title('📥 Leads analizador web')
+        .id('analyzerLeadList')
+        .child(
+          S.documentTypeList('analyzerLead')
+            .title('📥 Leads analizador web')
+            .defaultOrdering([{ field: 'createdAt', direction: 'desc' }])
+        ),
       S.divider(),
       S.documentTypeListItem('caseStudy').title('🧱 Proyectos')
     ]);
