@@ -35,12 +35,18 @@ export const sitePortfolioQuery = `coalesce(
         ),
         "imageAlt": coalesce(title, "Proyecto"),
         "destinationUrl": "/proyectos/" + slug.current,
-        "title": { "es": coalesce(title, "Proyecto"), "en": coalesce(title, "Project") },
+        "title": {
+          "es": coalesce(title, "Proyecto"),
+          "en": coalesce(titleEn, "")
+        },
         "description": {
           "es": coalesce(heroDescription, seoDescription, ""),
-          "en": coalesce(heroDescription, seoDescription, "")
+          "en": coalesce(heroDescriptionEn, seoDescriptionEn, "")
         },
-        "tags": coalesce(tags, []),
+        "tags": select(
+          count(coalesce(tagsEn, [])) > 0 => coalesce(tagsEn, []),
+          coalesce(tags, [])
+        ),
         "linkLabel": { "es": "Ver proyecto", "en": "View project" }
       },
       count(coalesce(projects, [])) > 0 => coalesce(projects[] | order(sortOrder asc), []),

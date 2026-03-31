@@ -88,6 +88,13 @@ export const caseStudy = defineType({
       validation: (Rule) => Rule.required()
     }),
     defineField({
+      name: 'titleEn',
+      type: 'string',
+      title: 'Nombre del proyecto (EN)',
+      description: 'Opcional. Si lo rellenas, se usa cuando el sitio está en inglés.',
+      group: 'general'
+    }),
+    defineField({
       name: 'slug',
       type: 'slug',
       title: 'URL interna',
@@ -104,6 +111,13 @@ export const caseStudy = defineType({
       group: 'contenido'
     }),
     defineField({
+      name: 'heroTagEn',
+      type: 'string',
+      title: 'Etiqueta superior (EN)',
+      description: 'Opcional para versión inglesa.',
+      group: 'contenido'
+    }),
+    defineField({
       name: 'heroDescription',
       type: 'text',
       title: 'Descripcion corta principal',
@@ -112,10 +126,26 @@ export const caseStudy = defineType({
       group: 'contenido'
     }),
     defineField({
+      name: 'heroDescriptionEn',
+      type: 'text',
+      title: 'Descripcion corta principal (EN)',
+      rows: 3,
+      options: { placeholder: 'Optional English summary.' },
+      group: 'contenido'
+    }),
+    defineField({
       name: 'tags',
       type: 'array',
       title: 'Tecnologias (chips)',
       description: 'Anade una tecnologia por item: SvelteKit, WordPress, SEO...',
+      of: [{ type: 'string' }],
+      group: 'contenido'
+    }),
+    defineField({
+      name: 'tagsEn',
+      type: 'array',
+      title: 'Tecnologias (chips) (EN)',
+      description: 'Opcional para la versión inglesa.',
       of: [{ type: 'string' }],
       group: 'contenido'
     }),
@@ -181,6 +211,23 @@ export const caseStudy = defineType({
       ]
     }),
     defineField({
+      name: 'metricsEn',
+      type: 'array',
+      title: 'Metricas / resultados rapidos (EN)',
+      description: 'Opcional para versión inglesa.',
+      group: 'contenido',
+      of: [
+        {
+          type: 'object',
+          title: 'Metrica EN',
+          fields: [
+            { name: 'value', type: 'string', title: 'Valor' },
+            { name: 'label', type: 'string', title: 'Texto' }
+          ]
+        }
+      ]
+    }),
+    defineField({
       name: 'reto',
       type: 'object',
       title: 'Bloque: El reto',
@@ -188,6 +235,16 @@ export const caseStudy = defineType({
       fields: [
         { name: 'title', type: 'string', title: 'Titulo del bloque' },
         { name: 'bodyHtml', type: 'text', title: 'Texto (acepta HTML basico)', rows: 6 }
+      ]
+    }),
+    defineField({
+      name: 'retoEn',
+      type: 'object',
+      title: 'Bloque: El reto (EN)',
+      group: 'contenido',
+      fields: [
+        { name: 'title', type: 'string', title: 'Titulo del bloque (EN)' },
+        { name: 'bodyHtml', type: 'text', title: 'Texto EN (acepta HTML basico)', rows: 6 }
       ]
     }),
     defineField({
@@ -201,6 +258,16 @@ export const caseStudy = defineType({
       ]
     }),
     defineField({
+      name: 'hiceEn',
+      type: 'object',
+      title: 'Bloque: Lo que hice (EN)',
+      group: 'contenido',
+      fields: [
+        { name: 'title', type: 'string', title: 'Titulo del bloque (EN)' },
+        { name: 'bodyHtml', type: 'text', title: 'Texto EN (acepta HTML basico)', rows: 6 }
+      ]
+    }),
+    defineField({
       name: 'resultado',
       type: 'object',
       title: 'Bloque: Resultado',
@@ -211,9 +278,26 @@ export const caseStudy = defineType({
       ]
     }),
     defineField({
+      name: 'resultadoEn',
+      type: 'object',
+      title: 'Bloque: Resultado (EN)',
+      group: 'contenido',
+      fields: [
+        { name: 'title', type: 'string', title: 'Titulo del bloque (EN)' },
+        { name: 'bodyHtml', type: 'text', title: 'Texto EN (acepta HTML basico)', rows: 6 }
+      ]
+    }),
+    defineField({
       name: 'stack',
       type: 'array',
       title: 'Stack tecnico final',
+      of: [{ type: 'string' }],
+      group: 'contenido'
+    }),
+    defineField({
+      name: 'stackEn',
+      type: 'array',
+      title: 'Stack tecnico final (EN)',
       of: [{ type: 'string' }],
       group: 'contenido'
     }),
@@ -223,6 +307,14 @@ export const caseStudy = defineType({
       title: 'Meta description (SEO)',
       rows: 3,
       options: { placeholder: 'Descripcion corta para Google (aprox. 140-160 caracteres).' },
+      group: 'seo'
+    }),
+    defineField({
+      name: 'seoDescriptionEn',
+      type: 'text',
+      title: 'Meta description (EN)',
+      rows: 3,
+      options: { placeholder: 'Optional English description.' },
       group: 'seo'
     }),
     defineField({

@@ -274,11 +274,12 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
 
 export function applyPortfolioEnglishDemo(
   site: SitePortfolioContent,
-  opts?: { preserveSanityServicesProjects?: boolean }
+  opts?: { preserveSanityServices?: boolean; preserveSanityProjects?: boolean }
 ): SitePortfolioContent {
   const seo = site.seo;
   const en = portfolioEnglishDemo;
-  const preserve = opts?.preserveSanityServicesProjects === true;
+  const preserveServices = opts?.preserveSanityServices === true;
+  const preserveProjects = opts?.preserveSanityProjects === true;
   const categories = site.techStack.categories.map((cat, i) => ({
     ...cat,
     title: en.techStack.categories[i]?.title ?? cat.title
@@ -288,14 +289,14 @@ export function applyPortfolioEnglishDemo(
     header: en.header,
     hero: en.hero,
     about: en.about,
-    services: preserve ? site.services : en.services,
+    services: preserveServices ? site.services : en.services,
     techStack: {
       meta: en.techStack.meta,
       title: en.techStack.title,
       categories
     },
     quality: en.quality,
-    projects: preserve ? site.projects : en.projects,
+    projects: preserveProjects ? site.projects : en.projects,
     contact: en.contact,
     footer: en.footer,
     seo

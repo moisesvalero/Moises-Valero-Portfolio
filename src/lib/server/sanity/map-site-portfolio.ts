@@ -3,6 +3,9 @@ import type { SiteLocale } from '$lib/i18n/site-locale';
 import type { SitePortfolioContent, SiteProjectCard, SiteStackIcon } from '$lib/types/site-portfolio';
 import { imageUrl } from './image-builder';
 
+const projectsMetaEnFallback = 'SELECTED PORTFOLIO';
+const projectsTitleEnFallback = 'Featured Projects';
+
 function asRecord(v: unknown): Record<string, unknown> | undefined {
   return v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : undefined;
 }
@@ -342,9 +345,11 @@ function mergeProjects(
   const mapped = listRaw
     .map((x) => mapProject(x, ctx))
     .filter((x): x is SiteProjectCard => Boolean(x));
+  const metaFallback = ctx.locale === 'en' ? projectsMetaEnFallback : d.meta;
+  const titleFallback = ctx.locale === 'en' ? projectsTitleEnFallback : d.title;
   return {
-    meta: pickLocalized(o.meta, ctx.locale, d.meta),
-    title: pickLocalized(o.title, ctx.locale, d.title),
+    meta: pickLocalized(o.meta, ctx.locale, metaFallback),
+    title: pickLocalized(o.title, ctx.locale, titleFallback),
     projects: mapped.length ? mapped : d.projects
   };
 }
@@ -456,7 +461,7 @@ function hasEnglishLocalizedValue(v: unknown): boolean {
   return hasNonEmptyString(o.en);
 }
 
-function hasEnglishServicesOrProjects(raw: Record<string, unknown> | null | undefined): boolean {
+function hasEnglishServices(raw: Record<string, unknown> | null | undefined): boolean {
   if (!raw) {
     return false;
   }
@@ -480,41 +485,35 @@ function hasEnglishServicesOrProjects(raw: Record<string, unknown> | null | unde
     }
   }
 
-  const projects = asRecord(raw.projects);
-  if (projects) {
-    if (hasEnglishLocalizedValue(projects.meta) || hasEnglishLocalizedValue(projects.title)) {
-      return true;
-    }
-    const listRaw = Array.isArray(projects.projects)
-      ? (projects.projects as unknown[])
-      : Array.isArray(projects.items)
-        ? (projects.items as unknown[])
-        : [];
-    return listRaw.some((item) => {
-      const r = asRecord(item);
-      if (!r) {
-        return false;
-      }
-      return (
-        hasEnglishLocalizedValue(r.title) ||
-        hasEnglishLocalizedValue(r.description) ||
-        hasEnglishLocalizedValue(r.linkLabel)
-      );
-    });
-  }
-
   return false;
+}
+
+function hasSanityProjects(raw: Record<string, unknown> | null | undefined): boolean {
+  if (!raw) {
+    return false;
+  }
+  const projects = asRecord(raw.projects);
+  if (!projects) {
+    return false;
+  }
+  const listRaw = Array.isArray(projects.projects)
+    ? (projects.projects as unknown[])
+    : Array.isArray(projects.items)
+      ? (projects.items as unknown[])
+      : [];
+  return listRaw.length > 0;
 }
 
 function finalizePortfolioLocale(
   site: SitePortfolioContent,
   locale: SiteLocale,
-  preserveSanityServicesProjects: boolean
+  preserveSanityServices: boolean,
+  preserveSanityProjects: boolean
 ): SitePortfolioContent {
   if (locale !== 'en') {
     return site;
   }
-  return applyPortfolioEnglishDemo(site, { preserveSanityServicesProjects });
+  return applyPortfolioEnglishDemo(site, { preserveSanityServices, preserveSanityProjects });
 }
 
 /**
@@ -531,7 +530,7 @@ export function mapSanitySitePortfolio(
       ...defaults,
       seo: { ...defaults.seo, ogImage: absolutizeOgImage(defaults.seo.ogImage, ctx.baseUrl) }
     };
-    return finalizePortfolioLocale(base, ctx.locale, false);
+    return finalizePortfolioLocale(base, ctx.locale, false, false);
   }
   const merged: SitePortfolioContent = {
     header: mergeHeader(raw.header, defaults.header),
@@ -546,5 +545,5 @@ export function mapSanitySitePortfolio(
     footer: mergeFooter(raw.footer, defaults.footer),
     careerModal: mergeCareerModal(raw.careerModal, defaults.careerModal, ctx.locale)
   };
-  return finalizePortfolioLocale(merged, ctx.locale, hasEnglishServicesOrProjects(raw));
+  return finalizePortfolioLocale(merged, ctx.locale, hasEnglishServices(raw), hasSanityProjects(raw));
 }

@@ -5,10 +5,13 @@ import { localizeCaseStudy } from './case-study-localize';
 import { fetchCaseStudyFromSanity } from './sanity/fetch-case-study';
 
 /**
- * Carga el case study en idioma “fuente” (español desde Sanity / JSON) sin aplicar capa EN.
+ * Carga el case study desde Sanity (si existe) en el locale pedido; si no, usa fallback estático.
  */
-export async function loadCaseStudyBase(slug: string): Promise<CaseStudy | undefined> {
-  const fromCms = await fetchCaseStudyFromSanity(slug);
+export async function loadCaseStudyBase(
+  slug: string,
+  locale: SiteLocale = 'es'
+): Promise<CaseStudy | undefined> {
+  const fromCms = await fetchCaseStudyFromSanity(slug, locale);
   if (fromCms) {
     return fromCms;
   }
@@ -22,7 +25,7 @@ export async function resolveCaseStudy(
   slug: string,
   locale: SiteLocale = 'es'
 ): Promise<CaseStudy | undefined> {
-  const base = await loadCaseStudyBase(slug);
+  const base = await loadCaseStudyBase(slug, locale);
   if (!base) {
     return undefined;
   }

@@ -1,4 +1,5 @@
 import type { CaseStudy } from '$lib/types/case-study';
+import type { SiteLocale } from '$lib/i18n/site-locale';
 import { getSanityProjectConfig, getSanityServerClient } from './get-server-client';
 import { caseStudyBySlugQuery } from './groq';
 import { mapSanityRowToCaseStudy, type SanityCaseStudyRow } from './map-sanity-case-study';
@@ -6,7 +7,10 @@ import { mapSanityRowToCaseStudy, type SanityCaseStudyRow } from './map-sanity-c
 /**
  * Obtiene un case study desde Sanity. Devuelve undefined si no hay documento o la fila es inválida.
  */
-export async function fetchCaseStudyFromSanity(slug: string): Promise<CaseStudy | undefined> {
+export async function fetchCaseStudyFromSanity(
+  slug: string,
+  locale: SiteLocale = 'es'
+): Promise<CaseStudy | undefined> {
   const client = getSanityServerClient();
   const cfg = getSanityProjectConfig();
   if (!client) {
@@ -22,7 +26,7 @@ export async function fetchCaseStudyFromSanity(slug: string): Promise<CaseStudy 
       return undefined;
     }
 
-    return mapSanityRowToCaseStudy(row, cfg ?? undefined);
+    return mapSanityRowToCaseStudy(row, locale, cfg ?? undefined);
   } catch (error) {
     console.warn(`[case-study] Sanity unavailable for slug "${slug}", using local fallback.`, error);
     return undefined;

@@ -1,14 +1,16 @@
 import { error } from '@sveltejs/kit';
-import { loadCaseStudyBase } from '$lib/server/case-study-resolver';
-import { localizeCaseStudy } from '$lib/server/case-study-localize';
+import { loadCaseStudyBase, resolveCaseStudy } from '$lib/server/case-study-resolver';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, parent }) => {
   const { locale } = await parent();
-  const studySeo = await loadCaseStudyBase(params.slug);
+  const studySeo = await loadCaseStudyBase(params.slug, 'es');
   if (!studySeo) {
     error(404, 'Proyecto no encontrado');
   }
-  const study = localizeCaseStudy(studySeo, locale);
+  const study = await resolveCaseStudy(params.slug, locale);
+  if (!study) {
+    error(404, 'Proyecto no encontrado');
+  }
   return { study, studySeo, locale };
 };
