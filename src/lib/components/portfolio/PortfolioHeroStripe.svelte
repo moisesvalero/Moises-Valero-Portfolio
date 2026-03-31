@@ -27,14 +27,26 @@
   const careerModal = getCareerModalControls();
 
   let scrollHintOpacity = $state(1);
+  let showScrollHint = $state(true);
 
   onMount(() => {
+    const hintMedia = window.matchMedia('(max-width: 1199px), (hover: none), (pointer: coarse)');
+    const syncScrollHintVisibility = () => {
+      showScrollHint = !hintMedia.matches;
+    };
     const onScroll = () => {
       scrollHintOpacity = window.scrollY > 50 ? 0 : 1;
     };
+    syncScrollHintVisibility();
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    hintMedia.addEventListener('change', syncScrollHintVisibility);
+    window.addEventListener('resize', syncScrollHintVisibility, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      hintMedia.removeEventListener('change', syncScrollHintVisibility);
+      window.removeEventListener('resize', syncScrollHintVisibility);
+    };
   });
 </script>
 
@@ -63,21 +75,23 @@
     </div>
   </div>
 
-  <div
-    class="scroll-hint-fixed"
-    style:opacity={scrollHintOpacity}
-    aria-hidden="true"
-  >
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <polyline
-        points="6,10 14,18 22,10"
-        stroke="#1d1d1f"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
-  </div>
+  {#if showScrollHint}
+    <div
+      class="scroll-hint-fixed"
+      style:opacity={scrollHintOpacity}
+      aria-hidden="true"
+    >
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline
+          points="6,10 14,18 22,10"
+          stroke="#1d1d1f"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </div>
+  {/if}
 </div>
 
 <style>
