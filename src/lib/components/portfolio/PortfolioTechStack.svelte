@@ -150,10 +150,10 @@
   }
 
   .iconos-flex {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px 14px;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    justify-items: center;
     align-items: center;
   }
 
@@ -231,6 +231,17 @@
   @media (max-width: 480px) {
     .stack-header h2 {
       font-size: 28px;
+    }
+
+    .iconos-flex {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .item-stack {
+      width: 64px;
+      height: 64px;
+      padding: 8px;
     }
   }
 </style>

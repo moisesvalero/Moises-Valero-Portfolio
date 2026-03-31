@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/public';
+import { fetchLandingSupportArticles } from '$lib/server/fetch-landing-support-articles';
 
 const DEFAULT_SITE_URL = 'http://localhost:5173';
 const staticRoutes = [
@@ -25,17 +26,23 @@ const normalizeBaseUrl = (url) => {
 	}
 };
 
-export const GET = () => {
+export const GET = async () => {
 	const baseUrl = normalizeBaseUrl(env.PUBLIC_SITE_URL);
 	const now = new Date().toISOString();
+	const articles = await fetchLandingSupportArticles();
 
-	const urls = staticRoutes
+	const dynamicRoutes = [
+		'/diseno-web-alcoy/articulos',
+		...articles.map((article) => `/diseno-web-alcoy/${article.slug}`)
+	];
+
+	const urls = [...staticRoutes, ...dynamicRoutes]
 		.map(
 			(route) => `<url>
   <loc>${baseUrl}${route}</loc>
   <lastmod>${now}</lastmod>
-  <changefreq>weekly</changefreq>
-  <priority>${route === '/' ? '1.0' : '0.8'}</priority>
+  <changefreq>${route.startsWith('/diseno-web-alcoy/') ? 'weekly' : 'weekly'}</changefreq>
+  <priority>${route === '/' ? '1.0' : route === '/diseno-web-alcoy' ? '0.9' : route === '/diseno-web-alcoy/articulos' ? '0.75' : 0.7}</priority>
 </url>`
 		)
 		.join('\n');

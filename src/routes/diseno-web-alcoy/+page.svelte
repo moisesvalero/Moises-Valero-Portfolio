@@ -28,6 +28,7 @@
 
   const contactModal = $derived(landing.contactModal);
   const analyzerModal = $derived(landing.analyzerModal);
+  const supportArticles = $derived(data.supportArticles ?? []);
   const analyzerLoadingSteps = $derived([
     analyzerModal.loadingSteps[0] || 'Midiendo tiempos de carga y respuesta',
     analyzerModal.loadingSteps[1] || 'Detectando bloqueos y estabilidad visual',
@@ -97,6 +98,18 @@
   const maintenanceOptions = $derived(landing.maintenance.items);
   const footerServices = $derived(landing.services.items.filter((item) => item.title?.trim().length));
   const maintenanceFooterLabel = $derived(landing.maintenance.footerLabel || 'Mantenimiento');
+
+  function formatArticleDate(iso: string): string {
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+    return new Intl.DateTimeFormat('es-ES', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).format(date);
+  }
 
   function openContactModal() {
     isMobileNavOpen = false;
@@ -1077,6 +1090,80 @@
         </div>
       </div>
     </section>
+
+    {#if supportArticles.length}
+      <section class="reveal-b py-24 px-6 bg-surface-container-low" id="articulos" use:revealOnScroll>
+        <div class="max-w-7xl mx-auto">
+          <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-12">
+            <div class="max-w-2xl">
+              <span class="text-secondary font-bold tracking-widest uppercase text-sm block mb-4">
+                Articulos de apoyo
+              </span>
+              <h2 class="font-headline text-4xl md:text-5xl font-extrabold text-primary mb-4">
+                Ideas practicas para mejorar tu web local
+              </h2>
+              <p class="text-on-surface-variant leading-relaxed">
+                Enlaces internos pensados para posicionar mejor en Google y ayudar a tus clientes a encontrar
+                respuestas utiles sobre velocidad, seguridad y mantenimiento.
+              </p>
+            </div>
+            <a
+              href="/diseno-web-alcoy/articulos"
+              class="cta-hover cta-hover-ghost inline-flex items-center justify-center rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-primary no-underline hover:border-secondary transition-colors"
+            >
+              Ver todos los articulos
+            </a>
+          </div>
+
+          <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {#each supportArticles as article, idx (article.slug)}
+              <a
+                href={`/diseno-web-alcoy/${article.slug}`}
+                class="article-card group no-underline overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,23,42,0.1)]"
+                aria-label={`Leer articulo: ${article.title}`}
+              >
+                <div class="article-card-media relative">
+                  <img
+                    src={article.coverImageSrc}
+                    alt={article.coverImageAlt}
+                    loading={idx === 0 ? 'eager' : 'lazy'}
+                    decoding="async"
+                    class="h-52 w-full object-cover"
+                  />
+                  <div class="article-card-gradient absolute inset-0"></div>
+                  <div class="article-card-pill absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-primary shadow-sm">
+                    {article.categoryLabel}
+                  </div>
+                </div>
+
+                <div class="article-card-body p-5">
+                  <div class="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500">
+                    <span>{formatArticleDate(article.publishedAt)}</span>
+                    <span aria-hidden="true">·</span>
+                    <span>{article.readingMinutes} min</span>
+                  </div>
+                  <h3 class="article-card-title font-headline text-2xl font-extrabold text-primary leading-tight mb-3 group-hover:text-secondary transition-colors">
+                    {article.title}
+                  </h3>
+                  <p class="article-card-excerpt text-on-surface-variant leading-relaxed text-sm mb-5">
+                    {article.excerpt}
+                  </p>
+                  <span class="article-card-link inline-flex items-center gap-2 font-bold text-secondary">
+                    Ver articulo
+                    <span
+                      class="material-symbols-outlined text-base transition-transform duration-300 ease-out group-hover:translate-x-1"
+                      aria-hidden="true"
+                    >
+                      arrow_forward
+                    </span>
+                  </span>
+                </div>
+              </a>
+            {/each}
+          </div>
+        </div>
+      </section>
+    {/if}
   </main>
 
   <footer class="bg-[#f7f9fb] py-14 px-6 w-full border-t border-slate-200/80">
@@ -1097,6 +1184,8 @@
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">Servicios</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#benefits">Beneficios</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#faq">FAQ</a></li>
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#articulos">Destacados</a></li>
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="/diseno-web-alcoy/articulos">Ver articulos</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#contact">Contacto</a></li>
           </ul>
         </div>
@@ -2697,6 +2786,48 @@
       0 10px 24px rgba(0, 110, 72, 0.4);
     animation: bHeroAccentPulse 4.2s ease-in-out infinite;
   }
+
+  .article-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 100%;
+  }
+
+  .article-card-media {
+    flex: 0 0 auto;
+  }
+
+  .article-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .article-card-title {
+    min-height: calc(1.1em * 3.15);
+    display: -webkit-box;
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .article-card-excerpt {
+    flex: 1;
+    min-height: calc(1.55em * 3);
+  }
+
+  .article-card-link {
+    margin-top: auto;
+  }
+
+  @media (min-width: 768px) {
+    .article-card {
+      min-height: 100%;
+    }
+  }
+
   :global(.stitch-landing .glass-card) {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(20px);
@@ -2761,6 +2892,24 @@
 
     .hero-cursor-light {
       display: none;
+    }
+
+    .article-card-media {
+      min-height: 180px;
+    }
+
+    .article-card-body {
+      padding: 1rem;
+    }
+
+    .article-card-title {
+      min-height: auto;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+    }
+
+    .article-card-excerpt {
+      min-height: auto;
     }
   }
 

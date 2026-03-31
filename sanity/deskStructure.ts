@@ -27,6 +27,10 @@ export const deskStructure: StructureResolver = (S) =>
             .documentId('landingDisenoWebAlcoy')
             .title('📍 Landing - Diseño web en Alcoy')
         ),
+      S.listItem()
+        .title('📝 Articulos SEO local (Alcoy)')
+        .id('landingSupportArticleList')
+        .child(S.documentTypeList('landingSupportArticle').title('📝 Articulos SEO local (Alcoy)')),
       S.divider(),
       S.documentTypeListItem('caseStudy').title('🧱 Proyectos')
     ]);
