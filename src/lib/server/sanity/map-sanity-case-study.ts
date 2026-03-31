@@ -1,4 +1,5 @@
 import type { CaseStudy, CaseStudyMetric, CaseStudySection } from '$lib/types/case-study';
+import { imageUrl } from './image-builder';
 
 /** Fila devuelta por GROQ (caseStudyBySlugQuery). */
 export type SanityCaseStudyRow = {
@@ -9,6 +10,9 @@ export type SanityCaseStudyRow = {
   heroDescription: string;
   tags: string[];
   images?: {
+    principalImage?: unknown;
+    secondary1Image?: unknown;
+    secondary2Image?: unknown;
     principal?: string | null;
     secondary1?: string | null;
     secondary2?: string | null;
@@ -45,8 +49,19 @@ function section(
   return { title, bodyHtml };
 }
 
-export function mapSanityRowToCaseStudy(row: SanityCaseStudyRow): CaseStudy {
+export function mapSanityRowToCaseStudy(
+  row: SanityCaseStudyRow,
+  ctx?: { projectId: string; dataset: string }
+): CaseStudy {
   const img = row.images ?? {};
+  const principalFromAsset =
+    ctx && ctx.projectId && ctx.dataset ? imageUrl(ctx.projectId, ctx.dataset, img.principalImage, 1600) : undefined;
+  const secondary1FromAsset =
+    ctx && ctx.projectId && ctx.dataset ? imageUrl(ctx.projectId, ctx.dataset, img.secondary1Image, 1200) : undefined;
+  const secondary2FromAsset =
+    ctx && ctx.projectId && ctx.dataset ? imageUrl(ctx.projectId, ctx.dataset, img.secondary2Image, 1200) : undefined;
+  const principal = principalFromAsset || img.principal?.trim() || placeholder;
+
   return {
     slug: row.slug,
     title: row.title,
@@ -55,9 +70,9 @@ export function mapSanityRowToCaseStudy(row: SanityCaseStudyRow): CaseStudy {
     heroDescription: row.heroDescription,
     tags: Array.isArray(row.tags) ? row.tags : [],
     images: {
-      principal: img.principal?.trim() || placeholder,
-      secondary1: img.secondary1?.trim() || img.principal?.trim() || placeholder,
-      secondary2: img.secondary2?.trim() || img.principal?.trim() || placeholder
+      principal,
+      secondary1: secondary1FromAsset || img.secondary1?.trim() || principal,
+      secondary2: secondary2FromAsset || img.secondary2?.trim() || principal
     },
     metrics: normalizeMetrics(row.metrics),
     reto: section('reto', row.reto, 'El reto'),

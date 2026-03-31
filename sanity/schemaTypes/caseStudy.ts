@@ -126,13 +126,41 @@ export const caseStudy = defineType({
       group: 'imagenes',
       fields: [
         {
+          name: 'principalImage',
+          type: 'image',
+          title: 'Imagen principal (subida en Sanity)',
+          options: { hotspot: true }
+        },
+        {
+          name: 'secondary1Image',
+          type: 'image',
+          title: 'Imagen secundaria 1 (subida en Sanity)',
+          options: { hotspot: true }
+        },
+        {
+          name: 'secondary2Image',
+          type: 'image',
+          title: 'Imagen secundaria 2 (subida en Sanity)',
+          options: { hotspot: true }
+        },
+        {
           name: 'principal',
           type: 'string',
-          title: 'Imagen principal (ruta o URL)',
-          description: 'Ejemplo: /imagenes/captura-home.jpg o https://.../captura-home.jpg'
+          title: 'Imagen principal (ruta o URL fallback)',
+          description: 'Opcional. Se usa solo si no subes la imagen en Sanity.'
         },
-        { name: 'secondary1', type: 'string', title: 'Imagen secundaria 1 (ruta o URL)' },
-        { name: 'secondary2', type: 'string', title: 'Imagen secundaria 2 (ruta o URL)' }
+        {
+          name: 'secondary1',
+          type: 'string',
+          title: 'Imagen secundaria 1 (ruta o URL fallback)',
+          description: 'Opcional. Se usa solo si no subes la imagen en Sanity.'
+        },
+        {
+          name: 'secondary2',
+          type: 'string',
+          title: 'Imagen secundaria 2 (ruta o URL fallback)',
+          description: 'Opcional. Se usa solo si no subes la imagen en Sanity.'
+        }
       ]
     }),
     defineField({
