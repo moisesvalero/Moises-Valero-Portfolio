@@ -204,18 +204,6 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
           'Conversational assistant with Llama 3.3 via Groq API, trained on my professional profile. Make.com + Telegram automation for real-time alerts.',
         tags: ['Typebot', 'Groq API', 'Make.com', 'Llama 3.3']
       },
-      {
-        imageSrc:
-          '/imagenes/Captura-de-pantalla_19-2-2026_122315_www.amazon.es_.jpeg',
-        imageAlt: 'Crónicas Visigodas',
-        href: 'https://www.amazon.es/Cr%C3%B3nicas-Visigodas-Leyendas-Reino-Perdido/dp/B0D47ZQDKH',
-        external: true,
-        linkLabel: 'View on Amazon',
-        title: 'Crónicas Visigodas | Amazon KDP book',
-        description:
-          'Amazon KDP release. Prompt engineering to structure historical data, support imagery, and streamline the editorial workflow for global distribution.',
-        tags: ['Amazon KDP', 'Prompt Engineering', 'Generative AI', 'Copywriting']
-      }
     ]
   },
   contact: {

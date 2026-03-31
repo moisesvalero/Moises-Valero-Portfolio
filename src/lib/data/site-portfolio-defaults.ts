@@ -243,18 +243,6 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
           'Asistente conversacional con Llama 3.3 vía Groq API, entrenado con mi perfil profesional. Automatización Make.com + Telegram para notificaciones en tiempo real.',
         tags: ['Typebot', 'Groq API', 'Make.com', 'Llama 3.3']
       },
-      {
-        imageSrc:
-          '/imagenes/Captura-de-pantalla_19-2-2026_122315_www.amazon.es_.jpeg',
-        imageAlt: 'Crónicas Visigodas',
-        href: 'https://www.amazon.es/Cr%C3%B3nicas-Visigodas-Leyendas-Reino-Perdido/dp/B0D47ZQDKH',
-        external: true,
-        linkLabel: 'Ver en Amazon',
-        title: 'Crónicas Visigodas | Libro Amazon KDP',
-        description:
-          'Publicación en Amazon KDP. Uso de Prompt Engineering para estructurar datos históricos, generar imágenes y optimizar el flujo editorial para distribución global.',
-        tags: ['Amazon KDP', 'Prompt Engineering', 'Generative AI', 'Copywriting']
-      }
     ]
   },
   contact: {
