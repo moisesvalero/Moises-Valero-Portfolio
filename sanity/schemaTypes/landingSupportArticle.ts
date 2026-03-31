@@ -4,7 +4,6 @@ export const landingSupportArticle = defineType({
   name: 'landingSupportArticle',
   title: 'Artículo apoyo SEO (Alcoy)',
   type: 'document',
-  __experimental_actions: ['publish', 'discardChanges', 'delete'],
   initialValue: {
     categoryLabel: 'Guia local',
     publishedAt: new Date().toISOString()
