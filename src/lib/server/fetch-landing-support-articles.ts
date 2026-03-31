@@ -26,8 +26,8 @@ function mapRow(
 ): LandingSupportArticle | undefined {
   const slug = asString(row.slug);
   const title = asString(row.title);
-  const excerpt = asString(row.excerpt);
-  if (!slug || !title || !excerpt) {
+  const excerpt = asString(row.excerpt, 'Contenido en actualizacion');
+  if (!slug || !title) {
     return undefined;
   }
   const imageFromAsset =
@@ -70,11 +70,29 @@ export async function fetchLandingSupportArticles(limit?: number): Promise<Landi
     const mapped = (rows ?? [])
       .map((row) => mapRow(row, cfg ?? undefined))
       .filter(Boolean) as LandingSupportArticle[];
-    if (!mapped.length) {
-      const fallback = landingSupportArticleFallbacks;
-      return typeof limit === 'number' ? fallback.slice(0, limit) : fallback;
+    const fallback = landingSupportArticleFallbacks;
+
+    // Normal path: Sanity trae una lista suficiente y consistente.
+    if (mapped.length >= 3) {
+      return typeof limit === 'number' ? mapped.slice(0, limit) : mapped;
     }
-    return typeof limit === 'number' ? mapped.slice(0, limit) : mapped;
+
+    // Fallback controlado: si Sanity responde con pocos artículos por desajuste de entorno/cache,
+    // completamos con locales para evitar que la web quede "vacía" en producción.
+    const mergedBySlug = new Map<string, LandingSupportArticle>();
+    for (const article of mapped) {
+      mergedBySlug.set(article.slug, article);
+    }
+    for (const article of fallback) {
+      if (!mergedBySlug.has(article.slug)) {
+        mergedBySlug.set(article.slug, article);
+      }
+    }
+
+    const merged = [...mergedBySlug.values()].sort(
+      (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+    );
+    return typeof limit === 'number' ? merged.slice(0, limit) : merged;
   } catch (error) {
     console.warn('[landing-support-articles] Sanity unavailable, using local defaults.', error);
     const fallback = landingSupportArticleFallbacks;
