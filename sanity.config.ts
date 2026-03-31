@@ -2,7 +2,6 @@ import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { deskStructure } from './sanity/deskStructure';
 import { schemaTypes } from './sanity/schemaTypes';
-import { deleteArticleAction } from './sanity/plugins/deleteArticleAction';
 
 const projectId =
   process.env.SANITY_STUDIO_PROJECT_ID || process.env.SANITY_PROJECT_ID || '5zhz6irf';
@@ -13,7 +12,7 @@ export default defineConfig({
   title: 'Portfolio — CMS',
   projectId,
   dataset,
-  plugins: [structureTool({ structure: deskStructure }), deleteArticleAction()],
+  plugins: [structureTool({ structure: deskStructure })],
   schema: {
     types: schemaTypes,
     templates: (templates) => templates.filter(({ schemaType }) => schemaType !== 'sitePortfolio')

@@ -15,7 +15,7 @@ export function getSanityServerClient(): SanityClient | null {
     projectId,
     dataset,
     apiVersion: env.SANITY_API_VERSION?.trim() || DEFAULT_API_VERSION,
-    useCdn: true,
+    useCdn: false,
     token: env.SANITY_READ_TOKEN?.trim() || undefined,
     perspective: 'published'
   });
