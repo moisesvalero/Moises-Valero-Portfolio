@@ -73,6 +73,17 @@ function extractDomain(rawUrl: string): string | null {
   }
 }
 
+function normalizeUrlForSanity(rawUrl: string): string | undefined {
+  const clean = rawUrl.trim();
+  if (!clean) return undefined;
+  const candidate = /^https?:\/\//i.test(clean) ? clean : `https://${clean}`;
+  try {
+    return new URL(candidate).toString();
+  } catch {
+    return undefined;
+  }
+}
+
 function normalizeE164(raw: string | undefined): string | null {
   if (!raw?.trim()) return null;
   const digits = raw.replace(/\D/g, '');
@@ -135,6 +146,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
   const email = toCleanString(body.email);
   const honeypot = toCleanString(body.website);
   const url = toCleanString(body.url);
+  const normalizedUrl = normalizeUrlForSanity(url);
   const scoreRaw = Number(body.score);
   const score = Number.isFinite(scoreRaw) ? Math.max(0, Math.min(100, Math.round(scoreRaw))) : null;
   const severity = toCleanString(body.severity);
@@ -305,7 +317,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
       await sanityClient.create({
         _type: 'analyzerLead',
         email,
-        url: url || undefined,
+        url: normalizedUrl,
         score: score ?? undefined,
         severity: severity || undefined,
         fcp: fcp || undefined,
