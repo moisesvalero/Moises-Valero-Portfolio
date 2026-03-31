@@ -70,11 +70,22 @@ export async function fetchLandingSupportArticles(limit?: number): Promise<Landi
     const mapped = (rows ?? [])
       .map((row) => mapRow(row, cfg ?? undefined))
       .filter(Boolean) as LandingSupportArticle[];
-    if (!mapped.length) {
-      const fallback = landingSupportArticleFallbacks;
-      return typeof limit === 'number' ? fallback.slice(0, limit) : fallback;
+    const fallback = landingSupportArticleFallbacks;
+    const mergedBySlug = new Map<string, LandingSupportArticle>();
+
+    for (const article of fallback) {
+      mergedBySlug.set(article.slug, article);
     }
-    return typeof limit === 'number' ? mapped.slice(0, limit) : mapped;
+
+    for (const article of mapped) {
+      mergedBySlug.set(article.slug, article);
+    }
+
+    const merged = [...mergedBySlug.values()].sort(
+      (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+    );
+
+    return typeof limit === 'number' ? merged.slice(0, limit) : merged;
   } catch (error) {
     console.warn('[landing-support-articles] Sanity unavailable, using local defaults.', error);
     const fallback = landingSupportArticleFallbacks;
