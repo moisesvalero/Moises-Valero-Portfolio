@@ -64,13 +64,16 @@
     <span class="footer-dot" aria-hidden="true">·</span>
     <a href="/diseno-web-alcoy" class="footer-landing-link">Diseño web en Alcoy</a>
     <span class="footer-dot" aria-hidden="true">·</span>
+    <a href="/diseno-web-alcoy/articulos" class="footer-landing-link">Artículos</a>
+    <span class="footer-dot" aria-hidden="true">·</span>
     <a
-      href="http://moisesvalero.es"
+      href="https://moisesvalero.es"
       class="footer-portfolio-link"
       target="_blank"
       rel="noopener noreferrer"
-      >Portfolio</a
     >
+      Portfolio
+    </a>
   </nav>
 
   <div class="footer-icons">
