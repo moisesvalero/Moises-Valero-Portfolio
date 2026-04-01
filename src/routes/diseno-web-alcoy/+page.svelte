@@ -1108,7 +1108,7 @@
                 Articulos de apoyo
               </span>
               <h2 class="font-headline text-4xl md:text-5xl font-extrabold text-primary mb-4">
-                Ideas practicas para mejorar tu web local
+                Ideas practicas para mejorar tu web
               </h2>
               <p class="text-on-surface-variant leading-relaxed">
                 Enlaces internos pensados para posicionar mejor en Google y ayudar a tus clientes a encontrar
