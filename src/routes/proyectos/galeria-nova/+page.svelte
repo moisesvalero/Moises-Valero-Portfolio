@@ -38,7 +38,6 @@
 <svelte:head>
   <title>{seoEs.headTitle}</title>
   <meta name="description" content={seoEs.headDescription} />
-  <link rel="canonical" href={canonical} />
   <link rel="alternate" hreflang="es" href={canonical} />
   <link rel="alternate" hreflang="x-default" href={canonical} />
   <meta property="og:type" content="article" />

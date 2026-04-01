@@ -1,7 +1,4 @@
-export const landingDisenoWebAlcoyQuery = `coalesce(
-  *[_type == "landingDisenoWebAlcoy" && _id == "landingDisenoWebAlcoy"][0],
-  *[_type == "landingDisenoWebAlcoy"] | order(_updatedAt desc)[0]
-){
+const landingDisenoWebProjection = `{
   sectionOrder,
   seo{
     title,
@@ -44,3 +41,10 @@ export const landingDisenoWebAlcoyQuery = `coalesce(
   contactModal,
   localBusiness
 }`;
+
+export const landingDisenoWebAlcoyQuery = `coalesce(
+  *[_type == "landingDisenoWebAlcoy" && _id == "landingDisenoWebAlcoy"][0],
+  *[_type == "landingDisenoWebAlcoy"] | order(_updatedAt desc)[0]
+)${landingDisenoWebProjection}`;
+
+export const landingDisenoWebByIdQuery = `*[_type == "landingDisenoWebAlcoy" && _id == $documentId][0]${landingDisenoWebProjection}`;

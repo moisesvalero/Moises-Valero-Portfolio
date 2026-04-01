@@ -110,8 +110,6 @@
   <title>{site.seo.title}</title>
   <meta name="description" content={site.seo.description} />
 
-  <link rel="canonical" href={`${baseUrl}/`} />
-
   <meta property="og:type" content="website" />
   <meta property="og:title" content={site.seo.ogTitle} />
   <meta property="og:description" content={site.seo.ogDescription} />

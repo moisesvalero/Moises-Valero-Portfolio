@@ -7,7 +7,13 @@
   let { data }: { data: PageData } = $props();
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
-  const canonical = `${baseUrl}/diseno-web-alcoy/articulos`;
+  const landingBasePath = $derived(
+    (() => {
+      const rawBasePath = (data as PageData & { basePath?: string }).basePath;
+      return rawBasePath && rawBasePath.startsWith('/') ? rawBasePath : '/diseno-web-alcoy';
+    })()
+  );
+  const canonical = $derived(`${baseUrl}${landingBasePath}/articulos`);
   const articles = $derived(data.articles ?? []);
   const pageJsonLd = $derived(
     stringifyJsonLdForHtml({
@@ -28,7 +34,7 @@
         '@type': 'ListItem',
         position: index + 1,
         name: article.title,
-        url: `${baseUrl}/diseno-web-alcoy/${article.slug}`
+        url: `${baseUrl}${landingBasePath}/${article.slug}`
       }))
     })
   );
@@ -52,7 +58,6 @@
     name="description"
     content="Articulos de apoyo sobre mantenimiento web, seguridad y SEO local para negocios de Alcoy."
   />
-  <link rel="canonical" href={canonical} />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Articulos SEO local en Alcoy | Moisés Valero" />
   <meta
@@ -76,7 +81,7 @@
         entienda mejor tu sitio y tus clientes encuentren respuestas utiles.
       </p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="/diseno-web-alcoy">Ver la web</a>
+        <a class="btn btn-primary" href={landingBasePath}>Ver la web</a>
         <a class="btn btn-secondary" href="#listado">Ver articulos</a>
       </div>
     </div>
@@ -89,7 +94,7 @@
       </div>
       <div class="grid">
         {#each articles as article, idx (article.slug)}
-          <a class="card group" href={`/diseno-web-alcoy/${article.slug}`}>
+          <a class="card group" href={`${landingBasePath}/${article.slug}`}>
             <div class="card-media">
               <img
                 src={article.coverImageSrc}

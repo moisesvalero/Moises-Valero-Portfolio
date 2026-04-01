@@ -13,7 +13,13 @@
       .slice(0, 3)
   );
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
-  const canonical = $derived(`${baseUrl}/diseno-web-alcoy/${article.slug}`);
+  const landingBasePath = $derived(
+    (() => {
+      const rawBasePath = (data as PageData & { basePath?: string }).basePath;
+      return rawBasePath && rawBasePath.startsWith('/') ? rawBasePath : '/diseno-web-alcoy';
+    })()
+  );
+  const canonical = $derived(`${baseUrl}${landingBasePath}/${article.slug}`);
   const seoTitle = $derived(article.seoTitle?.trim() || article.title);
   const seoDescription = $derived(article.seoDescription?.trim() || article.excerpt);
   const ogImage = $derived(
@@ -51,7 +57,7 @@
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${baseUrl}/` },
-        { '@type': 'ListItem', position: 2, name: 'Diseno web Alcoy', item: `${baseUrl}/diseno-web-alcoy` },
+        { '@type': 'ListItem', position: 2, name: 'Diseno web', item: `${baseUrl}${landingBasePath}` },
         { '@type': 'ListItem', position: 3, name: article.title, item: canonical }
       ]
     })
@@ -73,7 +79,6 @@
 <svelte:head>
   <title>{seoTitle}</title>
   <meta name="description" content={seoDescription} />
-  <link rel="canonical" href={canonical} />
   <meta property="og:type" content="article" />
   <meta property="og:title" content={seoTitle} />
   <meta property="og:description" content={seoDescription} />
@@ -99,7 +104,7 @@
         <span>·</span>
         <span>{article.readingMinutes} min</span>
       </div>
-      <a class="back-link" href="/diseno-web-alcoy/articulos">← Volver a articulos</a>
+      <a class="back-link" href={`${landingBasePath}/articulos`}>← Volver a articulos</a>
     </div>
   </header>
 
@@ -135,7 +140,7 @@
 
         <div class="related-grid">
           {#each relatedArticles as related, idx (related.slug)}
-            <a class="related-card group" href={`/diseno-web-alcoy/${related.slug}`}>
+            <a class="related-card group" href={`${landingBasePath}/${related.slug}`}>
               <span class="related-topline">
                 <span>{related.categoryLabel}</span>
                 <span>·</span>

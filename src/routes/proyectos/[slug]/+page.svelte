@@ -32,7 +32,6 @@
 <svelte:head>
   <title>{data.studySeo.title} | Caso de Estudio | Moisés Valero</title>
   <meta name="description" content={ogDescription} />
-  <link rel="canonical" href={canonical} />
   <link rel="alternate" hreflang="es" href={canonical} />
   <link rel="alternate" hreflang="x-default" href={canonical} />
   <meta property="og:type" content="article" />

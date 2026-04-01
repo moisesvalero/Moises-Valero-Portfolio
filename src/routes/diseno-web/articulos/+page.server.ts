@@ -3,5 +3,5 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
   const articles = await fetchLandingSupportArticles();
-  return { articles, basePath: '/diseno-web-alcoy' };
+  return { articles, basePath: '/diseno-web' };
 };

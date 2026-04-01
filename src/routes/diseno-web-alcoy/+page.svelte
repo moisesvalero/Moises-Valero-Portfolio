@@ -25,6 +25,15 @@
       ? landing.seo.canonicalPath
       : `${baseUrl}${landing.seo.canonicalPath.startsWith('/') ? '' : '/'}${landing.seo.canonicalPath}`
   );
+  const landingBasePath = $derived(
+    (() => {
+      const rawPath = landing.seo.canonicalPath.startsWith('http')
+        ? new URL(landing.seo.canonicalPath).pathname
+        : landing.seo.canonicalPath;
+      const normalized = rawPath.startsWith('/') ? rawPath : `/${rawPath}`;
+      return normalized !== '/' ? normalized.replace(/\/$/, '') : normalized;
+    })()
+  );
 
   const contactModal = $derived(landing.contactModal);
   const analyzerModal = $derived(landing.analyzerModal);
@@ -611,7 +620,6 @@
   <title>{$seo.title}</title>
   <meta name="description" content={$seo.description} />
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
-  <link rel="canonical" href={$seo.canonical} />
   <meta property="og:type" content="website" />
   <meta property="og:title" content={$seo.ogTitle} />
   <meta property="og:description" content={$seo.ogDescription} />
@@ -1108,7 +1116,7 @@
               </p>
             </div>
             <a
-              href="/diseno-web-alcoy/articulos"
+              href={`${landingBasePath}/articulos`}
               class="cta-hover cta-hover-ghost inline-flex items-center justify-center rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-primary no-underline hover:border-secondary transition-colors"
             >
               Ver todos los articulos
@@ -1118,7 +1126,7 @@
           <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {#each supportArticles as article, idx (article.slug)}
               <a
-                href={`/diseno-web-alcoy/${article.slug}`}
+                href={`${landingBasePath}/${article.slug}`}
                 class="article-card group no-underline overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,23,42,0.1)]"
                 aria-label={`Leer articulo: ${article.title}`}
               >
@@ -1185,7 +1193,7 @@
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#benefits">Beneficios</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#faq">FAQ</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#articulos">Destacados</a></li>
-            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="/diseno-web-alcoy/articulos">Ver articulos</a></li>
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href={`${landingBasePath}/articulos`}>Ver articulos</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#contact">Contacto</a></li>
           </ul>
         </div>

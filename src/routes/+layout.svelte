@@ -21,6 +21,7 @@
 
   const site = $derived(data.site);
   const hideSiteChrome = $derived(data.hideSiteChrome === true);
+  const noIndex = $derived((data as LayoutData & { noIndex?: boolean }).noIndex === true);
 
   $effect(() => {
     locale.set(data.locale);
@@ -75,6 +76,14 @@
   };
 
 </script>
+
+<svelte:head>
+  <link rel="canonical" href={data.canonicalUrl} />
+  {#if noIndex}
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate" />
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate" />
+  {/if}
+</svelte:head>
 
   {#if !hideSiteChrome}
   <header class="header" class:menu-open={menuOpen}>

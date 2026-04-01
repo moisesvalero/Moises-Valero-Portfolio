@@ -12,5 +12,5 @@ export const load: PageServerLoad = async ({ params }) => {
     error(404, 'Articulo no encontrado');
   }
 
-  return { article, relatedArticles, basePath: '/diseno-web-alcoy' };
+  return { article, relatedArticles, basePath: '/diseno-web' };
 };
