@@ -34,6 +34,11 @@
       return normalized !== '/' ? normalized.replace(/\/$/, '') : normalized;
     })()
   );
+  const footerIntro = $derived(
+    landingBasePath === '/diseno-web'
+      ? 'Diseño y desarrollo web para negocios en toda España.'
+      : 'Diseño y desarrollo web para negocios de Alcoy, Alicante y alrededores.'
+  );
 
   const contactModal = $derived(landing.contactModal);
   const analyzerModal = $derived(landing.analyzerModal);
@@ -1182,7 +1187,7 @@
             {site.header.logoText}
           </a>
           <p class="text-slate-600 leading-relaxed max-w-xs">
-            Diseño y desarrollo web para negocios de Alcoy, Alicante y alrededores.
+            {footerIntro}
           </p>
         </div>
 
