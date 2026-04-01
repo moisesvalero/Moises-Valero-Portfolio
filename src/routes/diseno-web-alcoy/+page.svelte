@@ -1116,8 +1116,7 @@
                 Ideas practicas para mejorar tu web
               </h2>
               <p class="text-on-surface-variant leading-relaxed">
-                Enlaces internos pensados para posicionar mejor en Google y ayudar a tus clientes a encontrar
-                respuestas utiles sobre velocidad, seguridad y mantenimiento.
+                Guías claras y prácticas para mejorar la velocidad, la seguridad y el mantenimiento de tu web.
               </p>
             </div>
             <a
