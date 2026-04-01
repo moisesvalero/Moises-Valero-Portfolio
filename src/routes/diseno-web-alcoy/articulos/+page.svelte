@@ -75,7 +75,7 @@
   <section class="hero">
     <div class="hero-inner">
       <p class="eyebrow">Recursos y Estrategia</p>
-      <h1>Guías y Estrategia Digital para mejorar tu presencia online</h1>
+      <h1>Estrategias para tu negocio online</h1>
       <p class="lead">
         Ideas prácticas para mejorar tu presencia online. Una colección de guías sobre rendimiento, seguridad,
         velocidad y estrategia local para que Google entienda mejor tu sitio y tus clientes encuentren respuestas
