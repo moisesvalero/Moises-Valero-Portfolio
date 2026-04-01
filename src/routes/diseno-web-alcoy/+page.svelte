@@ -285,19 +285,72 @@
     heroSectionEl.style.setProperty('--hero-aurora-y', `${auroraShift.toFixed(2)}px`);
   }
 
-  function ensureExternalScript(src: string, id: string) {
+  function ensureExternalScript(src: string, id: string, isReady: () => boolean) {
     return new Promise<void>((resolve, reject) => {
+      if (isReady()) {
+        const already = document.getElementById(id) as HTMLScriptElement | null;
+        if (already) {
+          already.dataset.loaded = 'true';
+        }
+        resolve();
+        return;
+      }
+
       const existing = document.getElementById(id) as HTMLScriptElement | null;
       if (existing) {
-        // Si ya existe en el head (SSR/cliente), continuamos y delegamos en los reintentos de refresh.
-        resolve();
+        if (existing.dataset.loaded === 'true') {
+          resolve();
+          return;
+        }
+
+        let settled = false;
+        const cleanup = () => {
+          existing.removeEventListener('load', onLoad);
+          existing.removeEventListener('error', onError);
+        };
+        const onLoad = () => {
+          if (settled) return;
+          settled = true;
+          existing.dataset.loaded = 'true';
+          cleanup();
+          resolve();
+        };
+        const onError = () => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          reject(new Error(`No se pudo cargar ${src}`));
+        };
+
+        existing.addEventListener('load', onLoad, { once: true });
+        existing.addEventListener('error', onError, { once: true });
+
+        const start = performance.now();
+        const poll = () => {
+          if (settled) return;
+          if (isReady()) {
+            settled = true;
+            existing.dataset.loaded = 'true';
+            cleanup();
+            resolve();
+            return;
+          }
+          if (performance.now() - start > 8000) {
+            settled = true;
+            cleanup();
+            reject(new Error(`Timeout cargando ${src}`));
+            return;
+          }
+          window.setTimeout(poll, 80);
+        };
+        poll();
         return;
       }
 
       const script = document.createElement('script');
       script.id = id;
       script.src = src;
-      script.async = true;
+      script.async = false;
       script.onload = () => {
         script.dataset.loaded = 'true';
         resolve();
@@ -309,8 +362,16 @@
 
   async function ensureLandingTailwindReady() {
     try {
-      await ensureExternalScript(TAILWIND_CDN_SRC, 'alcoy-tailwind-cdn');
-      await ensureExternalScript(TAILWIND_CONFIG_SRC, 'alcoy-tailwind-config');
+      await ensureExternalScript(
+        TAILWIND_CONFIG_SRC,
+        'alcoy-tailwind-config',
+        () => Boolean((window as Window & { tailwind?: { config?: unknown } }).tailwind?.config)
+      );
+      await ensureExternalScript(
+        TAILWIND_CDN_SRC,
+        'alcoy-tailwind-cdn',
+        () => typeof (window as Window & { tailwind?: TailwindRuntime }).tailwind?.refresh === 'function'
+      );
     } catch {
       // Si falla la carga externa, mantenemos los estilos fallback inline del layout.
     }
@@ -635,8 +696,8 @@
   <meta name="twitter:title" content={$seo.ogTitle} />
   <meta name="twitter:description" content={$seo.ogDescription} />
   <meta name="twitter:image" content={$seo.ogImage} />
-  <script id="alcoy-tailwind-cdn" src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="alcoy-tailwind-config" src="/js/landing-tailwind-config.js"></script>
+  <script id="alcoy-tailwind-cdn" src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <JsonLdScript json={localBusinessJsonLd} />
   <JsonLdScript json={webPageJsonLd} />
   <JsonLdScript json={faqJsonLd} />
@@ -2724,6 +2785,17 @@
     display: inline-block;
     vertical-align: middle;
   }
+
+  /* Fallback defensivo si falla carga de Tailwind CDN/config:
+     preserva acentos verdes y contraste de CTAs/badges. */
+  :global(.stitch-landing .bg-secondary) { background-color: #006c49 !important; }
+  :global(.stitch-landing .text-secondary) { color: #006c49 !important; }
+  :global(.stitch-landing .border-secondary) { border-color: #006c49 !important; }
+  :global(.stitch-landing .text-on-secondary) { color: #ffffff !important; }
+  :global(.stitch-landing .bg-secondary-container) { background-color: #6cf8bb !important; }
+  :global(.stitch-landing .text-on-secondary-container) { color: #00714d !important; }
+  :global(.stitch-landing .hover\:text-secondary:hover) { color: #006c49 !important; }
+  :global(.stitch-landing .hover\:border-secondary:hover) { border-color: #006c49 !important; }
 
   :global(.alcoy-dynamic-header.is-top .header-brand-mv path) {
     fill: #ffffff;

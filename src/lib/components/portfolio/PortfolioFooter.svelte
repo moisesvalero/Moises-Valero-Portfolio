@@ -62,11 +62,11 @@
       {$t('legalFooter.preferences')}
     </button>
     <span class="footer-dot" aria-hidden="true">·</span>
-    <a href="/diseno-web" class="footer-landing-link">Diseño web</a>
+    <a href="/diseno-web" class="footer-landing-link" data-sveltekit-reload="true">Diseño web</a>
     <span class="footer-dot" aria-hidden="true">·</span>
-    <a href="/diseno-web/articulos" class="footer-landing-link">Artículos</a>
+    <a href="/diseno-web/articulos" class="footer-landing-link" data-sveltekit-reload="true">Artículos</a>
     <span class="footer-dot" aria-hidden="true">·</span>
-    <a href="/diseno-web-alcoy" class="footer-portfolio-link">Diseño web Alcoy</a>
+    <a href="/diseno-web-alcoy" class="footer-portfolio-link" data-sveltekit-reload="true">Diseño web Alcoy</a>
   </nav>
 
   <div class="footer-icons">

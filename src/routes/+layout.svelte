@@ -36,6 +36,10 @@
     return item.openCareerModal ? 'career-modal' : `href:${normalizeNavHref(item.href)}`;
   }
 
+  function shouldForceDocumentNavigation(href: string): boolean {
+    return /^\/diseno-web(?:\/|$)/i.test(href.trim());
+  }
+
   const headerNavItems = $derived(
     (() => {
       const articleLabel = data.locale === 'en' ? 'Articles' : 'Artículos';
@@ -163,7 +167,13 @@
 			  {item.label}
 			</button>
 		  {:else}
-			<a href={item.href} onmousemove={handleLinkMove}>{item.label}</a>
+			<a
+        href={item.href}
+        data-sveltekit-reload={shouldForceDocumentNavigation(item.href) ? 'true' : undefined}
+        onmousemove={handleLinkMove}
+      >
+        {item.label}
+      </a>
 		  {/if}
 		{/each}
 	  </nav>
@@ -243,7 +253,13 @@
 		        {item.label}
 		      </button>
 		    {:else}
-		      <a href={item.href} onclick={closeMenu}>{item.label}</a>
+		      <a
+            href={item.href}
+            data-sveltekit-reload={shouldForceDocumentNavigation(item.href) ? 'true' : undefined}
+            onclick={closeMenu}
+          >
+            {item.label}
+          </a>
 		    {/if}
 		  {/each}
 		  <a

@@ -63,7 +63,7 @@
         <h3>{item.title}</h3>
         <p>{item.description}</p>
         {#if isWebDesignService(item.title)}
-          <a href="/diseno-web" class="service-cta-link">{designLandingLabel}</a>
+          <a href="/diseno-web" class="service-cta-link" data-sveltekit-reload="true">{designLandingLabel}</a>
         {/if}
       </article>
     {/each}
