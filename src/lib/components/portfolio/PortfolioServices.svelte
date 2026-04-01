@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { locale } from '$lib/i18n/index.js';
+
   type ServiceItem = {
     icon: string;
     title: string;
@@ -37,6 +39,15 @@
     title = 'Soluciones Web de Alto Rendimiento',
     items = defaultItems
   }: Props = $props();
+
+  const designLandingLabel = $derived(
+    $locale === 'en' ? 'View web design service' : 'Ver servicio de diseño web'
+  );
+
+  function isWebDesignService(titleText: string): boolean {
+    const normalized = titleText.trim().toLowerCase();
+    return normalized === 'desarrollo web' || normalized === 'web development';
+  }
 </script>
 
 <section class="servicios-grid-container" id="servicios" aria-labelledby="servicios-titulo">
@@ -51,6 +62,9 @@
         <div class="icono-wrap" aria-hidden="true">{item.icon}</div>
         <h3>{item.title}</h3>
         <p>{item.description}</p>
+        {#if isWebDesignService(item.title)}
+          <a href="/diseno-web" class="service-cta-link">{designLandingLabel}</a>
+        {/if}
       </article>
     {/each}
   </div>
@@ -130,6 +144,22 @@
     font-size: 16px;
     line-height: 1.6;
     margin: 0;
+  }
+
+  .service-cta-link {
+    display: inline-flex;
+    margin-top: 16px;
+    color: #0071e3;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .service-cta-link:hover {
+    color: #005bb5;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   @media (max-width: 992px) {

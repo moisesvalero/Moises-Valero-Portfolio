@@ -27,10 +27,10 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     logoHref: '/',
     navItems: [
       { label: 'Inicio', href: '/#top' },
-      { label: 'Sobre mí', href: '/#sobre' },
       { label: 'Servicios', href: '/#servicios' },
-      { label: 'Stack', href: '/#stack' },
       { label: 'Proyectos', href: '/#proyectos' },
+      { label: 'Artículos', href: '/diseno-web/articulos' },
+      { label: 'Diseño web', href: '/diseno-web' },
       { label: 'Trayectoria', href: '#', openCareerModal: true }
     ],
     ctaLabel: 'Contacto',
@@ -262,7 +262,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
   },
   footer: {
     copyrightTemplate:
-      'Servicios Web: One Page, Web Profesional, E-commerce y Mantenimiento | SEO Local en Alcoy (Alicante) | Disponible para proyectos en remoto y presenciales. Moisés Valero © {{year}} | Especialista en SvelteKit, WordPress y Sanity CMS.',
+      'Desarrollo web a medida, rendimiento y SEO para empresas y profesionales | Proyectos en remoto y presenciales. Moisés Valero © {{year}} | Especialista en SvelteKit, WordPress y Sanity CMS.',
     githubHref: 'https://github.com/moisesvalero',
     linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
     maltHref: 'https://www.malt.es/profile/moisesvalerosanchez',

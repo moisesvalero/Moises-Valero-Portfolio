@@ -7,6 +7,7 @@ const staticRoutes = [
 	'/cookies',
 	'/privacidad',
 	'/diseno-web-alcoy',
+	'/diseno-web',
 	'/proyectos/vshield',
 	'/proyectos/ember-iron',
 	'/proyectos/galeria-nova',
@@ -33,7 +34,8 @@ export const GET = async () => {
 
 	const dynamicRoutes = [
 		'/diseno-web-alcoy/articulos',
-		...articles.map((article) => `/diseno-web-alcoy/${article.slug}`)
+		'/diseno-web/articulos',
+		...articles.flatMap((article) => [`/diseno-web-alcoy/${article.slug}`, `/diseno-web/${article.slug}`])
 	];
 
 	const urls = [...staticRoutes, ...dynamicRoutes]
@@ -41,8 +43,8 @@ export const GET = async () => {
 			(route) => `<url>
   <loc>${baseUrl}${route}</loc>
   <lastmod>${now}</lastmod>
-  <changefreq>${route.startsWith('/diseno-web-alcoy/') ? 'weekly' : 'weekly'}</changefreq>
-  <priority>${route === '/' ? '1.0' : route === '/diseno-web-alcoy' ? '0.9' : route === '/diseno-web-alcoy/articulos' ? '0.75' : 0.7}</priority>
+  <changefreq>${route.startsWith('/diseno-web-alcoy/') || route.startsWith('/diseno-web/') ? 'weekly' : 'weekly'}</changefreq>
+  <priority>${route === '/' ? '1.0' : route === '/diseno-web-alcoy' || route === '/diseno-web' ? '0.9' : route === '/diseno-web-alcoy/articulos' || route === '/diseno-web/articulos' ? '0.75' : 0.7}</priority>
 </url>`
 		)
 		.join('\n');

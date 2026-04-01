@@ -22,6 +22,64 @@
   const site = $derived(data.site);
   const hideSiteChrome = $derived(data.hideSiteChrome === true);
   const noIndex = $derived((data as LayoutData & { noIndex?: boolean }).noIndex === true);
+  type HeaderNavItem = (typeof site.header.navItems)[number];
+
+  function normalizeNavHref(href: string): string {
+    const trimmed = href.trim().toLowerCase();
+    if (trimmed.startsWith('/#')) {
+      return trimmed.slice(1);
+    }
+    return trimmed;
+  }
+
+  function navIdentity(item: HeaderNavItem): string {
+    return item.openCareerModal ? 'career-modal' : `href:${normalizeNavHref(item.href)}`;
+  }
+
+  const headerNavItems = $derived(
+    (() => {
+      const articleLabel = data.locale === 'en' ? 'Articles' : 'Artículos';
+      const webDesignLabel = data.locale === 'en' ? 'Web Design' : 'Diseño web';
+
+      const source = site.header.navItems
+        .map((item) => {
+          if (item.openCareerModal) {
+            return item;
+          }
+          const normalizedHref = normalizeNavHref(item.href);
+          if (normalizedHref === '#sobre' || normalizedHref === '#stack') {
+            return null;
+          }
+          if (normalizedHref === '/diseno-web-alcoy') {
+            return { ...item, href: '/diseno-web', label: webDesignLabel };
+          }
+          if (normalizedHref === '/diseno-web-alcoy/articulos') {
+            return { ...item, href: '/diseno-web/articulos', label: articleLabel };
+          }
+          return item;
+        })
+        .filter(Boolean) as HeaderNavItem[];
+
+      const pick = (predicate: (item: HeaderNavItem) => boolean): HeaderNavItem | undefined =>
+        source.find(predicate);
+
+      const home = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#top');
+      const services = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#servicios');
+      const projects = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#proyectos');
+      const articles =
+        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/diseno-web/articulos') ??
+        ({ label: articleLabel, href: '/diseno-web/articulos' } as HeaderNavItem);
+      const webDesign =
+        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/diseno-web') ??
+        ({ label: webDesignLabel, href: '/diseno-web' } as HeaderNavItem);
+      const career = pick((item) => item.openCareerModal === true);
+
+      const preferred = [home, services, projects, articles, webDesign, career].filter(Boolean) as HeaderNavItem[];
+      const used = new Set(preferred.map((item) => navIdentity(item)));
+      const remainder = source.filter((item) => !used.has(navIdentity(item)));
+      return [...preferred, ...remainder];
+    })()
+  );
 
   $effect(() => {
     locale.set(data.locale);
@@ -94,7 +152,7 @@
 	  />
 
 	  <nav class="nav-desktop">
-		{#each site.header.navItems as item (item.label + item.href + (item.openCareerModal ? '1' : '0'))}
+		{#each headerNavItems as item (item.label + item.href + (item.openCareerModal ? '1' : '0'))}
 		  {#if item.openCareerModal}
 			<button
 			  type="button"
@@ -172,7 +230,7 @@
 		onkeydown={(e) => e.key === 'Escape' && closeMenu()}
 	  >
 		<nav class="mobile-nav">
-		  {#each site.header.navItems as item (item.label + item.href + (item.openCareerModal ? '1' : '0'))}
+		  {#each headerNavItems as item (item.label + item.href + (item.openCareerModal ? '1' : '0'))}
 		    {#if item.openCareerModal}
 		      <button
 		        type="button"
