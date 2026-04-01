@@ -74,11 +74,12 @@
 <main class="articles-index">
   <section class="hero">
     <div class="hero-inner">
-      <p class="eyebrow">Articulos SEO local</p>
-      <h1>Ideas practicas para posicionar mejor en Alcoy</h1>
+      <p class="eyebrow">Recursos y Estrategia</p>
+      <h1>Guías y Estrategia Digital para mejorar tu presencia online</h1>
       <p class="lead">
-        Una colección de guías cortas sobre mantenimiento, seguridad, velocidad y SEO local para que Google
-        entienda mejor tu sitio y tus clientes encuentren respuestas utiles.
+        Ideas prácticas para mejorar tu presencia online. Una colección de guías sobre rendimiento, seguridad,
+        velocidad y estrategia local para que Google entienda mejor tu sitio y tus clientes encuentren respuestas
+        útiles.
       </p>
       <div class="hero-actions">
         <a class="btn btn-primary" href={landingBasePath}>Ver la web</a>
