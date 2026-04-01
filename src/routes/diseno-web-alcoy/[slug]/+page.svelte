@@ -131,7 +131,7 @@
       <div class="related-shell">
         <div class="related-head">
           <p class="eyebrow eyebrow--green">Siguiente lectura</p>
-          <h2>Articulos relacionados para seguir mejorando el SEO local</h2>
+          <h2>Articulos relacionados para seguir mejorando</h2>
           <p>
             Estos contenidos te ayudan a ordenar mejor la web y a crear caminos claros para que Google entienda
             de qué va cada página.
@@ -141,6 +141,14 @@
         <div class="related-grid">
           {#each relatedArticles as related, idx (related.slug)}
             <a class="related-card group" href={`${landingBasePath}/${related.slug}`}>
+              <div class="related-card-media">
+                <img
+                  src={related.coverImageSrc}
+                  alt={related.coverImageAlt}
+                  loading={idx === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+              </div>
               <span class="related-topline">
                 <span>{related.categoryLabel}</span>
                 <span>·</span>
@@ -418,10 +426,32 @@
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   }
 
+  .related-card-media {
+    width: 100%;
+    aspect-ratio: 16 / 8.5;
+    border-radius: 0.72rem;
+    overflow: hidden;
+    border: 1px solid rgba(0, 108, 73, 0.14);
+    background: #eef2f7;
+    margin-bottom: 0.75rem;
+  }
+
+  .related-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
   .related-card:hover {
     transform: translateY(-2px);
     border-color: rgba(0, 108, 73, 0.3);
     box-shadow: 0 18px 32px rgba(15, 23, 42, 0.08);
+  }
+
+  .related-card:hover .related-card-media img {
+    transform: scale(1.03);
   }
 
   .related-topline {
