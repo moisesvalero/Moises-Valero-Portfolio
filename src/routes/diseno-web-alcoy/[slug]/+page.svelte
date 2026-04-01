@@ -96,7 +96,7 @@
 <article class="support-article">
   <header class="hero">
     <div class="hero-inner">
-      <p class="eyebrow">{article.categoryLabel} · Alcoy / SEO local</p>
+      <p class="eyebrow">{article.categoryLabel} · Lectura recomendada</p>
       <h1>{article.title}</h1>
       <p class="lead">{article.excerpt}</p>
       <div class="meta">
