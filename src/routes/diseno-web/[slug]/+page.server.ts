@@ -12,5 +12,11 @@ export const load: PageServerLoad = async ({ params }) => {
     error(404, 'Articulo no encontrado');
   }
 
-  return { article, relatedArticles, basePath: '/diseno-web' };
+  return {
+    article,
+    relatedArticles,
+    basePath: '/diseno-web',
+    /** Metadatos y JSON-LD apuntan a la URL canónica en Alcoy (mismo contenido). */
+    seoCanonicalBasePath: '/diseno-web-alcoy'
+  };
 };

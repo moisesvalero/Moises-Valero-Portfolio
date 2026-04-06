@@ -19,7 +19,14 @@
       return rawBasePath && rawBasePath.startsWith('/') ? rawBasePath : '/diseno-web-alcoy';
     })()
   );
-  const canonical = $derived(`${baseUrl}${landingBasePath}/${article.slug}`);
+  /** Si el artículo se sirve también bajo /diseno-web/..., la URL canónica es la de Alcoy. */
+  const seoCanonicalBase = $derived(
+    (() => {
+      const raw = (data as PageData & { seoCanonicalBasePath?: string }).seoCanonicalBasePath;
+      return typeof raw === 'string' && raw.startsWith('/') ? raw : landingBasePath;
+    })()
+  );
+  const canonical = $derived(`${baseUrl}${seoCanonicalBase}/${article.slug}`);
   const seoTitle = $derived(article.seoTitle?.trim() || article.title);
   const seoDescription = $derived(article.seoDescription?.trim() || article.excerpt);
   const ogImage = $derived(
@@ -57,7 +64,7 @@
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${baseUrl}/` },
-        { '@type': 'ListItem', position: 2, name: 'Diseno web', item: `${baseUrl}${landingBasePath}` },
+        { '@type': 'ListItem', position: 2, name: 'Diseno web', item: `${baseUrl}${seoCanonicalBase}` },
         { '@type': 'ListItem', position: 3, name: article.title, item: canonical }
       ]
     })
@@ -104,7 +111,7 @@
         <span>·</span>
         <span>{article.readingMinutes} min</span>
       </div>
-      <a class="back-link" href={`${landingBasePath}/articulos`}>← Volver a articulos</a>
+      <a class="back-link" href={`${seoCanonicalBase}/articulos`}>← Volver a articulos</a>
     </div>
   </header>
 
@@ -140,7 +147,7 @@
 
         <div class="related-grid">
           {#each relatedArticles as related, idx (related.slug)}
-            <a class="related-card group" href={`${landingBasePath}/${related.slug}`}>
+            <a class="related-card group" href={`${seoCanonicalBase}/${related.slug}`}>
               <div class="related-card-media">
                 <img
                   src={related.coverImageSrc}

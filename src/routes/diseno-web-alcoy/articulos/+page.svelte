@@ -13,7 +13,13 @@
       return rawBasePath && rawBasePath.startsWith('/') ? rawBasePath : '/diseno-web-alcoy';
     })()
   );
-  const canonical = $derived(`${baseUrl}${landingBasePath}/articulos`);
+  const seoCanonicalBase = $derived(
+    (() => {
+      const raw = (data as PageData & { seoCanonicalBasePath?: string }).seoCanonicalBasePath;
+      return typeof raw === 'string' && raw.startsWith('/') ? raw : landingBasePath;
+    })()
+  );
+  const canonical = $derived(`${baseUrl}${seoCanonicalBase}/articulos`);
   const articles = $derived(data.articles ?? []);
   const pageJsonLd = $derived(
     stringifyJsonLdForHtml({
@@ -34,7 +40,7 @@
         '@type': 'ListItem',
         position: index + 1,
         name: article.title,
-        url: `${baseUrl}${landingBasePath}/${article.slug}`
+        url: `${baseUrl}${seoCanonicalBase}/${article.slug}`
       }))
     })
   );
@@ -95,7 +101,7 @@
       </div>
       <div class="grid">
         {#each articles as article, idx (article.slug)}
-          <a class="card group" href={`${landingBasePath}/${article.slug}`}>
+          <a class="card group" href={`${seoCanonicalBase}/${article.slug}`}>
             <div class="card-media">
               <img
                 src={article.coverImageSrc}

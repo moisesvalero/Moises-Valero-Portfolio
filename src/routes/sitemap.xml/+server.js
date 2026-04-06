@@ -32,10 +32,10 @@ export const GET = async () => {
 	const now = new Date().toISOString();
 	const articles = await fetchLandingSupportArticles();
 
+	// Artículos: una sola URL canónica (/diseno-web-alcoy/...) — evita duplicados con /diseno-web/...
 	const dynamicRoutes = [
 		'/diseno-web-alcoy/articulos',
-		'/diseno-web/articulos',
-		...articles.flatMap((article) => [`/diseno-web-alcoy/${article.slug}`, `/diseno-web/${article.slug}`])
+		...articles.map((article) => `/diseno-web-alcoy/${article.slug}`)
 	];
 
 	const urls = [...staticRoutes, ...dynamicRoutes]

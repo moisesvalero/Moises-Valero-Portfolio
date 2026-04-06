@@ -21,7 +21,17 @@ export const load: LayoutServerLoad = async ({ cookies, depends, url }) => {
     url.hostname === PRIMARY_CANONICAL_HOST || url.hostname === `www.${PRIMARY_CANONICAL_HOST}`;
   const normalizedPath = url.pathname === '/' ? '/' : url.pathname.replace(/\/$/, '');
   const canonicalOrigin = isProductionHost ? `https://${PRIMARY_CANONICAL_HOST}` : url.origin;
-  const canonicalUrl = `${canonicalOrigin}${normalizedPath}`;
+  /** Misma pieza de contenido bajo /diseno-web/... y /diseno-web-alcoy/... → canónica única en Alcoy. */
+  let canonicalPath = normalizedPath;
+  if (canonicalPath === '/diseno-web/articulos') {
+    canonicalPath = '/diseno-web-alcoy/articulos';
+  } else {
+    const dup = /^\/diseno-web\/([^/]+)$/.exec(canonicalPath);
+    if (dup && dup[1] !== 'articulos') {
+      canonicalPath = `/diseno-web-alcoy/${dup[1]}`;
+    }
+  }
+  const canonicalUrl = `${canonicalOrigin}${canonicalPath}`;
   const noIndex = !isProductionHost;
   return { site, locale, hideSiteChrome, canonicalUrl, noIndex };
 };
