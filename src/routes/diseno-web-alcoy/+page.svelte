@@ -6,7 +6,6 @@
   import JsonLdScript from '$lib/components/JsonLdScript.svelte';
   import HeroMacMockup from '$lib/components/landing/HeroMacMockup.svelte';
   import { stringifyJsonLdForHtml } from '$lib/json-ld-html.js';
-  import { seo, setSeo } from '$lib/seo';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -24,6 +23,12 @@
     landing.seo.canonicalPath.startsWith('http')
       ? landing.seo.canonicalPath
       : `${baseUrl}${landing.seo.canonicalPath.startsWith('/') ? '' : '/'}${landing.seo.canonicalPath}`
+  );
+  /** OG: URL absoluta en SSR (el store + $effect no se ejecutaba en servidor). */
+  const absoluteOgImage = $derived(
+    landing.seo.ogImage.startsWith('http')
+      ? landing.seo.ogImage
+      : `${baseUrl}${landing.seo.ogImage.startsWith('/') ? '' : '/'}${landing.seo.ogImage}`
   );
   const landingBasePath = $derived(
     (() => {
@@ -659,7 +664,7 @@
         {
           '@type': 'ListItem',
           position: 2,
-          name: 'Diseño web en Alcoy',
+          name: landingBasePath === '/diseno-web' ? 'Diseño web' : 'Diseño web en Alcoy',
           item: canonicalUrl
         }
       ]
@@ -667,35 +672,22 @@
   );
 
   const serviceIcons = ['ads_click', 'business', 'code'];
-
-  $effect(() => {
-    setSeo({
-      title: landing.seo.title,
-      description: landing.seo.description,
-      ogTitle: landing.seo.ogTitle,
-      ogDescription: landing.seo.ogDescription,
-      canonical: canonicalUrl,
-      ogUrl: canonicalUrl,
-      ogImage: landing.seo.ogImage,
-      twitterCard: landing.seo.twitterCard
-    });
-  });
 </script>
 
 <svelte:head>
-  <title>{$seo.title}</title>
-  <meta name="description" content={$seo.description} />
+  <title>{landing.seo.title}</title>
+  <meta name="description" content={landing.seo.description} />
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content={$seo.ogTitle} />
-  <meta property="og:description" content={$seo.ogDescription} />
-  <meta property="og:url" content={$seo.ogUrl} />
-  <meta property="og:image" content={$seo.ogImage} />
+  <meta property="og:title" content={landing.seo.ogTitle} />
+  <meta property="og:description" content={landing.seo.ogDescription} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:image" content={absoluteOgImage} />
   <meta property="og:locale" content="es_ES" />
-  <meta name="twitter:card" content={$seo.twitterCard} />
-  <meta name="twitter:title" content={$seo.ogTitle} />
-  <meta name="twitter:description" content={$seo.ogDescription} />
-  <meta name="twitter:image" content={$seo.ogImage} />
+  <meta name="twitter:card" content={landing.seo.twitterCard} />
+  <meta name="twitter:title" content={landing.seo.ogTitle} />
+  <meta name="twitter:description" content={landing.seo.ogDescription} />
+  <meta name="twitter:image" content={absoluteOgImage} />
   <script id="alcoy-tailwind-config" src="/js/landing-tailwind-config.js"></script>
   <script id="alcoy-tailwind-cdn" src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <JsonLdScript json={localBusinessJsonLd} />
