@@ -7,8 +7,8 @@
           style="padding:14px 14px 12px;background:linear-gradient(180deg,#f8fbff 0%,#f3f6fb 100%);font-family:Arial,'Roboto','Helvetica Neue',Helvetica,sans-serif;color:#202124;"
         >
           <div class="search-row">
-            <p class="fake-brand" aria-label="Gooble">
-              <span class="c1">G</span><span class="c2">o</span><span class="c3">o</span><span class="c1">b</span
+            <p class="fake-brand" aria-label="Google">
+              <span class="c1">G</span><span class="c2">o</span><span class="c3">o</span><span class="c1">g</span
               ><span class="c4">l</span><span class="c2">e</span>
             </p>
             <div
@@ -66,8 +66,8 @@
           style="padding:14px 14px 12px;background:linear-gradient(180deg,#f8fbff 0%,#f3f6fb 100%);font-family:Arial,'Roboto','Helvetica Neue',Helvetica,sans-serif;color:#202124;"
         >
           <div class="search-row">
-            <p class="fake-brand" aria-label="Gooble">
-              <span class="c1">G</span><span class="c2">o</span><span class="c3">o</span><span class="c1">b</span
+            <p class="fake-brand" aria-label="Google">
+              <span class="c1">G</span><span class="c2">o</span><span class="c3">o</span><span class="c1">g</span
               ><span class="c4">l</span><span class="c2">e</span>
             </p>
             <div
@@ -106,8 +106,8 @@
           style="padding:14px 14px 12px;background:linear-gradient(180deg,#f8fbff 0%,#f3f6fb 100%);font-family:Arial,'Roboto','Helvetica Neue',Helvetica,sans-serif;color:#202124;"
         >
           <div class="search-row">
-            <p class="fake-brand" aria-label="Gooble">
-              <span class="c1">G</span><span class="c2">o</span><span class="c3">o</span><span class="c1">b</span
+            <p class="fake-brand" aria-label="Google">
+              <span class="c1">G</span><span class="c2">o</span><span class="c3">o</span><span class="c1">g</span
               ><span class="c4">l</span><span class="c2">e</span>
             </p>
             <div
