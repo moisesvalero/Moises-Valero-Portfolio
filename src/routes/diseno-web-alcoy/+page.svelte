@@ -735,6 +735,11 @@
           class={`alcoy-nav-link header-link-premium font-medium transition-colors duration-200 no-underline ${
             isHeaderScrolled ? 'is-scrolled text-slate-700 hover:text-[#006c49]' : 'is-top text-white/90 hover:text-white'
           }`}
+          href={`${landingBasePath}/articulos`}>Artículos</a>
+        <a
+          class={`alcoy-nav-link header-link-premium font-medium transition-colors duration-200 no-underline ${
+            isHeaderScrolled ? 'is-scrolled text-slate-700 hover:text-[#006c49]' : 'is-top text-white/90 hover:text-white'
+          }`}
           href="#contact">Contacto</a>
       </div>
       <div class="flex items-center gap-3">
@@ -796,6 +801,12 @@
             }`}
             href="#faq"
             onclick={closeMobileNav}>FAQ</a>
+          <a
+            class={`font-medium no-underline py-1 ${
+              isHeaderScrolled ? 'text-slate-700' : 'text-white/90 hover:text-white'
+            }`}
+            href={`${landingBasePath}/articulos`}
+            onclick={closeMobileNav}>Artículos</a>
           <a
             class={`font-medium no-underline py-1 ${
               isHeaderScrolled ? 'text-slate-700' : 'text-white/90 hover:text-white'
