@@ -505,7 +505,7 @@
 			});
 		}
 
-		function renderBandos(b) {
+		function renderBandos(b, showMarchas) {
 			if (!b) return '';
 			let html = '<div class="bandos">';
 			['crist', 'moro'].forEach((lado) => {
@@ -513,7 +513,7 @@
 					html += '<div class="bando ' + (lado === 'crist' ? 'bc' : 'bm') + '">';
 					html += '<div class="bando-t">' + (lado === 'crist' ? 'Bando cristiano' : 'Bando moro') + '</div>';
 					b[lado].forEach((f, i) => {
-						const m = getMarchas(f);
+						const m = showMarchas ? getMarchas(f) : null;
 						html += '<div class="fila-wrap">';
 						html += '<div class="fila">';
 						html += '<span class="fn">' + (i + 1) + '</span>';
@@ -585,6 +585,7 @@
 				const div = document.createElement('div');
 				div.className = 'acto';
 				const livePill = hoy && i === activo ? '<span class="live-pill">EN DIRECTO</span>' : '';
+				const showMarchas = a.nombre === 'Entrada de Cristianos' || a.nombre === 'Entrada de Moros';
 				div.innerHTML =
 					'<div class="acto-head" onclick="toggle(this)">' +
 					livePill +
@@ -605,7 +606,7 @@
 					(isOpen ? ' open' : '') +
 					'">' +
 					(a.nota ? '<p class="nota">' + a.nota + '</p>' : '') +
-					renderBandos(a.bandos) +
+					renderBandos(a.bandos, showMarchas) +
 					(a.bandos ? '<p class="aviso">⚠️ Orden orientativo según guión oficial. Los tiempos reales pueden variar.</p>' : '') +
 					'</div>';
 				c.appendChild(div);
