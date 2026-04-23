@@ -486,24 +486,24 @@
 </div>
 
 <style>
-	#mc-tracker * {
+	:global(#mc-tracker *) {
 		box-sizing: border-box;
 		margin: 0;
 		padding: 0;
 	}
-	#mc-tracker {
+	:global(#mc-tracker) {
 		font-family: system-ui, -apple-system, sans-serif;
 		font-size: 15px;
 		line-height: 1.5;
 		margin: 2rem 0;
 	}
-	#mc-tracker .tabs {
+	:global(#mc-tracker .tabs) {
 		display: flex;
 		gap: 6px;
 		flex-wrap: wrap;
 		margin-bottom: 1rem;
 	}
-	#mc-tracker button {
+	:global(#mc-tracker button) {
 		font-family: inherit;
 		font-size: 13px;
 		padding: 6px 14px;
@@ -514,12 +514,12 @@
 		color: #555;
 		transition: all 0.15s;
 	}
-	#mc-tracker button.on {
+	:global(#mc-tracker button.on) {
 		background: #111;
 		color: #fff;
 		border-color: #111;
 	}
-	#mc-tracker .live-banner {
+	:global(#mc-tracker .live-banner) {
 		background: #fff0f0;
 		border: 1px solid #fca5a5;
 		border-radius: 8px;
@@ -530,13 +530,13 @@
 		font-weight: 500;
 		display: none;
 	}
-	#mc-tracker .acto {
+	:global(#mc-tracker .acto) {
 		border: 1px solid #e5e5e5;
 		border-radius: 10px;
 		margin-bottom: 8px;
 		overflow: hidden;
 	}
-	#mc-tracker .acto-head {
+	:global(#mc-tracker .acto-head) {
 		display: flex;
 		align-items: center;
 		gap: 10px;
@@ -545,10 +545,10 @@
 		background: #fff;
 		user-select: none;
 	}
-	#mc-tracker .acto-head:hover {
+	:global(#mc-tracker .acto-head:hover) {
 		background: #f9f9f9;
 	}
-	#mc-tracker .live-pill {
+	:global(#mc-tracker .live-pill) {
 		background: #dc2626;
 		color: #fff;
 		font-size: 10px;
@@ -557,76 +557,76 @@
 		font-weight: 600;
 		white-space: nowrap;
 	}
-	#mc-tracker .acto-hora {
+	:global(#mc-tracker .acto-hora) {
 		font-size: 12px;
 		color: #888;
 		min-width: 44px;
 		font-variant-numeric: tabular-nums;
 	}
-	#mc-tracker .acto-nombre {
+	:global(#mc-tracker .acto-nombre) {
 		font-size: 14px;
 		font-weight: 600;
 		color: #111;
 		flex: 1;
 	}
-	#mc-tracker .acto-lugar {
+	:global(#mc-tracker .acto-lugar) {
 		font-size: 12px;
 		color: #aaa;
 		display: none;
 	}
-	#mc-tracker .chev {
+	:global(#mc-tracker .chev) {
 		font-size: 11px;
 		color: #aaa;
 		margin-left: auto;
 		transition: transform 0.2s;
 		flex-shrink: 0;
 	}
-	#mc-tracker .chev.open {
+	:global(#mc-tracker .chev.open) {
 		transform: rotate(90deg);
 	}
-	#mc-tracker .acto-body {
+	:global(#mc-tracker .acto-body) {
 		padding: 14px 15px;
 		border-top: 1px solid #f0f0f0;
 		display: none;
 	}
-	#mc-tracker .acto-body.open {
+	:global(#mc-tracker .acto-body.open) {
 		display: block;
 	}
-	#mc-tracker .nota {
+	:global(#mc-tracker .nota) {
 		font-size: 12px;
 		color: #666;
 		margin-bottom: 12px;
 		line-height: 1.6;
 	}
-	#mc-tracker .bandos {
+	:global(#mc-tracker .bandos) {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 8px;
 	}
-	#mc-tracker .bando {
+	:global(#mc-tracker .bando) {
 		border-radius: 8px;
 		padding: 10px 12px;
 	}
-	#mc-tracker .bc {
+	:global(#mc-tracker .bc) {
 		background: #eff6ff;
 	}
-	#mc-tracker .bm {
+	:global(#mc-tracker .bm) {
 		background: #fffbeb;
 	}
-	#mc-tracker .bando-t {
+	:global(#mc-tracker .bando-t) {
 		font-size: 10px;
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 		margin-bottom: 8px;
 	}
-	#mc-tracker .bc .bando-t {
+	:global(#mc-tracker .bc .bando-t) {
 		color: #1d4ed8;
 	}
-	#mc-tracker .bm .bando-t {
+	:global(#mc-tracker .bm .bando-t) {
 		color: #92400e;
 	}
-	#mc-tracker .fila {
+	:global(#mc-tracker .fila) {
 		font-size: 12px;
 		padding: 3px 0;
 		border-bottom: 1px solid rgba(0, 0, 0, 0.06);
@@ -634,10 +634,10 @@
 		display: flex;
 		gap: 5px;
 	}
-	#mc-tracker .fila:last-child {
+	:global(#mc-tracker .fila:last-child) {
 		border-bottom: none;
 	}
-	#mc-tracker .fn {
+	:global(#mc-tracker .fn) {
 		font-size: 10px;
 		color: #bbb;
 		min-width: 14px;
@@ -645,10 +645,10 @@
 		padding-top: 1px;
 	}
 	@media (max-width: 480px) {
-		#mc-tracker .bandos {
+		:global(#mc-tracker .bandos) {
 			grid-template-columns: 1fr;
 		}
-		#mc-tracker .acto-lugar {
+		:global(#mc-tracker .acto-lugar) {
 			display: none;
 		}
 	}
