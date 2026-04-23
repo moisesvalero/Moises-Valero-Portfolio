@@ -198,7 +198,7 @@
   <div class="cta-section">
     <h3>{c.ctaTitle}</h3>
     <p class="cta-lead">{c.ctaLead}</p>
-    <a href="https://galerianova.es" class="btn" target="_blank" rel="noopener noreferrer">{c.ctaBtn}</a>
+    <a href={data.liveUrl} class="btn" target="_blank" rel="noopener noreferrer">{c.ctaBtn}</a>
     <a href="/#proyectos" class="btn btn-outline">{c.ctaBack}</a>
   </div>
 </div>
