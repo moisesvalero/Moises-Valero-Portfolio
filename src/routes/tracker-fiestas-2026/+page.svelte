@@ -476,6 +476,46 @@
 		}
 
 		render();
+
+		function notifyParentHeight() {
+			const root = document.getElementById('mc-tracker');
+			const doc = document.documentElement;
+			const body = document.body;
+			const rootHeight = root ? root.scrollHeight : 0;
+			const pageHeight = Math.max(
+				rootHeight,
+				doc ? doc.scrollHeight : 0,
+				body ? body.scrollHeight : 0,
+				doc ? doc.offsetHeight : 0,
+				body ? body.offsetHeight : 0
+			);
+			if (window.parent && window.parent !== window) {
+				window.parent.postMessage(
+					{
+						type: 'mc-tracker-height',
+						height: pageHeight
+					},
+					'*'
+				);
+			}
+		}
+
+		const resizeObserver =
+			typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => notifyParentHeight()) : null;
+		if (resizeObserver && document.body) {
+			resizeObserver.observe(document.body);
+		}
+
+		window.addEventListener('load', notifyParentHeight);
+		window.addEventListener('resize', notifyParentHeight);
+		requestAnimationFrame(() => notifyParentHeight());
+		setTimeout(() => notifyParentHeight(), 120);
+
+		return () => {
+			window.removeEventListener('load', notifyParentHeight);
+			window.removeEventListener('resize', notifyParentHeight);
+			if (resizeObserver) resizeObserver.disconnect();
+		};
 	});
 </script>
 

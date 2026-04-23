@@ -16,7 +16,9 @@ export const load: LayoutServerLoad = async ({ cookies, depends, url }) => {
     url.pathname === '/diseno-web-alcoy' ||
     url.pathname.startsWith('/diseno-web-alcoy/') ||
     url.pathname === '/diseno-web' ||
-    url.pathname.startsWith('/diseno-web/');
+    url.pathname.startsWith('/diseno-web/') ||
+    url.pathname === '/tracker-fiestas-2026' ||
+    url.pathname.startsWith('/tracker-fiestas-2026/');
   const isProductionHost =
     url.hostname === PRIMARY_CANONICAL_HOST || url.hostname === `www.${PRIMARY_CANONICAL_HOST}`;
   const normalizedPath = url.pathname === '/' ? '/' : url.pathname.replace(/\/$/, '');
