@@ -72,6 +72,7 @@
 				.replace(/\s*\(.*?\)/g, '')
 				.replace(/\s*(Capitán|Alférez|filà.*|filà del Mig|Sant Jordiet|Timbaleros.*|Embajador.*|Sargento.*|Mossèn.*)/gi, '')
 				.trim();
+			if (!base) return null;
 			for (const k in MARCHAS) {
 				if (base === k || base.indexOf(k) !== -1 || k.indexOf(base) !== -1) return MARCHAS[k];
 			}
