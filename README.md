@@ -465,3 +465,5 @@ Para guardar leads en Sanity:
 4. Verificar en produccion:
    - recepcion de emails
    - guardado de lead en Sanity (si procede)
+
+Nota: ajuste minimo para generar un nuevo commit manual.
