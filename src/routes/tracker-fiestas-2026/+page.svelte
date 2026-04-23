@@ -1,7 +1,83 @@
 <script>
+	// @ts-nocheck
 	import { onMount } from 'svelte';
 
 	onMount(() => {
+		const MARCHAS = {
+			Llana: 'Llanero i President, Al Basora, Filà Llana',
+			'Judíos': 'Éxodo, Jamalajam, Als Judios',
+			'Domingo Miques': 'El moro del Sinc',
+			Chano: 'A mons pares',
+			Verdes: 'Moros Verdes',
+			Magenta: "Marxa del Centenari, Uzul el M'Selmein, Jamalajam",
+			'Cordón': 'Cordón 95, Tarde de Abril',
+			Ligeros: 'Als Ligeros',
+			'Mudéjares': 'El moro del Sinc, El Kàbila, Centenari Mudéjar',
+			Abencerrajes: "Uzul el M'Selmein, Tarde de Abril",
+			Marrakesch: 'Xavier el coixo',
+			Realistes: 'Al-Wazir, El President, Jamalajam',
+			Berberiscos: 'Als Berebers, Marxa del Centenari',
+			Benimerines: 'Marxa Benimerins',
+			Andaluces: 'Ragón Falez',
+			Asturianos: 'Xirimiqui, El desitjat',
+			Cides: 'Tino Herrera',
+			Labradores: 'Pas als Maseros',
+			Guzmanes: 'Monjos guerrers, Claus i corretges, Mai Sabel',
+			Vascos: 'El conqueridor, Ix el cristià',
+			'Mozárabes': 'Mozárabes y Alfarrasí',
+			'Almogávares': 'Amogàvar i alcoià',
+			Navarros: "L'ambaixador cristià",
+			Tomasinas: 'Ramón Petit',
+			Muntanyesos: 'Alcoi escata i destral, Muntanya de ferro, Muntanyés i festa',
+			Cruzados: 'Als creuats',
+			Alcodianos: 'Bonus Christianus, Signum, Lácrima',
+			Aragonesos: "Aragonesos 99, L'aragonés Perfecte, Aragonesos més que mai"
+		};
+
+		const MOROS = [
+			'Llana',
+			'Judíos',
+			'Domingo Miques',
+			'Chano',
+			'Verdes',
+			'Magenta',
+			'Cordón',
+			'Ligeros',
+			'Mudéjares',
+			'Abencerrajes',
+			'Marrakesch',
+			'Realistes',
+			'Berberiscos',
+			'Benimerines'
+		];
+		const CRIST = [
+			'Andaluces',
+			'Asturianos',
+			'Cides',
+			'Labradores',
+			'Guzmanes',
+			'Vascos',
+			'Mozárabes',
+			'Almogávares',
+			'Navarros',
+			'Tomasinas',
+			'Muntanyesos',
+			'Cruzados',
+			'Alcodianos',
+			'Aragonesos'
+		];
+
+		function getMarchas(nombre) {
+			const base = nombre
+				.replace(/\s*\(.*?\)/g, '')
+				.replace(/\s*(Capitán|Alférez|filà.*|filà del Mig|Sant Jordiet|Timbaleros.*|Embajador.*|Sargento.*|Mossèn.*)/gi, '')
+				.trim();
+			for (const k in MARCHAS) {
+				if (base === k || base.indexOf(k) !== -1 || k.indexOf(base) !== -1) return MARCHAS[k];
+			}
+			return null;
+		}
+
 		const DIAS = [
 			{
 				id: 'd24',
@@ -11,14 +87,14 @@
 						hora: '19:00',
 						nombre: 'Fiesta del Pasodoble',
 						lugar: 'Av. País Valencià',
-						nota: "Desfile de corporaciones musicales hasta la Plaça d'Espanya. Fuegos artificiales al finalizar. A las 18:45h abren las colles de dolçainers.",
+						nota: "Desfile de corporaciones musicales hasta la Plaça d'Espanya. A las 18:45h abren las colles de dolçainers. Fuegos artificiales al finalizar.",
 						bandos: null
 					},
 					{
 						hora: '21:30',
 						nombre: "Nit de l'Olla",
-						lugar: 'Font Redona / Av. País Valencià',
-						nota: 'Cena de festers y músicos en las filaes. Después desfilan de paisano desde Sant Nicolau y Av. País Valencià.',
+						lugar: 'Font Redona',
+						nota: 'Cena de festers y músicos en las filaes. Después desfilan de paisano.',
 						bandos: null
 					}
 				]
@@ -32,7 +108,7 @@
 						hora: '05:45',
 						nombre: 'Diana',
 						lugar: "Plaça d'Espanya",
-						nota: 'Primera filà arranca a las 5:50h. Última sobre las 7:45h. Cada filà va representada por una escuadra de diez festers y su cabo, seguida por su banda.',
+						nota: 'Primera filà arranca a las 5:50h. Última sobre las 7:45h.',
 						bandos: {
 							crist: [
 								'Sargento Cristiano',
@@ -74,12 +150,12 @@
 						hora: '10:30',
 						nombre: 'Entrada de Cristianos',
 						lugar: 'El Partidor',
-						nota: 'El Capitán llega a la Plaça sobre las 11:15h y recibe las llaves de la Villa. Acaba al final de la Av. País Valencià.',
+						nota: "El Capitán llega a la Plaça sobre las 11:15h y recibe las llaves de la Villa.",
 						bandos: {
 							crist: [
 								'Timbaleros y clarines',
-								'Sargento Cristiano + Guion 750 aniversario',
-								'Capitán Cristiano + escolta',
+								'Sargento Cristiano',
+								'Capitán Cristiano',
 								'Andaluces (Capitán)',
 								'Aragonesos',
 								'Alcodianos',
@@ -93,7 +169,6 @@
 								'Guzmanes',
 								'Labradores',
 								'Cides',
-								'Timbaleros y clarines',
 								'Embajador y Abanderado',
 								'Alférez Cristiano',
 								'Mossèn Torregrosa',
@@ -106,13 +181,13 @@
 						hora: '17:00',
 						nombre: 'Entrada de Moros',
 						lugar: 'El Partidor',
-						nota: 'El Capitán llega a la Plaça sobre las 17:45h. Mismo itinerario que la Entrada Cristiana.',
+						nota: "El Capitán llega a la Plaça sobre las 17:45h.",
 						bandos: {
 							crist: null,
 							moro: [
 								'Timbaleros y clarines',
-								'Sargento Moro + Guion 750 aniversario',
-								'Capitán Moro + escolta',
+								'Sargento Moro',
+								'Capitán Moro',
 								'Marrakesch (Capitán)',
 								'Abencerrajes',
 								'Mudéjares',
@@ -126,9 +201,8 @@
 								'Llana',
 								'Benimerines',
 								'Berberiscos',
-								'Timbaleros y clarines',
 								'Embajador y Abanderado',
-								'Alférez Moro + escolta',
+								'Alférez Moro',
 								'Realistes (Alférez)'
 							]
 						}
@@ -183,7 +257,7 @@
 						hora: '11:00',
 						nombre: 'Procesión de la Reliquia',
 						lugar: 'Iglesia de San Jorge',
-						nota: 'Traslado de la Reliquia hasta Santa María. Finaliza sobre las 12:00h. A continuación, Solemne Misa Mayor con la OSA, Coral Polifónica Alcoyana y más.',
+						nota: 'Traslado hasta Santa María. Finaliza sobre las 12:00h. Seguidamente Solemne Misa Mayor.',
 						bandos: null
 					},
 					{ hora: '14:00', nombre: 'Mascletà', lugar: "Plaça d'Espanya", nota: '', bandos: null },
@@ -191,7 +265,7 @@
 						hora: '18:00',
 						nombre: 'Diana Vespertina del Cavallet',
 						lugar: 'Font Redona',
-						nota: "Filaes Realistes y Berberiscos como protagonistas. Desde la Font Redona hasta la Plaça d'Espanya.",
+						nota: 'Filaes Realistes y Berberiscos como protagonistas.',
 						bandos: null
 					},
 					{
@@ -205,7 +279,7 @@
 						hora: '23:30',
 						nombre: 'Retreta',
 						lugar: 'Cruce El Camí / Sant Mateu',
-						nota: 'Desfile informal de festers y músicos. Recorrido por Sant Nicolau, Plaça d\'Espanya y Sant Tomàs hasta la iglesia de San Jorge.',
+						nota: "Desfile informal de festers y músicos. Recorrido por Sant Nicolau, Plaça d'Espanya y Sant Tomàs.",
 						bandos: null
 					}
 				]
@@ -239,7 +313,7 @@
 						hora: '11:00',
 						nombre: 'Alardo de la mañana',
 						lugar: "Plaça d'Espanya",
-						nota: 'Los cristianos salen del castillo. Al final, lucha con arma blanca y toma del castillo por los moros.',
+						nota: 'Los cristianos salen del castillo. Al final lucha con arma blanca y toma del castillo por los moros.',
 						bandos: {
 							crist: [
 								'Capitán Cristiano',
@@ -290,7 +364,7 @@
 						hora: '17:30',
 						nombre: 'Alardo de la tarde',
 						lugar: "Plaça d'Espanya",
-						nota: 'Los moros salen del castillo. Mismo itinerario. Al final, toma del castillo por los cristianos. Termina antes de las 20:00h.',
+						nota: 'Los moros salen del castillo. Al final toma del castillo por los cristianos. Termina antes de las 20:00h.',
 						bandos: {
 							crist: [
 								'Capitán Cristiano',
@@ -334,21 +408,23 @@
 						hora: '21:30',
 						nombre: 'Aparición de San Jorge',
 						lugar: "Plaça d'Espanya",
-						nota: 'San Jorge aparece sobre las almenas del castillo al son del Himne de la Festa. Castillo de fuegos artificiales.',
+						nota: 'San Jorge aparece sobre las almenas del castillo. Castillo de fuegos artificiales.',
 						bandos: null
 					},
 					{
 						hora: '22:00',
 						nombre: 'Soparets',
 						lugar: "Plaça d'Espanya",
-						nota: 'Tradicional y desenfadado acto tras la salida del castillo del Sant Jordiet.',
+						nota: 'Tradicional acto tras la salida del castillo del Sant Jordiet.',
 						bandos: null
 					}
 				]
-			}
+			},
+			{ id: 'musica', label: 'Música', actos: null }
 		];
 
 		let diaActivo = DIAS[0].id;
+		const diaMap = { d24: 5, d25: 6, d26: 0, d27: 1 };
 
 		function getNowMin() {
 			const n = new Date();
@@ -360,14 +436,8 @@
 			return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
 		}
 
-		function getDiaSemana() {
-			return new Date().getDay();
-		}
-
-		const diaMap = { d24: 5, d25: 6, d26: 0, d27: 1 };
-
 		function isToday(id) {
-			return diaMap[id] === getDiaSemana();
+			return diaMap[id] === new Date().getDay();
 		}
 
 		function activoIdx(actos) {
@@ -379,14 +449,53 @@
 			return last;
 		}
 
+		function notifyParentHeight() {
+			const root = document.getElementById('mc-tracker');
+			const doc = document.documentElement;
+			const body = document.body;
+			const rootHeight = root ? root.scrollHeight : 0;
+			const pageHeight = Math.max(
+				rootHeight,
+				doc ? doc.scrollHeight : 0,
+				body ? body.scrollHeight : 0,
+				doc ? doc.offsetHeight : 0,
+				body ? body.offsetHeight : 0
+			);
+			if (window.parent && window.parent !== window) {
+				window.parent.postMessage({ type: 'mc-tracker-height', height: pageHeight }, '*');
+			}
+		}
+
+		function toggle(head) {
+			const body = head.nextElementSibling;
+			const chev = head.querySelector('.chev');
+			const o = body.classList.toggle('open');
+			chev.classList.toggle('open', o);
+			requestAnimationFrame(() => notifyParentHeight());
+		}
+
+		function toggleMarchas(btn) {
+			const wrap = btn.closest('.fila-wrap');
+			const m = wrap?.querySelector('.fila-marchas');
+			if (!m) return;
+			const o = m.style.display === 'block';
+			m.style.display = o ? 'none' : 'block';
+			btn.textContent = o ? 'marchas' : 'cerrar';
+			requestAnimationFrame(() => notifyParentHeight());
+		}
+
+		window.toggle = toggle;
+		window.toggleMarchas = toggleMarchas;
+
 		function renderTabs() {
 			const c = document.getElementById('mct-tabs');
 			if (!c) return;
 			c.innerHTML = '';
 			DIAS.forEach((d) => {
 				const b = document.createElement('button');
-				b.textContent = d.label;
-				if (isToday(d.id)) b.textContent += ' ●';
+				let label = d.label;
+				if (d.id !== 'musica' && isToday(d.id)) label += ' ●';
+				b.textContent = label;
 				if (d.id === diaActivo) b.classList.add('on');
 				b.onclick = () => {
 					diaActivo = d.id;
@@ -399,53 +508,85 @@
 		function renderBandos(b) {
 			if (!b) return '';
 			let html = '<div class="bandos">';
-			if (b.crist) {
-				html += '<div class="bando bc"><div class="bando-t">Bando cristiano</div>';
-				b.crist.forEach((f, i) => {
-					html += '<div class="fila"><span class="fn">' + (i + 1) + '</span>' + f + '</div>';
-				});
-				html += '</div>';
-			} else {
-				html += '<div></div>';
-			}
-			if (b.moro) {
-				html += '<div class="bando bm"><div class="bando-t">Bando moro</div>';
-				b.moro.forEach((f, i) => {
-					html += '<div class="fila"><span class="fn">' + (i + 1) + '</span>' + f + '</div>';
-				});
-				html += '</div>';
-			} else {
-				html += '<div></div>';
-			}
+			['crist', 'moro'].forEach((lado) => {
+				if (b[lado]) {
+					html += '<div class="bando ' + (lado === 'crist' ? 'bc' : 'bm') + '">';
+					html += '<div class="bando-t">' + (lado === 'crist' ? 'Bando cristiano' : 'Bando moro') + '</div>';
+					b[lado].forEach((f, i) => {
+						const m = getMarchas(f);
+						html += '<div class="fila-wrap">';
+						html += '<div class="fila">';
+						html += '<span class="fn">' + (i + 1) + '</span>';
+						html += '<span class="fila-name">' + f + '</span>';
+						if (m) html += '<button class="fila-btn" onclick="toggleMarchas(this)">marchas</button>';
+						html += '</div>';
+						if (m) html += '<div class="fila-marchas">🎵 ' + m + '</div>';
+						html += '</div>';
+					});
+					html += '</div>';
+				} else {
+					html += '<div></div>';
+				}
+			});
 			html += '</div>';
 			return html;
 		}
 
-		function renderActos() {
-			const dia = DIAS.find((d) => d.id === diaActivo);
+		function renderMusica() {
 			const c = document.getElementById('mct-actos');
 			const banner = document.getElementById('mct-banner');
-			if (!dia || !c || !banner) return;
+			if (!c || !banner) return;
+			banner.style.display = 'none';
+			let html = '<div class="musica-section">';
+			html += '<div class="musica-bando-t">Bando cristiano</div>';
+			CRIST.forEach((f) => {
+				const m = MARCHAS[f];
+				html += '<div class="musica-fila">';
+				html += '<div class="musica-fila-nombre">' + f + '</div>';
+				html += m
+					? '<div class="musica-fila-marchas">🎵 ' + m + '</div>'
+					: '<div class="musica-fila-none">Sin marcha registrada</div>';
+				html += '</div>';
+			});
+			html += '<div class="musica-bando-t">Bando moro</div>';
+			MOROS.forEach((f) => {
+				const m = MARCHAS[f];
+				html += '<div class="musica-fila">';
+				html += '<div class="musica-fila-nombre">' + f + '</div>';
+				html += m
+					? '<div class="musica-fila-marchas">🎵 ' + m + '</div>'
+					: '<div class="musica-fila-none">Sin marcha registrada</div>';
+				html += '</div>';
+			});
+			html += '</div>';
+			c.innerHTML = html;
+		}
 
+		function renderActos() {
+			const dia = DIAS.find((d) => d.id === diaActivo);
+			if (!dia) return;
+			if (dia.id === 'musica') {
+				renderMusica();
+				requestAnimationFrame(() => notifyParentHeight());
+				return;
+			}
+			const c = document.getElementById('mct-actos');
+			const banner = document.getElementById('mct-banner');
+			if (!c || !banner) return;
 			c.innerHTML = '';
 			const hoy = isToday(diaActivo);
 			const activo = hoy ? activoIdx(dia.actos) : -1;
-
+			banner.style.display = hoy && activo >= 0 ? 'block' : 'none';
 			if (hoy && activo >= 0) {
-				banner.style.display = 'block';
-				banner.textContent = `En directo ahora: ${dia.actos[activo].nombre} · ${dia.actos[activo].hora}h`;
-			} else {
-				banner.style.display = 'none';
+				banner.textContent = 'En directo ahora: ' + dia.actos[activo].nombre + ' · ' + dia.actos[activo].hora + 'h';
 			}
-
 			dia.actos.forEach((a, i) => {
 				const isOpen = i === activo || (activo === -1 && i === 0);
 				const div = document.createElement('div');
 				div.className = 'acto';
-
 				const livePill = hoy && i === activo ? '<span class="live-pill">EN DIRECTO</span>' : '';
 				div.innerHTML =
-					'<div class="acto-head" onclick="(function(el){var b=el.nextElementSibling,ch=el.querySelector(\'.chev\'),o=b.classList.toggle(\'open\');ch.classList.toggle(\'open\',o);})(this)">' +
+					'<div class="acto-head" onclick="toggle(this)">' +
 					livePill +
 					'<span class="acto-hora">' +
 					a.hora +
@@ -465,9 +606,11 @@
 					'">' +
 					(a.nota ? '<p class="nota">' + a.nota + '</p>' : '') +
 					renderBandos(a.bandos) +
+					(a.bandos ? '<p class="aviso">⚠️ Orden orientativo según guión oficial. Los tiempos reales pueden variar.</p>' : '') +
 					'</div>';
 				c.appendChild(div);
 			});
+			requestAnimationFrame(() => notifyParentHeight());
 		}
 
 		function render() {
@@ -476,29 +619,6 @@
 		}
 
 		render();
-
-		function notifyParentHeight() {
-			const root = document.getElementById('mc-tracker');
-			const doc = document.documentElement;
-			const body = document.body;
-			const rootHeight = root ? root.scrollHeight : 0;
-			const pageHeight = Math.max(
-				rootHeight,
-				doc ? doc.scrollHeight : 0,
-				body ? body.scrollHeight : 0,
-				doc ? doc.offsetHeight : 0,
-				body ? body.offsetHeight : 0
-			);
-			if (window.parent && window.parent !== window) {
-				window.parent.postMessage(
-					{
-						type: 'mc-tracker-height',
-						height: pageHeight
-					},
-					'*'
-				);
-			}
-		}
 
 		const resizeObserver =
 			typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => notifyParentHeight()) : null;
@@ -515,6 +635,8 @@
 			window.removeEventListener('load', notifyParentHeight);
 			window.removeEventListener('resize', notifyParentHeight);
 			if (resizeObserver) resizeObserver.disconnect();
+			delete window.toggle;
+			delete window.toggleMarchas;
 		};
 	});
 </script>
@@ -535,7 +657,8 @@
 		font-family: system-ui, -apple-system, sans-serif;
 		font-size: 15px;
 		line-height: 1.5;
-		margin: 2rem 0;
+		background: #fff;
+		padding: 1rem;
 	}
 	:global(#mc-tracker .tabs) {
 		display: flex;
@@ -612,7 +735,6 @@
 	:global(#mc-tracker .acto-lugar) {
 		font-size: 12px;
 		color: #aaa;
-		display: none;
 	}
 	:global(#mc-tracker .chev) {
 		font-size: 11px;
@@ -642,6 +764,7 @@
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 8px;
+		margin-top: 8px;
 	}
 	:global(#mc-tracker .bando) {
 		border-radius: 8px;
@@ -668,21 +791,96 @@
 	}
 	:global(#mc-tracker .fila) {
 		font-size: 12px;
-		padding: 3px 0;
-		border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+		padding: 4px 6px;
+		border-radius: 6px;
 		color: #222;
 		display: flex;
 		gap: 5px;
+		align-items: center;
+		cursor: pointer;
+		transition: background 0.1s;
 	}
-	:global(#mc-tracker .fila:last-child) {
-		border-bottom: none;
+	:global(#mc-tracker .fila:hover) {
+		background: rgba(0, 0, 0, 0.05);
 	}
 	:global(#mc-tracker .fn) {
 		font-size: 10px;
 		color: #bbb;
 		min-width: 14px;
 		flex-shrink: 0;
-		padding-top: 1px;
+	}
+	:global(#mc-tracker .fila-wrap) {
+		margin-bottom: 2px;
+	}
+	:global(#mc-tracker .fila-name) {
+		flex: 1;
+	}
+	:global(#mc-tracker .fila-btn) {
+		font-size: 10px;
+		background: #f0f0f0;
+		border: none;
+		border-radius: 4px;
+		padding: 2px 6px;
+		color: #555;
+		cursor: pointer;
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
+	:global(#mc-tracker .fila-btn:hover) {
+		background: #e0e0e0;
+	}
+	:global(#mc-tracker .fila-marchas) {
+		font-size: 11px;
+		color: #666;
+		padding: 4px 6px 6px 25px;
+		line-height: 1.5;
+		font-style: italic;
+		display: none;
+	}
+	:global(#mc-tracker .aviso) {
+		font-size: 11px;
+		color: #999;
+		margin-top: 12px;
+		padding-top: 10px;
+		border-top: 1px solid #f0f0f0;
+	}
+	:global(#mc-tracker .musica-section) {
+		padding: 4px 0;
+	}
+	:global(#mc-tracker .musica-bando-t) {
+		font-size: 11px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		margin: 16px 0 8px;
+		color: #888;
+	}
+	:global(#mc-tracker .musica-bando-t:first-child) {
+		margin-top: 0;
+	}
+	:global(#mc-tracker .musica-fila) {
+		border: 1px solid #f0f0f0;
+		border-radius: 8px;
+		padding: 10px 12px;
+		margin-bottom: 6px;
+		background: #fafafa;
+	}
+	:global(#mc-tracker .musica-fila-nombre) {
+		font-size: 13px;
+		font-weight: 600;
+		color: #111;
+		margin-bottom: 3px;
+	}
+	:global(#mc-tracker .musica-fila-marchas) {
+		font-size: 12px;
+		color: #666;
+		line-height: 1.5;
+		font-style: italic;
+	}
+	:global(#mc-tracker .musica-fila-none) {
+		font-size: 12px;
+		color: #bbb;
+		font-style: italic;
 	}
 	@media (max-width: 480px) {
 		:global(#mc-tracker .bandos) {
