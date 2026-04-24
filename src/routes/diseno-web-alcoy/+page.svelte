@@ -933,7 +933,7 @@
             </a>
             <button
               type="button"
-              class="cta-hover cta-hover-ghost inline-flex items-center text-white font-semibold py-4 px-8 border-b-2 border-secondary-container/30 hover:border-secondary transition-all bg-transparent cursor-pointer sm:whitespace-nowrap"
+              class="cta-hover cta-hover-ghost hero-ghost-cta inline-flex items-center text-white font-semibold py-4 px-8 border-b-2 border-secondary-container/30 hover:border-secondary transition-all bg-transparent cursor-pointer sm:whitespace-nowrap"
               onclick={openAnalyzerModal}
             >
               {heroSecondaryCtaLabel}
@@ -2928,6 +2928,29 @@
       0 0 0 1px rgba(255, 255, 255, 0.12) inset,
       0 10px 24px rgba(0, 110, 72, 0.4);
     animation: bHeroAccentPulse 4.2s ease-in-out infinite;
+  }
+
+  .hero-ghost-cta {
+    position: relative;
+    border-bottom-color: rgba(182, 245, 224, 0.2);
+  }
+
+  .hero-ghost-cta::after {
+    content: '';
+    position: absolute;
+    left: 0.8rem;
+    right: 0.8rem;
+    bottom: -2px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(0, 110, 72, 1) 0%, rgba(36, 225, 149, 0.98) 52%, rgba(36, 225, 149, 0) 100%);
+    transform-origin: left center;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.12) inset,
+      0 0 16px rgba(36, 225, 149, 0.65),
+      0 8px 22px rgba(0, 110, 72, 0.52);
+    animation: bHeroAccentPulse 2.9s ease-in-out infinite;
+    pointer-events: none;
   }
 
   .article-card {
