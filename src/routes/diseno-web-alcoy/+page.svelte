@@ -1068,6 +1068,7 @@
                     decoding="async"
                     draggable="false"
                   />
+                  <span class="hero-marquee-title">{item.title}</span>
                 </a>
               {/each}
             </div>
@@ -2324,6 +2325,26 @@
       opacity 0.45s ease;
   }
 
+  .hero-marquee-title {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0.55rem 0.6rem 0.52rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    color: #ffffff;
+    background: linear-gradient(to top, rgba(2, 6, 23, 0.92), rgba(2, 6, 23, 0.08));
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.28s ease,
+      transform 0.28s ease;
+    pointer-events: none;
+  }
+
   .hero-marquee:hover .hero-marquee-card:not(:hover):not(:focus-within) img {
     opacity: 0.58;
   }
@@ -2350,6 +2371,12 @@
     filter: grayscale(0) contrast(1.14) saturate(1.22) brightness(1.04);
     opacity: 1;
     transform: none;
+  }
+
+  .hero-marquee-card:hover .hero-marquee-title,
+  .hero-marquee-card:focus-visible .hero-marquee-title {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   @media (hover: hover) and (pointer: fine) {
