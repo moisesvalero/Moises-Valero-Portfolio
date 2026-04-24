@@ -442,54 +442,138 @@
     analyzerLeadStatus = 'idle';
     analyzerLeadError = '';
 
-    let response = await fetch('/api/pagespeed/analyze', {
+    const response = await fetch('/api/pagespeed/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: analyzerUrl, strategy: 'mobile' })
     });
 
-    let data = (await response.json().catch(() => null)) as
-      | ({ ok?: boolean; error?: string } & Partial<AnalyzerResult>)
+    const data = (await response.json().catch(() => null)) as
+      | ({
+          ok?: boolean;
+          error?: string;
+          status?: 'queued' | 'running' | 'completed' | 'error';
+          jobId?: string;
+          pollAfterMs?: number;
+          result?: Partial<AnalyzerResult>;
+        } & Partial<AnalyzerResult>)
       | null;
 
-    // Fallback automatico: si falla en movil, intentamos desktop una vez.
-    if (!response.ok || !data?.ok) {
+    let resolvedResult: Partial<AnalyzerResult> | null = null;
+    let resolvedError = '';
+    let transientFailure = response.status >= 500 || response.status === 0;
+
+    if (response.ok && data?.ok && data.status === 'queued' && data.jobId) {
+      const resolved = await pollAnalyzeJob(data.jobId, data.pollAfterMs ?? 1000);
+      if (!resolved.ok) {
+        resolvedError = resolved.error;
+      } else {
+        resolvedResult = resolved.result;
+      }
+    } else if (response.ok && data?.ok && data.status === 'completed' && data.result) {
+      resolvedResult = data.result;
+    } else if (response.ok && data?.ok) {
+      resolvedResult = data;
+    } else {
+      resolvedError = data?.error || 'No se pudo analizar la URL.';
+    }
+
+    // Fallback automatico solo para fallos transitorios del proveedor.
+    if (!resolvedResult) {
+      if (!transientFailure) {
+        analyzerStatus = 'error';
+        analyzerError = resolvedError || 'No se pudo analizar la URL.';
+        return;
+      }
       const desktopResponse = await fetch('/api/pagespeed/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: analyzerUrl, strategy: 'desktop' })
       });
       const desktopData = (await desktopResponse.json().catch(() => null)) as
-        | ({ ok?: boolean; error?: string } & Partial<AnalyzerResult>)
+        | ({
+            ok?: boolean;
+            error?: string;
+            status?: 'queued' | 'running' | 'completed' | 'error';
+            jobId?: string;
+            pollAfterMs?: number;
+            result?: Partial<AnalyzerResult>;
+          } & Partial<AnalyzerResult>)
         | null;
 
-      if (desktopResponse.ok && desktopData?.ok) {
-        response = desktopResponse;
-        data = desktopData;
+      if (desktopResponse.ok && desktopData?.ok && desktopData.status === 'queued' && desktopData.jobId) {
+        const resolvedDesktop = await pollAnalyzeJob(desktopData.jobId, desktopData.pollAfterMs ?? 1000);
+        if (resolvedDesktop.ok) {
+          resolvedResult = resolvedDesktop.result;
+        } else {
+          resolvedError = resolvedDesktop.error;
+        }
+      } else if (desktopResponse.ok && desktopData?.ok && desktopData.status === 'completed' && desktopData.result) {
+        resolvedResult = desktopData.result;
+      } else if (desktopResponse.ok && desktopData?.ok) {
+        resolvedResult = desktopData;
+      } else {
+        resolvedError = desktopData?.error || resolvedError || 'No se pudo analizar la URL.';
       }
     }
 
-    if (!response.ok || !data?.ok) {
+    if (!resolvedResult) {
       analyzerStatus = 'error';
-      analyzerError = data?.error || 'No se pudo analizar la URL.';
+      analyzerError = resolvedError || 'No se pudo analizar la URL.';
       return;
     }
 
     analyzerStatus = 'success';
     analyzerResult = {
-      requestedUrl: data.requestedUrl || '',
-      strategy: data.strategy || 'mobile',
-      performanceScore: typeof data.performanceScore === 'number' ? data.performanceScore : 0,
-      severity: (data.severity as AnalyzerResult['severity']) || 'needs_improvement',
-      cached: data.cached === true,
+      requestedUrl: resolvedResult.requestedUrl || '',
+      strategy: resolvedResult.strategy || 'mobile',
+      performanceScore: typeof resolvedResult.performanceScore === 'number' ? resolvedResult.performanceScore : 0,
+      severity: (resolvedResult.severity as AnalyzerResult['severity']) || 'needs_improvement',
+      cached: resolvedResult.cached === true,
       metrics: {
-        fcp: data.metrics?.fcp || 'N/D',
-        lcp: data.metrics?.lcp || 'N/D',
-        imageWeight: data.metrics?.imageWeight || 'N/D',
-        pageWeight: data.metrics?.pageWeight || 'N/D'
+        fcp: resolvedResult.metrics?.fcp || 'N/D',
+        lcp: resolvedResult.metrics?.lcp || 'N/D',
+        imageWeight: resolvedResult.metrics?.imageWeight || 'N/D',
+        pageWeight: resolvedResult.metrics?.pageWeight || 'N/D'
       },
-      highlights: Array.isArray(data.highlights) ? data.highlights : []
+      highlights: Array.isArray(resolvedResult.highlights) ? resolvedResult.highlights : []
     };
+  }
+
+  async function pollAnalyzeJob(
+    jobId: string,
+    pollEveryMs: number
+  ): Promise<{ ok: true; result: Partial<AnalyzerResult> } | { ok: false; error: string }> {
+    const startedAt = Date.now();
+    const timeoutMs = 45000;
+    let intervalMs = Math.max(700, Math.min(3000, pollEveryMs || 1000));
+
+    while (Date.now() - startedAt < timeoutMs) {
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
+      const pollResponse = await fetch(`/api/pagespeed/analyze/${encodeURIComponent(jobId)}`);
+      const pollData = (await pollResponse.json().catch(() => null)) as
+        | {
+            ok?: boolean;
+            status?: 'queued' | 'running' | 'completed' | 'error';
+            error?: string;
+            pollAfterMs?: number;
+            result?: Partial<AnalyzerResult>;
+          }
+        | null;
+
+      if (!pollResponse.ok || !pollData?.ok) {
+        return { ok: false, error: pollData?.error || 'No se pudo completar el analisis.' };
+      }
+      if (pollData.status === 'completed' && pollData.result) {
+        return { ok: true, result: pollData.result };
+      }
+      if (pollData.status === 'error') {
+        return { ok: false, error: pollData.error || 'No se pudo completar el analisis.' };
+      }
+      intervalMs = Math.max(700, Math.min(3000, pollData.pollAfterMs ?? intervalMs));
+    }
+
+    return { ok: false, error: 'El analisis sigue en cola. Prueba de nuevo en unos segundos.' };
   }
 
   async function submitAnalyzerLeadForm(event: SubmitEvent) {
