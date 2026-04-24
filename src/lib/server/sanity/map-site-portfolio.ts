@@ -328,6 +328,13 @@ function mapProject(
   };
 }
 
+function projectDedupeKey(project: SiteProjectCard): string {
+  const raw = project.href.trim();
+  if (!raw) return '';
+  const normalized = raw.replace(/\/+$/, '') || '/';
+  return normalized.toLowerCase();
+}
+
 function mergeProjects(
   raw: unknown,
   d: SitePortfolioContent['projects'],
@@ -345,12 +352,20 @@ function mergeProjects(
   const mapped = listRaw
     .map((x) => mapProject(x, ctx))
     .filter((x): x is SiteProjectCard => Boolean(x));
+  const deduped: SiteProjectCard[] = [];
+  const seenKeys = new Set<string>();
+  for (const project of mapped) {
+    const key = projectDedupeKey(project);
+    if (key && seenKeys.has(key)) continue;
+    if (key) seenKeys.add(key);
+    deduped.push(project);
+  }
   const metaFallback = ctx.locale === 'en' ? projectsMetaEnFallback : d.meta;
   const titleFallback = ctx.locale === 'en' ? projectsTitleEnFallback : d.title;
   return {
     meta: pickLocalized(o.meta, ctx.locale, metaFallback),
     title: pickLocalized(o.title, ctx.locale, titleFallback),
-    projects: mapped.length ? mapped : d.projects
+    projects: deduped.length ? deduped : d.projects
   };
 }
 

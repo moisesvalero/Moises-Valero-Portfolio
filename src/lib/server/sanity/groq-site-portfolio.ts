@@ -18,12 +18,8 @@ export const sitePortfolioQuery = `coalesce(
   projects{
     meta,
     title,
-    "projects": select(
-      count(*[
-        _type == "caseStudy" &&
-        defined(slug.current) &&
-        coalesce(showOnHome, true) == true
-      ]) > 0 => *[
+    "projects": (
+      *[
         _type == "caseStudy" &&
         defined(slug.current) &&
         coalesce(showOnHome, true) == true
@@ -48,9 +44,7 @@ export const sitePortfolioQuery = `coalesce(
           coalesce(tags, [])
         ),
         "linkLabel": { "es": "Ver proyecto", "en": "View project" }
-      },
-      count(coalesce(projects, [])) > 0 => coalesce(projects[] | order(sortOrder asc), []),
-      []
+      } + coalesce(projects[] | order(sortOrder asc), [])
     )
   },
   contact,
