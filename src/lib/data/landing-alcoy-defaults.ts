@@ -215,17 +215,18 @@ export const landingAlcoyDefaults: LandingDisenoWebAlcoy = {
   analyzerModal: {
     triggerLabel: 'Analiza tu web gratis',
     heading: 'Analiza tu web gratis',
-    text: 'Recibe en 20 segundos un diagnostico de velocidad y mejoras clave para captar mas clientes.',
+    text: 'Analizamos tu web en tiempo real. En algunos casos puede tardar un poco, pero te mostraremos el resultado en cuanto este listo.',
     urlLabel: 'URL de tu web',
     urlPlaceholder: 'tuweb.com',
     urlHelp: 'Puedes escribir tu dominio con o sin https:// (ejemplo: tuweb.com).',
     submitLabel: 'Analizar ahora',
-    loadingTitle: 'Analizando rendimiento...',
-    loadingText: 'Estamos consultando Google PageSpeed y preparando recomendaciones claras para tu web.',
+    loadingTitle: 'Analizando tu web...',
+    loadingText:
+      'Estamos consultando Google PageSpeed y preparando recomendaciones claras. Este proceso puede tardar entre unos segundos y algo mas segun la web.',
     loadingSteps: [
       'Midiendo tiempos de carga y respuesta',
-      'Detectando bloqueos y estabilidad visual',
-      'Generando mejoras concretas para captar mas clientes'
+      'Revisando estabilidad visual y recursos pesados',
+      'Preparando recomendaciones claras para mejorar resultados'
     ],
     scoreLabel: 'Score movil',
     whatsappCtaLabel: 'Quiero mejorar mi web',

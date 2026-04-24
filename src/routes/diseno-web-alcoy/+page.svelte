@@ -53,8 +53,8 @@
   const supportArticles = $derived(data.supportArticles ?? []);
   const analyzerLoadingSteps = $derived([
     analyzerModal.loadingSteps[0] || 'Midiendo tiempos de carga y respuesta',
-    analyzerModal.loadingSteps[1] || 'Detectando bloqueos y estabilidad visual',
-    analyzerModal.loadingSteps[2] || 'Generando mejoras concretas para captar mas clientes'
+    analyzerModal.loadingSteps[1] || 'Revisando estabilidad visual y recursos pesados',
+    analyzerModal.loadingSteps[2] || 'Preparando recomendaciones claras para mejorar resultados'
   ]);
   const sectionData = $derived({
     eyebrow: 'Por qué elegirme',
