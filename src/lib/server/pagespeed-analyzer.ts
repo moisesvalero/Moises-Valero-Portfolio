@@ -35,7 +35,7 @@ export type AnalyzeJobState = {
 
 const CACHE_TTL_MS = 60 * 60 * 1000;
 const STALE_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
-const PAGESPEED_TIMEOUT_MS = 30000;
+const DEFAULT_PAGESPEED_TIMEOUT_MS = 90000;
 const MAX_JOBS = 200;
 const JOB_KEEP_MS = 10 * 60 * 1000;
 
@@ -194,15 +194,27 @@ async function fetchAnalyze(url: string, strategy: 'mobile' | 'desktop'): Promis
   endpoint.searchParams.set('category', 'performance');
   endpoint.searchParams.set('key', apiKey);
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), PAGESPEED_TIMEOUT_MS);
-  try {
-    let response = await fetch(endpoint, { method: 'GET', signal: controller.signal });
-    if (!response.ok && (response.status === 429 || response.status >= 500)) {
-      await new Promise((resolve) => setTimeout(resolve, 700));
-      response = await fetch(endpoint, { method: 'GET', signal: controller.signal });
+  const configuredTimeoutMs = Number(env.PAGESPEED_TIMEOUT_MS || DEFAULT_PAGESPEED_TIMEOUT_MS);
+  const timeoutMs = Number.isFinite(configuredTimeoutMs)
+    ? Math.max(30000, Math.min(180000, Math.round(configuredTimeoutMs)))
+    : DEFAULT_PAGESPEED_TIMEOUT_MS;
+
+  const fetchWithTimeout = async () => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(endpoint, { method: 'GET', signal: controller.signal });
+    } finally {
+      clearTimeout(timeout);
     }
-    if (!response.ok) throw new Error('PSI_RESPONSE_NOT_OK');
+  };
+
+  let response = await fetchWithTimeout();
+  if (!response.ok && (response.status === 429 || response.status >= 500)) {
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    response = await fetchWithTimeout();
+  }
+  if (!response.ok) throw new Error('PSI_RESPONSE_NOT_OK');
 
     const psiData = (await response.json()) as {
       lighthouseResult?: {
@@ -214,24 +226,21 @@ async function fetchAnalyze(url: string, strategy: 'mobile' | 'desktop'): Promis
     const performanceScore = typeof performanceScoreRaw === 'number' ? Math.round(performanceScoreRaw * 100) : 0;
     const audits = psiData.lighthouseResult?.audits ?? {};
     const imageBytes = getImageBytes(audits);
-    return {
-      ok: true,
-      requestedUrl: url,
-      strategy,
-      performanceScore,
-      severity: severityFromScore(performanceScore),
-      metrics: {
-        fcp: formatMetric(audits['first-contentful-paint']?.numericValue, 'seconds'),
-        lcp: formatMetric(audits['largest-contentful-paint']?.numericValue, 'seconds'),
-        imageWeight: formatBytes(imageBytes),
-        pageWeight: formatBytes(audits['total-byte-weight']?.numericValue)
-      },
-      highlights: highlightsFromScore(performanceScore),
-      cached: false
-    };
-  } finally {
-    clearTimeout(timeout);
-  }
+  return {
+    ok: true,
+    requestedUrl: url,
+    strategy,
+    performanceScore,
+    severity: severityFromScore(performanceScore),
+    metrics: {
+      fcp: formatMetric(audits['first-contentful-paint']?.numericValue, 'seconds'),
+      lcp: formatMetric(audits['largest-contentful-paint']?.numericValue, 'seconds'),
+      imageWeight: formatBytes(imageBytes),
+      pageWeight: formatBytes(audits['total-byte-weight']?.numericValue)
+    },
+    highlights: highlightsFromScore(performanceScore),
+    cached: false
+  };
 }
 
 async function runAnalyzeWithCoalescing(cacheKey: string, url: string, strategy: 'mobile' | 'desktop') {

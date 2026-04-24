@@ -545,7 +545,7 @@
     pollEveryMs: number
   ): Promise<{ ok: true; result: Partial<AnalyzerResult> } | { ok: false; error: string }> {
     const startedAt = Date.now();
-    const timeoutMs = 45000;
+    const timeoutMs = 120000;
     let intervalMs = Math.max(700, Math.min(3000, pollEveryMs || 1000));
 
     while (Date.now() - startedAt < timeoutMs) {
@@ -573,7 +573,7 @@
       intervalMs = Math.max(700, Math.min(3000, pollData.pollAfterMs ?? intervalMs));
     }
 
-    return { ok: false, error: 'El analisis sigue en cola. Prueba de nuevo en unos segundos.' };
+    return { ok: false, error: 'El analisis sigue procesandose. Prueba de nuevo en unos segundos.' };
   }
 
   async function submitAnalyzerLeadForm(event: SubmitEvent) {
