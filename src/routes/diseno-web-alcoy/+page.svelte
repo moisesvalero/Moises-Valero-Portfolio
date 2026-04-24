@@ -642,6 +642,57 @@
     })
   );
 
+  const organizationJsonLd = $derived(
+    stringifyJsonLdForHtml({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      '@id': `${baseUrl}/#organization`,
+      name: landing.localBusiness.businessName,
+      url: `${baseUrl}/`,
+      foundingDate: '2020-01-01',
+      knowsAbout: [
+        'Diseno web',
+        'Desarrollo web',
+        'SEO tecnico',
+        'Rendimiento web',
+        'SvelteKit',
+        'WordPress'
+      ]
+    })
+  );
+
+  const serviceCatalogJsonLd = $derived(
+    stringifyJsonLdForHtml({
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      '@id': `${canonicalUrl}#service-catalog`,
+      name: landing.localBusiness.serviceType,
+      provider: {
+        '@id': `${baseUrl}/#organization`
+      },
+      areaServed: landing.localBusiness.areaServed.map((name) => ({ '@type': 'City', name })),
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: `Servicios de ${landing.localBusiness.businessName}`,
+        itemListElement: serviceOffers.map((service) => ({
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: service.title,
+            description: service.summary
+          },
+          priceSpecification: service.priceFrom
+            ? {
+                '@type': 'PriceSpecification',
+                priceCurrency: 'EUR',
+                description: service.priceFrom
+              }
+            : undefined
+        }))
+      }
+    })
+  );
+
   const webPageJsonLd = $derived(
     stringifyJsonLdForHtml({
       '@context': 'https://schema.org',
@@ -694,6 +745,8 @@
   <script id="alcoy-tailwind-config" src="/js/landing-tailwind-config.js"></script>
   <script id="alcoy-tailwind-cdn" src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <JsonLdScript json={localBusinessJsonLd} />
+  <JsonLdScript json={organizationJsonLd} />
+  <JsonLdScript json={serviceCatalogJsonLd} />
   <JsonLdScript json={webPageJsonLd} />
   <JsonLdScript json={faqJsonLd} />
   <JsonLdScript json={breadcrumbJsonLd} />
@@ -874,13 +927,13 @@
               href={landing.hero.cta.href}
               target={isWhatsappHref(landing.hero.cta.href) ? '_blank' : undefined}
               rel={isWhatsappHref(landing.hero.cta.href) ? 'noopener noreferrer' : undefined}
-              class="cta-hover cta-hover-primary bg-secondary text-on-secondary px-8 py-4 rounded-md font-bold text-lg hover:shadow-[0_0_20px_rgba(0,108,73,0.4)] transition-all active:scale-95 text-center no-underline inline-flex items-center justify-center"
+              class="cta-hover cta-hover-primary bg-secondary text-on-secondary px-8 py-4 rounded-md font-bold text-lg hover:shadow-[0_0_20px_rgba(0,108,73,0.4)] transition-all active:scale-95 text-center no-underline inline-flex items-center justify-center sm:whitespace-nowrap"
             >
               {landing.hero.cta.label}
             </a>
             <button
               type="button"
-              class="cta-hover cta-hover-ghost inline-flex items-center text-white font-semibold py-4 px-8 border-b-2 border-secondary-container/30 hover:border-secondary transition-all bg-transparent cursor-pointer"
+              class="cta-hover cta-hover-ghost inline-flex items-center text-white font-semibold py-4 px-8 border-b-2 border-secondary-container/30 hover:border-secondary transition-all bg-transparent cursor-pointer sm:whitespace-nowrap"
               onclick={openAnalyzerModal}
             >
               {heroSecondaryCtaLabel}

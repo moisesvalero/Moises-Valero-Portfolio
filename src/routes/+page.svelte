@@ -36,9 +36,34 @@
     stringifyJsonLdForHtml({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
+      '@id': `${baseUrl}/#website`,
       name: site.header.logoText,
       url: `${baseUrl}/`,
-      inLanguage: data.locale
+      inLanguage: data.locale,
+      publisher: {
+        '@id': `${baseUrl}/#organization`
+      }
+    })
+  );
+  const organizationJsonLd = $derived(
+    stringifyJsonLdForHtml({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      '@id': `${baseUrl}/#organization`,
+      name: site.header.logoText || 'Moises Valero',
+      url: `${baseUrl}/`,
+      foundingDate: '2020-01-01',
+      sameAs: [site.footer.githubHref, site.footer.linkedinHref, site.footer.maltHref].filter(
+        (u): u is string => typeof u === 'string' && u.length > 0
+      ),
+      knowsAbout: [
+        'Diseno web',
+        'Desarrollo web',
+        'SvelteKit',
+        'WordPress',
+        'SEO tecnico',
+        'Rendimiento web'
+      ]
     })
   );
 
@@ -122,6 +147,7 @@
   <meta name="twitter:title" content={site.seo.ogTitle} />
   <meta name="twitter:description" content={site.seo.ogDescription} />
   <meta name="twitter:image" content={absoluteOgImage} />
+  <JsonLdScript json={organizationJsonLd} />
   <JsonLdScript json={websiteJsonLd} />
   <JsonLdScript json={personJsonLd} />
 </svelte:head>

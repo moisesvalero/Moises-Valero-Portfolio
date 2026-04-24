@@ -14,6 +14,15 @@ export const GET = () => {
 	const body = `User-agent: *
 Allow: /
 
+User-agent: GPTBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
 Sitemap: ${baseUrl}/sitemap.xml`;
 
 	return new Response(body, {

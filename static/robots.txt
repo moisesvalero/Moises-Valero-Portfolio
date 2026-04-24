@@ -1,3 +1,13 @@
 # allow crawling everything by default
 User-agent: *
 Disallow:
+
+# explicit AI agents (same policy: allowed)
+User-agent: GPTBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
