@@ -2919,7 +2919,7 @@
 
   .hero-title-accent {
     width: clamp(92px, 24vw, 172px);
-    height: 4px;
+    height: 8px;
     border-radius: 999px;
     margin-top: -0.3rem;
     background: linear-gradient(90deg, rgba(0, 110, 72, 1) 0%, rgba(21, 180, 121, 0.85) 44%, rgba(21, 180, 121, 0) 100%);
@@ -2932,24 +2932,24 @@
 
   .hero-ghost-cta {
     position: relative;
-    border-bottom-color: rgba(182, 245, 224, 0.2);
+    border-bottom-width: 0;
   }
 
-  .hero-ghost-cta::after {
+  .hero-ghost-cta::before {
     content: '';
     position: absolute;
     left: 0.8rem;
     right: 0.8rem;
-    bottom: -2px;
-    height: 3px;
+    bottom: -3px;
+    height: 4px;
     border-radius: 999px;
-    background: linear-gradient(90deg, rgba(0, 110, 72, 1) 0%, rgba(36, 225, 149, 0.98) 52%, rgba(36, 225, 149, 0) 100%);
+    background: linear-gradient(90deg, rgba(0, 110, 72, 1) 0%, rgba(21, 180, 121, 0.85) 44%, rgba(21, 180, 121, 0) 100%);
     transform-origin: left center;
     box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.12) inset,
-      0 0 16px rgba(36, 225, 149, 0.65),
-      0 8px 22px rgba(0, 110, 72, 0.52);
-    animation: bHeroAccentPulse 2.9s ease-in-out infinite;
+      0 0 0 1px rgba(255, 255, 255, 0.16) inset,
+      0 0 4px rgba(21, 180, 121, 0.16),
+      0 6px 12px rgba(0, 110, 72, 0.22);
+    animation: bHeroAccentPulse 4.2s ease-in-out infinite;
     pointer-events: none;
   }
 
