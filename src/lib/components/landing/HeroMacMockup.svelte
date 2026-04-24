@@ -168,12 +168,12 @@
 
   .bezel {
     position: relative;
-    background: linear-gradient(160deg, #f0f2f6 0%, #cfd5e0 18%, #798294 38%, #2b3240 64%, #151a22 100%);
+    background: linear-gradient(160deg, #b8c1d0 0%, #8f9bb0 18%, #657187 38%, #2b3240 64%, #151a22 100%);
     border-radius: 24px;
     padding: 7px;
     box-shadow:
       0 20px 42px rgba(0, 0, 0, 0.3),
-      0 2px 0 rgba(255, 255, 255, 0.38) inset,
+      0 2px 0 rgba(255, 255, 255, 0.06) inset,
       0 -1px 0 rgba(0, 0, 0, 0.42) inset;
   }
 
@@ -369,7 +369,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 4px;
+    margin-top: -1px;
     pointer-events: none;
   }
 
