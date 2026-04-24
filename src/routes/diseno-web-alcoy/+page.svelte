@@ -47,6 +47,9 @@
 
   const contactModal = $derived(landing.contactModal);
   const analyzerModal = $derived(landing.analyzerModal);
+  const heroSecondaryCtaLabel = $derived(
+    landing.hero.cta.secondaryLabel?.trim() || analyzerModal.triggerLabel
+  );
   const supportArticles = $derived(data.supportArticles ?? []);
   const analyzerLoadingSteps = $derived([
     analyzerModal.loadingSteps[0] || 'Midiendo tiempos de carga y respuesta',
@@ -880,7 +883,7 @@
               class="cta-hover cta-hover-ghost inline-flex items-center text-white font-semibold py-4 px-8 border-b-2 border-secondary-container/30 hover:border-secondary transition-all bg-transparent cursor-pointer"
               onclick={openAnalyzerModal}
             >
-              {analyzerModal.triggerLabel}
+              {heroSecondaryCtaLabel}
             </button>
           </div>
         </div>
