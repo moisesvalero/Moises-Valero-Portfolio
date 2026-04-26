@@ -6,11 +6,14 @@ export const landingSupportArticle = defineType({
   type: 'document',
   initialValue: {
     categoryLabel: 'Guia local',
-    publishedAt: new Date().toISOString()
+    publishedAt: new Date().toISOString(),
+    showOnNationalLanding: true,
+    showOnAlcoyLanding: true
   },
   groups: [
     { name: 'editorial', title: '✍️ Editorial', default: true },
     { name: 'content', title: '🧩 Contenido' },
+    { name: 'featured', title: '⭐ Destacados' },
     { name: 'seo', title: '📈 SEO' },
     { name: 'cta', title: '💬 CTA' }
   ],
@@ -62,6 +65,33 @@ export const landingSupportArticle = defineType({
       initialValue: 4,
       validation: (rule) => rule.min(1).max(30),
       group: 'editorial'
+    }),
+    defineField({
+      name: 'showOnNationalLanding',
+      type: 'boolean',
+      title: 'Destacar en /diseno-web',
+      description:
+        'Muestra este artículo en el bloque de artículos de la landing nacional. No cambia la URL canónica.',
+      initialValue: true,
+      group: 'featured'
+    }),
+    defineField({
+      name: 'showOnAlcoyLanding',
+      type: 'boolean',
+      title: 'Destacar en /diseno-web-alcoy',
+      description:
+        'Muestra este artículo en el bloque de artículos de la landing local. No cambia la URL canónica.',
+      initialValue: true,
+      group: 'featured'
+    }),
+    defineField({
+      name: 'featuredOrder',
+      type: 'number',
+      title: 'Orden destacado',
+      description:
+        'Opcional. Números más bajos salen antes. Si lo dejas vacío, se ordena por fecha de publicación.',
+      validation: (rule) => rule.min(0).integer(),
+      group: 'featured'
     }),
     defineField({
       name: 'image',
@@ -157,11 +187,21 @@ export const landingSupportArticle = defineType({
     select: {
       title: 'title',
       slug: 'slug.current',
-      publishedAt: 'publishedAt'
+      publishedAt: 'publishedAt',
+      showOnNationalLanding: 'showOnNationalLanding',
+      showOnAlcoyLanding: 'showOnAlcoyLanding'
     },
-    prepare: ({ title, slug, publishedAt }) => ({
-      title: title || 'Articulo apoyo',
-      subtitle: `${slug ? `/diseno-web-alcoy/${slug}` : ''}${publishedAt ? ` · ${publishedAt.slice(0, 10)}` : ''}`
-    })
+    prepare: ({ title, slug, publishedAt, showOnNationalLanding, showOnAlcoyLanding }) => {
+      const placements = [
+        showOnNationalLanding !== false ? 'nacional' : '',
+        showOnAlcoyLanding !== false ? 'Alcoy' : ''
+      ].filter(Boolean);
+      return {
+        title: title || 'Articulo apoyo',
+        subtitle: `${slug ? `/diseno-web-alcoy/${slug}` : ''}${publishedAt ? ` · ${publishedAt.slice(0, 10)}` : ''}${
+          placements.length ? ` · Destacado: ${placements.join(' + ')}` : ' · No destacado'
+        }`
+      };
+    }
   }
 });

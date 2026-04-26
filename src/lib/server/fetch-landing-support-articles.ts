@@ -20,6 +20,15 @@ function asNumber(value: unknown, fallback = 5): number {
   return Number.isFinite(numeric) && numeric > 0 ? numeric : fallback;
 }
 
+function asOptionalNumber(value: unknown): number | undefined {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : undefined;
+}
+
+function asBoolean(value: unknown, fallback = true): boolean {
+  return typeof value === 'boolean' ? value : fallback;
+}
+
 function mapRow(
   row: LandingSupportArticleListRow,
   ctx?: { projectId: string; dataset: string }
@@ -53,8 +62,26 @@ function mapRow(
     ctaSecondaryLabel: asString(row.ctaSecondaryLabel, 'Volver a la web'),
     ctaSecondaryHref: asString(row.ctaSecondaryHref, '/diseno-web-alcoy'),
     seoTitle: asString(row.seoTitle, title),
-    seoDescription: asString(row.seoDescription, excerpt)
+    seoDescription: asString(row.seoDescription, excerpt),
+    showOnNationalLanding: asBoolean(row.showOnNationalLanding, true),
+    showOnAlcoyLanding: asBoolean(row.showOnAlcoyLanding, true),
+    featuredOrder: asOptionalNumber(row.featuredOrder)
   };
+}
+
+function sortFeaturedArticles(a: LandingSupportArticle, b: LandingSupportArticle): number {
+  const aOrder = a.featuredOrder;
+  const bOrder = b.featuredOrder;
+  if (typeof aOrder === 'number' && typeof bOrder === 'number' && aOrder !== bOrder) {
+    return aOrder - bOrder;
+  }
+  if (typeof aOrder === 'number' && typeof bOrder !== 'number') {
+    return -1;
+  }
+  if (typeof aOrder !== 'number' && typeof bOrder === 'number') {
+    return 1;
+  }
+  return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
 }
 
 export async function fetchLandingSupportArticles(limit?: number): Promise<LandingSupportArticle[]> {
@@ -98,4 +125,17 @@ export async function fetchLandingSupportArticles(limit?: number): Promise<Landi
     const fallback = landingSupportArticleFallbacks;
     return typeof limit === 'number' ? fallback.slice(0, limit) : fallback;
   }
+}
+
+export async function fetchFeaturedLandingSupportArticles(
+  placement: 'national' | 'alcoy',
+  limit = 4
+): Promise<LandingSupportArticle[]> {
+  const articles = await fetchLandingSupportArticles();
+  const predicate =
+    placement === 'national'
+      ? (article: LandingSupportArticle) => article.showOnNationalLanding !== false
+      : (article: LandingSupportArticle) => article.showOnAlcoyLanding !== false;
+
+  return articles.filter(predicate).sort(sortFeaturedArticles).slice(0, limit);
 }

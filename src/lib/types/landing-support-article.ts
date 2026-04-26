@@ -16,4 +16,7 @@ export type LandingSupportArticle = {
   ctaSecondaryHref: string;
   seoTitle: string;
   seoDescription: string;
+  showOnNationalLanding?: boolean;
+  showOnAlcoyLanding?: boolean;
+  featuredOrder?: number;
 };
