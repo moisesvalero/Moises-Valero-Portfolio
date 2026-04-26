@@ -37,7 +37,7 @@
   }
 
   function shouldForceDocumentNavigation(href: string): boolean {
-    return /^\/diseno-web(?:\/|$)/i.test(href.trim());
+    return /^\/diseno-web(?:\/|$)/i.test(href.trim()) || /^\/diseno-web-alcoy(?:\/|$)/i.test(href.trim());
   }
 
   const headerNavItems = $derived(
@@ -57,8 +57,8 @@
           if (normalizedHref === '/diseno-web-alcoy') {
             return { ...item, href: '/diseno-web', label: webDesignLabel };
           }
-          if (normalizedHref === '/diseno-web-alcoy/articulos') {
-            return { ...item, href: '/diseno-web/articulos', label: articleLabel };
+          if (normalizedHref === '/diseno-web-alcoy/articulos' || normalizedHref === '/diseno-web/articulos') {
+            return { ...item, href: '/diseno-web-alcoy/articulos', label: articleLabel };
           }
           return item;
         })
@@ -71,8 +71,8 @@
       const services = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#servicios');
       const projects = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#proyectos');
       const articles =
-        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/diseno-web/articulos') ??
-        ({ label: articleLabel, href: '/diseno-web/articulos' } as HeaderNavItem);
+        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/diseno-web-alcoy/articulos') ??
+        ({ label: articleLabel, href: '/diseno-web-alcoy/articulos' } as HeaderNavItem);
       const webDesign =
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/diseno-web') ??
         ({ label: webDesignLabel, href: '/diseno-web' } as HeaderNavItem);

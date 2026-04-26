@@ -44,7 +44,7 @@ export const GET = async () => {
   <loc>${baseUrl}${route}</loc>
   <lastmod>${now}</lastmod>
   <changefreq>${route.startsWith('/diseno-web-alcoy/') || route.startsWith('/diseno-web/') ? 'weekly' : 'weekly'}</changefreq>
-  <priority>${route === '/' ? '1.0' : route === '/diseno-web-alcoy' || route === '/diseno-web' ? '0.9' : route === '/diseno-web-alcoy/articulos' || route === '/diseno-web/articulos' ? '0.75' : 0.7}</priority>
+  <priority>${route === '/' ? '1.0' : route === '/diseno-web-alcoy' || route === '/diseno-web' ? '0.9' : route === '/diseno-web-alcoy/articulos' ? '0.75' : 0.7}</priority>
 </url>`
 		)
 		.join('\n');

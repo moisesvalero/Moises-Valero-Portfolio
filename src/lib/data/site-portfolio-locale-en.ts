@@ -28,7 +28,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
       { label: 'Home', href: '/#top' },
       { label: 'Services', href: '/#servicios' },
       { label: 'Projects', href: '/#proyectos' },
-      { label: 'Articles', href: '/diseno-web/articulos' },
+      { label: 'Articles', href: '/diseno-web-alcoy/articulos' },
       { label: 'Web Design', href: '/diseno-web' },
       { label: 'Career', href: '#', openCareerModal: true }
     ],

@@ -321,6 +321,15 @@ Con esa variable, el proyecto genera metadatos y rutas SEO sin hardcodear domini
 - `src/routes/robots.txt/+server.js`  
   Permite indexación y apunta al sitemap correcto.
 
+- `src/routes/llms.txt/+server.js`  
+  Contexto estructurado para asistentes de IA y buscadores generativos.
+
+- `src/routes/indexnow-key.txt/+server.ts`  
+  Publica la clave de IndexNow para validación.
+
+- `src/routes/api/indexnow/submit/+server.ts`  
+  Endpoint interno protegido para notificar URLs a IndexNow (Bing y motores compatibles).
+
 - `src/lib/seo.js`  
   Store reutilizable para:
   - `title`
@@ -346,6 +355,44 @@ Con esa variable, el proyecto genera metadatos y rutas SEO sin hardcodear domini
 3. Renderiza `<svelte:head>` leyendo valores desde `$seo`.
 
 Así cada nueva página puede tener su SEO propio sin repetir lógica.
+
+### Bing / IndexNow (opcional recomendado)
+
+1. Configura en entorno:
+   - `INDEXNOW_KEY`
+   - `INDEXNOW_SUBMIT_TOKEN`
+2. Verifica que responde `https://tu-dominio.com/indexnow-key.txt`.
+3. Notifica URLs nuevas/actualizadas con:
+
+```bash
+curl -X POST "https://tu-dominio.com/api/indexnow/submit" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TU_INDEXNOW_SUBMIT_TOKEN" \
+  -d '{"urls":["https://tu-dominio.com/diseno-web-alcoy/articulos","https://tu-dominio.com/diseno-web-alcoy/mi-articulo"]}'
+```
+
+### Automatización con Sanity Webhook (recomendado)
+
+Puedes automatizar IndexNow al publicar/actualizar artículos `landingSupportArticle`.
+
+1. Configura variables:
+   - `INDEXNOW_KEY`
+   - `SANITY_WEBHOOK_TOKEN`
+2. En Sanity > API > Webhooks crea un webhook:
+   - URL: `https://tu-dominio.com/api/webhooks/sanity/indexnow`
+   - Dataset: `production` (o el que uses)
+   - Trigger: create/update
+   - Filter sugerido: `_type == "landingSupportArticle"`
+   - Projection sugerida:
+     - `{ "_type": _type, "slug": slug, "transition": _transition }`
+   - Header custom:
+     - `x-webhook-token: TU_SANITY_WEBHOOK_TOKEN`
+3. Guarda y prueba con "Send test".
+
+El endpoint notificará a IndexNow estas URLs:
+- artículo canónico: `/diseno-web-alcoy/{slug}`
+- listado: `/diseno-web-alcoy/articulos`
+- landings principales: `/diseno-web` y `/diseno-web-alcoy`
 
 ---
 

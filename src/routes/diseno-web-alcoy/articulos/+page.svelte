@@ -64,6 +64,7 @@
     name="description"
     content="Articulos de apoyo sobre mantenimiento web, seguridad y SEO local para negocios de Alcoy."
   />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Articulos SEO local en Alcoy | Moisés Valero" />
   <meta

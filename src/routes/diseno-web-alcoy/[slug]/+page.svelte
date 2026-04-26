@@ -86,6 +86,7 @@
 <svelte:head>
   <title>{seoTitle}</title>
   <meta name="description" content={seoDescription} />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
   <meta property="og:type" content="article" />
   <meta property="og:title" content={seoTitle} />
   <meta property="og:description" content={seoDescription} />

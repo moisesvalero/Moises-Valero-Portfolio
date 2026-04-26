@@ -39,6 +39,7 @@
       return normalized !== '/' ? normalized.replace(/\/$/, '') : normalized;
     })()
   );
+  const articlesCanonicalBasePath = '/diseno-web-alcoy';
   const footerIntro = $derived(
     landingBasePath === '/diseno-web'
       ? 'Diseño y desarrollo web para negocios en toda España.'
@@ -875,7 +876,7 @@
           class={`alcoy-nav-link header-link-premium font-medium transition-colors duration-200 no-underline ${
             isHeaderScrolled ? 'is-scrolled text-slate-700 hover:text-[#006c49]' : 'is-top text-white/90 hover:text-white'
           }`}
-          href={`${landingBasePath}/articulos`}>Artículos</a>
+          href={`${articlesCanonicalBasePath}/articulos`}>Artículos</a>
         <a
           class={`alcoy-nav-link header-link-premium font-medium transition-colors duration-200 no-underline ${
             isHeaderScrolled ? 'is-scrolled text-slate-700 hover:text-[#006c49]' : 'is-top text-white/90 hover:text-white'
@@ -945,7 +946,7 @@
             class={`font-medium no-underline py-1 ${
               isHeaderScrolled ? 'text-slate-700' : 'text-white/90 hover:text-white'
             }`}
-            href={`${landingBasePath}/articulos`}
+            href={`${articlesCanonicalBasePath}/articulos`}
             onclick={closeMobileNav}>Artículos</a>
           <a
             class={`font-medium no-underline py-1 ${
@@ -1325,7 +1326,7 @@
               </p>
             </div>
             <a
-              href={`${landingBasePath}/articulos`}
+              href={`${articlesCanonicalBasePath}/articulos`}
               class="cta-hover cta-hover-ghost inline-flex items-center justify-center rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-primary no-underline hover:border-secondary transition-colors"
             >
               Ver todos los articulos
@@ -1335,7 +1336,7 @@
           <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {#each supportArticles as article, idx (article.slug)}
               <a
-                href={`${landingBasePath}/${article.slug}`}
+                href={`${articlesCanonicalBasePath}/${article.slug}`}
                 class="article-card group no-underline overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,23,42,0.1)]"
                 aria-label={`Leer articulo: ${article.title}`}
               >
@@ -1402,7 +1403,7 @@
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#benefits">Beneficios</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#faq">FAQ</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#articulos">Destacados</a></li>
-            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href={`${landingBasePath}/articulos`}>Ver articulos</a></li>
+            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href={`${articlesCanonicalBasePath}/articulos`}>Ver articulos</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#contact">Contacto</a></li>
           </ul>
         </div>

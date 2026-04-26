@@ -29,7 +29,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
       { label: 'Inicio', href: '/#top' },
       { label: 'Servicios', href: '/#servicios' },
       { label: 'Proyectos', href: '/#proyectos' },
-      { label: 'Artículos', href: '/diseno-web/articulos' },
+      { label: 'Artículos', href: '/diseno-web-alcoy/articulos' },
       { label: 'Diseño web', href: '/diseno-web' },
       { label: 'Trayectoria', href: '#', openCareerModal: true }
     ],

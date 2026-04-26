@@ -19,17 +19,50 @@
   const absoluteOgImage = $derived(
     site.seo.ogImage.startsWith('http') ? site.seo.ogImage : `${baseUrl}${site.seo.ogImage}`
   );
+  const offerCatalog = $derived({
+    '@type': 'OfferCatalog',
+    name: `Servicios de ${site.header.logoText || 'Moises Valero'}`,
+    itemListElement: site.services.items.map((service) => ({
+      '@type': 'Offer',
+      itemOffered: {
+        '@type': 'Service',
+        name: service.title,
+        description: service.description,
+        provider: {
+          '@id': `${baseUrl}/#organization`
+        },
+        areaServed: [
+          { '@type': 'Country', name: 'Espana' },
+          { '@type': 'City', name: 'Alcoy' },
+          { '@type': 'AdministrativeArea', name: 'Alicante' }
+        ]
+      }
+    }))
+  });
   const personJsonLd = $derived(
     stringifyJsonLdForHtml({
       '@context': 'https://schema.org',
       '@type': 'Person',
+      '@id': `${baseUrl}/#person`,
       name: 'Moisés Valero',
       url: `${baseUrl}/`,
       jobTitle: 'Desarrollador Web',
       sameAs: [site.footer.githubHref, site.footer.linkedinHref, site.footer.maltHref].filter(
         (u): u is string => typeof u === 'string' && u.length > 0
       ),
-      knowsAbout: ['SvelteKit', 'WordPress', 'SEO Técnico', 'Sanity CMS']
+      worksFor: {
+        '@id': `${baseUrl}/#organization`
+      },
+      knowsAbout: [
+        'SvelteKit',
+        'WordPress',
+        'SEO Tecnico',
+        'Sanity CMS',
+        'Rendimiento web',
+        'Core Web Vitals',
+        'Diseno web',
+        'WooCommerce'
+      ]
     })
   );
   const websiteJsonLd = $derived(
@@ -53,17 +86,35 @@
       name: site.header.logoText || 'Moises Valero',
       url: `${baseUrl}/`,
       foundingDate: '2020-01-01',
+      founder: {
+        '@id': `${baseUrl}/#person`
+      },
       sameAs: [site.footer.githubHref, site.footer.linkedinHref, site.footer.maltHref].filter(
         (u): u is string => typeof u === 'string' && u.length > 0
       ),
+      areaServed: [
+        { '@type': 'Country', name: 'Espana' },
+        { '@type': 'City', name: 'Alcoy' },
+        { '@type': 'AdministrativeArea', name: 'Alicante' }
+      ],
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'sales',
+        url: `${baseUrl}/#contacto`,
+        availableLanguage: ['es']
+      },
       knowsAbout: [
         'Diseno web',
         'Desarrollo web',
         'SvelteKit',
         'WordPress',
         'SEO tecnico',
-        'Rendimiento web'
-      ]
+        'Rendimiento web',
+        'Core Web Vitals',
+        'WooCommerce',
+        'Sanity CMS'
+      ],
+      hasOfferCatalog: offerCatalog
     })
   );
 
