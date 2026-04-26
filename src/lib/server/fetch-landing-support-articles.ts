@@ -29,6 +29,25 @@ function asBoolean(value: unknown, fallback = true): boolean {
   return typeof value === 'boolean' ? value : fallback;
 }
 
+function resolveFeaturedPlacement(row: LandingSupportArticleListRow): {
+  showOnNationalLanding: boolean;
+  showOnAlcoyLanding: boolean;
+} {
+  const hasNational = typeof row.showOnNationalLanding === 'boolean';
+  const hasAlcoy = typeof row.showOnAlcoyLanding === 'boolean';
+
+  // Compatibilidad con contenido legado: si ambos campos no existen, mostrar en ambas landings.
+  if (!hasNational && !hasAlcoy) {
+    return { showOnNationalLanding: true, showOnAlcoyLanding: true };
+  }
+
+  // Si el editor define uno y deja el otro vacío, lo tratamos como false para evitar ambigüedad.
+  return {
+    showOnNationalLanding: asBoolean(row.showOnNationalLanding, false),
+    showOnAlcoyLanding: asBoolean(row.showOnAlcoyLanding, false)
+  };
+}
+
 function mapRow(
   row: LandingSupportArticleListRow,
   ctx?: { projectId: string; dataset: string }
@@ -41,6 +60,7 @@ function mapRow(
   }
   const imageFromAsset =
     ctx && ctx.projectId && ctx.dataset ? imageUrl(ctx.projectId, ctx.dataset, row.image, 1200) : undefined;
+  const placement = resolveFeaturedPlacement(row);
 
   return {
     slug,
@@ -63,8 +83,8 @@ function mapRow(
     ctaSecondaryHref: asString(row.ctaSecondaryHref, '/diseno-web-alcoy'),
     seoTitle: asString(row.seoTitle, title),
     seoDescription: asString(row.seoDescription, excerpt),
-    showOnNationalLanding: asBoolean(row.showOnNationalLanding, true),
-    showOnAlcoyLanding: asBoolean(row.showOnAlcoyLanding, true),
+    showOnNationalLanding: placement.showOnNationalLanding,
+    showOnAlcoyLanding: placement.showOnAlcoyLanding,
     featuredOrder: asOptionalNumber(row.featuredOrder)
   };
 }
