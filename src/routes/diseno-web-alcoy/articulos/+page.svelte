@@ -89,7 +89,7 @@
         útiles.
       </p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href={landingBasePath}>Ver la web</a>
+        <a class="btn btn-primary" href={landingBasePath} data-sveltekit-reload="true">Ver la web</a>
         <a class="btn btn-secondary" href="#listado">Ver articulos</a>
       </div>
     </div>

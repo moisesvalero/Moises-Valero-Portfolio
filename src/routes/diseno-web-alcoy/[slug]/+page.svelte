@@ -81,6 +81,10 @@
       year: 'numeric'
     }).format(date);
   }
+
+  function shouldForceDocumentNavigation(href: string): boolean {
+    return /^\/diseno-web(?:\/|$)/i.test(href.trim()) || /^\/diseno-web-alcoy(?:\/|$)/i.test(href.trim());
+  }
 </script>
 
 <svelte:head>
@@ -128,7 +132,11 @@
       <a href={article.ctaPrimaryHref} class="btn btn-primary">
         {article.ctaPrimaryLabel}
       </a>
-      <a href={article.ctaSecondaryHref} class="btn btn-secondary">
+      <a
+        href={article.ctaSecondaryHref}
+        class="btn btn-secondary"
+        data-sveltekit-reload={shouldForceDocumentNavigation(article.ctaSecondaryHref) ? 'true' : undefined}
+      >
         {article.ctaSecondaryLabel}
       </a>
     </div>
