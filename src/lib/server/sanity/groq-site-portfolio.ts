@@ -49,5 +49,8 @@ export const sitePortfolioQuery = `coalesce(
   },
   contact,
   footer,
-  careerModal
+  careerModal{
+    ...,
+    "pdfAssetUrl": pdfFile.asset->url
+  }
 }`;

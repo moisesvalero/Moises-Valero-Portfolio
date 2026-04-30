@@ -422,6 +422,7 @@ function mergeCareerModal(
     return d;
   }
   const timelineRaw = Array.isArray(o.timeline) ? (o.timeline as unknown[]) : [];
+  const pdfAssetUrl = asStringOpt(o.pdfAssetUrl);
   const timeline = timelineRaw
     .map((x, i) => {
       const r = asRecord(x);
@@ -445,7 +446,7 @@ function mergeCareerModal(
     .filter(Boolean) as SitePortfolioContent['careerModal']['timeline'];
 
   return {
-    pdfHref: asString(o.pdfHref, d.pdfHref),
+    pdfHref: pdfAssetUrl ?? asString(o.pdfHref, d.pdfHref),
     closeAria: pickLocalized(o.closeAria, locale, d.closeAria),
     title: pickLocalized(o.title, locale, d.title),
     profileTitle: pickLocalized(o.profileTitle, locale, d.profileTitle),

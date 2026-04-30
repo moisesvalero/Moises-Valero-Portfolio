@@ -362,10 +362,20 @@ export const portfolioSite = defineType({
       group: 'contacto',
       fields: [
         {
+          name: 'pdfFile',
+          type: 'file',
+          title: 'Archivo CV (PDF)',
+          description: 'Sube aquí el CV en PDF desde el panel. La web usará este archivo automáticamente.',
+          options: {
+            accept: 'application/pdf'
+          }
+        },
+        {
           name: 'pdfHref',
           type: 'string',
           title: 'Ruta o URL del CV (PDF)',
-          description: 'Ej. /imagenes/MOISES-VALERO-CV.pdf o URL externa.'
+          description:
+            'Opcional como respaldo manual. Si has subido "Archivo CV (PDF)", la web prioriza ese archivo.'
         },
         { name: 'closeAria', type: 'localeString', title: 'Etiqueta cerrar (accesibilidad)' },
         { name: 'title', type: 'localeString', title: 'Título del modal' },
