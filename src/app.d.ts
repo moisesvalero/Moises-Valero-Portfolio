@@ -1,6 +1,13 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 declare global {
+	/** Web component del embed JS de Typebot (`initStandard`). */
+	namespace svelteHTML {
+		interface IntrinsicElements {
+			'typebot-standard': import('svelte/elements').HTMLAttributes<HTMLElement>;
+		}
+	}
+
 	namespace App {
 		// interface Error {}
 		// interface Locals {}

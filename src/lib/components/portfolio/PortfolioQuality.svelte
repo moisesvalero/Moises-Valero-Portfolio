@@ -1,4 +1,6 @@
 <script lang="ts">
+  import CardFluidOverlay from '$lib/components/portfolio/CardFluidOverlay.svelte';
+
   type QualityPillar = {
     icon: string;
     title: string;
@@ -60,6 +62,7 @@
   <div class="garantias-grid">
     {#each items as item (item.title)}
       <article class="garantia-item">
+        <CardFluidOverlay />
         <div class="garantia-icon" aria-hidden="true">{item.icon}</div>
         <h3>{item.title}</h3>
         <p>{item.description}</p>
@@ -126,6 +129,8 @@
     transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
     position: relative;
     z-index: 1;
+    overflow: hidden;
+    isolation: isolate;
   }
 
   .garantia-item:hover {

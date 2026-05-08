@@ -1,4 +1,6 @@
 <script lang="ts">
+  import CardFluidOverlay from '$lib/components/portfolio/CardFluidOverlay.svelte';
+
   type StackIcon = {
     src?: string;
     iconify?: string;
@@ -67,6 +69,7 @@
   <div class="stack-grid">
     {#each categories as cat (cat.title)}
       <div class="stack-cat">
+        <CardFluidOverlay radius={260} blur={36} />
         <p class="cat-title">{cat.title}</p>
         <div class="iconos-flex">
           {#each cat.icons as icon ((icon.iconify ?? icon.src ?? '') + icon.alt)}
@@ -138,6 +141,9 @@
     border: 1px solid #f1f5f9;
     border-radius: 8px;
     min-width: 0;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
   }
 
   .cat-title {

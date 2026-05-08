@@ -2,6 +2,7 @@
   import { onDestroy } from 'svelte';
   import { t } from '$lib/i18n/index.js';
   import { cookieConsent, setCookieConsent } from '$lib/cookie-consent';
+  import ContactFluidOverlay from './ContactFluidOverlay.svelte';
 
   interface Props {
     heading?: string;
@@ -54,6 +55,72 @@
   });
   onDestroy(() => unsub());
 
+  /** Hover en textos y foco dentro de zonas de lectura pausan nuevos trazos del fluido. */
+  let readingHoverDepth = $state(0);
+  let readingFocusDepth = $state(0);
+  const fluidPaused = $derived(readingHoverDepth > 0 || readingFocusDepth > 0);
+
+  function readingZonePointerEnter() {
+    readingHoverDepth++;
+  }
+
+  function readingZonePointerLeave() {
+    readingHoverDepth = Math.max(0, readingHoverDepth - 1);
+  }
+
+  function isInsideReadingZone(node: EventTarget | null, root: HTMLElement): boolean {
+    const el = node instanceof Element ? node : null;
+    return !!(el && root.contains(el) && el.closest('.contact-reading-zone'));
+  }
+
+  function readingAreaFocusIn(event: FocusEvent & { currentTarget: HTMLElement }) {
+    if (!isInsideReadingZone(event.target, event.currentTarget)) return;
+    const prev = event.relatedTarget as Node | null;
+    if (isInsideReadingZone(prev, event.currentTarget)) return;
+    readingFocusDepth++;
+  }
+
+  function readingAreaFocusOut(event: FocusEvent & { currentTarget: HTMLElement }) {
+    const next = event.relatedTarget as Node | null;
+    if (isInsideReadingZone(next, event.currentTarget)) return;
+    if (!isInsideReadingZone(event.target, event.currentTarget)) return;
+    readingFocusDepth = Math.max(0, readingFocusDepth - 1);
+  }
+
+  /** CDN oficial Typebot (`initStandard`); import dinámico vía Function para no tipar URL remota. */
+  const TYPEBOT_WEB_JS =
+    'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js';
+  const TYPEBOT_PUBLIC_ID = 'asistente-mois-s-valero-sud5oya';
+
+  let typebotStandardStarted = false;
+
+  $effect(() => {
+    if (!allowTypebot || typebotStandardStarted) return;
+    typebotStandardStarted = true;
+
+    const importRemote = new Function('url', 'return import(url)') as (
+      url: string
+    ) => Promise<{ default: { initStandard: (opts: Record<string, unknown>) => void } }>;
+
+    let cancelled = false;
+
+    void importRemote(TYPEBOT_WEB_JS).then(({ default: Typebot }) => {
+      if (cancelled) return;
+      Typebot.initStandard({
+        typebot: TYPEBOT_PUBLIC_ID,
+        theme: {
+          chatWindow: {
+            backgroundColor: 'transparent'
+          }
+        }
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  });
+
   function enableChat() {
     setCookieConsent('all');
   }
@@ -67,6 +134,31 @@
   function closeFormModal() {
     isFormModalOpen = false;
   }
+
+  function portal(node: HTMLElement) {
+    if (typeof document === 'undefined') return;
+    document.body.appendChild(node);
+    return {
+      destroy() {
+        node.remove();
+      }
+    };
+  }
+
+  $effect(() => {
+    if (!isFormModalOpen) return;
+
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeFormModal();
+    };
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = '';
+    };
+  });
 
   async function submitForm(event: SubmitEvent) {
     event.preventDefault();
@@ -92,27 +184,50 @@
 
 <section class="seccion-final-unificada" id="contacto" aria-labelledby="contacto-titulo">
   <div class="luces-fondo-unificado" aria-hidden="true"></div>
+  <ContactFluidOverlay
+    color="#4DA3FF"
+    accent="#7CB8FF"
+    opacity={0.5}
+    radius={158}
+    blur={16}
+    paused={fluidPaused}
+  />
 
-  <div class="contenido-unificado">
-    <div class="header-final">
+  <div
+    class="contenido-unificado"
+    onfocusin={readingAreaFocusIn}
+    onfocusout={readingAreaFocusOut}
+  >
+    <div
+      role="group"
+      class="header-final contact-reading-zone"
+      onpointerenter={readingZonePointerEnter}
+      onpointerleave={readingZonePointerLeave}
+    >
       <h3 id="contacto-titulo">{heading}</h3>
       {#if subtitle}
         <p>{subtitle}</p>
       {/if}
     </div>
 
-    <div class="chat-container-final">
+    <div class="chat-container-final" role="group">
       {#if allowTypebot}
-        <iframe
-          src={typebotSrc}
-          class="typebot-frame"
-          title={iframeTitle}
-          allow="camera; microphone; autoplay; encrypted-media"
-        ></iframe>
+        <typebot-standard
+          class="typebot-frame typebot-standard-embed"
+          style="width: 100%; height: 380px;"
+          aria-label={iframeTitle}
+        ></typebot-standard>
       {:else}
         <div class="chat-blocked" role="status">
-          <p class="chat-blocked-title">{$t('contactChatBlocked.title')}</p>
-          <p class="chat-blocked-body">{$t('contactChatBlocked.body')}</p>
+          <div
+            role="group"
+            class="contact-reading-zone chat-blocked-reading"
+            onpointerenter={readingZonePointerEnter}
+            onpointerleave={readingZonePointerLeave}
+          >
+            <p class="chat-blocked-title">{$t('contactChatBlocked.title')}</p>
+            <p class="chat-blocked-body">{$t('contactChatBlocked.body')}</p>
+          </div>
           <button type="button" class="btn-enable-chat" onclick={enableChat}>
             {$t('contactChatBlocked.accept')}
           </button>
@@ -121,9 +236,23 @@
     </div>
 
     <div class="botones-final">
-      <p class="contact-cta-mobile-intro">{$t('contactCta.mobileIntro')}</p>
+      <div
+        role="group"
+        class="contact-reading-zone contact-cta-mobile-intro-wrap"
+        onpointerenter={readingZonePointerEnter}
+        onpointerleave={readingZonePointerLeave}
+      >
+        <p class="contact-cta-mobile-intro">{$t('contactCta.mobileIntro')}</p>
+      </div>
       <div class="cta-stack">
-        <p class="texto-whatsapp-final texto-cta-lead-desktop">{whatsappLead}</p>
+        <div
+          role="group"
+          class="contact-reading-zone"
+          onpointerenter={readingZonePointerEnter}
+          onpointerleave={readingZonePointerLeave}
+        >
+          <p class="texto-whatsapp-final texto-cta-lead-desktop">{whatsappLead}</p>
+        </div>
         <a
           href={whatsappHref}
           target="_blank"
@@ -136,8 +265,19 @@
         </a>
       </div>
       <div class="cta-stack">
-        <p class="texto-whatsapp-final texto-cta-lead-desktop">{formLead}</p>
-        <button type="button" class="btn-form-final" onclick={openFormModal}>
+        <div
+          role="group"
+          class="contact-reading-zone"
+          onpointerenter={readingZonePointerEnter}
+          onpointerleave={readingZonePointerLeave}
+        >
+          <p class="texto-whatsapp-final texto-cta-lead-desktop">{formLead}</p>
+        </div>
+        <button
+          type="button"
+          class="btn-form-final"
+          onclick={openFormModal}
+        >
           <span class="btn-cta-label-long">{formButtonLabel}</span>
           <span class="btn-cta-label-short">{$t('contactCta.formShort')}</span>
           <span aria-hidden="true" class="btn-cta-arrow">→</span>
@@ -148,9 +288,15 @@
 </section>
 
 {#if isFormModalOpen}
-  <div class="modal-shell" role="dialog" aria-modal="true" aria-labelledby="form-modal-title">
-    <button type="button" class="modal-backdrop" onclick={closeFormModal} aria-label="Cerrar"></button>
-    <div class="modal-card">
+  <div class="modal-shell" use:portal role="presentation" onmousedown={closeFormModal}>
+    <div
+      class="modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="form-modal-title"
+      tabindex="-1"
+      onmousedown={(event) => event.stopPropagation()}
+    >
       <div class="modal-head">
         <h4 id="form-modal-title">{formModalHeading}</h4>
         <p>{formModalText}</p>
@@ -200,13 +346,14 @@
     max-width: min(1200px, 100%);
     margin: 60px auto;
     padding: 60px clamp(16px, 5vw, 48px) 50px;
-    background: #1d1d1f;
+    background: #0b1220;
     border-radius: 20px;
     overflow: hidden;
     text-align: center;
     font-family: inherit;
     box-sizing: border-box;
     scroll-margin-top: 96px;
+    isolation: isolate;
   }
 
   .luces-fondo-unificado {
@@ -215,7 +362,7 @@
     height: 100%;
     top: 0;
     left: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(0, 113, 227, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 46%, rgba(77, 163, 255, 0.18) 0%, transparent 72%);
     z-index: 1;
     pointer-events: none;
   }
@@ -230,7 +377,7 @@
   }
 
   .seccion-final-unificada h3 {
-    color: #f5f5f7 !important;
+    color: #e6eef9 !important;
     font-size: 40px !important;
     font-weight: 800 !important;
     margin: 0 0 10px 0 !important;
@@ -238,7 +385,7 @@
   }
 
   .header-final p {
-    color: #a1a1a6 !important;
+    color: #c2d2e9 !important;
     font-size: 18px !important;
     max-width: 650px;
     margin: 0 auto 24px auto !important;
@@ -255,9 +402,25 @@
     width: 100%;
     height: 380px;
     border: none;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-radius: 0;
+    box-shadow: none;
     display: block;
+    background: transparent;
+  }
+
+  :global(.typebot-standard-embed) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    --tb-background-color: transparent;
+    --chat-container-bg: transparent;
+    --typebot-chat-window-bg: transparent;
+  }
+
+  :global(.typebot-standard-embed iframe) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   .chat-blocked {
@@ -265,8 +428,8 @@
     min-height: 280px;
     padding: 28px 20px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(13, 26, 46, 0.62);
+    border: 1px solid rgba(77, 163, 255, 0.28);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -275,16 +438,20 @@
     box-sizing: border-box;
   }
 
+  .chat-blocked-reading {
+    max-width: 100%;
+  }
+
   .chat-blocked-title {
     margin: 0 0 10px;
-    color: #f5f5f7;
+    color: #e6eef9;
     font-size: 17px;
     font-weight: 700;
   }
 
   .chat-blocked-body {
     margin: 0 0 18px;
-    color: #a1a1a6;
+    color: #bdd0ea;
     font-size: 14px;
     line-height: 1.55;
     max-width: 420px;
@@ -298,20 +465,24 @@
     border-radius: 999px;
     border: none;
     cursor: pointer;
-    background: #0071e3;
-    color: #fff;
+    background: #4da3ff;
+    color: #081120;
     transition:
       background 0.2s ease,
       transform 0.2s ease;
   }
 
   .btn-enable-chat:hover {
-    background: #0077ed;
+    background: #69b1ff;
     transform: translateY(-1px);
   }
 
-  .contact-cta-mobile-intro {
+  .contact-cta-mobile-intro-wrap {
     display: none;
+  }
+
+  .contact-cta-mobile-intro {
+    margin: 0;
   }
 
   .btn-cta-label-short {
@@ -323,7 +494,7 @@
   }
 
   .texto-whatsapp-final {
-    color: #a1a1a6;
+    color: #c2d2e9;
     font-size: 16px;
     margin-bottom: 10px;
   }
@@ -347,8 +518,8 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: rgb(37, 211, 102);
-    color: #ffffff !important;
+    background: #4da3ff;
+    color: #081120 !important;
     padding: 14px 30px;
     border-radius: 8px;
     text-decoration: none;
@@ -360,10 +531,10 @@
   }
 
   .btn-whatsapp-final:hover {
-    background: rgb(30, 175, 85);
+    background: #69b1ff;
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    color: #ffffff !important;
+    color: #081120 !important;
   }
 
   .btn-form-final {
@@ -372,10 +543,10 @@
     justify-content: center;
     gap: 8px;
     background: transparent;
-    color: #f5f5f7;
+    color: #e6eef9;
     padding: 14px 30px;
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.24);
+    border: 1px solid rgba(77, 163, 255, 0.42);
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -386,26 +557,29 @@
 
   .btn-form-final:hover {
     transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(77, 163, 255, 0.14);
+    border-color: rgba(77, 163, 255, 0.75);
+  }
+
+  .btn-enable-chat:focus-visible,
+  .btn-whatsapp-final:focus-visible,
+  .btn-form-final:focus-visible {
+    outline: 2px solid #4da3ff;
+    outline-offset: 2px;
   }
 
   .modal-shell {
     position: fixed;
     inset: 0;
-    z-index: 80;
+    z-index: 20000;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 16px;
-  }
-
-  .modal-backdrop {
-    position: absolute;
-    inset: 0;
     background: rgba(4, 7, 13, 0.72);
-    border: 0;
-    cursor: pointer;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    box-sizing: border-box;
   }
 
   .modal-card {
@@ -486,10 +660,11 @@
     color: #5d5d65;
     font-size: 13px;
     font-weight: 500;
+    line-height: 1.5;
   }
 
   .checkline a {
-    color: #006c49;
+    color: #4da3ff;
     text-decoration: none;
     font-weight: 700;
   }
@@ -545,6 +720,8 @@
   .btn-modal-primary:disabled {
     opacity: 0.65;
     cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
   }
 
   @media (max-width: 768px) {
@@ -580,21 +757,20 @@
       padding: 20px 16px;
     }
 
-    .contact-cta-mobile-intro {
+    .contact-cta-mobile-intro-wrap {
       display: block;
       grid-column: 1 / -1;
       margin: 0 0 10px;
-      color: #86868d;
+    }
+
+    .contact-cta-mobile-intro {
+      color: #b8c9e2;
       font-size: 13px;
       font-weight: 500;
       line-height: 1.35;
     }
 
     .texto-cta-lead-desktop {
-      display: none;
-    }
-
-    .btn-cta-label-long {
       display: none;
     }
 
@@ -626,16 +802,28 @@
       border-radius: 10px;
     }
 
-    .modal-head h4 {
-      font-size: 22px;
-    }
-
     .modal-head {
       padding: 18px 16px 4px;
     }
 
+    .modal-head h4 {
+      font-size: 22px;
+    }
+
     .modal-form {
       padding: 12px 16px 16px;
+    }
+
+    .modal-actions {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-modal-ghost,
+    .btn-modal-primary {
+      width: 100%;
     }
   }
 </style>

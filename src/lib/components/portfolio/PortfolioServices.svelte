@@ -1,5 +1,6 @@
 <script lang="ts">
   import { locale } from '$lib/i18n/index.js';
+  import CardFluidOverlay from '$lib/components/portfolio/CardFluidOverlay.svelte';
 
   type ServiceItem = {
     icon: string;
@@ -59,6 +60,7 @@
   <div class="servicios-flex">
     {#each items as item (item.title)}
       <article class="card-servicio">
+        <CardFluidOverlay />
         <div class="icono-wrap" aria-hidden="true">{item.icon}</div>
         <h3>{item.title}</h3>
         <p>{item.description}</p>
@@ -114,6 +116,9 @@
     border-radius: 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: left;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
   }
 
   .card-servicio:hover {

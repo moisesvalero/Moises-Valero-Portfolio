@@ -429,15 +429,16 @@
   .hero-bottom-fade {
     position: absolute;
     inset: auto 0 0 0;
-    height: clamp(160px, 24vh, 300px);
+    /* Fade ligeramente mas largo y sin escalones para que no quede borde
+       cuando el body tambien usa #f8fafc */
+    height: clamp(180px, 28vh, 340px);
     z-index: 5;
     pointer-events: none;
     background: linear-gradient(
       to bottom,
       rgba(248, 250, 252, 0) 0%,
-      rgba(248, 250, 252, 0.2) 22%,
-      rgba(248, 250, 252, 0.58) 56%,
-      rgba(248, 250, 252, 0.88) 82%,
+      rgba(248, 250, 252, 0.35) 38%,
+      rgba(248, 250, 252, 0.78) 70%,
       #f8fafc 100%
     );
   }
@@ -659,7 +660,7 @@
     }
 
     .hero-stripe-pro-v2 h1 {
-      font-size: clamp(32px, 9.5vw, 52px) !important;
+      font-size: clamp(34px, 10vw, 54px) !important;
     }
 
     .sub-frase {

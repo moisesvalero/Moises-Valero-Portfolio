@@ -12,6 +12,8 @@
   --text-secondary: #6b7280;
   --bg-main: #ffffff;
   --bg-soft: #f9fafb;
+  /* Superficie unificada: misma base que el hero para evitar el corte hero -> siguiente seccion */
+  --bg-surface: #f8fafc;
 
   /* Motion & sombras “premium” */
   --ease-out-soft: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -39,7 +41,7 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-main);
+  background-color: var(--bg-surface);
   color: var(--text-main);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased; /* Suaviza el renderizado de las letras en Mac/iOS */
