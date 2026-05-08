@@ -429,14 +429,15 @@
   .hero-bottom-fade {
     position: absolute;
     inset: auto 0 0 0;
-    height: clamp(110px, 18vh, 200px);
+    height: clamp(160px, 24vh, 300px);
     z-index: 5;
     pointer-events: none;
     background: linear-gradient(
       to bottom,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(248, 250, 252, 0.72) 58%,
-      rgba(248, 250, 252, 0.96) 82%,
+      rgba(248, 250, 252, 0) 0%,
+      rgba(248, 250, 252, 0.2) 22%,
+      rgba(248, 250, 252, 0.58) 56%,
+      rgba(248, 250, 252, 0.88) 82%,
       #f8fafc 100%
     );
   }
