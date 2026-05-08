@@ -29,6 +29,7 @@
 
   let scrollHintOpacity = $state(1);
   let showScrollHint = $state(true);
+  let disableHeroShader = $state(false);
   const shaderConfig = {
     color: '#0066E5',
     secondaryColor: '#0052B8',
@@ -188,21 +189,34 @@
   `;
 
   onMount(() => {
+    const isLowEndDevice = () => {
+      const coarseOrMobile = window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
+      const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
+      const cores = navigator.hardwareConcurrency ?? 8;
+      return coarseOrMobile && (memory <= 4 || cores <= 4);
+    };
+
     const hintMedia = window.matchMedia('(max-width: 1199px), (hover: none), (pointer: coarse)');
     const syncScrollHintVisibility = () => {
       showScrollHint = !hintMedia.matches;
     };
+    const syncHeroShaderMode = () => {
+      disableHeroShader = isLowEndDevice();
+    };
     const onScroll = () => {
       scrollHintOpacity = window.scrollY > 50 ? 0 : 1;
     };
+    syncHeroShaderMode();
     syncScrollHintVisibility();
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     hintMedia.addEventListener('change', syncScrollHintVisibility);
+    window.addEventListener('resize', syncHeroShaderMode, { passive: true });
     window.addEventListener('resize', syncScrollHintVisibility, { passive: true });
     return () => {
       window.removeEventListener('scroll', onScroll);
       hintMedia.removeEventListener('change', syncScrollHintVisibility);
+      window.removeEventListener('resize', syncHeroShaderMode);
       window.removeEventListener('resize', syncScrollHintVisibility);
     };
   });
@@ -301,12 +315,14 @@
 
 <div class="hero-viewport-root" id="top">
   <div class="hero-stripe-pro-v2">
-    <canvas
-      use:mountSpecularBand
-      class="luces-dinamicas-canvas"
-      style="width:100%;height:100%;"
-      aria-hidden="true"
-    ></canvas>
+    {#if !disableHeroShader}
+      <canvas
+        use:mountSpecularBand
+        class="luces-dinamicas-canvas"
+        style="width:100%;height:100%;"
+        aria-hidden="true"
+      ></canvas>
+    {/if}
     <div class="hero-bottom-fade" aria-hidden="true"></div>
 
     <div class="contenido-hero">

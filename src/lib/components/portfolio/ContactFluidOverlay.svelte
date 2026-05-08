@@ -51,6 +51,8 @@
     if (!host || !canvas) return;
     const section = host.parentElement as HTMLElement | null;
     if (!section) return;
+    const isMobileViewport = window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
+    if (isMobileViewport) return;
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const ctx = canvas.getContext('2d', { alpha: true });
@@ -282,6 +284,12 @@
   @media (prefers-reduced-motion: reduce) {
     .contact-fluid-overlay canvas {
       filter: blur(calc(var(--cfo-blur, 18px) * 1.4)) saturate(110%);
+    }
+  }
+
+  @media (max-width: 768px), (pointer: coarse) {
+    .contact-fluid-overlay {
+      display: none;
     }
   }
 </style>
