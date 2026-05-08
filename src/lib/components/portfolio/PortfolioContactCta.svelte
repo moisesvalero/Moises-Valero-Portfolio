@@ -774,12 +774,16 @@
       display: none;
     }
 
+    .btn-cta-label-long {
+      display: none;
+    }
+
     .btn-cta-label-short {
       display: inline;
     }
 
     .btn-cta-arrow {
-      display: none;
+      display: inline;
     }
 
     .botones-final {
