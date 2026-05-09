@@ -134,7 +134,4 @@ npm run build
   - `/llms.txt`
   - flujo de formulario y endpoints `/api/*`
 
-## Notas rápidas
 
-- El repo ya no se documenta como plantilla genérica: este README describe el proyecto real.
-- Solo existe un `README` en raíz; no hay otros readmes de plantilla que limpiar actualmente.
