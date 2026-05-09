@@ -1,7 +1,5 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte';
   import { t } from '$lib/i18n/index.js';
-  import { cookieConsent, setCookieConsent } from '$lib/cookie-consent';
   import ContactFluidOverlay from './ContactFluidOverlay.svelte';
 
   interface Props {
@@ -39,7 +37,6 @@
   /** El número no va en el HTML: redirección en servidor al WhatsApp activo. */
   const whatsappHref = '/api/contact/whatsapp';
 
-  let allowTypebot = $state(false);
   let isFormModalOpen = $state(false);
   let formStatus = $state<'idle' | 'sending' | 'success' | 'error'>('idle');
   let formError = $state('');
@@ -50,11 +47,6 @@
     message: '',
     privacyAccepted: false
   });
-  const unsub = cookieConsent.subscribe((v) => {
-    allowTypebot = v === 'all';
-  });
-  onDestroy(() => unsub());
-
   /** Hover en textos y foco dentro de zonas de lectura pausan nuevos trazos del fluido. */
   let readingHoverDepth = $state(0);
   let readingFocusDepth = $state(0);
@@ -96,7 +88,7 @@
   let typebotLoadError = $state(false);
 
   $effect(() => {
-    if (!allowTypebot || typebotStandardStarted) return;
+    if (typebotStandardStarted) return;
     typebotStandardStarted = true;
     typebotLoadError = false;
 
@@ -123,10 +115,6 @@
       cancelled = true;
     };
   });
-
-  function enableChat() {
-    setCookieConsent('all');
-  }
 
   function openFormModal() {
     isFormModalOpen = true;
@@ -214,7 +202,7 @@
     </div>
 
     <div class="chat-container-final" role="group">
-      {#if allowTypebot && typebotLoadError}
+      {#if typebotLoadError}
         <div class="chat-load-error" role="alert">
           <p class="chat-load-error-title">No se ha podido cargar el asistente.</p>
           <p class="chat-load-error-body">Prueba de nuevo o escribe por WhatsApp.</p>
@@ -229,27 +217,12 @@
             Reintentar
           </button>
         </div>
-      {:else if allowTypebot}
+      {:else}
         <typebot-standard
           class="typebot-frame typebot-standard-embed"
           style="width: 100%; height: 380px;"
           aria-label={iframeTitle}
         ></typebot-standard>
-      {:else}
-        <div class="chat-blocked" role="status">
-          <div
-            role="group"
-            class="contact-reading-zone chat-blocked-reading"
-            onpointerenter={readingZonePointerEnter}
-            onpointerleave={readingZonePointerLeave}
-          >
-            <p class="chat-blocked-title">{$t('contactChatBlocked.title')}</p>
-            <p class="chat-blocked-body">{$t('contactChatBlocked.body')}</p>
-          </div>
-          <button type="button" class="btn-enable-chat" onclick={enableChat}>
-            {$t('contactChatBlocked.accept')}
-          </button>
-        </div>
       {/if}
     </div>
 
