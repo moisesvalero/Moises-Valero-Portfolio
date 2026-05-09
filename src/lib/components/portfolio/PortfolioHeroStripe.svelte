@@ -189,19 +189,25 @@
   `;
 
   onMount(() => {
-    const isLowEndDevice = () => {
-      const coarseOrMobile = window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
-      const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
-      const cores = navigator.hardwareConcurrency ?? 8;
-      return coarseOrMobile && (memory <= 4 || cores <= 4);
+    /**
+     * Safari/iOS suele crear contexto WebGL2; el fragment shader usa `gl_FragColor` (GLSL100) y falla allí.
+     * Forzamos WebGL1 en `mountSpecularBand`. Aquí solo evitamos animación si el usuario pide menos movimiento
+     * o si Chrome reporta RAM muy baja (`deviceMemory`). No usamos `hardwareConcurrency`: en iPhone suele ser ≤4
+     * por privacidad y quitaba el canvas entero sin ser un móvil “cutre”.
+     */
+    const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const syncHeroShaderMode = () => {
+      if (motionMq.matches) {
+        disableHeroShader = true;
+        return;
+      }
+      const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+      disableHeroShader = typeof mem === 'number' && mem <= 2;
     };
 
     const hintMedia = window.matchMedia('(max-width: 1199px), (hover: none), (pointer: coarse)');
     const syncScrollHintVisibility = () => {
       showScrollHint = !hintMedia.matches;
-    };
-    const syncHeroShaderMode = () => {
-      disableHeroShader = isLowEndDevice();
     };
     const onScroll = () => {
       scrollHintOpacity = window.scrollY > 50 ? 0 : 1;
@@ -209,14 +215,14 @@
     syncHeroShaderMode();
     syncScrollHintVisibility();
     onScroll();
+    motionMq.addEventListener('change', syncHeroShaderMode);
     window.addEventListener('scroll', onScroll, { passive: true });
     hintMedia.addEventListener('change', syncScrollHintVisibility);
-    window.addEventListener('resize', syncHeroShaderMode, { passive: true });
     window.addEventListener('resize', syncScrollHintVisibility, { passive: true });
     return () => {
+      motionMq.removeEventListener('change', syncHeroShaderMode);
       window.removeEventListener('scroll', onScroll);
       hintMedia.removeEventListener('change', syncScrollHintVisibility);
-      window.removeEventListener('resize', syncHeroShaderMode);
       window.removeEventListener('resize', syncScrollHintVisibility);
     };
   });
@@ -225,6 +231,8 @@
     const renderer = new Renderer({
       canvas: targetCanvas,
       alpha: true,
+      /** GLSL con `gl_FragColor` es válido en WebGL1; en WebGL2 (Safari por defecto) el enlace del programa falla. */
+      webgl: 1,
       dpr: typeof window !== 'undefined' ? window.devicePixelRatio : 1
     });
     const gl = renderer.gl;

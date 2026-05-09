@@ -87,34 +87,37 @@
     readingFocusDepth = Math.max(0, readingFocusDepth - 1);
   }
 
-  /** CDN oficial Typebot (`initStandard`); import dinámico vía Function para no tipar URL remota. */
+  /** CDN oficial Typebot (`initStandard`). `import()` dinámico con `@vite-ignore` (Safari no ejecutaba bien el hack `new Function(import)`). */
   const TYPEBOT_WEB_JS =
     'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js';
   const TYPEBOT_PUBLIC_ID = 'asistente-mois-s-valero-sud5oya';
 
   let typebotStandardStarted = false;
+  let typebotLoadError = $state(false);
 
   $effect(() => {
     if (!allowTypebot || typebotStandardStarted) return;
     typebotStandardStarted = true;
-
-    const importRemote = new Function('url', 'return import(url)') as (
-      url: string
-    ) => Promise<{ default: { initStandard: (opts: Record<string, unknown>) => void } }>;
+    typebotLoadError = false;
 
     let cancelled = false;
 
-    void importRemote(TYPEBOT_WEB_JS).then(({ default: Typebot }) => {
-      if (cancelled) return;
-      Typebot.initStandard({
-        typebot: TYPEBOT_PUBLIC_ID,
-        theme: {
-          chatWindow: {
-            backgroundColor: 'transparent'
+    void import(/* @vite-ignore */ TYPEBOT_WEB_JS)
+      .then((mod: { default: { initStandard: (opts: Record<string, unknown>) => void } }) => {
+        if (cancelled) return;
+        mod.default.initStandard({
+          typebot: TYPEBOT_PUBLIC_ID,
+          theme: {
+            chatWindow: {
+              backgroundColor: 'transparent'
+            }
           }
-        }
+        });
+      })
+      .catch((err: unknown) => {
+        console.error('[typebot] No se pudo cargar el embed', err);
+        typebotLoadError = true;
       });
-    });
 
     return () => {
       cancelled = true;
@@ -211,7 +214,22 @@
     </div>
 
     <div class="chat-container-final" role="group">
-      {#if allowTypebot}
+      {#if allowTypebot && typebotLoadError}
+        <div class="chat-load-error" role="alert">
+          <p class="chat-load-error-title">No se ha podido cargar el asistente.</p>
+          <p class="chat-load-error-body">Prueba de nuevo o escribe por WhatsApp.</p>
+          <button
+            type="button"
+            class="btn-enable-chat"
+            onclick={() => {
+              typebotLoadError = false;
+              typebotStandardStarted = false;
+            }}
+          >
+            Reintentar
+          </button>
+        </div>
+      {:else if allowTypebot}
         <typebot-standard
           class="typebot-frame typebot-standard-embed"
           style="width: 100%; height: 380px;"
@@ -450,6 +468,36 @@
   }
 
   .chat-blocked-body {
+    margin: 0 0 18px;
+    color: #bdd0ea;
+    font-size: 14px;
+    line-height: 1.55;
+    max-width: 420px;
+  }
+
+  .chat-load-error {
+    width: 100%;
+    min-height: 280px;
+    padding: 28px 20px;
+    border-radius: 12px;
+    background: rgba(13, 26, 46, 0.62);
+    border: 1px solid rgba(77, 163, 255, 0.28);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .chat-load-error-title {
+    margin: 0 0 10px;
+    color: #e6eef9;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .chat-load-error-body {
     margin: 0 0 18px;
     color: #bdd0ea;
     font-size: 14px;
