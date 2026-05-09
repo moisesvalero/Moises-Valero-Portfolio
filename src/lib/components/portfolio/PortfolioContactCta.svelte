@@ -414,40 +414,6 @@
     box-shadow: none !important;
   }
 
-  .chat-blocked {
-    width: 100%;
-    min-height: 280px;
-    padding: 28px 20px;
-    border-radius: 12px;
-    background: rgba(13, 26, 46, 0.62);
-    border: 1px solid rgba(77, 163, 255, 0.28);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    box-sizing: border-box;
-  }
-
-  .chat-blocked-reading {
-    max-width: 100%;
-  }
-
-  .chat-blocked-title {
-    margin: 0 0 10px;
-    color: #e6eef9;
-    font-size: 17px;
-    font-weight: 700;
-  }
-
-  .chat-blocked-body {
-    margin: 0 0 18px;
-    color: #bdd0ea;
-    font-size: 14px;
-    line-height: 1.55;
-    max-width: 420px;
-  }
-
   .chat-load-error {
     width: 100%;
     min-height: 280px;
@@ -773,7 +739,7 @@
       height: min(52vh, 360px);
     }
 
-    .chat-blocked {
+    .chat-load-error {
       min-height: 220px;
       padding: 20px 16px;
     }
