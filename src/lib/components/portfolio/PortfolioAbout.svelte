@@ -41,7 +41,15 @@
   <div class="sobre-mi-flex">
     <div class="col-foto anim-sobre-mi-foto">
       <div class="foto-wrapper">
-        <img src={imageSrc} alt={imageAlt} width="300" height="350" loading="lazy" decoding="async" />
+        <img
+          src={imageSrc}
+          alt={imageAlt}
+          width="300"
+          height="350"
+          sizes="(max-width: 992px) min(280px, 92vw), 300px"
+          loading="lazy"
+          decoding="async"
+        />
       </div>
     </div>
 

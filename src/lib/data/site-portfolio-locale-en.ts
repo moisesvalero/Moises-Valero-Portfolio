@@ -288,7 +288,8 @@ export function applyPortfolioEnglishDemo(
     ...site,
     header: en.header,
     hero: en.hero,
-    about: en.about,
+    /** Texto/meta EN; la foto y el alt siguen viniendo de Sanity (CDN optimizado). */
+    about: { ...en.about, imageSrc: site.about.imageSrc, imageAlt: site.about.imageAlt },
     services: preserveServices ? site.services : en.services,
     techStack: {
       meta: en.techStack.meta,

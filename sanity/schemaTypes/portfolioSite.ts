@@ -150,8 +150,21 @@ export const portfolioSite = defineType({
       title: 'Seccion Sobre mi',
       group: 'home',
       fields: [
-        { name: 'image', type: 'image', title: 'Foto', options: { hotspot: true } },
-        { name: 'imageSrc', type: 'string', title: 'Ruta o URL imagen (si no subes archivo)' },
+        {
+          name: 'image',
+          type: 'image',
+          title: 'Foto (recomendado)',
+          description:
+            'Sube aquí la imagen para servirla desde el CDN de Sanity con tamaño y formato óptimos (WebP/AVIF). Tiene prioridad sobre «Ruta o URL».',
+          options: { hotspot: true }
+        },
+        {
+          name: 'imageSrc',
+          type: 'string',
+          title: 'Ruta o URL imagen (fallback)',
+          description:
+            'Solo si no hay imagen subida. Archivos locales (/imagenes/…) o URL absolutas no pasan por el pipeline de Sanity.'
+        },
         { name: 'imageAlt', type: 'string', title: 'Alt imagen' },
         { name: 'meta', type: 'string', title: 'Meta sección' },
         { name: 'title', type: 'string', title: 'Título H2' },
