@@ -55,12 +55,10 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
     throw error(500, 'URL del CV inválida');
   }
 
-  // PDF servido desde el mismo origen (p.ej. /imagenes/MOISES-VALERO-CV.pdf): redirigimos.
   if (parsed.origin === url.origin) {
     throw redirect(302, parsed.pathname + parsed.search);
   }
 
-  // Solo permitimos proxy a hosts conocidos para evitar SSRF.
   if (!ALLOWED_REMOTE_HOSTS.has(parsed.hostname)) {
     throw error(403, 'Origen del CV no permitido');
   }
@@ -69,16 +67,47 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
     headers: { Accept: 'application/pdf' }
   });
 
-  if (!upstream.ok || !upstream.body) {
-    throw error(upstream.status || 502, 'No se pudo obtener el CV');
+  if (upstream.ok && upstream.body) {
+    const headers = new Headers();
+    headers.set('Content-Type', 'application/pdf');
+    headers.set('Content-Disposition', 'inline; filename="MOISES-VALERO-CV.pdf"');
+    headers.set('Cache-Control', 'public, max-age=300, s-maxage=3600');
+    const length = upstream.headers.get('content-length');
+    if (length) headers.set('Content-Length', length);
+    return new Response(upstream.body, { status: 200, headers });
   }
 
-  const headers = new Headers();
-  headers.set('Content-Type', 'application/pdf');
-  headers.set('Content-Disposition', 'inline; filename="MOISES-VALERO-CV.pdf"');
-  headers.set('Cache-Control', 'public, max-age=300, s-maxage=3600');
-  const length = upstream.headers.get('content-length');
-  if (length) headers.set('Content-Length', length);
+  if (parsed.hostname === 'cdn.sanity.io') {
+    const client = getSanityServerClient();
+    if (client) {
+      try {
+        const result = await client.fetch<{ pdfHref?: string | null }>(
+          `coalesce(*[_type == "sitePortfolio" && _id == "portfolioSite"][0].careerModal.pdfHref, *[_type == "sitePortfolio"][0].careerModal.pdfHref)`
+        );
+        const fallback = result?.pdfHref?.trim();
+        if (fallback) {
+          const fallbackParsed = new URL(fallback, url.origin);
+          if (fallbackParsed.origin === url.origin) {
+            throw redirect(302, fallbackParsed.pathname + fallbackParsed.search);
+          }
+          const fbResponse = await fetch(fallbackParsed.toString(), {
+            headers: { Accept: 'application/pdf' }
+          });
+          if (fbResponse.ok && fbResponse.body) {
+            const headers = new Headers();
+            headers.set('Content-Type', 'application/pdf');
+            headers.set('Content-Disposition', 'inline; filename="MOISES-VALERO-CV.pdf"');
+            headers.set('Cache-Control', 'public, max-age=300, s-maxage=3600');
+            const length = fbResponse.headers.get('content-length');
+            if (length) headers.set('Content-Length', length);
+            return new Response(fbResponse.body, { status: 200, headers });
+          }
+        }
+      } catch {
+        // Fallthrough to error
+      }
+    }
+  }
 
-  return new Response(upstream.body, { status: 200, headers });
+  throw error(upstream.status || 502, 'No se pudo obtener el CV');
 };
