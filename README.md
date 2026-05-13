@@ -132,6 +132,53 @@ npm run build
   - `/sitemap.xml`
   - `/robots.txt`
   - `/llms.txt`
+  - `/llms-full.txt`
   - flujo de formulario y endpoints `/api/*`
+
+## SEO + GEO (Generative Engine Optimization)
+
+El proyecto tiene una capa SEO/GEO centralizada para que buscadores tradicionales y buscadores generativos (ChatGPT, Claude, Perplexity, Google AI Overviews) puedan indexar e ingerir el contenido.
+
+### Qué se inyecta automáticamente
+
+| Pieza | Dónde | Responsable |
+|---|---|---|
+| `<link rel="canonical">` | Todas las páginas | `src/routes/+layout.server.ts` (con regla Alcoy ↔ nacional). **No tocar.** |
+| `noindex` en hosts no productivos | Todas las páginas | `+layout.server.ts` + `+layout.svelte` |
+| `<link rel="alternate" hreflang>` (es/en/x-default) | Todas las páginas | `src/routes/+layout.svelte` |
+| `<link rel="alternate" type="text/plain" href="/llms.txt">` | Todas las páginas | `src/routes/+layout.svelte` |
+| `<html lang="...">` dinámico (cookie → Accept-Language → fallback es) | SSR de cualquier ruta | `src/hooks.server.ts` (vía `transformPageChunk`) + `src/app.html` |
+| `/robots.txt` con AI bots permitidos y `Disallow: /api/` | endpoint | `src/routes/robots.txt/+server.js` |
+| `/sitemap.xml` con `<xhtml:link hreflang>` y artículos del CMS | endpoint | `src/routes/sitemap.xml/+server.js` |
+| `/llms.txt` (índice estilo llmstxt.org) | endpoint | `src/routes/llms.txt/+server.js` |
+| `/llms-full.txt` (todo el contenido de las landings en Markdown) | endpoint | `src/routes/llms-full.txt/+server.ts` |
+
+### Registro central de páginas
+
+Todo el GEO se alimenta desde `src/lib/site-pages.ts`. Cada entrada describe `path`, `titleEs/En`, `descEs/En`, `changefreq`, `priority`, `group` y `locales`.
+
+```ts
+export const sitePages: SitePage[] = [
+  { path: '/diseno-web-alcoy', titleEs: '...', descEs: '...', changefreq: 'weekly', priority: 0.95, group: 'landing', locales: ['es'] },
+  // ...
+];
+```
+
+### Helpers reutilizables
+
+- `src/lib/seo.ts`: store `seo` (writable) + `setSeo(partial)` + `defaultSeo` con todos los campos del playbook (`schemaType`, `keywords`, `faq`, `howto`, `softwareName`, …). Listo para que páginas nuevas lo usen.
+- `src/lib/components/JsonLd.svelte`: componente opcional que inyecta automáticamente `Organization` + `WebSite` (con `SearchAction`) + `BreadcrumbList` derivado de `page.url.pathname`. Acepta `type`, `faq`, `howto`, `softwareName`. Pensado para páginas nuevas: las landings y artículos actuales ya tienen JSON-LD propio y siguen funcionando.
+- `src/lib/components/JsonLdScript.svelte`: wrapper de bajo nivel para JSON-LD pre-serializado (lo usan los `<svelte:head>` actuales).
+
+### Las dos landings de diseño
+
+`/diseno-web-alcoy` y `/diseno-web` (esta última reusa el componente Alcoy) inyectan **8 bloques JSON-LD**: `ProfessionalService`, `Organization`, `Service`, `WebPage`, `FAQPage`, `BreadcrumbList`, `WebSite + SearchAction` y `SoftwareApplication` (analizador PageSpeed). Las metas OG/Twitter, robots, canonical, hreflang y links a `llms.txt` se mantienen intactas.
+
+### Cómo añadir una página nueva al GEO
+
+1. Crea la ruta `src/routes/.../+page.svelte` con su contenido y su propio `<svelte:head>` (título y description únicos por ruta).
+2. Añade una entrada en `src/lib/site-pages.ts` con `path`, `titleEs` (y `titleEn` si tiene versión inglesa), `descEs/En`, `changefreq`, `priority`, `group` (`landing | portfolio | project | support | legal`) y `locales`.
+3. Si es una página nueva sin JSON-LD propio, importa `<JsonLd type="WebPage" />` (o `Article`, `FAQPage`, `HowTo`, `SoftwareApplication`, `CollectionPage`) y pásale `faq` o `howto` si aplica.
+4. Listo: la URL aparecerá automáticamente en `/sitemap.xml`, `/llms.txt` y, si añades su contenido al renderer de `llms-full.txt`, también en el volcado completo.
 
 

@@ -810,6 +810,42 @@
     })
   );
 
+  /** WebSite + SearchAction: pista para buscadores generativos sobre la búsqueda interna del blog. */
+  const websiteSearchJsonLd = $derived(
+    stringifyJsonLdForHtml({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      '@id': `${baseUrl}/#website`,
+      url: `${baseUrl}/`,
+      name: 'Moisés Valero',
+      publisher: { '@id': `${baseUrl}/#organization` },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${baseUrl}/diseno-web-alcoy/articulos?q={search_term_string}`
+        },
+        'query-input': 'required name=search_term_string'
+      }
+    })
+  );
+
+  /** SoftwareApplication: presenta el analizador PageSpeed embebido como herramienta gratuita. */
+  const analyzerSoftwareJsonLd = $derived(
+    stringifyJsonLdForHtml({
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'Analizador de webs gratis — Moisés Valero',
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      url: `${canonicalUrl}#analyzer`,
+      description:
+        'Herramienta gratuita que mide rendimiento y Core Web Vitals de una URL pública mediante Google PageSpeed Insights y entrega recomendaciones concretas.',
+      provider: { '@id': `${baseUrl}/#organization` },
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' }
+    })
+  );
+
   const serviceIcons = ['ads_click', 'business', 'code'];
 </script>
 
@@ -835,6 +871,8 @@
   <JsonLdScript json={webPageJsonLd} />
   <JsonLdScript json={faqJsonLd} />
   <JsonLdScript json={breadcrumbJsonLd} />
+  <JsonLdScript json={websiteSearchJsonLd} />
+  <JsonLdScript json={analyzerSoftwareJsonLd} />
 </svelte:head>
 
 <svelte:window onpointermove={handleHeroPointerMove} />

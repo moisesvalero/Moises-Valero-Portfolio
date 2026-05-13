@@ -145,6 +145,13 @@
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate" />
     <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate" />
   {/if}
+  <!-- hreflang: la web sirve la misma URL para ES/EN (locale por cookie), pero anunciamos ambos para GEO/SEO. -->
+  <link rel="alternate" hreflang="es" href={data.canonicalUrl} />
+  <link rel="alternate" hreflang="en" href={data.canonicalUrl} />
+  <link rel="alternate" hreflang="x-default" href={data.canonicalUrl} />
+  <!-- Pista para LLMs y agentes generativos -->
+  <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt" />
+  <link rel="alternate" type="text/plain" title="llms-full.txt" href="/llms-full.txt" />
 </svelte:head>
 
   {#if !hideSiteChrome}

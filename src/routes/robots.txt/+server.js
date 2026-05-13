@@ -4,44 +4,47 @@ const DEFAULT_SITE_URL = 'http://localhost:5173';
 
 /** @param {string | undefined} url */
 const normalizeBaseUrl = (url) => {
-	const parsed = new URL(url || DEFAULT_SITE_URL);
-	return parsed.toString().replace(/\/$/, '');
+	try {
+		const parsed = new URL(url || DEFAULT_SITE_URL);
+		return parsed.toString().replace(/\/$/, '');
+	} catch {
+		const parsed = new URL(DEFAULT_SITE_URL);
+		return parsed.toString().replace(/\/$/, '');
+	}
 };
 
+/**
+ * robots.txt dinámico. Permite explícitamente crawlers de buscadores generativos
+ * y bloquea endpoints internos. La línea Sitemap apunta a URL absoluta.
+ */
 export const GET = () => {
 	const baseUrl = normalizeBaseUrl(env.PUBLIC_SITE_URL);
 
-	const body = `User-agent: *
-Allow: /
+	const aiBots = [
+		'OAI-SearchBot',
+		'GPTBot',
+		'ChatGPT-User',
+		'Claude-Web',
+		'ClaudeBot',
+		'anthropic-ai',
+		'PerplexityBot',
+		'Google-Extended',
+		'CCBot',
+		'FacebookBot',
+		'cohere-ai'
+	];
 
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: GPTBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: Claude-Web
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: anthropic-ai
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-
-User-agent: CCBot
-Allow: /
-
-Sitemap: ${baseUrl}/sitemap.xml`;
+	const body = [
+		'# robots.txt dinámico — moisesvalero.es',
+		'',
+		'User-agent: *',
+		'Allow: /',
+		'Disallow: /api/',
+		'',
+		...aiBots.flatMap((agent) => [`User-agent: ${agent}`, 'Allow: /', 'Disallow: /api/', '']),
+		`Sitemap: ${baseUrl}/sitemap.xml`,
+		''
+	].join('\n');
 
 	return new Response(body, {
 		headers: {

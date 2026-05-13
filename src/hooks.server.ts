@@ -1,10 +1,23 @@
 import { dev } from '$app/environment';
 import type { Handle } from '@sveltejs/kit';
+import { PORTFOLIO_LOCALE_COOKIE, resolveSiteLocale, type SiteLocale } from '$lib/i18n/site-locale';
 
 const PRIMARY_CANONICAL_HOST = 'moisesvalero.es';
 const SEO_LANDING_PATH_RE = /^\/diseno-web(?:-alcoy)?(?:\/|$)/;
 const PRODUCTION_ROBOTS = 'index, follow';
 const NON_PRODUCTION_ROBOTS = 'noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate';
+
+/** Locale para SSR: cookie del selector → Accept-Language → fallback es. */
+function resolveRequestLocale(event: Parameters<Handle>[0]['event']): SiteLocale {
+  const cookieValue = event.cookies.get(PORTFOLIO_LOCALE_COOKIE);
+  const fromCookie = resolveSiteLocale(cookieValue);
+  if (cookieValue) return fromCookie;
+  const accept = event.request.headers.get('accept-language') ?? '';
+  if (/\ben\b/i.test(accept) && !/\bes\b/i.test(accept.split(',')[0] ?? '')) {
+    return 'en';
+  }
+  return 'es';
+}
 
 /**
  * CSP ajustada a recursos reales del sitio: Spline, Sanity CDN, GA4 con inline gtag,
@@ -37,7 +50,10 @@ const PERMISSIONS_POLICY =
 
 /** Refuerza UTF-8 en HTML para evitar interpretaciones erróneas del juego de caracteres. */
 export const handle: Handle = async ({ event, resolve }) => {
-  const response = await resolve(event);
+  const lang = resolveRequestLocale(event);
+  const response = await resolve(event, {
+    transformPageChunk: ({ html }) => html.replace('lang="%lang%"', `lang="${lang}"`)
+  });
 
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
   response.headers.set('X-Content-Type-Options', 'nosniff');
