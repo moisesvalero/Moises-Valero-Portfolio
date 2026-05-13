@@ -36,6 +36,10 @@
       : {})
   });
   const effectivePdfHref = $derived(career?.pdfHref || pdfHref);
+  // El iframe se carga siempre desde nuestro proxy mismo origen (`/api/cv`) para evitar el
+  // bloqueo por CSP (`frame-src`) y por `Content-Disposition: attachment` que Sanity CDN
+  // aplica a los PDFs. El enlace "abrir en pestaña nueva" mantiene la URL original.
+  const pdfIframeSrc = '/api/cv';
   type StackIcon = {
     src?: string;
     iconify?: string;
@@ -198,7 +202,7 @@
             <div class="career-pdf-wrap">
               <iframe
                 class="career-pdf-frame"
-                src={effectivePdfHref}
+                src={pdfIframeSrc}
                 title={c.pdfIframeTitle}
               ></iframe>
               <p class="career-pdf-hint">
