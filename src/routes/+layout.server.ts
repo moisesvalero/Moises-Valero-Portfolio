@@ -1,3 +1,4 @@
+import { canonicalHtmlPath, hasMarkdownTwin, markdownTwinPath } from '$lib/aeo';
 import {
   LOCALE_LOAD_DEPENDENCY,
   PORTFOLIO_LOCALE_COOKIE,
@@ -35,5 +36,7 @@ export const load: LayoutServerLoad = async ({ cookies, depends, url }) => {
   }
   const canonicalUrl = `${canonicalOrigin}${canonicalPath}`;
   const noIndex = !isProductionHost;
-  return { site, locale, hideSiteChrome, canonicalUrl, noIndex };
+  const htmlPath = canonicalHtmlPath(normalizedPath);
+  const markdownAlternateHref = hasMarkdownTwin(htmlPath) ? markdownTwinPath(htmlPath) : null;
+  return { site, locale, hideSiteChrome, canonicalUrl, noIndex, markdownAlternateHref };
 };

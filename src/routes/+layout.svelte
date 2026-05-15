@@ -152,6 +152,9 @@
   <!-- Pista para LLMs y agentes generativos -->
   <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt" />
   <link rel="alternate" type="text/plain" title="llms-full.txt" href="/llms-full.txt" />
+  {#if data.markdownAlternateHref}
+    <link rel="alternate" type="text/markdown" href={data.markdownAlternateHref} />
+  {/if}
 </svelte:head>
 
   {#if !hideSiteChrome}

@@ -181,4 +181,34 @@ export const sitePages: SitePage[] = [
 3. Si es una página nueva sin JSON-LD propio, importa `<JsonLd type="WebPage" />` (o `Article`, `FAQPage`, `HowTo`, `SoftwareApplication`, `CollectionPage`) y pásale `faq` o `howto` si aplica.
 4. Listo: la URL aparecerá automáticamente en `/sitemap.xml`, `/llms.txt` y, si añades su contenido al renderer de `llms-full.txt`, también en el volcado completo.
 
+### AEO (AI Engine Optimization) v1.0
+
+Cada página indexable expone un **twin Markdown** (`/ruta.md`, home → `/index.md`) con `X-Robots-Tag: noindex`. Los crawlers IA y clientes con `Accept: text/markdown` reciben Markdown en la URL canónica; el HTML sigue indexable.
+
+| Pieza | Ubicación |
+|---|---|
+| Negociación `Accept` + bots IA | `src/hooks.server.ts` (antes/después de `resolve`) |
+| Builders y registro | `src/lib/aeo/` |
+| Twins explícitos | `src/routes/**/*.md/+server.ts` |
+| `<link rel="alternate" type="text/markdown">` | `src/routes/+layout.svelte` |
+| Twins en sitemap | `src/routes/sitemap.xml/+server.js` |
+
+**Checklist al crear una página indexable nueva:**
+
+1. Entrada en `src/lib/site-pages.ts` (`aeoTwin` por defecto `true`).
+2. Builder en `src/lib/aeo/builders/` y registro en `src/lib/aeo/registry.ts`.
+3. Ruta `src/routes/.../nombre.md/+server.ts` que llame a `serveMarkdownTwin`.
+4. `npm run check` y probar: `curl -sI -H "Accept: text/markdown" http://localhost:5173/tu-ruta`.
+
+Validación local (con `npm run dev`):
+
+```bash
+curl -sI -H "Accept: text/markdown" http://localhost:5173/
+curl -sI -A "Mozilla/5.0 (compatible; GPTBot/1.0)" http://localhost:5173/
+curl -sI http://localhost:5173/index.md
+curl -sI -A "Mozilla/5.0 Chrome" http://localhost:5173/
+```
+
+En producción, vuelve a pasar [aeochecker](https://aeochecker.com) / Dualmark tras el deploy.
+
 

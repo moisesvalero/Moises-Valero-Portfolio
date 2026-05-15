@@ -22,6 +22,8 @@ export type SitePage = {
   locales?: SiteLocale[];
   /** Si false: no se incluye en sitemap.xml ni llms.txt. */
   indexable?: boolean;
+  /** Si false: no se genera twin Markdown AEO (`/ruta.md`). Default true en páginas públicas. */
+  aeoTwin?: boolean;
 };
 
 /**
@@ -147,6 +149,13 @@ export const sitePages: SitePage[] = [
 export function publicPages(): SitePage[] {
   return sitePages.filter((p) => p.indexable !== false);
 }
+
+/** Páginas con twin Markdown AEO habilitado. */
+export function pagesWithTwins(): SitePage[] {
+  return publicPages().filter((p) => p.aeoTwin !== false);
+}
+
+export { markdownTwinPath } from '$lib/aeo/paths';
 
 /** Páginas filtradas por grupo. */
 export function pagesByGroup(group: SitePageGroup): SitePage[] {

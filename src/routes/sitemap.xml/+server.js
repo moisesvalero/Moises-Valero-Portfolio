@@ -1,6 +1,6 @@
 import { env } from '$env/dynamic/public';
 import { fetchLandingSupportArticles } from '$lib/server/fetch-landing-support-articles';
-import { publicPages } from '$lib/site-pages';
+import { markdownTwinPath, pagesWithTwins, publicPages } from '$lib/site-pages';
 
 const DEFAULT_SITE_URL = 'http://localhost:5173';
 
@@ -58,6 +58,26 @@ export const GET = async () => {
 			changefreq: 'weekly',
 			priority: 0.65,
 			alternates: ['es']
+		});
+	}
+
+	// Twins Markdown AEO (noindex; descubrimiento para crawlers IA)
+	for (const page of pagesWithTwins()) {
+		entries.push({
+			loc: `${baseUrl}${markdownTwinPath(page.path)}`,
+			lastmod: now,
+			changefreq: page.changefreq,
+			priority: Math.max(0.1, page.priority - 0.05),
+			alternates: []
+		});
+	}
+	for (const article of articles) {
+		entries.push({
+			loc: `${baseUrl}/diseno-web-alcoy/${article.slug}.md`,
+			lastmod: now,
+			changefreq: 'weekly',
+			priority: 0.6,
+			alternates: []
 		});
 	}
 
