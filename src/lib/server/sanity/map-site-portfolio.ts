@@ -223,41 +223,13 @@ function mapStackIcon(
 }
 
 function mergeTechStack(
-  raw: unknown,
+  _raw: unknown,
   d: SitePortfolioContent['techStack'],
-  ctx: { projectId: string; dataset: string }
+  _ctx: { projectId: string; dataset: string }
 ): SitePortfolioContent['techStack'] {
-  const o = asRecord(raw);
-  if (!o) {
-    return d;
-  }
-  const catsRaw = Array.isArray(o.categories) ? (o.categories as unknown[]) : [];
-  const categories = catsRaw
-    .map((c, ci) => {
-      const r = asRecord(c);
-      if (!r) {
-        return null;
-      }
-      const title = asStringOpt(r.title);
-      if (!title) {
-        return null;
-      }
-      const iconsRaw = Array.isArray(r.icons) ? (r.icons as unknown[]) : [];
-      const defaultIcons = d.categories[ci]?.icons ?? d.categories[0]?.icons ?? [];
-      const icons = iconsRaw.map((ic, ii) =>
-        mapStackIcon(ic, ctx, defaultIcons[ii] ?? { iconify: 'logos:code-icon', alt: 'icon', title: 'icon' })
-      );
-      return {
-        title,
-        icons: icons.length ? icons : defaultIcons
-      };
-    })
-    .filter(Boolean) as SitePortfolioContent['techStack']['categories'];
-  return {
-    meta: asString(o.meta, d.meta),
-    title: asString(o.title, d.title),
-    categories: categories.length ? categories : d.categories
-  };
+  // El techStack se gestiona localmente en site-portfolio-defaults.ts.
+  // Ignoramos cualquier dato de Sanity para esta sección.
+  return d;
 }
 
 function mergeQuality(raw: unknown, d: SitePortfolioContent['quality']): SitePortfolioContent['quality'] {
