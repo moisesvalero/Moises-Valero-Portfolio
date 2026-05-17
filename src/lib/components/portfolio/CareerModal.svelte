@@ -53,30 +53,58 @@
 
   const stackGroups: StackGroup[] = [
     {
-      title: 'Desarrollo Moderno',
+      title: 'Lenguajes y Core',
       icons: [
-        { iconify: 'logos:svelte-icon', title: 'SvelteKit' },
-        { iconify: 'logos:tailwindcss-icon', title: 'Tailwind CSS' },
-        { iconify: 'logos:sanity', title: 'Sanity CMS' },
-        { iconify: 'logos:vercel-icon', title: 'Vercel' }
+        { iconify: 'logos:typescript-icon', title: 'TypeScript' },
+        { src: '/imagenes/javascript.svg', title: 'JavaScript (ES6+)' },
+        { src: '/imagenes/html5.svg', title: 'HTML5' },
+        { src: '/imagenes/css.svg', title: 'CSS3' }
       ]
     },
     {
-      title: 'Ecosistema WordPress',
+      title: 'Frameworks y Librerías',
       icons: [
-        { iconify: 'logos:wordpress-icon', title: 'WordPress' },
-        { iconify: 'logos:woocommerce-icon', title: 'WooCommerce' },
-        { src: '/imagenes/kadence.svg', title: 'Kadence Blocks' },
-        { src: '/imagenes/elementor.svg', title: 'Elementor' }
+        { src: '/imagenes/svelte.svg', title: 'SvelteKit / Svelte 5' },
+        { src: '/imagenes/tailwindcss.svg', title: 'Tailwind CSS' },
+        { iconify: 'logos:pwa', title: 'Progressive Web Apps' }
       ]
     },
     {
-      title: 'IA y Flujo de Trabajo',
+      title: 'Backend e Infraestructura',
+      icons: [
+        { iconify: 'logos:supabase-icon', title: 'Supabase (PostgreSQL)' },
+        { iconify: 'logos:vercel-icon', title: 'Vercel' },
+        { src: '/imagenes/cloudflare.svg', title: 'Cloudflare' },
+        { iconify: 'logos:git-icon', title: 'Git' },
+        { src: '/imagenes/github.svg', title: 'GitHub' }
+      ]
+    },
+    {
+      title: 'Integraciones y APIs',
+      icons: [
+        { iconify: 'logos:stripe', title: 'Stripe API' },
+        { iconify: 'mdi:package-variant-closed', title: 'Printful API (Logística)' },
+        { src: '/imagenes/claude-ai-icon.svg', title: 'Claude API' },
+        { iconify: 'logos:openai-icon', title: 'OpenAI API' },
+        { iconify: 'logos:google-gemini', title: 'Gemini API' }
+      ]
+    },
+    {
+      title: 'CMS y Low-Code',
+      icons: [
+        { src: '/imagenes/wordpress.svg', title: 'WordPress' },
+        { src: '/imagenes/kadence.svg', title: 'Kadence' },
+        { src: '/imagenes/elementor.svg', title: 'Elementor' },
+        { iconify: 'logos:sanity', title: 'Sanity.io' }
+      ]
+    },
+    {
+      title: 'Entorno de Desarrollo e IA',
       icons: [
         { src: '/imagenes/cursor.svg', title: 'Cursor' },
-        { src: '/imagenes/claude-ai-icon.svg', title: 'Claude' },
-        { iconify: 'logos:google-gemini', title: 'Gemini' },
-        { iconify: 'logos:github-icon', title: 'GitHub' }
+        { iconify: 'simple-icons:ollama', title: 'Ollama' },
+        { iconify: 'mdi:brain', title: 'LM Studio' },
+        { iconify: 'logos:google-icon', title: 'Google Antigravity' }
       ]
     }
   ];
