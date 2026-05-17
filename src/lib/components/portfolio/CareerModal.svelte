@@ -43,6 +43,7 @@
   type StackIcon = {
     src?: string;
     iconify?: string;
+    alt?: string;
     title: string;
   };
 
@@ -55,56 +56,55 @@
     {
       title: 'Lenguajes y Core',
       icons: [
-        { iconify: 'logos:typescript-icon', title: 'TypeScript' },
-        { src: '/imagenes/javascript.svg', title: 'JavaScript (ES6+)' },
-        { src: '/imagenes/html5.svg', title: 'HTML5' },
-        { src: '/imagenes/css.svg', title: 'CSS3' }
+        { iconify: 'logos:typescript-icon', alt: 'TypeScript', title: 'TypeScript' },
+        { src: '/imagenes/javascript.svg', alt: 'JavaScript', title: 'JavaScript (ES6+)' },
+        { src: '/imagenes/html5.svg', alt: 'HTML5', title: 'HTML5' },
+        { src: '/imagenes/css.svg', alt: 'CSS3', title: 'CSS3' }
       ]
     },
     {
       title: 'Frameworks y Librerías',
       icons: [
-        { src: '/imagenes/svelte.svg', title: 'SvelteKit / Svelte 5' },
-        { src: '/imagenes/tailwindcss.svg', title: 'Tailwind CSS' },
-        { iconify: 'logos:pwa', title: 'Progressive Web Apps' }
+        { src: '/imagenes/svelte.svg', alt: 'SvelteKit', title: 'SvelteKit / Svelte 5' },
+        { src: '/imagenes/tailwindcss.svg', alt: 'Tailwind CSS', title: 'Tailwind CSS' },
+        { iconify: 'logos:vitejs', alt: 'Vite', title: 'Vite' },
+        { iconify: 'logos:pwa', alt: 'PWA', title: 'Progressive Web Apps' }
       ]
     },
     {
       title: 'Backend e Infraestructura',
       icons: [
-        { iconify: 'logos:supabase-icon', title: 'Supabase (PostgreSQL)' },
-        { iconify: 'logos:vercel-icon', title: 'Vercel' },
-        { src: '/imagenes/cloudflare.svg', title: 'Cloudflare' },
-        { iconify: 'logos:git-icon', title: 'Git' },
-        { src: '/imagenes/github.svg', title: 'GitHub' }
+        { iconify: 'logos:supabase-icon', alt: 'Supabase', title: 'Supabase (PostgreSQL)' },
+        { iconify: 'logos:vercel-icon', alt: 'Vercel', title: 'Vercel' },
+        { src: '/imagenes/cloudflare.svg', alt: 'Cloudflare', title: 'Cloudflare' },
+        { src: '/imagenes/github.svg', alt: 'GitHub', title: 'GitHub' }
       ]
     },
     {
       title: 'Integraciones y APIs',
       icons: [
-        { iconify: 'logos:stripe', title: 'Stripe API' },
-        { iconify: 'mdi:package-variant-closed', title: 'Printful API (Logística)' },
-        { src: '/imagenes/claude-ai-icon.svg', title: 'Claude API' },
-        { iconify: 'logos:openai-icon', title: 'OpenAI API' },
-        { iconify: 'logos:google-gemini', title: 'Gemini API' }
+        { iconify: 'logos:stripe', alt: 'Stripe', title: 'Stripe API' },
+        { src: '/imagenes/claude-ai-icon.svg', alt: 'Claude', title: 'Claude API' },
+        { iconify: 'logos:openai-icon', alt: 'OpenAI', title: 'OpenAI API' },
+        { iconify: 'logos:google-gemini', alt: 'Gemini', title: 'Gemini API' }
       ]
     },
     {
       title: 'CMS y Low-Code',
       icons: [
-        { src: '/imagenes/wordpress.svg', title: 'WordPress' },
-        { src: '/imagenes/kadence.svg', title: 'Kadence' },
-        { src: '/imagenes/elementor.svg', title: 'Elementor' },
-        { iconify: 'logos:sanity', title: 'Sanity.io' }
+        { src: '/imagenes/wordpress.svg', alt: 'WordPress', title: 'WordPress' },
+        { src: '/imagenes/kadence.svg', alt: 'Kadence', title: 'Kadence' },
+        { src: '/imagenes/elementor.svg', alt: 'Elementor', title: 'Elementor' },
+        { iconify: 'logos:sanity', alt: 'Sanity', title: 'Sanity.io' }
       ]
     },
     {
       title: 'Entorno de Desarrollo e IA',
       icons: [
-        { src: '/imagenes/cursor.svg', title: 'Cursor' },
-        { iconify: 'simple-icons:ollama', title: 'Ollama' },
-        { iconify: 'mdi:brain', title: 'LM Studio' },
-        { iconify: 'logos:google-icon', title: 'Google Antigravity' }
+        { src: '/imagenes/cursor.svg', alt: 'Cursor', title: 'Cursor' },
+        { iconify: 'simple-icons:ollama', alt: 'Ollama', title: 'Ollama' },
+        { src: '/imagenes/opencode.svg', alt: 'OpenCode', title: 'OpenCode' },
+        { src: '/imagenes/antigravity.svg', alt: 'Antigravity', title: 'Google Antigravity' }
       ]
     }
   ];

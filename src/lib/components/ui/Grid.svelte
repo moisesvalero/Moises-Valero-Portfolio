@@ -1,14 +1,17 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   type Props = {
     columns?: number | 'auto';
     gap?: string;
     className?: string;
+    children?: Snippet;
   };
 
   let {
     columns = 3,
     gap = '1.5rem',
-    className = ''
+    className = '',
+    children
   }: Props = $props();
 </script>
 
@@ -16,7 +19,7 @@
   class={`nk-grid ${className}`.trim()}
   style={`--nk-grid-gap:${gap};`}
 >
-  <slot />
+  {@render children?.()}
 </div>
 
 <style>

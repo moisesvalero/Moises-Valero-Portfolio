@@ -4,6 +4,8 @@
   import Heading from './Heading.svelte';
   import Text from './Text.svelte';
 
+  import type { Snippet } from 'svelte';
+
   type Props = {
     eyebrow?: string;
     title?: string;
@@ -13,6 +15,7 @@
     secondaryLabel?: string;
     secondaryHref?: string;
     align?: 'left' | 'center';
+    children?: Snippet;
   };
 
   let {
@@ -23,7 +26,8 @@
     primaryHref = undefined,
     secondaryLabel = undefined,
     secondaryHref = undefined,
-    align = 'left'
+    align = 'left',
+    children
   }: Props = $props();
 </script>
 
@@ -68,7 +72,7 @@
     </div>
 
     <div class="nk-hero-media">
-      <slot />
+      {@render children?.()}
     </div>
   </Container>
 </section>

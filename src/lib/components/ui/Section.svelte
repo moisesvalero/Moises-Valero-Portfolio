@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   type Variant = 'default' | 'muted' | 'soft' | 'surface';
 
   type Props = {
@@ -6,13 +7,15 @@
     variant?: Variant;
     id?: string;
     className?: string;
+    children?: Snippet;
   };
 
   let {
     as = 'section',
     variant = 'default',
     id = undefined,
-    className = ''
+    className = '',
+    children
   }: Props = $props();
 </script>
 
@@ -21,7 +24,7 @@
   id={id}
   class={`nk-section nk-section--${variant} ${className}`.trim()}
 >
-  <slot />
+  {@render children?.()}
 </svelte:element>
 
 <style>

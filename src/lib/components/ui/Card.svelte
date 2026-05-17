@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   type Variant = 'default' | 'soft' | 'outline';
 
   type Props = {
@@ -6,13 +7,21 @@
     variant?: Variant;
     clickable?: boolean;
     className?: string;
+    eyebrow?: Snippet;
+    title?: Snippet;
+    children?: Snippet;
+    footer?: Snippet;
   };
 
   let {
     as = 'div',
     variant = 'default',
     clickable = false,
-    className = ''
+    className = '',
+    eyebrow,
+    title,
+    children,
+    footer
   }: Props = $props();
 </script>
 
@@ -20,10 +29,10 @@
   this={as}
   class={`nk-card nk-card--${variant} ${clickable ? 'nk-card--clickable' : ''} ${className}`.trim()}
 >
-  <slot name="eyebrow" />
-  <slot name="title" />
-  <slot />
-  <slot name="footer" />
+  {#if eyebrow}{@render eyebrow()}{/if}
+  {#if title}{@render title()}{/if}
+  {@render children?.()}
+  {#if footer}{@render footer()}{/if}
 </svelte:element>
 
 <style>

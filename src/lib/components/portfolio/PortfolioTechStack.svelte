@@ -34,6 +34,7 @@
       icons: [
         { src: '/imagenes/svelte.svg', alt: 'SvelteKit', title: 'SvelteKit / Svelte 5' },
         { src: '/imagenes/tailwindcss.svg', alt: 'Tailwind CSS', title: 'Tailwind CSS' },
+        { iconify: 'logos:vitejs', alt: 'Vite', title: 'Vite' },
         { iconify: 'logos:pwa', alt: 'PWA', title: 'Progressive Web Apps' }
       ]
     },
@@ -43,7 +44,6 @@
         { iconify: 'logos:supabase-icon', alt: 'Supabase', title: 'Supabase (PostgreSQL)' },
         { iconify: 'logos:vercel-icon', alt: 'Vercel', title: 'Vercel' },
         { src: '/imagenes/cloudflare.svg', alt: 'Cloudflare', title: 'Cloudflare' },
-        { iconify: 'logos:git-icon', alt: 'Git', title: 'Git' },
         { src: '/imagenes/github.svg', alt: 'GitHub', title: 'GitHub' }
       ]
     },
@@ -51,7 +51,6 @@
       title: 'Integraciones y APIs',
       icons: [
         { iconify: 'logos:stripe', alt: 'Stripe', title: 'Stripe API' },
-        { iconify: 'mdi:package-variant-closed', alt: 'Printful', title: 'Printful API (Logística)' },
         { src: '/imagenes/claude-ai-icon.svg', alt: 'Claude', title: 'Claude API' },
         { iconify: 'logos:openai-icon', alt: 'OpenAI', title: 'OpenAI API' },
         { iconify: 'logos:google-gemini', alt: 'Gemini', title: 'Gemini API' }
@@ -71,8 +70,8 @@
       icons: [
         { src: '/imagenes/cursor.svg', alt: 'Cursor', title: 'Cursor' },
         { iconify: 'simple-icons:ollama', alt: 'Ollama', title: 'Ollama' },
-        { iconify: 'mdi:brain', alt: 'LM Studio', title: 'LM Studio' },
-        { iconify: 'logos:google-icon', alt: 'Antigravity', title: 'Google Antigravity' }
+        { src: '/imagenes/opencode.svg', alt: 'OpenCode', title: 'OpenCode' },
+        { src: '/imagenes/antigravity.svg', alt: 'Antigravity', title: 'Google Antigravity' }
       ]
     }
   ];

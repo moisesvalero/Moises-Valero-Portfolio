@@ -2,6 +2,7 @@
   type Variant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'link';
   type Size = 'sm' | 'md' | 'lg';
 
+  import type { Snippet } from 'svelte';
   type Props = {
     as?: 'button' | 'a';
     href?: string;
@@ -11,6 +12,7 @@
     disabled?: boolean;
     loading?: boolean;
     className?: string;
+    children?: Snippet;
   };
 
   let {
@@ -21,7 +23,8 @@
     size = 'md',
     disabled = false,
     loading = false,
-    className = ''
+    className = '',
+    children
   }: Props = $props();
 </script>
 
@@ -34,7 +37,7 @@
   aria-disabled={as !== 'button' && (disabled || loading) ? 'true' : undefined}
 >
   <span class="nk-btn-inner">
-    <slot />
+    {@render children?.()}
   </span>
 </svelte:element>
 
