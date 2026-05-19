@@ -1,26 +1,47 @@
-# Portfolio SvelteKit + Sanity
+# Moises Valero Portfolio
 
-Portfolio profesional de `moisesvalero.es` construido con **SvelteKit 2 + Svelte 5 + TypeScript**, con contenido gestionado en **Sanity**, automatizaciones SEO (sitemap, robots, IndexNow) y APIs internas para captación de leads (formulario, WhatsApp y analizador PageSpeed).
+Portfolio profesional de [moisesvalero.es](https://moisesvalero.es), construido con **SvelteKit 2**, **Svelte 5**, **TypeScript** y **Sanity**. El proyecto combina una experiencia visual cuidada con SEO técnico, contenido editable desde CMS y endpoints server-side para captación de leads.
 
 ![Captura del portfolio](./static/imagenes/readme-portfolio-captura.png)
 
+## Enlaces
+
+- **Web:** [moisesvalero.es](https://moisesvalero.es)
+- **Stack principal:** SvelteKit, Svelte 5, TypeScript, Sanity, Vercel
+- **Objetivo:** portfolio personal, landings SEO locales y casos de proyecto
+
+## Qué demuestra este proyecto
+
+- Interfaz moderna con modo oscuro, animaciones, microinteracciones y diseño responsive.
+- Arquitectura SvelteKit con rutas públicas, endpoints server-side y datos híbridos CMS/fallback local.
+- SEO avanzado: sitemap, robots, canonical, hreflang, JSON-LD, `llms.txt` y twins Markdown para AEO/GEO.
+- Integraciones reales: Sanity CMS, Resend, PageSpeed Insights, IndexNow y Typebot.
+- Cuidado de producción: variables privadas en servidor, `.env.example`, rate limits y honeypots.
+
 ## Stack técnico
 
-- `SvelteKit` + `Vite` + `TypeScript`
-- `Sanity` como CMS headless (lectura y escritura desde servidor)
-- `Vercel` (adapter automático en producción)
-- `Resend` para envío de emails de contacto y leads
-- `Google PageSpeed Insights API` para el analizador web
+| Área | Tecnología |
+| --- | --- |
+| Frontend | SvelteKit 2, Svelte 5, TypeScript, Vite |
+| CMS | Sanity |
+| Deploy | Vercel / adapter auto |
+| UI | CSS custom, WebGL shader con OGL, animaciones propias |
+| Email/leads | Resend, formularios server-side |
+| SEO/AEO | JSON-LD, sitemap, robots, llms.txt, Markdown twins |
+| Analítica/performance | GA4 opcional, PageSpeed Insights API |
 
-## Qué incluye el proyecto
+## Funcionalidades principales
 
-- Home/portfolio principal y páginas de proyectos (`/`, `/proyectos/*`)
-- Landing SEO local para servicios web (`/diseno-web` y `/diseno-web-alcoy`)
-- Blog/artículos por slug desde CMS (`/diseno-web/[slug]`, `/diseno-web-alcoy/[slug]`)
-- SEO técnico: canónicas, `sitemap.xml`, `robots.txt`, `llms.txt`, `indexnow-key.txt`
-- Endpoints backend para formularios, locale, análisis PageSpeed e integración webhook de Sanity
+- Home portfolio con presentación, stack, trayectoria, servicios y proyectos.
+- Páginas de proyecto en `/proyectos/*`.
+- Landings SEO para servicios web en `/diseno-web` y `/diseno-web-alcoy`.
+- Blog/artículos por slug desde Sanity.
+- Cambio de idioma `es/en` con cookie httpOnly.
+- Formulario de contacto y redirección server-side a WhatsApp.
+- Analizador PageSpeed con captura de lead.
+- Webhook Sanity -> IndexNow para notificar contenido nuevo o actualizado.
 
-## Estructura principal
+## Estructura del proyecto
 
 ```txt
 src/
@@ -41,50 +62,62 @@ src/
 sanity/
   schemaTypes/                   # esquemas CMS
   seed-*.ts / patch-*.ts         # scripts de seed/migración
+static/
+  fonts/                         # fuentes autoalojadas
+  imagenes/                      # assets públicos del portfolio
 ```
 
-## Scripts disponibles
+## Desarrollo local
 
 ```bash
+npm install
 npm run dev
-npm run build
-npm run preview
-npm run check
-npm run studio
 ```
 
-Scripts extra de contenido en Sanity:
+Validación antes de desplegar:
 
-- `npm run sanity:patch-og`
-- `npm run sanity:clone-landing-national`
-- `npm run sanity:hero-marquee`
-- `npm run sanity:seed-support-articles`
+```bash
+npm run check
+npm run build
+```
+
+Scripts útiles:
+
+```bash
+npm run preview
+npm run studio
+npm run sanity:patch-og
+npm run sanity:clone-landing-national
+npm run sanity:hero-marquee
+npm run sanity:seed-support-articles
+```
 
 ## Variables de entorno
 
-Duplica `.env.example` a `.env` y configura lo que necesites.
+Duplica `.env.example` como `.env` y configura solo lo que necesites. El proyecto puede funcionar con datos locales si Sanity no está configurado.
 
 ### Base
 
-- `PUBLIC_SITE_URL` URL pública del sitio
+- `PUBLIC_SITE_URL`: URL pública del sitio.
+- `PUBLIC_GA_MEASUREMENT_ID`: GA4 opcional, solo se carga tras consentimiento de cookies.
 
-### Sanity (lectura/escritura CMS)
+### Sanity
 
 - `SANITY_PROJECT_ID`
 - `SANITY_DATASET`
 - `SANITY_API_VERSION`
-- `SANITY_READ_TOKEN` (opcional lectura privada)
-- `SANITY_WRITE_TOKEN` (si escribes desde API/scripts)
+- `SANITY_READ_TOKEN`: opcional si algún asset privado necesita proxy.
+- `SANITY_WRITE_TOKEN`: solo para scripts o APIs con escritura.
 
 ### Captación y analizador
 
 - `PAGESPEED_API_KEY`
-- `PAGESPEED_MAX_CALLS_PER_DAY` (opcional)
-- `PAGESPEED_RATE_LIMIT_PER_HOUR` (opcional)
+- `PAGESPEED_MAX_CALLS_PER_DAY`
+- `PAGESPEED_RATE_LIMIT_PER_HOUR`
 - `RESEND_API_KEY`
 - `CONTACT_TO_EMAIL`
 - `CONTACT_FROM_EMAIL`
-- `WHATSAPP_E164` (opcional)
+- `WHATSAPP_E164`
 
 ### IndexNow y webhooks
 
@@ -94,120 +127,49 @@ Duplica `.env.example` a `.env` y configura lo que necesites.
 
 ## Endpoints API relevantes
 
-- `POST /api/contact/form` envío de formulario por email (con rate limit + honeypot)
-- `GET /api/contact/whatsapp` redirección server-side a WhatsApp
-- `POST /api/pagespeed/analyze` encola/ejecuta análisis de URL
-- `GET /api/pagespeed/analyze/[jobId]` polling del estado del análisis
-- `POST /api/pagespeed/lead` envío de informe y registro de lead
-- `POST /api/locale` persistencia de idioma (`es`/`en`) en cookie
-- `POST /api/indexnow/submit` notificación manual a IndexNow
-- `POST /api/webhooks/sanity/indexnow` notificación automática al publicar artículos
+| Endpoint | Uso |
+| --- | --- |
+| `POST /api/contact/form` | Envío de formulario por email con rate limit y honeypot |
+| `GET /api/contact/whatsapp` | Redirección server-side a WhatsApp |
+| `POST /api/pagespeed/analyze` | Ejecuta análisis PageSpeed |
+| `GET /api/pagespeed/analyze/[jobId]` | Polling del estado del análisis |
+| `POST /api/pagespeed/lead` | Envío de informe y registro de lead |
+| `POST /api/locale` | Persistencia de idioma en cookie |
+| `POST /api/indexnow/submit` | Notificación manual a IndexNow |
+| `POST /api/webhooks/sanity/indexnow` | Notificación automática al publicar en Sanity |
 
-## Flujo de contenido (CMS)
+## SEO + AEO
 
-1. El frontend intenta cargar contenido desde Sanity.
-2. Si faltan variables o falla Sanity, usa defaults locales de `src/lib/data`.
-3. El mapeo unifica estructura para renderizar sin romper páginas.
-4. Artículos y landings SEO se sirven por slug y generan canónica coherente.
+El proyecto expone una capa SEO/AEO pensada para buscadores tradicionales y motores generativos:
 
-## Desarrollo local
+- Canonicals por ruta.
+- `hreflang` `es/en/x-default`.
+- `robots.txt` con reglas para bots tradicionales y de IA.
+- `sitemap.xml` con páginas estáticas y contenido de CMS.
+- `/llms.txt` y `/llms-full.txt`.
+- Twins Markdown (`/ruta.md`) con `X-Robots-Tag: noindex`.
+- JSON-LD para servicios, organización, FAQ, breadcrumbs, artículos y software.
+
+El registro central de páginas vive en `src/lib/site-pages.ts`. Al crear una página indexable nueva, añade su entrada ahí y, si aplica, crea su builder Markdown en `src/lib/aeo/builders`.
+
+## Preparado para repo público
+
+- `.env` y `.env.*` están ignorados, salvo `.env.example`.
+- Los secretos se leen desde `$env/static/private` o entorno de servidor.
+- `dist`, `tmp` y `.sanity/runtime` están ignorados porque son artefactos generados.
+- No subas tokens reales de Sanity, Resend, PageSpeed, IndexNow ni Vercel.
+
+Antes de publicar el repositorio, revisa:
 
 ```bash
-npm install
-npm run dev
-```
-
-Para validar antes de desplegar:
-
-```bash
+git status --short
+git ls-files .env dist tmp .sanity/runtime
 npm run check
 npm run build
 ```
 
-## Despliegue
+## Licencia
 
-- Preparado para desplegar en Vercel.
-- En producción, define las variables de entorno del bloque anterior.
-- Verifica después del deploy:
-  - `/sitemap.xml`
-  - `/robots.txt`
-  - `/llms.txt`
-  - `/llms-full.txt`
-  - flujo de formulario y endpoints `/api/*`
+Este proyecto se publica bajo **Creative Commons BY-NC 4.0**. Puedes estudiar, compartir y adaptar el código con atribución, pero no usarlo con fines comerciales sin permiso.
 
-## SEO + GEO (Generative Engine Optimization)
-
-El proyecto tiene una capa SEO/GEO centralizada para que buscadores tradicionales y buscadores generativos (ChatGPT, Claude, Perplexity, Google AI Overviews) puedan indexar e ingerir el contenido.
-
-### Qué se inyecta automáticamente
-
-| Pieza | Dónde | Responsable |
-|---|---|---|
-| `<link rel="canonical">` | Todas las páginas | `src/routes/+layout.server.ts` (con regla Alcoy ↔ nacional). **No tocar.** |
-| `noindex` en hosts no productivos | Todas las páginas | `+layout.server.ts` + `+layout.svelte` |
-| `<link rel="alternate" hreflang>` (es/en/x-default) | Todas las páginas | `src/routes/+layout.svelte` |
-| `<link rel="alternate" type="text/plain" href="/llms.txt">` | Todas las páginas | `src/routes/+layout.svelte` |
-| `<html lang="...">` dinámico (cookie → Accept-Language → fallback es) | SSR de cualquier ruta | `src/hooks.server.ts` (vía `transformPageChunk`) + `src/app.html` |
-| `/robots.txt` con AI bots permitidos y `Disallow: /api/` | endpoint | `src/routes/robots.txt/+server.js` |
-| `/sitemap.xml` con `<xhtml:link hreflang>` y artículos del CMS | endpoint | `src/routes/sitemap.xml/+server.js` |
-| `/llms.txt` (índice estilo llmstxt.org) | endpoint | `src/routes/llms.txt/+server.js` |
-| `/llms-full.txt` (todo el contenido de las landings en Markdown) | endpoint | `src/routes/llms-full.txt/+server.ts` |
-
-### Registro central de páginas
-
-Todo el GEO se alimenta desde `src/lib/site-pages.ts`. Cada entrada describe `path`, `titleEs/En`, `descEs/En`, `changefreq`, `priority`, `group` y `locales`.
-
-```ts
-export const sitePages: SitePage[] = [
-  { path: '/diseno-web-alcoy', titleEs: '...', descEs: '...', changefreq: 'weekly', priority: 0.95, group: 'landing', locales: ['es'] },
-  // ...
-];
-```
-
-### Helpers reutilizables
-
-- `src/lib/seo.ts`: store `seo` (writable) + `setSeo(partial)` + `defaultSeo` con todos los campos del playbook (`schemaType`, `keywords`, `faq`, `howto`, `softwareName`, …). Listo para que páginas nuevas lo usen.
-- `src/lib/components/JsonLd.svelte`: componente opcional que inyecta automáticamente `Organization` + `WebSite` (con `SearchAction`) + `BreadcrumbList` derivado de `page.url.pathname`. Acepta `type`, `faq`, `howto`, `softwareName`. Pensado para páginas nuevas: las landings y artículos actuales ya tienen JSON-LD propio y siguen funcionando.
-- `src/lib/components/JsonLdScript.svelte`: wrapper de bajo nivel para JSON-LD pre-serializado (lo usan los `<svelte:head>` actuales).
-
-### Las dos landings de diseño
-
-`/diseno-web-alcoy` y `/diseno-web` (esta última reusa el componente Alcoy) inyectan **8 bloques JSON-LD**: `ProfessionalService`, `Organization`, `Service`, `WebPage`, `FAQPage`, `BreadcrumbList`, `WebSite + SearchAction` y `SoftwareApplication` (analizador PageSpeed). Las metas OG/Twitter, robots, canonical, hreflang y links a `llms.txt` se mantienen intactas.
-
-### Cómo añadir una página nueva al GEO
-
-1. Crea la ruta `src/routes/.../+page.svelte` con su contenido y su propio `<svelte:head>` (título y description únicos por ruta).
-2. Añade una entrada en `src/lib/site-pages.ts` con `path`, `titleEs` (y `titleEn` si tiene versión inglesa), `descEs/En`, `changefreq`, `priority`, `group` (`landing | portfolio | project | support | legal`) y `locales`.
-3. Si es una página nueva sin JSON-LD propio, importa `<JsonLd type="WebPage" />` (o `Article`, `FAQPage`, `HowTo`, `SoftwareApplication`, `CollectionPage`) y pásale `faq` o `howto` si aplica.
-4. Listo: la URL aparecerá automáticamente en `/sitemap.xml`, `/llms.txt` y, si añades su contenido al renderer de `llms-full.txt`, también en el volcado completo.
-
-### AEO (AI Engine Optimization) v1.0
-
-Cada página indexable expone un **twin Markdown** (`/ruta.md`, home → `/index.md`) con `X-Robots-Tag: noindex`. Los crawlers IA y clientes con `Accept: text/markdown` reciben Markdown en la URL canónica; el HTML sigue indexable.
-
-| Pieza | Ubicación |
-|---|---|
-| Negociación `Accept` + bots IA | `src/hooks.server.ts` (antes/después de `resolve`) |
-| Builders y registro | `src/lib/aeo/` |
-| Twins explícitos | `src/routes/**/*.md/+server.ts` |
-| `<link rel="alternate" type="text/markdown">` | `src/routes/+layout.svelte` |
-| Twins en sitemap | `src/routes/sitemap.xml/+server.js` |
-
-**Checklist al crear una página indexable nueva:**
-
-1. Entrada en `src/lib/site-pages.ts` (`aeoTwin` por defecto `true`).
-2. Builder en `src/lib/aeo/builders/` y registro en `src/lib/aeo/registry.ts`.
-3. Ruta `src/routes/.../nombre.md/+server.ts` que llame a `serveMarkdownTwin`.
-4. `npm run check` y probar: `curl -sI -H "Accept: text/markdown" http://localhost:5173/tu-ruta`.
-
-Validación local (con `npm run dev`):
-
-```bash
-curl -sI -H "Accept: text/markdown" http://localhost:5173/
-curl -sI -A "Mozilla/5.0 (compatible; GPTBot/1.0)" http://localhost:5173/
-curl -sI http://localhost:5173/index.md
-curl -sI -A "Mozilla/5.0 Chrome" http://localhost:5173/
-```
-
-
-
+Consulta [LICENSE](./LICENSE) para más detalles.

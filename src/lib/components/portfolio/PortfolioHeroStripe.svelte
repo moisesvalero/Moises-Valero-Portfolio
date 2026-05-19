@@ -24,6 +24,14 @@
   }: Props = $props();
 
   const primaryOpensNewTab = $derived(/^https?:\/\//i.test(cvHref));
+  const heroCapabilities = $derived([
+    { label: 'SvelteKit', icon: 'simple-icons:svelte' },
+    { label: 'WordPress', icon: 'simple-icons:wordpress' },
+    { label: 'APIs', icon: 'lucide:webhook' },
+    { label: /IT Support/i.test(subtitle) ? 'AI' : 'IA', icon: 'lucide:sparkles' }
+  ]);
+  const iconifySvgUrl = (name: string) =>
+    `url("https://api.iconify.design/${encodeURIComponent(name)}.svg")`;
 
   const careerModal = getCareerModalControls();
 
@@ -378,7 +386,14 @@
     <div class="contenido-hero">
       <p class="label-top anim-fade-up">{label}</p>
       <h1 class="anim-fade-up">{title}</h1>
-      <h2 class="sub-frase anim-fade-up">{subtitle}</h2>
+      <h2 class="sub-frase anim-fade-up" aria-label={subtitle}>
+        {#each heroCapabilities as item (item.label)}
+          <span class="hero-tech-item">
+            <span class="hero-tech-icon" style:--hero-tech-icon={iconifySvgUrl(item.icon)} aria-hidden="true"></span>
+            <span>{item.label}</span>
+          </span>
+        {/each}
+      </h2>
       <p class="texto-bio anim-fade-up">{bio}</p>
       <div class="botones-wrap anim-fade-up">
         <a
@@ -474,24 +489,57 @@
     display: none;
   }
 
-  /* Solo translateY: el texto permanece opaco para que el <h1> sea candidato a LCP desde el primer pintado.
-     Opacity 0 en la entrada retrasa LCP y Lighthouse puede atribuir el LCP al banner de cookies. */
   @keyframes aparecer {
     from {
-      transform: translateY(14px);
+      opacity: 0;
+      transform: translate3d(0, 18px, 0) scale(0.99);
+      filter: saturate(0.86);
     }
     to {
-      transform: translateY(0);
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+      filter: saturate(1);
+    }
+  }
+
+  @keyframes hero-tech-pop {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0) scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  }
+
+  @keyframes hero-label-pulse {
+    0%,
+    100% {
+      opacity: 0.82;
+      letter-spacing: 2px;
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      opacity: 0.94;
+      letter-spacing: 2.16px;
+      transform: translate3d(0, -0.5px, 0);
     }
   }
 
   .anim-fade-up {
-    animation: aparecer 0.75s ease-out forwards;
-    opacity: 1;
+    animation: aparecer 0.86s cubic-bezier(0.16, 1, 0.3, 1) both;
+    will-change: transform, opacity, filter;
   }
 
   .label-top {
     animation-delay: 0.1s;
+  }
+
+  .label-top.anim-fade-up {
+    animation:
+      aparecer 0.86s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both,
+      hero-label-pulse 4.8s ease-in-out 1.2s infinite;
   }
 
   .hero-stripe-pro-v2 h1.anim-fade-up {
@@ -566,11 +614,61 @@
   }
 
   .sub-frase {
-    color: #0066e5 !important;
-    font-size: clamp(16px, 2vw, 24px) !important;
+    color: #111827 !important;
+    font-size: clamp(14px, 1.55vw, 18px) !important;
     margin: 0 0 28px 0 !important;
-    font-weight: 500 !important;
-    line-height: 1.4;
+    font-weight: 600 !important;
+    line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    max-width: min(760px, 92vw);
+    letter-spacing: 0;
+  }
+
+  .hero-tech-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 32px;
+    padding: 0 2px;
+    color: inherit;
+    white-space: nowrap;
+    opacity: 0;
+    animation: hero-tech-pop 0.62s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .hero-tech-item:nth-child(1) {
+    animation-delay: 0.58s;
+  }
+
+  .hero-tech-item:nth-child(2) {
+    animation-delay: 0.66s;
+  }
+
+  .hero-tech-item:nth-child(3) {
+    animation-delay: 0.74s;
+  }
+
+  .hero-tech-item:nth-child(4) {
+    animation-delay: 0.82s;
+  }
+
+  .hero-tech-icon {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    color: #005fcf;
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.72));
+    opacity: 0.92;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: currentColor;
+    mask: var(--hero-tech-icon) center / contain no-repeat;
+    -webkit-mask: var(--hero-tech-icon) center / contain no-repeat;
   }
 
   .texto-bio {
@@ -683,6 +781,19 @@
     backdrop-filter: blur(18px) saturate(140%);
   }
 
+  :global(html.dark) .sub-frase {
+    color: #f4f4f5 !important;
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.72),
+      0 12px 42px rgba(0, 0, 0, 0.46);
+  }
+
+  :global(html.dark) .hero-tech-icon {
+    color: #a7f3ff;
+    filter: drop-shadow(0 0 14px rgba(167, 243, 255, 0.2));
+    opacity: 0.96;
+  }
+
   :global(html.dark) .hero-stripe-pro-v2::before {
     opacity: 1;
   }
@@ -747,7 +858,8 @@
     }
 
     .sub-frase {
-      font-size: 18px !important;
+      font-size: 16px !important;
+      gap: 8px 12px;
     }
 
     .texto-bio {
@@ -782,9 +894,12 @@
 
   /* Cabecera fija: el label gris no debe quedar tapado en móvil */
   @media (prefers-reduced-motion: reduce) {
-    .anim-fade-up {
-      animation: none;
-      transform: none;
+    .anim-fade-up,
+    .hero-tech-item {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+      filter: none !important;
     }
 
     .luces-dinamicas-canvas {
@@ -814,8 +929,19 @@
     }
 
     .sub-frase {
-      font-size: 16px !important;
+      font-size: 14.5px !important;
       margin: 0 0 20px 0 !important;
+      gap: 6px 10px;
+    }
+
+    .hero-tech-item {
+      min-height: 28px;
+      gap: 6px;
+    }
+
+    .hero-tech-icon {
+      width: 16px;
+      height: 16px;
     }
 
     .texto-bio {

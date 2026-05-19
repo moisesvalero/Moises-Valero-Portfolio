@@ -115,7 +115,7 @@ export async function fetchLandingSupportArticles(limit?: number): Promise<Landi
   try {
     const rows = await client.fetch<LandingSupportArticleListRow[] | null>(landingSupportArticlesQuery);
     const mapped = (rows ?? [])
-      .map((row) => mapRow(row, cfg ?? undefined))
+      .map((row: LandingSupportArticleListRow) => mapRow(row, cfg ?? undefined))
       .filter(Boolean) as LandingSupportArticle[];
     const fallback = landingSupportArticleFallbacks;
 

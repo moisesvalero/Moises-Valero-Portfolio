@@ -1,12 +1,17 @@
 node_modules
 
 # Output
+dist
+tmp
 .output
 .vercel
 .netlify
 .wrangler
 /.svelte-kit
 /build
+
+# Generated app/runtime files
+.sanity/runtime
 
 # OS
 .DS_Store
