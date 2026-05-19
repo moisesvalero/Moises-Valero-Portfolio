@@ -209,6 +209,5 @@ curl -sI http://localhost:5173/index.md
 curl -sI -A "Mozilla/5.0 Chrome" http://localhost:5173/
 ```
 
-En producción, vuelve a pasar [aeochecker](https://aeochecker.com) / Dualmark tras el deploy.
 
 
