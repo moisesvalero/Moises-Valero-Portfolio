@@ -107,7 +107,7 @@
 
   .meta-sobre {
     color: #86868b;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 700;
     letter-spacing: 1.5px;
     margin-bottom: 8px;
@@ -124,8 +124,8 @@
 
   .texto-contenido :global(p) {
     color: #424245;
-    font-size: 18px;
-    line-height: 1.6;
+    font-size: 18.5px;
+    line-height: 1.58;
     margin-bottom: 18px;
   }
 
@@ -177,7 +177,7 @@
     }
 
     .meta-sobre {
-      font-size: 11px;
+      font-size: 11.5px;
       letter-spacing: 0.12em;
     }
 
@@ -188,7 +188,7 @@
     }
 
     .texto-contenido :global(p) {
-      font-size: 15px;
+      font-size: 15.5px;
       line-height: 1.55;
       margin-bottom: 14px;
       text-align: left;

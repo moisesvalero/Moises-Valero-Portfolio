@@ -470,19 +470,8 @@
   }
 
   .hero-stripe-pro-v2::after {
-    width: min(980px, 94vw);
-    height: 1px;
-    left: 50%;
-    top: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(167, 243, 255, 0.12),
-      rgba(250, 250, 250, 0.32),
-      rgba(139, 156, 255, 0.12),
-      transparent
-    );
+    content: none;
+    display: none;
   }
 
   /* Solo translateY: el texto permanece opaco para que el <h1> sea candidato a LCP desde el primer pintado.
@@ -558,7 +547,7 @@
 
   .label-top {
     color: #64748b;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -585,16 +574,20 @@
   }
 
   .texto-bio {
-    color: #475569;
-    font-size: 17px;
-    line-height: 1.78;
+    color: #172033;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.74;
     letter-spacing: 0.005em;
     margin-bottom: 44px;
     max-width: min(700px, 92vw);
     margin-left: auto;
     margin-right: auto;
     text-wrap: pretty;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+    text-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.92),
+      0 0 18px rgba(255, 255, 255, 0.9),
+      0 10px 30px rgba(248, 250, 252, 0.72);
   }
 
   .botones-wrap {
@@ -695,7 +688,7 @@
   }
 
   :global(html.dark) .hero-stripe-pro-v2::after {
-    opacity: 0.9;
+    opacity: 0;
   }
 
   :global(html.dark) .btn-ghost-slim:hover {
@@ -758,7 +751,7 @@
     }
 
     .texto-bio {
-      font-size: 16px;
+      font-size: 16.5px;
       margin-bottom: 32px;
     }
 
@@ -808,7 +801,7 @@
     }
 
     .label-top {
-      font-size: 11px;
+      font-size: 11.5px;
       letter-spacing: 0.12em;
       line-height: 1.45;
       margin-bottom: 14px;
@@ -826,8 +819,8 @@
     }
 
     .texto-bio {
-      font-size: 15px;
-      line-height: 1.65;
+      font-size: 15.5px;
+      line-height: 1.62;
       margin-bottom: 28px;
     }
   }

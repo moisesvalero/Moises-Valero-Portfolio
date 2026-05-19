@@ -312,7 +312,7 @@
 
   .career-title {
     margin: 0 2.25rem 1.5rem 0;
-    font-size: 1.25rem;
+    font-size: 1.3rem;
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.25;
@@ -325,7 +325,7 @@
 
   .career-h3 {
     margin: 0 0 0.65rem;
-    font-size: 0.7rem;
+    font-size: 0.74rem;
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -359,7 +359,7 @@
 
   .career-tl-range {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     font-weight: 600;
     letter-spacing: 0.04em;
     color: #0071e3;
@@ -368,7 +368,7 @@
 
   .career-tl-role {
     display: block;
-    font-size: 0.9375rem;
+    font-size: 0.97rem;
     font-weight: 600;
     color: #1d1d1f;
     margin-bottom: 0.35rem;
@@ -376,8 +376,8 @@
 
   .career-tl-desc {
     margin: 0;
-    font-size: 0.875rem;
-    line-height: 1.6;
+    font-size: 0.91rem;
+    line-height: 1.58;
     color: #6e6e73;
   }
 
@@ -395,7 +395,7 @@
 
   .career-stack-group-title {
     margin: 0 0 0.45rem;
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -438,7 +438,7 @@
   }
 
   .career-stack-icon-text {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 500;
     color: #1d1d1f;
     line-height: 1.2;

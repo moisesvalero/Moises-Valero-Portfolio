@@ -74,7 +74,7 @@
 
   .meta-proyectos {
     color: #86868b;
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 700;
     letter-spacing: 1.5px;
   }
@@ -178,8 +178,8 @@
 
   .proyecto-info p {
     color: #424245;
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: 16.5px;
+    line-height: 1.58;
     margin-bottom: 20px;
     height: 75px;
     overflow: hidden;
@@ -209,8 +209,8 @@
     }
 
     .proyecto-info p {
-      font-size: 11px !important;
-      line-height: 1.4 !important;
+      font-size: 12px !important;
+      line-height: 1.42 !important;
       height: auto !important;
       max-height: 85px !important;
       margin-bottom: 15px !important;

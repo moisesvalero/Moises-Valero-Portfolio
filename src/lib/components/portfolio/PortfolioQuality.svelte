@@ -87,7 +87,7 @@
 
   .meta-garantias {
     color: #86868b;
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 700;
     letter-spacing: 1.5px;
     margin-bottom: 8px;
@@ -159,8 +159,8 @@
 
   .garantia-item p {
     color: #424245;
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 14.5px;
+    line-height: 1.52;
     margin: 0;
   }
 

@@ -88,7 +88,7 @@
 
   .meta-servicios {
     color: #86868b;
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 700;
     letter-spacing: 1.5px;
     margin-bottom: 10px;
@@ -146,8 +146,8 @@
 
   .card-servicio p {
     color: #424245;
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: 16.5px;
+    line-height: 1.58;
     margin: 0;
   }
 
