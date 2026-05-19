@@ -69,7 +69,7 @@
       title: 'Entorno de Desarrollo e IA',
       icons: [
         { src: '/imagenes/cursor.svg', alt: 'Cursor', title: 'Cursor' },
-        { iconify: 'simple-icons:ollama', alt: 'Ollama', title: 'Ollama' },
+        { src: '/imagenes/codex-color.svg', alt: 'OpenAI Codex', title: 'OpenAI Codex' },
         { src: '/imagenes/opencode.svg', alt: 'OpenCode', title: 'OpenCode' },
         { src: '/imagenes/antigravity.svg', alt: 'Antigravity', title: 'Google Antigravity' }
       ]

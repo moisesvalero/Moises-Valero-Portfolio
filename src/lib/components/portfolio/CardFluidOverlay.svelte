@@ -158,7 +158,7 @@
         color-mix(in srgb, var(--cf-color, #0066e5) calc(var(--cf-strength, 0.22) * 45%), transparent) 38%,
         transparent 70%
       );
-    filter: blur(var(--cf-blur, 32px)) saturate(115%);
+    filter: saturate(112%);
     will-change: opacity, background-position;
   }
 

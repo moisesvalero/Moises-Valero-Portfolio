@@ -30,7 +30,7 @@
   let scrollHintOpacity = $state(1);
   let showScrollHint = $state(true);
   let disableHeroShader = $state(false);
-  const shaderConfig = {
+  const lightShaderConfig = {
     color: '#0066E5',
     secondaryColor: '#0052B8',
     accentColor: '#F59E0B',
@@ -40,6 +40,28 @@
     hueShift: 9,
     intensity: 4.2
   } as const;
+
+  const darkShaderConfig: ShaderConfig = {
+    color: '#8B9CFF',
+    secondaryColor: '#3F3F46',
+    accentColor: '#A7F3FF',
+    backgroundColor: '#0A0A0A',
+    speed: 0.4,
+    distortion: 0.16,
+    hueShift: -6,
+    intensity: 0.74
+  };
+
+  type ShaderConfig = {
+    color: string;
+    secondaryColor: string;
+    accentColor: string;
+    backgroundColor: string;
+    speed: number;
+    distortion: number;
+    hueShift: number;
+    intensity: number;
+  };
 
   const toLinearChannel = (channel: number) => {
     const normalized = channel / 255;
@@ -159,11 +181,11 @@
       palette[4] = mix(uColorAccent, uColor, 0.7);
 
       float weight[5];
-      weight[0] = 1.0;  // azul dominante
-      weight[1] = 0.36; // variacion azul (sin morado)
-      weight[2] = 0.22; // amarillo sutil premium
-      weight[3] = 0.0;  // sin rosa
-      weight[4] = 0.26; // puente azul-calido
+      weight[0] = 1.0;
+      weight[1] = 0.36;
+      weight[2] = 0.22;
+      weight[3] = 0.0;
+      weight[4] = 0.26;
 
       vec3 col = vec3(0.0);
       float edgeField = 0.0;
@@ -247,8 +269,23 @@
     const scene = new Transform();
     const geometry = new Triangle(gl);
 
-    const initialColor = hexToLinearRgb(shaderConfig.color);
-    const initialBackgroundColor = hexToLinearRgb(shaderConfig.backgroundColor);
+    const getActiveShaderConfig = (): ShaderConfig =>
+      document.documentElement.classList.contains('dark') ? darkShaderConfig : lightShaderConfig;
+
+    const applyShaderConfig = (config: ShaderConfig) => {
+      applyHexColor(uniforms.uColor.value, config.color, [0, 102 / 255, 229 / 255]);
+      applyHexColor(uniforms.uColorSecondary.value, config.secondaryColor, [0, 82 / 255, 184 / 255]);
+      applyHexColor(uniforms.uColorAccent.value, config.accentColor, [245 / 255, 158 / 255, 11 / 255]);
+      applyHexColor(uniforms.uBackgroundColor.value, config.backgroundColor, [248 / 255, 250 / 255, 252 / 255]);
+      uniforms.uSpeed.value = config.speed;
+      uniforms.uDistortion.value = config.distortion;
+      uniforms.uHueShift.value = config.hueShift;
+      uniforms.uIntensity.value = config.intensity;
+    };
+
+    const initialConfig = getActiveShaderConfig();
+    const initialColor = hexToLinearRgb(initialConfig.color);
+    const initialBackgroundColor = hexToLinearRgb(initialConfig.backgroundColor);
     const uniforms = {
       uTime: { value: 0 },
       uResolution: { value: new Vec2(1, 1) },
@@ -268,13 +305,12 @@
           initialBackgroundColor[2]
         )
       },
-      uSpeed: { value: shaderConfig.speed },
-      uDistortion: { value: shaderConfig.distortion },
-      uHueShift: { value: shaderConfig.hueShift },
-      uIntensity: { value: shaderConfig.intensity }
+      uSpeed: { value: initialConfig.speed },
+      uDistortion: { value: initialConfig.distortion },
+      uHueShift: { value: initialConfig.hueShift },
+      uIntensity: { value: initialConfig.intensity }
     };
-    applyHexColor(uniforms.uColorSecondary.value, shaderConfig.secondaryColor, [1, 79 / 255, 163 / 255]);
-    applyHexColor(uniforms.uColorAccent.value, shaderConfig.accentColor, [247 / 255, 201 / 255, 72 / 255]);
+    applyShaderConfig(initialConfig);
 
     const program = new Program(gl, {
       vertex: vertexShader,
@@ -312,9 +348,15 @@
 
     raf = window.requestAnimationFrame(tick);
 
+    const themeObserver = new MutationObserver(() => {
+      applyShaderConfig(getActiveShaderConfig());
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
+
     return {
       destroy() {
         window.cancelAnimationFrame(raf);
+        themeObserver.disconnect();
       }
     };
   };
@@ -403,6 +445,44 @@
     overflow: hidden;
     font-family: inherit;
     box-sizing: border-box;
+  }
+
+  .hero-stripe-pro-v2::before,
+  .hero-stripe-pro-v2::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 360ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hero-stripe-pro-v2::before {
+    width: min(760px, 82vw);
+    height: min(760px, 82vw);
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+    background:
+      radial-gradient(circle at 50% 48%, rgba(167, 243, 255, 0.14), transparent 34%),
+      radial-gradient(circle at 38% 42%, rgba(139, 156, 255, 0.16), transparent 38%);
+    mask-image: radial-gradient(circle, #000 0%, transparent 68%);
+  }
+
+  .hero-stripe-pro-v2::after {
+    width: min(980px, 94vw);
+    height: 1px;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(167, 243, 255, 0.12),
+      rgba(250, 250, 250, 0.32),
+      rgba(139, 156, 255, 0.12),
+      transparent
+    );
   }
 
   /* Solo translateY: el texto permanece opaco para que el <h1> sea candidato a LCP desde el primer pintado.
@@ -536,7 +616,12 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    transition:
+      transform 0.32s cubic-bezier(0.23, 1, 0.32, 1),
+      background 0.32s cubic-bezier(0.23, 1, 0.32, 1),
+      border-color 0.32s cubic-bezier(0.23, 1, 0.32, 1),
+      box-shadow 0.32s cubic-bezier(0.23, 1, 0.32, 1),
+      color 0.32s cubic-bezier(0.23, 1, 0.32, 1);
   }
 
   .btn-apple-blue:hover {
@@ -569,6 +654,54 @@
     border-color: #cbd5e1;
     transform: translateY(-3px);
     color: #0f172a !important;
+  }
+
+  :global(html.dark) .btn-apple-blue {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f7ff 52%, #e7fbff 100%) !important;
+    color: #0a0a0a !important;
+    border: 1px solid rgba(255, 255, 255, 0.78) !important;
+    text-shadow: none !important;
+    box-shadow:
+      0 16px 38px rgba(0, 0, 0, 0.34),
+      0 0 24px rgba(167, 243, 255, 0.14),
+      0 0 0 1px rgba(0, 0, 0, 0.06) inset !important;
+  }
+
+  :global(html.dark) .btn-apple-blue:hover {
+    background: linear-gradient(135deg, #ffffff 0%, #f7f8ff 48%, #ecfbff 100%) !important;
+    color: #000000 !important;
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.9) !important;
+    box-shadow:
+      0 18px 40px rgba(0, 0, 0, 0.34),
+      0 0 22px rgba(167, 243, 255, 0.18),
+      0 0 0 1px rgba(0, 0, 0, 0.07) inset !important;
+  }
+
+  :global(html.dark) .btn-ghost-slim {
+    background: rgba(10, 10, 10, 0.68) !important;
+    color: #f4f4f5 !important;
+    border-color: rgba(167, 243, 255, 0.24) !important;
+    text-shadow: none !important;
+    box-shadow:
+      0 14px 34px rgba(0, 0, 0, 0.28),
+      0 0 22px rgba(139, 156, 255, 0.09),
+      0 1px 0 rgba(255, 255, 255, 0.08) inset !important;
+    backdrop-filter: blur(18px) saturate(140%);
+  }
+
+  :global(html.dark) .hero-stripe-pro-v2::before {
+    opacity: 1;
+  }
+
+  :global(html.dark) .hero-stripe-pro-v2::after {
+    opacity: 0.9;
+  }
+
+  :global(html.dark) .btn-ghost-slim:hover {
+    background: #fafafa !important;
+    color: #0a0a0a !important;
+    border-color: #ffffff !important;
   }
 
   .scroll-hint-fixed {

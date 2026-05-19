@@ -102,7 +102,7 @@
       title: 'Entorno de Desarrollo e IA',
       icons: [
         { src: '/imagenes/cursor.svg', alt: 'Cursor', title: 'Cursor' },
-        { iconify: 'simple-icons:ollama', alt: 'Ollama', title: 'Ollama' },
+        { src: '/imagenes/codex-color.svg', alt: 'OpenAI Codex', title: 'OpenAI Codex' },
         { src: '/imagenes/opencode.svg', alt: 'OpenCode', title: 'OpenCode' },
         { src: '/imagenes/antigravity.svg', alt: 'Antigravity', title: 'Google Antigravity' }
       ]
@@ -495,6 +495,78 @@
     color: #0071e3;
     text-decoration: underline;
     text-underline-offset: 2px;
+  }
+
+  :global(html.dark) .career-backdrop {
+    background: rgba(0, 0, 0, 0.72);
+  }
+
+  :global(html.dark) .career-panel {
+    background: #0a0a0a;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.58);
+    color: #e5e7eb;
+  }
+
+  :global(html.dark) .career-close {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
+  }
+
+  :global(html.dark) .career-close:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  :global(html.dark) .career-title,
+  :global(html.dark) .career-tl-role,
+  :global(html.dark) .career-stack-icon-text {
+    color: #f8fafc;
+  }
+
+  :global(html.dark) .career-h3,
+  :global(html.dark) .career-stack-group-title,
+  :global(html.dark) .career-pdf-hint {
+    color: #a1a1aa;
+  }
+
+  :global(html.dark) .career-timeline,
+  :global(html.dark) .career-footer,
+  :global(html.dark) .career-pdf-frame {
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  :global(html.dark) .career-tl-item::before {
+    background: #f5f5f5;
+    box-shadow: 0 0 0 3px #0a0a0a;
+  }
+
+  :global(html.dark) .career-tl-range,
+  :global(html.dark) .career-pdf-toggle,
+  :global(html.dark) .career-pdf-hint a {
+    color: #f5f5f5;
+  }
+
+  :global(html.dark) .career-tl-desc,
+  :global(html.dark) :global(.career-p) {
+    color: #d4d4d8;
+  }
+
+  :global(html.dark) :global(.career-p strong) {
+    color: #ffffff;
+  }
+
+  :global(html.dark) .career-stack-group {
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html.dark) .career-stack-icon-mark {
+    background: #f7f7f8;
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+
+  :global(html.dark) .career-pdf-frame {
+    background: #111111;
   }
 
   @media (max-width: 480px) {

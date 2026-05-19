@@ -125,13 +125,13 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
         ]
       },
       {
-        title: 'Development Environment & AI',
-        icons: [
-          { src: '/imagenes/cursor.svg', alt: 'Cursor', title: 'Cursor' },
-          { iconify: 'simple-icons:ollama', alt: 'Ollama', title: 'Ollama' },
-          { src: '/imagenes/opencode.svg', alt: 'OpenCode', title: 'OpenCode' },
-          { src: '/imagenes/antigravity.svg', alt: 'Antigravity', title: 'Google Antigravity' }
-        ]
+      title: 'Development Environment & AI',
+      icons: [
+        { src: '/imagenes/cursor.svg', alt: 'Cursor', title: 'Cursor' },
+        { src: '/imagenes/codex-color.svg', alt: 'OpenAI Codex', title: 'OpenAI Codex' },
+        { src: '/imagenes/opencode.svg', alt: 'OpenCode', title: 'OpenCode' },
+        { src: '/imagenes/antigravity.svg', alt: 'Antigravity', title: 'Google Antigravity' }
+      ]
       }
     ]
   },

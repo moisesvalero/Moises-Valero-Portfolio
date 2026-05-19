@@ -203,6 +203,8 @@
   <JsonLdScript json={personJsonLd} />
 </svelte:head>
 
+<div class="site-scroll-progress" aria-hidden="true"></div>
+
 <div class="reveal-block hero-block is-visible">
   <PortfolioHeroStripe {...site.hero} />
 </div>
@@ -227,19 +229,20 @@
 
 <style>
   .reveal-block {
+    position: relative;
     opacity: 0;
-    transform: translate3d(0, 36px, 0);
-    clip-path: inset(0 0 18% 0);
+    transform: translate3d(0, 48px, 0) scale(0.985);
+    clip-path: inset(0 0 14% 0);
     transition:
-      opacity 860ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 760ms cubic-bezier(0.22, 1, 0.36, 1),
-      clip-path 820ms cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 940ms cubic-bezier(0.16, 1, 0.3, 1),
+      clip-path 940ms cubic-bezier(0.16, 1, 0.3, 1);
     will-change: opacity, transform;
   }
 
   .reveal-block.is-visible {
     opacity: 1;
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) scale(1);
     clip-path: inset(0 0 0 0);
   }
 
@@ -249,42 +252,165 @@
     filter: none;
   }
 
+  .site-scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 140;
+    width: 100%;
+    height: 2px;
+    pointer-events: none;
+    transform: scaleX(0);
+    transform-origin: left;
+    background: linear-gradient(90deg, #0071e3, #7c5cbf 58%, #f59e0b);
+    animation: scrollProgress linear both;
+    animation-timeline: scroll(root block);
+  }
+
+  .reveal-block.is-visible :global(.servicios-header),
+  .reveal-block.is-visible :global(.stack-header),
+  .reveal-block.is-visible :global(.garantias-header),
+  .reveal-block.is-visible :global(.proyectos-header) {
+    animation: sectionTitleIn 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
   .reveal-block.is-visible :global(.servicios-flex .card-servicio),
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
-  .reveal-block.is-visible :global(.garantias-grid .garantia-item) {
-    animation: cardIn 740ms cubic-bezier(0.16, 0.84, 0.32, 1) both;
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item),
+  .reveal-block.is-visible :global(.stack-grid .stack-cat) {
+    animation: cardIn 780ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(2)),
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(2)),
-  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(2)) {
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(2)),
+  .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(2)) {
     animation-delay: 120ms;
   }
 
   .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(3)),
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(3)),
-  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(3)) {
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(3)),
+  .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(3)) {
     animation-delay: 240ms;
   }
 
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(4)),
-  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(4)) {
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(4)),
+  .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(4)) {
     animation-delay: 320ms;
   }
 
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(5)),
-  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(5)) {
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(5)),
+  .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(5)) {
     animation-delay: 400ms;
+  }
+
+  .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(6)) {
+    animation-delay: 480ms;
+  }
+
+  :global(.card-servicio),
+  :global(.proyecto-card),
+  :global(.garantia-item),
+  :global(.stack-cat) {
+    position: relative;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transition:
+      transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  :global(.card-servicio::after),
+  :global(.proyecto-card::after),
+  :global(.garantia-item::after),
+  :global(.stack-cat::after) {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.82), transparent 28%),
+      linear-gradient(180deg, transparent, rgba(0, 113, 227, 0.05));
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  :global(.card-servicio:hover),
+  :global(.proyecto-card:hover),
+  :global(.garantia-item:hover),
+  :global(.stack-cat:hover) {
+    box-shadow:
+      0 22px 48px rgba(15, 23, 42, 0.1),
+      0 0 0 1px rgba(0, 113, 227, 0.14) inset;
+  }
+
+  :global(.card-servicio:hover::after),
+  :global(.proyecto-card:hover::after),
+  :global(.garantia-item:hover::after),
+  :global(.stack-cat:hover::after) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  :global(.service-cta-link),
+  :global(.btn-visitar) {
+    position: relative;
+  }
+
+  :global(.service-cta-link::after),
+  :global(.btn-visitar::after) {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  :global(.service-cta-link:hover::after),
+  :global(.btn-visitar:hover::after) {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  @keyframes scrollProgress {
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes sectionTitleIn {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes cardIn {
     from {
       opacity: 0;
-      transform: translateY(24px);
+      transform: translateY(32px) scale(0.985);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
   }
 
@@ -301,7 +427,7 @@
 
   @media (max-width: 768px) {
     .reveal-block {
-      transform: translate3d(0, 22px, 0);
+      transform: translate3d(0, 22px, 0) scale(0.992);
       transition:
         opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
         transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -310,34 +436,46 @@
 
     .reveal-block.is-visible :global(.servicios-flex .card-servicio),
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
-    .reveal-block.is-visible :global(.garantias-grid .garantia-item) {
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item),
+    .reveal-block.is-visible :global(.stack-grid .stack-cat) {
       animation: cardInMobile 420ms cubic-bezier(0.16, 0.84, 0.32, 1) both;
     }
 
     .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(2)),
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(2)),
-    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(2)) {
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(2)),
+    .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(2)) {
       animation-delay: 45ms;
     }
 
     .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(3)),
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(3)),
-    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(3)) {
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(3)),
+    .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(3)) {
       animation-delay: 85ms;
     }
 
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(4)),
-    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(4)) {
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(4)),
+    .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(4)) {
       animation-delay: 120ms;
     }
 
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(5)),
-    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(5)) {
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(5)),
+    .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(5)) {
       animation-delay: 155ms;
+    }
+
+    .site-scroll-progress {
+      height: 1px;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .site-scroll-progress {
+      display: none;
+    }
     .reveal-block,
     .hero-block {
       opacity: 1 !important;
@@ -346,7 +484,8 @@
     }
     .reveal-block :global(.card-servicio),
     .reveal-block :global(.proyecto-card),
-    .reveal-block :global(.garantia-item) {
+    .reveal-block :global(.garantia-item),
+    .reveal-block :global(.stack-cat) {
       animation: none !important;
     }
   }

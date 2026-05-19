@@ -27,6 +27,19 @@
   --btn-shine-opacity-duration: 0.3s;
 }
 
+html.dark {
+  --accent: #f5f5f5;
+  --accent-hover: #ffffff;
+  --text-main: #f8fafc;
+  --text-secondary: #a1a1aa;
+  --bg-main: #0a0a0a;
+  --bg-soft: #111111;
+  --bg-surface: #0a0a0a;
+  --shadow-soft-lg: 0 24px 70px rgba(0, 0, 0, 0.46);
+  --shadow-soft-md: 0 18px 44px rgba(0, 0, 0, 0.36);
+  --ring-soft: 0 0 0 1px rgba(148, 163, 184, 0.18);
+}
+
 /* Reset básico para que todo se vea igual en todos los navegadores */
 * {
   box-sizing: border-box;
@@ -46,7 +59,16 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased; /* Suaviza el renderizado de las letras en Mac/iOS */
   overflow-x: clip;
+  transition:
+    background-color 360ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 360ms cubic-bezier(0.16, 1, 0.3, 1);
 } 
+
+html.dark body {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.055), transparent 30rem),
+    linear-gradient(180deg, #0a0a0a 0%, #0b0b0b 46%, #090909 100%);
+}
 
 .gradient-text {
   background: linear-gradient(135deg, #7c5cbf, #4f8ef7);
@@ -187,6 +209,276 @@ html.in-iframe body,
 html.in-iframe * {
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+html.dark :where(.hero-stripe-pro-v2) {
+  background: #0a0a0a !important;
+}
+
+html.dark :where(.luces-dinamicas-canvas) {
+  opacity: 1;
+  mix-blend-mode: normal;
+}
+
+html.dark :where(.hero-bottom-fade) {
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 10, 10, 0) 0%,
+    rgba(10, 10, 10, 0.28) 38%,
+    rgba(10, 10, 10, 0.74) 72%,
+    #0a0a0a 100%
+  ) !important;
+}
+
+html.dark :where(.label-top, .meta-servicios, .meta-stack, .meta-garantias, .meta-proyectos) {
+  color: #a1a1aa !important;
+}
+
+html.dark :where(.hero-stripe-pro-v2 h1, .servicios-header h2, .stack-header h2, .garantias-header h2, .proyectos-header h2) {
+  color: #f8fafc !important;
+}
+
+html.dark :where(.col-texto h2) {
+  color: #f8fafc !important;
+}
+
+html.dark :where(.meta-sobre) {
+  color: #94a3b8 !important;
+}
+
+html.dark :where(.texto-bio, .texto-contenido p, .card-servicio p, .garantia-item p, .proyecto-info p) {
+  color: #d4d4d8 !important;
+  text-shadow: none !important;
+}
+
+html.dark :where(.texto-contenido strong) {
+  color: #f8fafc !important;
+}
+
+html.dark :where(.foto-wrapper img) {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+html.dark :where(.sub-frase) {
+  color: #dffbff !important;
+}
+
+html.dark :where(.service-cta-link) {
+  color: #f4f4f5 !important;
+}
+
+html.dark :where(.hero-stripe-pro-v2 h1, .sub-frase, .texto-bio, .label-top) {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.72),
+    0 12px 42px rgba(0, 0, 0, 0.46) !important;
+}
+
+html.dark :where(.texto-bio) {
+  color: #d4d4d8 !important;
+}
+
+html.dark :where(.btn-ghost-slim) {
+  color: #f4f4f5 !important;
+  border-color: rgba(167, 243, 255, 0.24) !important;
+  background: rgba(10, 10, 10, 0.68) !important;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.28),
+    0 0 22px rgba(139, 156, 255, 0.09),
+    0 1px 0 rgba(255, 255, 255, 0.08) inset !important;
+  backdrop-filter: blur(18px) saturate(140%);
+}
+
+html.dark :where(.btn-ghost-slim:hover) {
+  color: #0a0a0a !important;
+  background: #fafafa !important;
+  border-color: #ffffff !important;
+}
+
+html.dark :where(.btn-apple-blue) {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f7ff 52%, #e7fbff 100%) !important;
+  color: #0a0a0a !important;
+  border: 1px solid rgba(255, 255, 255, 0.78) !important;
+  box-shadow:
+    0 16px 38px rgba(0, 0, 0, 0.34),
+    0 0 24px rgba(167, 243, 255, 0.14),
+    0 0 0 1px rgba(0, 0, 0, 0.06) inset !important;
+}
+
+html.dark :where(.btn-apple-blue:hover) {
+  background: linear-gradient(135deg, #ffffff 0%, #f7f8ff 48%, #ecfbff 100%) !important;
+  color: #000000 !important;
+  border-color: rgba(255, 255, 255, 0.9) !important;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.34),
+    0 0 22px rgba(167, 243, 255, 0.18),
+    0 0 0 1px rgba(0, 0, 0, 0.07) inset !important;
+}
+
+html.dark :where(.card-servicio, .garantia-item, .stack-cat, .proyecto-card) {
+  background: rgba(18, 18, 18, 0.86) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+}
+
+html.dark :where(.card-servicio:hover, .garantia-item:hover, .stack-cat:hover, .proyecto-card:hover, .proyecto-card:focus-within) {
+  background: rgba(24, 24, 27, 0.96) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  box-shadow:
+    0 26px 68px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
+}
+
+html.dark :where(.card-servicio h3, .garantia-item h3, .cat-title, .proyecto-info h3) {
+  color: #f8fafc !important;
+}
+
+html.dark :where(.item-stack) {
+  background: #f7f7f8 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.26),
+    0 1px 0 rgba(255, 255, 255, 0.82) inset !important;
+}
+
+html.dark :where(.item-stack img) {
+  opacity: 1 !important;
+  filter: grayscale(0%) saturate(1.05) contrast(1.04) !important;
+}
+
+html.dark :where(.item-stack:hover) {
+  background: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+html.dark :where(.proyecto-imagen) {
+  background: #111111 !important;
+}
+
+html.dark :where(.proyecto-overlay) {
+  background: rgba(0, 0, 0, 0.72) !important;
+}
+
+html.dark :where(.proyecto-tags span) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e5e7eb !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+html.dark :where(.card-fluid-overlay) {
+  opacity: calc(var(--cf-a, 0) * 0.86);
+}
+
+html.dark :where(.scroll-hint-fixed polyline) {
+  stroke: #e2e8f0;
+}
+
+html.dark :where(.cookie-banner-root, .career-backdrop) {
+  color: #e2e8f0;
+}
+
+html.dark :where(.cookie-banner-card) {
+  background: rgba(18, 18, 18, 0.94) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.46),
+    0 1px 0 rgba(255, 255, 255, 0.08) inset !important;
+}
+
+html.dark :where(.cookie-title) {
+  color: #f8fafc !important;
+}
+
+html.dark :where(.cookie-text) {
+  color: #d4d4d8 !important;
+}
+
+html.dark :where(.cookie-links a) {
+  color: #f5f5f5 !important;
+}
+
+html.dark :where(.btn.ghost) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark :where(.career-modal, .career-panel) {
+  color: #e2e8f0;
+}
+
+html.dark :where(.footer-custom) {
+  background: linear-gradient(180deg, #0a0a0a 0%, #111111 100%) !important;
+  border-top-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.dark :where(.footer-primary) {
+  color: #f8fafc !important;
+}
+
+html.dark :where(.footer-secondary, .footer-legal a, .footer-legal-btn, .footer-landing-link, .footer-portfolio-link) {
+  color: #a1a1aa !important;
+}
+
+html.dark :where(.footer-tertiary) {
+  color: #f5f5f5 !important;
+}
+
+html.dark :where(.footer-dot) {
+  color: #52525b !important;
+}
+
+html.dark :where(.footer-icons a) {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #d4d4d8 !important;
+}
+
+html.dark :where(.footer-icons a:hover) {
+  background: #f5f5f5 !important;
+  border-color: #ffffff !important;
+  color: #0a0a0a !important;
+}
+
+html.dark .hero-stripe-pro-v2 h1,
+html.dark .col-texto h2,
+html.dark .servicios-header h2,
+html.dark .stack-header h2,
+html.dark .garantias-header h2,
+html.dark .proyectos-header h2 {
+  color: #f8fafc !important;
+}
+
+html.dark .meta-sobre,
+html.dark .meta-servicios,
+html.dark .meta-stack,
+html.dark .meta-garantias,
+html.dark .meta-proyectos,
+html.dark .label-top {
+  color: #a1a1aa !important;
+}
+
+html.dark .service-cta-link {
+  color: #f4f4f5 !important;
+}
+
+html.dark .sub-frase {
+  color: #dffbff !important;
+}
+
+html.dark .texto-contenido p,
+html.dark .texto-bio,
+html.dark .card-servicio p,
+html.dark .garantia-item p,
+html.dark .proyecto-info p {
+  color: #d4d4d8 !important;
+}
+
+html.dark .texto-contenido strong,
+html.dark .card-servicio h3,
+html.dark .garantia-item h3,
+html.dark .cat-title,
+html.dark .proyecto-info h3 {
+  color: #f8fafc !important;
 }
 
 * { box-sizing:border-box; margin:0; padding:0; }

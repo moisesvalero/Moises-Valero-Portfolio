@@ -83,6 +83,11 @@
   const TYPEBOT_WEB_JS =
     'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js';
   const TYPEBOT_PUBLIC_ID = 'asistente-mois-s-valero-sud5oya';
+  const typebotTheme = {
+    chatWindow: {
+      backgroundColor: 'transparent'
+    }
+  };
 
   let typebotStandardStarted = false;
   let typebotLoadError = $state(false);
@@ -99,11 +104,7 @@
         if (cancelled) return;
         mod.default.initStandard({
           typebot: TYPEBOT_PUBLIC_ID,
-          theme: {
-            chatWindow: {
-              backgroundColor: 'transparent'
-            }
-          }
+          theme: typebotTheme
         });
       })
       .catch((err: unknown) => {
@@ -406,6 +407,8 @@
     --tb-background-color: transparent;
     --chat-container-bg: transparent;
     --typebot-chat-window-bg: transparent;
+    --typebot-chat-background: transparent;
+    --typebot-container-background: transparent;
   }
 
   :global(.typebot-standard-embed iframe) {
@@ -651,7 +654,7 @@
   }
 
   .checkline a {
-    color: #4da3ff;
+    color: #111111;
     text-decoration: none;
     font-weight: 700;
   }
@@ -709,6 +712,134 @@
     cursor: not-allowed;
     box-shadow: none;
     transform: none;
+  }
+
+  :global(html.dark) .seccion-final-unificada {
+    background: #050505;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  :global(html.dark) .luces-fondo-unificado {
+    background:
+      radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.08) 0%, transparent 62%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0));
+  }
+
+  :global(html.dark) .seccion-final-unificada h3 {
+    color: #f8fafc !important;
+  }
+
+  :global(html.dark) .header-final p,
+  :global(html.dark) .texto-whatsapp-final {
+    color: #d4d4d8 !important;
+  }
+
+  :global(html.dark) .typebot-standard-embed {
+    --typebot-chat-window-bg: #050505;
+    --typebot-chat-background: #050505;
+    --typebot-container-background: #050505;
+  }
+
+  :global(html.dark) .chat-load-error {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  :global(html.dark) .chat-load-error-title {
+    color: #f8fafc;
+  }
+
+  :global(html.dark) .chat-load-error-body {
+    color: #d4d4d8;
+  }
+
+  :global(html.dark) .btn-enable-chat,
+  :global(html.dark) .btn-whatsapp-final {
+    background: #f5f5f5;
+    color: #050505 !important;
+  }
+
+  :global(html.dark) .btn-enable-chat:hover,
+  :global(html.dark) .btn-whatsapp-final:hover {
+    background: #ffffff;
+    color: #050505 !important;
+  }
+
+  :global(html.dark) .btn-form-final {
+    color: #f8fafc;
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  :global(html.dark) .btn-form-final:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.36);
+  }
+
+  :global(html.dark) .btn-enable-chat:focus-visible,
+  :global(html.dark) .btn-whatsapp-final:focus-visible,
+  :global(html.dark) .btn-form-final:focus-visible {
+    outline-color: #f5f5f5;
+  }
+
+  :global(html.dark) .modal-shell {
+    background: rgba(0, 0, 0, 0.76);
+  }
+
+  :global(html.dark) .modal-card {
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.58);
+    color: #e5e7eb;
+  }
+
+  :global(html.dark) .modal-head h4 {
+    color: #f8fafc;
+  }
+
+  :global(html.dark) .modal-head p,
+  :global(html.dark) .checkline span {
+    color: #d4d4d8;
+  }
+
+  :global(html.dark) .modal-form span {
+    color: #f4f4f5;
+  }
+
+  :global(html.dark) .modal-form input,
+  :global(html.dark) .modal-form textarea {
+    background: rgba(255, 255, 255, 0.055);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #f8fafc;
+    outline-color: #f5f5f5;
+  }
+
+  :global(html.dark) .modal-form input:focus,
+  :global(html.dark) .modal-form textarea:focus {
+    border-color: rgba(255, 255, 255, 0.36);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+  }
+
+  :global(html.dark) .checkline a {
+    color: #ffffff;
+  }
+
+  :global(html.dark) .btn-modal-ghost {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f4f4f5;
+  }
+
+  :global(html.dark) .btn-modal-ghost:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  :global(html.dark) .btn-modal-primary {
+    background: #f5f5f5;
+    color: #050505;
+    border-color: #ffffff;
+  }
+
+  :global(html.dark) .btn-modal-primary:hover {
+    background: #ffffff;
   }
 
   @media (max-width: 768px) {
