@@ -634,6 +634,10 @@
     gap: 7px;
     min-height: 32px;
     padding: 0 2px;
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+    font-weight: 650;
+    letter-spacing: 0.01em;
     color: inherit;
     white-space: nowrap;
     opacity: 0;

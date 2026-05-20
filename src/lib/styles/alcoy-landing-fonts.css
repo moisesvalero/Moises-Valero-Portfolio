@@ -1,7 +1,6 @@
 /* Fuentes de la landing /diseno-web-alcoy: autoalojadas (sin Google Fonts en la ruta crítica).
    Inter ya viene de app.css (Inter Variable) para font-body. */
 
-@import '@fontsource-variable/manrope/index.css';
 @import '@fontsource/material-symbols-outlined/400.css';
 
 /* Equivalente al stylesheet de Google para ligaduras y ejes usados en la plantilla */
