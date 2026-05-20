@@ -15,6 +15,7 @@
  * - reto, hice, resultado: object { title: string, bodyHtml: string }
  * - stack: array of string
  * - liveUrl: string
+ * - repoUrl: string (opcional)
  */
 export const caseStudyBySlugQuery = `*[_type == "caseStudy" && slug.current == $slug][0]{
   "slug": slug.current,
@@ -39,5 +40,6 @@ export const caseStudyBySlugQuery = `*[_type == "caseStudy" && slug.current == $
   resultadoEn,
   stack,
   stackEn,
-  liveUrl
+  liveUrl,
+  repoUrl
 }`;

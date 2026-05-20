@@ -459,14 +459,14 @@
     margin: 24px 0;
   }
 
-  .highlight-box p {
+  .highlight-box :global(p) {
     color: #0055b3;
     font-size: 16px;
     margin: 0;
     line-height: 1.6;
   }
 
-  .highlight-box strong {
+  .highlight-box :global(strong) {
     color: #003d80;
   }
 

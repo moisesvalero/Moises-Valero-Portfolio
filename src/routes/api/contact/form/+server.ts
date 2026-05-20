@@ -23,7 +23,30 @@ function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-export const POST: RequestHandler = async ({ request, getClientAddress }) => {
+function toSafeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function hasInvalidOrigin(request: Request, url: URL): boolean {
+  const origin = request.headers.get('origin');
+  if (!origin) return false;
+  try {
+    return new URL(origin).origin !== url.origin;
+  } catch {
+    return true;
+  }
+}
+
+export const POST: RequestHandler = async ({ request, url, getClientAddress }) => {
+  if (hasInvalidOrigin(request, url)) {
+    return json({ ok: false, error: 'Origen no permitido.' }, { status: 403 });
+  }
+
   const ip = getClientAddress();
   const now = Date.now();
   const ipHits = (contactHitsByIp.get(ip) || []).filter((at) => now - at < CONTACT_WINDOW_MS);
@@ -60,6 +83,9 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
   if (message.length < 10) {
     return json({ ok: false, error: 'El mensaje es demasiado corto.' }, { status: 400 });
   }
+  if (name.length > 120 || email.length > 254 || phone.length > 40 || message.length > 3000) {
+    return json({ ok: false, error: 'Alguno de los campos es demasiado largo.' }, { status: 400 });
+  }
 
   const resendApiKey = env.RESEND_API_KEY;
   const toEmail = env.CONTACT_TO_EMAIL || env.PUBLIC_CONTACT_EMAIL || 'info@moisesvalero.es';
@@ -85,13 +111,13 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 
   const html = `
     <h2>Nuevo formulario de contacto</h2>
-    <p><strong>Nombre:</strong> ${name}</p>
-    <p><strong>Email:</strong> ${email}</p>
-    <p><strong>Telefono:</strong> ${phone || '-'}</p>
+    <p><strong>Nombre:</strong> ${toSafeHtml(name)}</p>
+    <p><strong>Email:</strong> ${toSafeHtml(email)}</p>
+    <p><strong>Telefono:</strong> ${toSafeHtml(phone || '-')}</p>
     <p><strong>Mensaje:</strong></p>
-    <p>${message.replace(/\n/g, '<br />')}</p>
+    <p>${toSafeHtml(message).replace(/\n/g, '<br />')}</p>
     <hr />
-    <p><small>IP: ${ip}</small></p>
+    <p><small>IP: ${toSafeHtml(ip)}</small></p>
   `;
 
   const response = await fetch('https://api.resend.com/emails', {

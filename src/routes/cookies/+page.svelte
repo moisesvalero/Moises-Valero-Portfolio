@@ -346,17 +346,11 @@
     margin: 20px 0 10px;
   }
 
-  .legal-inner p,
-  .legal-inner li {
+  .legal-inner p {
     font-size: 15px;
     line-height: 1.65;
     color: #424245;
     margin: 0 0 12px;
-  }
-
-  .legal-inner ul {
-    margin: 0 0 12px;
-    padding-left: 1.25rem;
   }
 
   .legal-inner a {

@@ -34,6 +34,7 @@ export type SanityCaseStudyRow = {
   stack?: string[] | null;
   stackEn?: string[] | null;
   liveUrl?: string | null;
+  repoUrl?: string | null;
 };
 
 const placeholder = 'https://placehold.co/1200x800/e8e8ed/1d1d1f?text=Imagen';
@@ -124,6 +125,7 @@ export function mapSanityRowToCaseStudy(
       locale === 'en' ? 'Outcome' : 'Resultado'
     ),
     stack,
-    liveUrl: row.liveUrl?.trim() || '/'
+    liveUrl: row.liveUrl?.trim() || '/',
+    repoUrl: row.repoUrl?.trim() || undefined
   };
 }

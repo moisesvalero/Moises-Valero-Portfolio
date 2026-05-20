@@ -28,6 +28,16 @@ function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function hasInvalidOrigin(request: Request, url: URL): boolean {
+  const origin = request.headers.get('origin');
+  if (!origin) return false;
+  try {
+    return new URL(origin).origin !== url.origin;
+  } catch {
+    return true;
+  }
+}
+
 function asRecord(v: unknown): Record<string, unknown> | null {
   return v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : null;
 }
@@ -126,7 +136,11 @@ async function sendResendEmail({
   }
 }
 
-export const POST: RequestHandler = async ({ request, getClientAddress }) => {
+export const POST: RequestHandler = async ({ request, url: requestUrl, getClientAddress }) => {
+  if (hasInvalidOrigin(request, requestUrl)) {
+    return json({ ok: false, error: 'Origen no permitido.' }, { status: 403 });
+  }
+
   const ip = getClientAddress();
   const now = Date.now();
   const ipHits = (leadHitsByIp.get(ip) || []).filter((at) => now - at < LEAD_WINDOW_MS);
@@ -177,6 +191,9 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
   }
   if (!isValidEmail(email)) {
     return json({ ok: false, error: 'El email no es valido.' }, { status: 400 });
+  }
+  if (email.length > 254 || url.length > 2048 || severity.length > 80) {
+    return json({ ok: false, error: 'Alguno de los campos es demasiado largo.' }, { status: 400 });
   }
   const emailKey = email.toLowerCase();
   const lastSentAt = leadLastByEmail.get(emailKey) || 0;

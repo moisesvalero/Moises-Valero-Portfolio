@@ -16,7 +16,21 @@ function toCleanString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-export const POST: RequestHandler = async ({ request, getClientAddress }) => {
+function hasInvalidOrigin(request: Request, url: URL): boolean {
+  const origin = request.headers.get('origin');
+  if (!origin) return false;
+  try {
+    return new URL(origin).origin !== url.origin;
+  } catch {
+    return true;
+  }
+}
+
+export const POST: RequestHandler = async ({ request, url, getClientAddress }) => {
+  if (hasInvalidOrigin(request, url)) {
+    return json({ ok: false, error: 'Origen no permitido.' }, { status: 403 });
+  }
+
   let body: AnalyzePayload;
   try {
     body = (await request.json()) as AnalyzePayload;
@@ -26,6 +40,10 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 
   const inputUrl = toCleanString(body.url);
   const strategy = toCleanString(body.strategy).toLowerCase();
+  if (inputUrl.length > 2048 || strategy.length > 24) {
+    return json({ ok: false, error: 'La URL o la estrategia son demasiado largas.' }, { status: 400 });
+  }
+
   const requesterIp = getClientAddress();
   const now = Date.now();
   const hourlyLimit = Math.max(1, Number(env.PAGESPEED_RATE_LIMIT_PER_HOUR || 15));

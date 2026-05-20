@@ -390,6 +390,13 @@ export const caseStudy = defineType({
       type: 'url',
       title: 'URL del proyecto online (boton final)',
       group: 'seo'
+    }),
+    defineField({
+      name: 'repoUrl',
+      type: 'url',
+      title: 'URL del repositorio GitHub (boton final opcional)',
+      description: 'Si lo rellenas, aparece un boton junto a "Volver" y "Ver proyecto en vivo".',
+      group: 'seo'
     })
   ],
   preview: {

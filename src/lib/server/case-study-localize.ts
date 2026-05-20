@@ -33,6 +33,7 @@ export function localizeCaseStudy(study: CaseStudy, locale: SiteLocale): CaseStu
     resultado: mergeSection(study.resultado, ov.resultado),
     stack: ov.stack ?? study.stack,
     liveUrl: ov.liveUrl ?? study.liveUrl,
+    repoUrl: ov.repoUrl ?? study.repoUrl,
     images: study.images,
     slug: study.slug
   };

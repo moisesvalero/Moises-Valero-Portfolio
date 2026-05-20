@@ -28,4 +28,5 @@ export type CaseStudy = {
   resultado: CaseStudySection;
   stack: string[];
   liveUrl: string;
+  repoUrl?: string;
 };

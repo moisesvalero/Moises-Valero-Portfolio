@@ -9,6 +9,7 @@ export function getProyectoPageLabels(locale: SiteLocale) {
       resultado: 'Outcome',
       stackTech: 'Tech stack',
       verProyectoVivo: 'View live project',
+      verRepositorio: 'View GitHub repo',
       volver: '← Back',
       volverPortfolio: '← Back to portfolio',
       caseStudySuffix: 'Case study'
@@ -20,6 +21,7 @@ export function getProyectoPageLabels(locale: SiteLocale) {
     resultado: 'Resultado',
     stackTech: 'Stack tecnológico',
     verProyectoVivo: 'Ver proyecto en vivo',
+    verRepositorio: 'Ver repo en GitHub',
     volver: '← Volver',
     volverPortfolio: '← Volver al portfolio',
     caseStudySuffix: 'Caso de Estudio'

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import { getProyectoPageLabels } from '$lib/i18n/proyecto-page-labels';
   import type { SiteLocale } from '$lib/i18n/site-locale';
   import type { CaseStudy } from '$lib/types/case-study';
@@ -127,8 +128,13 @@
   </div>
 
   <div class="cta-section">
-    <a href={study.liveUrl} class="btn" target="_blank" rel="noopener noreferrer">{L.verProyectoVivo}</a>
-    <a href="/#proyectos" class="btn btn-outline">{L.volverPortfolio}</a>
+    <div class="cta-actions">
+      <a href={study.liveUrl} class="btn" target="_blank" rel="noopener noreferrer">{L.verProyectoVivo}</a>
+      {#if study.repoUrl}
+        <a href={study.repoUrl} class="btn btn-github" target="_blank" rel="noopener noreferrer">{L.verRepositorio}</a>
+      {/if}
+      <a href={resolve('/#proyectos')} class="btn btn-outline">{L.volverPortfolio}</a>
+    </div>
   </div>
 </div>
 
@@ -461,7 +467,74 @@
     background: transparent;
     color: var(--principal);
     border: 1.5px solid var(--borde);
-    margin-left: 14px;
+  }
+
+  .btn-github {
+    background: #1d1d1f;
+  }
+
+  .cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  :global(html.dark) .case-study-root {
+    --principal: #f5f5f7;
+    --secundario: #a1a1aa;
+    --enfasis: #8fd4ff;
+    --fondo: #0a0a0a;
+    --fondo-suave: #111113;
+    --borde: rgba(255, 255, 255, 0.12);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(0, 113, 227, 0.14), transparent 36rem),
+      var(--fondo);
+  }
+
+  :global(html.dark) .hero,
+  :global(html.dark) .mockup-container,
+  :global(html.dark) .mockup-grid-container,
+  :global(html.dark) .stack-section {
+    background: var(--fondo-suave);
+  }
+
+  :global(html.dark) .tag,
+  :global(html.dark) .window-mockup,
+  :global(html.dark) .window-mockup-small {
+    background: #18181b;
+    border-color: var(--borde);
+  }
+
+  :global(html.dark) .window-header {
+    background: #202024;
+    border-color: var(--borde);
+  }
+
+  :global(html.dark) .section-body :global(p) {
+    color: #d4d4d8;
+  }
+
+  :global(html.dark) .stats-section {
+    background: #050505;
+    border-top: 1px solid var(--borde);
+    border-bottom: 1px solid var(--borde);
+  }
+
+  :global(html.dark) .stack-item {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f5f5f7;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  :global(html.dark) .btn-outline {
+    color: #f5f5f7;
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+
+  :global(html.dark) .btn-github {
+    background: #f5f5f7;
+    color: #0a0a0a;
   }
 
   @media (max-width: 768px) {
@@ -482,11 +555,6 @@
 
     .window-mockup-small {
       height: 280px;
-    }
-
-    .btn-outline {
-      margin-left: 0;
-      margin-top: 15px;
     }
 
     .cta-section .btn {
