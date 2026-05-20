@@ -1,9 +1,10 @@
-import adapter from '@sveltejs/adapter-auto';
+import adapter from '@sveltejs/adapter-vercel';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
-		// En Vercel (VERCEL=1) adapter-auto usa @sveltejs/adapter-vercel. En Windows local puede avisar sin adaptar.
+		// Adapter explicito: adapter-auto se saltaba el wrapper en Vercel y dejaba
+		// "DEV" como check en runtime, lo que rompia la hidratacion (__sveltekit_dev vs __sveltekit_<hash>).
 		adapter: adapter()
 	},
 	vitePlugin: {
