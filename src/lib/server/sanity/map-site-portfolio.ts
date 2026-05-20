@@ -18,6 +18,14 @@ function asStringOpt(v: unknown): string | undefined {
   return typeof v === 'string' && v.trim() ? v.trim() : undefined;
 }
 
+function asNumberOpt(v: unknown): number | undefined {
+  return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
+}
+
+function asHomeLayoutTier(v: unknown): SiteProjectCard['homeLayoutTier'] {
+  return v === 'hero' || v === 'spotlight' || v === 'standard' ? v : undefined;
+}
+
 /** Campos `{ es, en }` en Sanity o string legacy → texto según `locale` con fallback al otro idioma y luego `fallback`. */
 function pickLocalized(raw: unknown, locale: SiteLocale, fallback: string): string {
   if (typeof raw === 'string') {
@@ -287,6 +295,9 @@ function mapProject(
     asString(o.imageSrc, '') ||
     'https://placehold.co/800x450/f1f5f9/64748b?text=Proyecto';
   const tags = Array.isArray(o.tags) ? (o.tags as unknown[]).filter((t): t is string => typeof t === 'string') : [];
+  const homeValueTags = Array.isArray(o.homeValueTags)
+    ? (o.homeValueTags as unknown[]).filter((t): t is string => typeof t === 'string' && t.trim().length > 0)
+    : [];
   const defaultLink = ctx.locale === 'en' ? 'View project' : 'Ver proyecto';
   return {
     imageSrc,
@@ -296,7 +307,14 @@ function mapProject(
     linkLabel: pickLocalized(o.linkLabel, ctx.locale, defaultLink),
     title,
     description: pickLocalized(o.description, ctx.locale, ''),
-    tags
+    tags,
+    homeLayoutTier: asHomeLayoutTier(o.homeLayoutTier),
+    homeEyebrow: pickLocalized(o.homeEyebrow, ctx.locale, ''),
+    homeProofLine: pickLocalized(o.homeProofLine, ctx.locale, ''),
+    homeValueTags,
+    homeRole: pickLocalized(o.homeRole, ctx.locale, ''),
+    homeYear: asStringOpt(o.homeYear),
+    homeComplexity: asStringOpt(o.homeComplexity)
   };
 }
 
@@ -334,9 +352,14 @@ function mergeProjects(
   }
   const metaFallback = ctx.locale === 'en' ? projectsMetaEnFallback : d.meta;
   const titleFallback = ctx.locale === 'en' ? projectsTitleEnFallback : d.title;
+  const maxHomeProjects = asNumberOpt(o.maxHomeProjects);
   return {
     meta: pickLocalized(o.meta, ctx.locale, metaFallback),
     title: pickLocalized(o.title, ctx.locale, titleFallback),
+    intro: pickLocalized(o.intro, ctx.locale, d.intro ?? ''),
+    maxHomeProjects: maxHomeProjects && maxHomeProjects > 0 ? Math.floor(maxHomeProjects) : d.maxHomeProjects,
+    archiveLinkLabel: pickLocalized(o.archiveLinkLabel, ctx.locale, d.archiveLinkLabel ?? ''),
+    archiveHref: asStringOpt(o.archiveHref) ?? d.archiveHref,
     projects: deduped.length ? deduped : d.projects
   };
 }

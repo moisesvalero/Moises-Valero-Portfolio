@@ -66,6 +66,74 @@ export const caseStudy = defineType({
       group: 'panel'
     }),
     defineField({
+      name: 'homeLayoutTier',
+      type: 'string',
+      title: 'Peso visual en portada',
+      description:
+        'Controla como se presenta el proyecto en la home. Usa "Caso principal" solo para el proyecto mas fuerte.',
+      initialValue: 'standard',
+      options: {
+        list: [
+          { title: 'Caso principal', value: 'hero' },
+          { title: 'Destacado secundario', value: 'spotlight' },
+          { title: 'Tarjeta compacta', value: 'standard' }
+        ],
+        layout: 'radio'
+      },
+      group: 'panel'
+    }),
+    defineField({
+      name: 'homeEyebrow',
+      type: 'localeString',
+      title: 'Etiqueta corta en portada',
+      description: 'Ej. Producto full-stack, E-commerce real, IA aplicada.',
+      group: 'panel'
+    }),
+    defineField({
+      name: 'homeProofLine',
+      type: 'localeText',
+      title: 'Frase de valor para portada',
+      description:
+        'Una frase afilada para reclutadores: que demuestra este proyecto y por que merece abrirse.',
+      group: 'panel'
+    }),
+    defineField({
+      name: 'homeValueTags',
+      type: 'array',
+      title: 'Tags de valor profesional',
+      description: 'No solo tecnologias: Producto real, APIs, Pagos, IA aplicada, Automatizacion...',
+      of: [{ type: 'string' }],
+      group: 'panel'
+    }),
+    defineField({
+      name: 'homeRole',
+      type: 'localeString',
+      title: 'Rol en portada',
+      description: 'Ej. Diseno + frontend + integraciones.',
+      group: 'panel'
+    }),
+    defineField({
+      name: 'homeYear',
+      type: 'string',
+      title: 'Ano / periodo en portada',
+      description: 'Ej. 2026.',
+      group: 'panel'
+    }),
+    defineField({
+      name: 'homeComplexity',
+      type: 'string',
+      title: 'Complejidad en portada',
+      options: {
+        list: [
+          { title: 'Media', value: 'Media' },
+          { title: 'Alta', value: 'Alta' },
+          { title: 'Muy alta', value: 'Muy alta' }
+        ],
+        layout: 'radio'
+      },
+      group: 'panel'
+    }),
+    defineField({
       name: 'checklistPublicacion',
       type: 'object',
       title: 'Checklist de publicacion',

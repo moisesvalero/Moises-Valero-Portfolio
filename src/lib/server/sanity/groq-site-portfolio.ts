@@ -18,6 +18,10 @@ export const sitePortfolioQuery = `coalesce(
   projects{
     meta,
     title,
+    intro,
+    maxHomeProjects,
+    archiveLinkLabel,
+    archiveHref,
     "projects": (
       *[
         _type == "caseStudy" &&
@@ -39,6 +43,20 @@ export const sitePortfolioQuery = `coalesce(
           "es": coalesce(heroDescription, seoDescription, ""),
           "en": coalesce(heroDescriptionEn, seoDescriptionEn, "")
         },
+        "homeLayoutTier": coalesce(
+          homeLayoutTier,
+          select(
+            slug.current == "rebranding-galeria-nova" => "hero",
+            homeSortOrder <= 20 => "spotlight",
+            "standard"
+          )
+        ),
+        homeEyebrow,
+        homeProofLine,
+        "homeValueTags": coalesce(homeValueTags, []),
+        homeRole,
+        homeYear,
+        homeComplexity,
         "tags": select(
           count(coalesce(tagsEn, [])) > 0 => coalesce(tagsEn, []),
           coalesce(tags, [])

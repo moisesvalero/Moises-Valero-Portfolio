@@ -100,11 +100,23 @@ export type SiteProjectCard = {
   title: string;
   description: string;
   tags: string[];
+  /** Peso editorial en portada. Se puede controlar desde Sanity. */
+  homeLayoutTier?: 'hero' | 'spotlight' | 'standard';
+  homeEyebrow?: string;
+  homeProofLine?: string;
+  homeValueTags?: string[];
+  homeRole?: string;
+  homeYear?: string;
+  homeComplexity?: string;
 };
 
 export type SiteProjectsSection = {
   meta: string;
   title: string;
+  intro?: string;
+  maxHomeProjects?: number;
+  archiveLinkLabel?: string;
+  archiveHref?: string;
   projects: SiteProjectCard[];
 };
 

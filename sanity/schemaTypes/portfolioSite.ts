@@ -286,6 +286,31 @@ export const portfolioSite = defineType({
         { name: 'meta', type: 'localeString', title: 'Meta sección' },
         { name: 'title', type: 'localeString', title: 'Título H2' },
         {
+          name: 'intro',
+          type: 'localeText',
+          title: 'Intro corta',
+          description: 'Texto breve bajo el titulo para explicar el criterio de seleccion.'
+        },
+        {
+          name: 'maxHomeProjects',
+          type: 'number',
+          title: 'Maximo de proyectos en portada',
+          description: 'La home mantiene una seleccion curada. Usa 9 o 12 como limite razonable.',
+          initialValue: 9
+        },
+        {
+          name: 'archiveLinkLabel',
+          type: 'localeString',
+          title: 'Texto enlace archivo',
+          description: 'Ej. Ver todos los proyectos.'
+        },
+        {
+          name: 'archiveHref',
+          type: 'string',
+          title: 'URL archivo de proyectos',
+          description: 'Ej. /proyectos. Si se deja vacio, no se muestra enlace.'
+        },
+        {
           name: 'projects',
           type: 'array',
           title: 'Tarjetas',

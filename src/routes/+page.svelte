@@ -221,7 +221,7 @@
   <PortfolioQuality {...site.quality} />
 </div>
 <div class="reveal-block" use:revealOnScrollProjects>
-  <PortfolioProjects meta={site.projects.meta} title={site.projects.title} projects={site.projects.projects} />
+  <PortfolioProjects {...site.projects} />
 </div>
 <div class="reveal-block" use:revealOnScroll>
   <PortfolioContactCta {...site.contact} />
@@ -276,6 +276,7 @@
 
   .reveal-block.is-visible :global(.servicios-flex .card-servicio),
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
+  .reveal-block.is-visible :global(.project-card),
   .reveal-block.is-visible :global(.garantias-grid .garantia-item),
   .reveal-block.is-visible :global(.stack-grid .stack-cat) {
     animation: cardIn 780ms cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -283,6 +284,7 @@
 
   .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(2)),
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(2)),
+  .reveal-block.is-visible :global(.project-card:nth-child(2)),
   .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(2)),
   .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(2)) {
     animation-delay: 120ms;
@@ -290,18 +292,21 @@
 
   .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(3)),
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(3)),
+  .reveal-block.is-visible :global(.project-card:nth-child(3)),
   .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(3)),
   .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(3)) {
     animation-delay: 240ms;
   }
 
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(4)),
+  .reveal-block.is-visible :global(.project-card:nth-child(4)),
   .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(4)),
   .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(4)) {
     animation-delay: 320ms;
   }
 
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(5)),
+  .reveal-block.is-visible :global(.project-card:nth-child(5)),
   .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(5)),
   .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(5)) {
     animation-delay: 400ms;
@@ -313,6 +318,7 @@
 
   :global(.card-servicio),
   :global(.proyecto-card),
+  :global(.project-card),
   :global(.garantia-item),
   :global(.stack-cat) {
     position: relative;
@@ -327,6 +333,7 @@
 
   :global(.card-servicio::after),
   :global(.proyecto-card::after),
+  :global(.project-card::after),
   :global(.garantia-item::after),
   :global(.stack-cat::after) {
     content: "";
@@ -346,6 +353,7 @@
 
   :global(.card-servicio:hover),
   :global(.proyecto-card:hover),
+  :global(.project-card:hover),
   :global(.garantia-item:hover),
   :global(.stack-cat:hover) {
     box-shadow:
@@ -355,6 +363,7 @@
 
   :global(.card-servicio:hover::after),
   :global(.proyecto-card:hover::after),
+  :global(.project-card:hover::after),
   :global(.garantia-item:hover::after),
   :global(.stack-cat:hover::after) {
     opacity: 1;
@@ -436,6 +445,7 @@
 
     .reveal-block.is-visible :global(.servicios-flex .card-servicio),
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
+    .reveal-block.is-visible :global(.project-card),
     .reveal-block.is-visible :global(.garantias-grid .garantia-item),
     .reveal-block.is-visible :global(.stack-grid .stack-cat) {
       animation: cardInMobile 420ms cubic-bezier(0.16, 0.84, 0.32, 1) both;
@@ -443,6 +453,7 @@
 
     .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(2)),
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(2)),
+    .reveal-block.is-visible :global(.project-card:nth-child(2)),
     .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(2)),
     .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(2)) {
       animation-delay: 45ms;
@@ -450,18 +461,21 @@
 
     .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(3)),
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(3)),
+    .reveal-block.is-visible :global(.project-card:nth-child(3)),
     .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(3)),
     .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(3)) {
       animation-delay: 85ms;
     }
 
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(4)),
+    .reveal-block.is-visible :global(.project-card:nth-child(4)),
     .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(4)),
     .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(4)) {
       animation-delay: 120ms;
     }
 
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(5)),
+    .reveal-block.is-visible :global(.project-card:nth-child(5)),
     .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(5)),
     .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(5)) {
       animation-delay: 155ms;
@@ -484,6 +498,7 @@
     }
     .reveal-block :global(.card-servicio),
     .reveal-block :global(.proyecto-card),
+    .reveal-block :global(.project-card),
     .reveal-block :global(.garantia-item),
     .reveal-block :global(.stack-cat) {
       animation: none !important;

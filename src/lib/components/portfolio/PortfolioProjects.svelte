@@ -1,223 +1,746 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import { sitePortfolioDefaults } from '$lib/data/site-portfolio-defaults';
   import type { SiteProjectCard } from '$lib/types/site-portfolio';
 
   interface Props {
     meta?: string;
     title?: string;
+    intro?: string;
+    maxHomeProjects?: number;
+    archiveLinkLabel?: string;
+    archiveHref?: string;
     projects?: SiteProjectCard[];
   }
+
+  const fallbackIntro =
+    'Una seleccion curada de productos, e-commerce, automatizaciones e interfaces donde el criterio visual pesa tanto como la arquitectura.';
+  const resolvePath = resolve as unknown as (href: string) => string;
 
   let {
     meta = sitePortfolioDefaults.projects.meta,
     title = sitePortfolioDefaults.projects.title,
+    intro = sitePortfolioDefaults.projects.intro ?? fallbackIntro,
+    maxHomeProjects = sitePortfolioDefaults.projects.maxHomeProjects ?? 9,
+    archiveLinkLabel = sitePortfolioDefaults.projects.archiveLinkLabel ?? 'Ver todos los proyectos',
+    archiveHref = sitePortfolioDefaults.projects.archiveHref,
     projects = sitePortfolioDefaults.projects.projects
   }: Props = $props();
+
+  const visibleProjects = $derived(
+    maxHomeProjects > 0 ? projects.slice(0, maxHomeProjects) : projects
+  );
+  const heroProject = $derived(
+    visibleProjects.find((project) => project.homeLayoutTier === 'hero') ?? visibleProjects[0]
+  );
+  const projectsAfterHero = $derived(
+    heroProject ? visibleProjects.filter((project) => project.href !== heroProject.href) : []
+  );
+  const spotlightProjects = $derived(
+    projectsAfterHero.filter((project) => project.homeLayoutTier === 'spotlight').slice(0, 3)
+  );
+  const spotlightHrefs = $derived(new Set(spotlightProjects.map((project) => project.href)));
+  const standardProjects = $derived(
+    projectsAfterHero.filter((project) => !spotlightHrefs.has(project.href))
+  );
+  const hasHiddenProjects = $derived(maxHomeProjects > 0 && projects.length > maxHomeProjects);
+
+  function projectTarget(project: SiteProjectCard): string | undefined {
+    return project.external ? '_blank' : undefined;
+  }
+
+  function projectHref(project: SiteProjectCard): string {
+    return project.external ? project.href : resolvePath(project.href);
+  }
+
+  function projectRel(project: SiteProjectCard): string | undefined {
+    return project.external ? 'noopener noreferrer' : undefined;
+  }
+
+  function eyebrowFor(project: SiteProjectCard, index: number, tier: 'hero' | 'spotlight' | 'standard') {
+    if (project.homeEyebrow) return project.homeEyebrow;
+    if (tier === 'hero') return 'Caso principal';
+    if (tier === 'spotlight') return `Destacado ${String(index + 1).padStart(2, '0')}`;
+    return `Caso ${String(index + 1).padStart(2, '0')}`;
+  }
+
+  function proofLineFor(project: SiteProjectCard): string {
+    return project.homeProofLine || project.description;
+  }
+
+  function valueTagsFor(project: SiteProjectCard, limit: number): string[] {
+    const editorial = project.homeValueTags?.filter(Boolean) ?? [];
+    const source = editorial.length ? editorial : project.tags;
+    return source.slice(0, limit);
+  }
+
+  function metaItemsFor(project: SiteProjectCard): string[] {
+    return [project.homeRole, project.homeYear, project.homeComplexity].filter(
+      (item): item is string => Boolean(item)
+    );
+  }
+
+  function internalHref(href: string): string {
+    return /^https?:\/\//i.test(href) ? href : resolvePath(href);
+  }
 </script>
 
 <section class="proyectos-container" id="proyectos" aria-labelledby="proyectos-titulo">
   <div class="proyectos-header">
     <p class="meta-proyectos">{meta}</p>
-    <h2 id="proyectos-titulo">{title}</h2>
+    <div class="proyectos-heading-row">
+      <h2 id="proyectos-titulo">{title}</h2>
+      {#if archiveHref}
+        <a class="proyectos-archive-link" href={internalHref(archiveHref)}>
+          {archiveLinkLabel}
+          {#if hasHiddenProjects}
+            <span aria-hidden="true">+{projects.length - visibleProjects.length}</span>
+          {/if}
+        </a>
+      {/if}
+    </div>
+    {#if intro}
+      <p class="proyectos-intro">{intro}</p>
+    {/if}
   </div>
 
-  <div class="proyectos-grid">
-    {#each projects as project (project.title + project.href)}
-      <article class="proyecto-card">
-        <div class="proyecto-imagen">
-          <img
-            src={project.imageSrc}
-            alt={project.imageAlt}
-            width="800"
-            height="450"
-            loading="lazy"
-            decoding="async"
-          />
-          <div class="proyecto-overlay">
+  {#if heroProject}
+    <div class="project-showcase">
+      <a
+        class="project-card project-card-hero"
+        href={projectHref(heroProject)}
+        target={projectTarget(heroProject)}
+        rel={projectRel(heroProject)}
+        aria-label={`${heroProject.linkLabel}: ${heroProject.title}`}
+      >
+        <article>
+          <div class="project-hero-media">
+            <img
+              src={heroProject.imageSrc}
+              alt={heroProject.imageAlt}
+              width="1200"
+              height="675"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="project-media-sheen" aria-hidden="true"></div>
+          </div>
+
+          <div class="project-hero-copy">
+            <div class="project-kicker-row">
+              <span class="project-number">01</span>
+              <span class="project-eyebrow">{eyebrowFor(heroProject, 0, 'hero')}</span>
+            </div>
+
+            <h3>{heroProject.title}</h3>
+            <p class="project-proof">{proofLineFor(heroProject)}</p>
+
+            {#if metaItemsFor(heroProject).length}
+              <dl class="project-meta-strip">
+                {#each metaItemsFor(heroProject) as item, index (item)}
+                  <div>
+                    <dt>{index === 0 ? 'Rol' : index === 1 ? 'Ano' : 'Complejidad'}</dt>
+                    <dd>{item}</dd>
+                  </div>
+                {/each}
+              </dl>
+            {/if}
+
+            <div class="project-value-tags" aria-label="Valores destacados">
+              {#each valueTagsFor(heroProject, 7) as tag (tag)}
+                <span>{tag}</span>
+              {/each}
+            </div>
+
+            <span class="project-cta">
+              {heroProject.linkLabel}
+              <span aria-hidden="true">-></span>
+            </span>
+          </div>
+        </article>
+      </a>
+
+      {#if spotlightProjects.length}
+        <div class="project-spotlight-grid" aria-label="Proyectos destacados">
+          {#each spotlightProjects as project, index (project.href)}
             <a
-              href={project.href}
-              class="btn-visitar"
-              target={project.external ? '_blank' : undefined}
-              rel={project.external ? 'noopener noreferrer' : undefined}
+              class="project-card project-card-spotlight"
+              href={projectHref(project)}
+              target={projectTarget(project)}
+              rel={projectRel(project)}
+              aria-label={`${project.linkLabel}: ${project.title}`}
             >
-              {project.linkLabel} <span aria-hidden="true">→</span>
+              <article>
+                <div class="project-thumb">
+                  <img
+                    src={project.imageSrc}
+                    alt={project.imageAlt}
+                    width="700"
+                    height="394"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <div class="project-compact-copy">
+                  <div class="project-kicker-row">
+                    <span class="project-number">{String(index + 2).padStart(2, '0')}</span>
+                    <span class="project-eyebrow">{eyebrowFor(project, index, 'spotlight')}</span>
+                  </div>
+                  <h3>{project.title}</h3>
+                  <p>{proofLineFor(project)}</p>
+                  <div class="project-value-tags">
+                    {#each valueTagsFor(project, 4) as tag (tag)}
+                      <span>{tag}</span>
+                    {/each}
+                  </div>
+                </div>
+              </article>
             </a>
-          </div>
+          {/each}
         </div>
-        <div class="proyecto-info">
-          <h3>{project.title}</h3>
-          <p>{project.description}</p>
-          <div class="proyecto-tags">
-            {#each project.tags as tag (tag)}
-              <span>{tag}</span>
-            {/each}
-          </div>
-        </div>
-      </article>
-    {/each}
-  </div>
+      {/if}
+    </div>
+  {/if}
+
+  {#if standardProjects.length}
+    <div class="project-standard-grid" aria-label="Mas casos de estudio">
+      {#each standardProjects as project, index (project.href)}
+        <a
+          class="project-card project-card-standard"
+          href={projectHref(project)}
+          target={projectTarget(project)}
+          rel={projectRel(project)}
+          aria-label={`${project.linkLabel}: ${project.title}`}
+        >
+          <article>
+            <div class="project-standard-media">
+              <img
+                src={project.imageSrc}
+                alt={project.imageAlt}
+                width="520"
+                height="293"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div class="project-standard-copy">
+              <div class="project-kicker-row">
+                <span class="project-number">
+                  {String(index + spotlightProjects.length + 2).padStart(2, '0')}
+                </span>
+                <span class="project-eyebrow">{eyebrowFor(project, index, 'standard')}</span>
+              </div>
+              <h3>{project.title}</h3>
+              <p>{proofLineFor(project)}</p>
+              <div class="project-value-tags">
+                {#each valueTagsFor(project, 3) as tag (tag)}
+                  <span>{tag}</span>
+                {/each}
+              </div>
+            </div>
+          </article>
+        </a>
+      {/each}
+    </div>
+  {/if}
 </section>
 
 <style>
   .proyectos-container {
-    max-width: 1200px;
-    margin: 100px auto;
-    padding: 0 20px;
+    width: min(100% - 40px, 1240px);
+    margin: 112px auto;
     font-family: inherit;
     scroll-margin-top: 96px;
   }
 
   .proyectos-header {
-    text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 34px;
   }
 
   .meta-proyectos {
-    color: #86868b;
-    font-size: 13.5px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-  }
-
-  .proyectos-header h2 {
-    color: #1d1d1f;
-    font-size: 42px;
+    color: #6f7480;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: -1.5px;
-  }
-
-  .proyectos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-    gap: 40px;
-  }
-
-  .proyecto-card {
-    background: #ffffff;
-    border: 1px solid #f1f5f9;
-    border-radius: 0;
-    overflow: hidden;
-    transition: all 0.4s ease;
-  }
-
-  .proyecto-imagen {
-    position: relative;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    background: #fbfbfd;
-  }
-
-  .proyecto-imagen img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .proyecto-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(29, 29, 31, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .proyecto-card:hover .proyecto-overlay,
-  .proyecto-card:focus-within .proyecto-overlay {
-    opacity: 1;
-  }
-
-  .proyecto-card:hover .proyecto-imagen img,
-  .proyecto-card:focus-within .proyecto-imagen img {
-    transform: scale(1.05);
-  }
-
-  .proyecto-card:hover {
-    border-color: #0071e3;
-    transform: translateY(-5px);
-  }
-
-  .proyecto-card:focus-within {
-    border-color: #0071e3;
-    transform: translateY(-5px);
-  }
-
-  .btn-visitar {
-    color: #ffffff !important;
-    text-decoration: none;
-    font-weight: 600;
-    padding: 12px 25px;
-    border: 1px solid #0071e3;
-    transition: all 0.3s ease;
-    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.4);
-  }
-
-  .btn-visitar:hover {
-    background: #0071e3;
-    color: #ffffff !important;
-    border-color: #0071e3;
-    text-shadow: none;
-  }
-
-  .proyecto-info {
-    padding: 30px;
-  }
-
-  .proyecto-info h3 {
-    color: #1d1d1f;
-    font-size: 24px;
-    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
     margin-bottom: 12px;
   }
 
-  .proyecto-info p {
-    color: #424245;
-    font-size: 16.5px;
+  .proyectos-heading-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 24px;
+  }
+
+  .proyectos-header h2 {
+    color: #101114;
+    font-size: clamp(38px, 5vw, 72px);
+    font-weight: 850;
+    line-height: 0.94;
+    letter-spacing: -0.045em;
+    max-width: 760px;
+  }
+
+  .proyectos-intro {
+    max-width: 720px;
+    color: #4a4f5c;
+    font-size: clamp(16px, 1.6vw, 19px);
     line-height: 1.58;
-    margin-bottom: 20px;
-    height: 75px;
+    margin-top: 22px;
+  }
+
+  .proyectos-archive-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 42px;
+    padding: 0 16px;
+    color: #101114;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 760;
+    border: 1px solid rgba(16, 17, 20, 0.14);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    transition:
+      transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .proyectos-archive-link:hover,
+  .proyectos-archive-link:focus-visible {
+    transform: translateY(-2px);
+    border-color: rgba(0, 113, 227, 0.38);
+    background: #ffffff;
+  }
+
+  .proyectos-archive-link span {
+    color: #0071e3;
+  }
+
+  .project-showcase {
+    display: grid;
+    grid-template-columns: minmax(0, 1.38fr) minmax(310px, 0.62fr);
+    gap: 18px;
+    align-items: stretch;
+  }
+
+  .project-card {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+    position: relative;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 8px;
     overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92)),
+      #ffffff;
+    box-shadow:
+      0 22px 60px rgba(15, 23, 42, 0.08),
+      0 1px 0 rgba(255, 255, 255, 0.86) inset;
+    isolation: isolate;
+    transition:
+      transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .proyecto-tags {
+  .project-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    background:
+      linear-gradient(115deg, transparent 10%, rgba(255, 255, 255, 0.52) 32%, transparent 52%),
+      radial-gradient(circle at var(--x, 68%) var(--y, 18%), rgba(0, 113, 227, 0.16), transparent 34%);
+    transform: translateX(-18%);
+    transition:
+      opacity 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 720ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .project-card:hover,
+  .project-card:focus-visible {
+    transform: translateY(-8px);
+    border-color: rgba(0, 113, 227, 0.34);
+    box-shadow:
+      0 32px 90px rgba(15, 23, 42, 0.16),
+      0 0 0 1px rgba(0, 113, 227, 0.1) inset;
+    outline: none;
+  }
+
+  .project-card:hover::before,
+  .project-card:focus-visible::before {
+    opacity: 1;
+    transform: translateX(18%);
+  }
+
+  .project-card article {
+    height: 100%;
+  }
+
+  .project-card-hero article {
+    display: grid;
+    grid-template-rows: minmax(360px, 1fr) auto;
+  }
+
+  .project-hero-media,
+  .project-thumb,
+  .project-standard-media {
+    position: relative;
+    overflow: hidden;
+    background: #eef2f7;
+  }
+
+  .project-hero-media img,
+  .project-thumb img,
+  .project-standard-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scale(1.012);
+    transition: transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .project-card:hover img,
+  .project-card:focus-visible img {
+    transform: scale(1.06);
+  }
+
+  .project-media-sheen {
+    position: absolute;
+    inset: auto 0 0;
+    height: 38%;
+    background: linear-gradient(180deg, rgba(16, 17, 20, 0), rgba(16, 17, 20, 0.24));
+    pointer-events: none;
+  }
+
+  .project-hero-copy {
+    position: relative;
+    z-index: 2;
+    padding: clamp(24px, 3vw, 40px);
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.9)),
+      #ffffff;
+  }
+
+  .project-kicker-row {
     display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
   }
 
-  .proyecto-tags span {
-    background: #f2f2f7;
-    color: #1d1d1f;
+  .project-number {
+    font-family: var(--font-mono, monospace);
+    color: #0071e3;
     font-size: 12px;
-    padding: 5px 12px;
-    font-weight: 500;
+    font-weight: 760;
+    letter-spacing: 0.06em;
+  }
+
+  .project-eyebrow {
+    color: #6f7480;
+    font-size: 11px;
+    font-weight: 820;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .project-card h3 {
+    color: #101114;
+    font-size: clamp(24px, 3.2vw, 46px);
+    line-height: 1.02;
+    letter-spacing: -0.038em;
+    font-weight: 850;
+    margin: 0;
+  }
+
+  .project-proof {
+    color: #303541;
+    font-size: clamp(16px, 1.55vw, 19px);
+    line-height: 1.55;
+    margin-top: 18px;
+    max-width: 790px;
+  }
+
+  .project-meta-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin: 24px 0 0;
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.08);
+  }
+
+  .project-meta-strip div {
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.76);
+  }
+
+  .project-meta-strip dt {
+    color: #7b8190;
+    font-size: 10px;
+    font-weight: 780;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .project-meta-strip dd {
+    color: #101114;
+    font-size: 14px;
+    font-weight: 760;
+    margin-top: 4px;
+  }
+
+  .project-value-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .project-value-tags span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border: 1px solid rgba(0, 113, 227, 0.16);
+    border-radius: 999px;
+    background: rgba(0, 113, 227, 0.06);
+    color: #155ea8;
+    font-size: 12px;
+    font-weight: 720;
+    line-height: 1;
+  }
+
+  .project-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 24px;
+    color: #101114;
+    font-size: 14px;
+    font-weight: 820;
+  }
+
+  .project-cta span {
+    color: #0071e3;
+    transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .project-card:hover .project-cta span,
+  .project-card:focus-visible .project-cta span {
+    transform: translateX(5px);
+  }
+
+  .project-spotlight-grid {
+    display: grid;
+    gap: 18px;
+  }
+
+  .project-card-spotlight article {
+    display: grid;
+    grid-template-columns: 42% minmax(0, 1fr);
+    min-height: 210px;
+  }
+
+  .project-thumb {
+    min-height: 210px;
+  }
+
+  .project-compact-copy,
+  .project-standard-copy {
+    position: relative;
+    z-index: 2;
+    padding: 22px;
+  }
+
+  .project-compact-copy h3,
+  .project-standard-copy h3 {
+    font-size: 22px;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+  }
+
+  .project-compact-copy p,
+  .project-standard-copy p {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: #4a4f5c;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-top: 12px;
+  }
+
+  .project-standard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  .project-card-standard article {
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+
+  .project-standard-media {
+    aspect-ratio: 16 / 9;
+  }
+
+  .project-card-standard .project-value-tags span,
+  .project-card-spotlight .project-value-tags span {
+    min-height: 24px;
+    font-size: 11px;
+    color: #2d5d91;
+    background: rgba(0, 113, 227, 0.045);
+  }
+
+  @media (max-width: 1100px) {
+    .project-showcase {
+      grid-template-columns: 1fr;
+    }
+
+    .project-spotlight-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .project-card-spotlight article {
+      grid-template-columns: 1fr;
+    }
+
+    .project-thumb {
+      aspect-ratio: 16 / 9;
+      min-height: 0;
+    }
+
+    .project-standard-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   @media (max-width: 768px) {
     .proyectos-container {
+      width: min(100% - 28px, 1240px);
+      margin: 72px auto;
       scroll-margin-top: 88px;
     }
 
-    .proyectos-grid {
+    .proyectos-heading-row {
+      grid-template-columns: 1fr;
+      align-items: start;
+      gap: 18px;
+    }
+
+    .proyectos-header h2 {
+      font-size: clamp(34px, 12vw, 48px);
+    }
+
+    .proyectos-intro {
+      font-size: 15.5px;
+      line-height: 1.55;
+    }
+
+    .project-card-hero article {
+      grid-template-rows: auto auto;
+    }
+
+    .project-hero-media {
+      aspect-ratio: 16 / 10;
+    }
+
+    .project-hero-copy,
+    .project-compact-copy,
+    .project-standard-copy {
+      padding: 20px;
+    }
+
+    .project-meta-strip {
       grid-template-columns: 1fr;
     }
 
-    .proyecto-info p {
-      font-size: 12px !important;
-      line-height: 1.42 !important;
-      height: auto !important;
-      max-height: 85px !important;
-      margin-bottom: 15px !important;
+    .project-spotlight-grid,
+    .project-standard-grid {
+      grid-template-columns: 1fr;
     }
 
-    .proyecto-info h3 {
-      font-size: 20px !important;
+    .project-card:hover,
+    .project-card:focus-visible {
+      transform: translateY(-4px);
     }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-card,
+    .project-card::before,
+    .project-card img,
+    .project-cta span {
+      transition: none !important;
+    }
+  }
+
+  :global(html.dark) .project-card {
+    background:
+      linear-gradient(180deg, rgba(18, 18, 18, 0.96), rgba(11, 11, 11, 0.92)),
+      #111111;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 24px 72px rgba(0, 0, 0, 0.28);
+  }
+
+  :global(html.dark) .project-card:hover,
+  :global(html.dark) .project-card:focus-visible {
+    border-color: rgba(255, 255, 255, 0.28);
+    box-shadow:
+      0 34px 90px rgba(0, 0, 0, 0.48),
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  }
+
+  :global(html.dark) .proyectos-header h2,
+  :global(html.dark) .project-card h3,
+  :global(html.dark) .project-meta-strip dd,
+  :global(html.dark) .project-cta {
+    color: #f8fafc;
+  }
+
+  :global(html.dark) .proyectos-intro,
+  :global(html.dark) .project-proof,
+  :global(html.dark) .project-compact-copy p,
+  :global(html.dark) .project-standard-copy p {
+    color: #d4d4d8;
+  }
+
+  :global(html.dark) .project-hero-copy,
+  :global(html.dark) .project-meta-strip div {
+    background: rgba(18, 18, 18, 0.86);
+  }
+
+  :global(html.dark) .project-meta-strip {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html.dark) .project-value-tags span {
+    border-color: rgba(255, 255, 255, 0.13);
+    background: rgba(255, 255, 255, 0.07);
+    color: #e5e7eb;
+  }
+
+  :global(html.dark) .proyectos-archive-link {
+    color: #f8fafc;
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
   }
 </style>
