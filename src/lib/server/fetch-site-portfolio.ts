@@ -7,7 +7,39 @@ import { getSanityProjectConfig, getSanityServerClient } from './sanity/get-serv
 import { mapSanitySitePortfolio } from './sanity/map-site-portfolio';
 
 function defaultBaseUrl(): string {
-  return new URL(publicEnv.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
+  return new URL(publicEnv.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
+}
+
+function enforceCareerFirstPortfolio(site: SitePortfolioContent): SitePortfolioContent {
+  return {
+    ...site,
+    header: sitePortfolioDefaults.header,
+    seo: {
+      ...site.seo,
+      title: sitePortfolioDefaults.seo.title,
+      description: sitePortfolioDefaults.seo.description,
+      ogTitle: sitePortfolioDefaults.seo.ogTitle,
+      ogDescription: sitePortfolioDefaults.seo.ogDescription
+    },
+    hero: {
+      ...site.hero,
+      cvHref: sitePortfolioDefaults.hero.cvHref,
+      bio: sitePortfolioDefaults.hero.bio,
+      ctaPrimaryLabel: sitePortfolioDefaults.hero.ctaPrimaryLabel,
+      careerCtaLabel: sitePortfolioDefaults.hero.careerCtaLabel
+    },
+    about: {
+      ...site.about,
+      aboutHtml: sitePortfolioDefaults.about.aboutHtml
+    },
+    services: sitePortfolioDefaults.services,
+    contact: sitePortfolioDefaults.contact,
+    footer: {
+      ...site.footer,
+      copyrightTemplate: sitePortfolioDefaults.footer.copyrightTemplate,
+      maltHref: ''
+    }
+  };
 }
 
 /**
@@ -19,29 +51,29 @@ export async function fetchSitePortfolio(locale: SiteLocale = 'es'): Promise<Sit
   const client = getSanityServerClient();
   const cfg = getSanityProjectConfig();
   if (!client || !cfg) {
-    return mapSanitySitePortfolio(null, sitePortfolioDefaults, {
+    return enforceCareerFirstPortfolio(mapSanitySitePortfolio(null, sitePortfolioDefaults, {
       projectId: '',
       dataset: '',
       baseUrl,
       locale
-    });
+    }));
   }
 
   try {
     const raw = await client.fetch<Record<string, unknown> | null>(sitePortfolioQuery);
-    return mapSanitySitePortfolio(raw, sitePortfolioDefaults, {
+    return enforceCareerFirstPortfolio(mapSanitySitePortfolio(raw, sitePortfolioDefaults, {
       projectId: cfg.projectId,
       dataset: cfg.dataset,
       baseUrl,
       locale
-    });
+    }));
   } catch (error) {
     console.warn('[portfolio] Sanity unavailable, using local defaults.', error);
-    return mapSanitySitePortfolio(null, sitePortfolioDefaults, {
+    return enforceCareerFirstPortfolio(mapSanitySitePortfolio(null, sitePortfolioDefaults, {
       projectId: cfg.projectId,
       dataset: cfg.dataset,
       baseUrl,
       locale
-    });
+    }));
   }
 }

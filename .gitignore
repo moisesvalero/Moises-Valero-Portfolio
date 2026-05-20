@@ -12,6 +12,7 @@ tmp
 
 # Generated app/runtime files
 .sanity/runtime
+.superpowers/
 
 # OS
 .DS_Store

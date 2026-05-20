@@ -1,4 +1,6 @@
-import { serveMarkdownTwin } from '$lib/aeo';
+import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = (event) => serveMarkdownTwin(event, '/diseno-web-alcoy/articulos.md');
+export const GET: RequestHandler = () => {
+  redirect(308, '/blog.md');
+};

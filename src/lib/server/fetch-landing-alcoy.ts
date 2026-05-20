@@ -6,7 +6,7 @@ import { landingDisenoWebAlcoyQuery } from './sanity/groq-landing-alcoy';
 import { mapLandingDisenoWebAlcoy } from './sanity/map-landing-alcoy';
 
 function defaultBaseUrl(): string {
-  return new URL(publicEnv.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
+  return new URL(publicEnv.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
 }
 
 export async function fetchLandingDisenoWebAlcoy(): Promise<LandingDisenoWebAlcoy> {

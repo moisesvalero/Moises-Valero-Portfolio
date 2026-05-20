@@ -33,7 +33,9 @@ function mapPortfolioDocument() {
       label: site.hero.label,
       title: site.hero.title,
       subtitle: site.hero.subtitle,
-      bio: site.hero.bio
+      bio: site.hero.bio,
+      ctaPrimaryLabel: site.hero.ctaPrimaryLabel,
+      careerCtaLabel: site.hero.careerCtaLabel
     },
     about: site.about,
     services: {

@@ -9,23 +9,23 @@
   }
 
   const defaultAboutHtml = `<p>
-    Soy <strong>Moisés Valero</strong>. Tras una sólida trayectoria profesional en sectores de alta
-    exigencia, he regresado al desarrollo tecnológico con una visión clara: crear soluciones web que no
-    solo funcionen, sino que rindan al máximo. Cuento con un
-    <strong>Certificado de Profesionalidad de Nivel 3</strong> y una formación actualizada en el stack
-    más moderno.
+    Soy <strong>Moisés Valero</strong>. Tras años en el sector industrial, regresé al desarrollo tecnológico
+    con una visión clara: construir páginas web, aplicaciones y soluciones digitales eficientes,
+    resolutivas y orientadas al usuario. Cuento con un
+    <strong>Certificado de Profesionalidad de Nivel 3</strong> y un enfoque basado en la práctica real.
   </p>
   <p>
-    Me especializo en <strong>WordPress</strong>, <strong>SvelteKit</strong> y <strong>SEO Técnico</strong>,
-    enfocándome en el rendimiento (performance), la seguridad y el mantenimiento eficiente. Utilizo la
-    <strong>IA generativa</strong> como una herramienta estratégica para acelerar el desarrollo y
-    garantizar resultados sólidos en menos tiempo.
+    Me especializo en metodologías de <strong>AI-Driven Development</strong> y
+    <strong>Spec-Driven Development (SDD)</strong> para diseñar arquitecturas de software y conectar
+    soluciones con total autonomía. Mi stack principal está enfocado en <strong>SvelteKit</strong>,
+    <strong>Supabase</strong>, <strong>Tailwind CSS</strong> y APIs de IA
+    (<strong>Gemini</strong>, <strong>OpenAI</strong>, <strong>Anthropic</strong>, <strong>Fal.ai</strong>),
+    además de la gestión y mantenimiento de <strong>WordPress</strong>.
   </p>
   <p>
-    Mi objetivo es aportar mi experiencia y capacidad de resolución a una empresa donde pueda crecer, o
-    colaborar en proyectos freelance que necesiten un soporte técnico de confianza en la zona de
-    <strong>Alcoy</strong> y <strong>Alicante</strong>. Si buscas compromiso, madurez y dominio técnico,
-    hablemos.
+    Estoy en <strong>Alcoy (Alicante)</strong> y busco incorporarme a equipos de desarrollo
+    (remoto, híbrido o presencial). Si buscas madurez, capacidad de resolución y dominio de las
+    herramientas del futuro, hablemos.
   </p>`;
 
   let {

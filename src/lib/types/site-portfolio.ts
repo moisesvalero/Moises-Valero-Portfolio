@@ -60,6 +60,8 @@ export type SiteServices = {
 
 export type SiteStackIcon = {
   src?: string;
+  /** Ruta de Devicon, p. ej. `typescript/typescript-original.svg`. */
+  devicon?: string;
   /** Nombre de icono Iconify (ej. `logos:svelte-icon`). */
   iconify?: string;
   alt: string;

@@ -10,7 +10,7 @@ export async function buildArticleMarkdown(slug: string, _locale: SiteLocale): P
 	const lines: string[] = [
 		`# ${article.seoTitle || article.title}`,
 		'',
-		`URL: ${baseUrl}/diseno-web-alcoy/${article.slug}`,
+		`URL: ${baseUrl}/blog/${article.slug}`,
 		'',
 		article.seoDescription || article.excerpt
 	];

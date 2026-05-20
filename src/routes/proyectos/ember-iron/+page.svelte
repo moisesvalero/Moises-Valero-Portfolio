@@ -8,7 +8,7 @@
 
   let { data }: { data: PageData } = $props();
 
-  const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
+  const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/ember-iron`;
   const ogImage = `${baseUrl}/og-image.png`;
   const ogTitleShort = 'Ember & Iron — Caso de Estudio';

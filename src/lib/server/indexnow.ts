@@ -2,7 +2,7 @@ import { env as privateEnv } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 
 const INDEXNOW_ENDPOINT = 'https://api.indexnow.org/indexnow';
-const DEFAULT_SITE_URL = 'http://localhost:5173';
+const DEFAULT_SITE_URL = 'https://moisesvalero.es';
 
 function normalizeBaseUrl(url: string | undefined): string {
   try {

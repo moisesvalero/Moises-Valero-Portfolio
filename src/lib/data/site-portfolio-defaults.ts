@@ -1,23 +1,23 @@
 import type { SitePortfolioContent } from '$lib/types/site-portfolio';
 
 const aboutHtml = `<p>
-  Soy <strong>Moisés Valero</strong>. Tras una sólida trayectoria profesional en sectores de alta
-  exigencia, he regresado al desarrollo tecnológico con una visión clara: crear soluciones web que no
-  solo funcionen, sino que rindan al máximo. Cuento con un
-  <strong>Certificado de Profesionalidad de Nivel 3</strong> y una formación actualizada en el stack
-  más moderno.
+  Soy <strong>Moisés Valero</strong>. Tras años en el sector industrial, regresé al desarrollo tecnológico
+  con una visión clara: construir páginas web, aplicaciones y soluciones digitales eficientes,
+  resolutivas y orientadas al usuario. Cuento con un
+  <strong>Certificado de Profesionalidad de Nivel 3</strong> y un enfoque basado en la práctica real.
 </p>
 <p>
-  Me especializo en <strong>WordPress</strong>, <strong>SvelteKit</strong> y <strong>SEO Técnico</strong>,
-  enfocándome en el rendimiento (performance), la seguridad y el mantenimiento eficiente. Utilizo la
-  <strong>IA generativa</strong> como una herramienta estratégica para acelerar el desarrollo y
-  garantizar resultados sólidos en menos tiempo.
+  Me especializo en metodologías de <strong>AI-Driven Development</strong> y
+  <strong>Spec-Driven Development (SDD)</strong> para diseñar arquitecturas de software y conectar
+  soluciones con total autonomía. Mi stack principal está enfocado en <strong>SvelteKit</strong>,
+  <strong>Supabase</strong>, <strong>Tailwind CSS</strong> y APIs de IA
+  (<strong>Gemini</strong>, <strong>OpenAI</strong>, <strong>Anthropic</strong>, <strong>Fal.ai</strong>),
+  además de la gestión y mantenimiento de <strong>WordPress</strong>.
 </p>
 <p>
-  Mi objetivo es aportar mi experiencia y capacidad de resolución a una empresa donde pueda crecer, o
-  colaborar en proyectos freelance que necesiten un soporte técnico de confianza en la zona de
-  <strong>Alcoy</strong> y <strong>Alicante</strong>. Si buscas compromiso, madurez y dominio técnico,
-  hablemos.
+  Estoy en <strong>Alcoy (Alicante)</strong> y busco incorporarme a equipos de desarrollo
+  (remoto, híbrido o presencial). Si buscas madurez, capacidad de resolución y dominio de las
+  herramientas del futuro, hablemos.
 </p>`;
 
 /** Valores actuales del portfolio; Sanity los sustituye al publicar `sitePortfolio`. */
@@ -27,19 +27,19 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     logoHref: '/',
     navItems: [
       { label: 'Inicio', href: '/#top' },
-      { label: 'Servicios', href: '/#servicios' },
+      { label: 'Competencias', href: '/#servicios' },
       { label: 'Proyectos', href: '/#proyectos' },
-      { label: 'Artículos', href: '/diseno-web-alcoy/articulos' },
-      { label: 'Diseño web', href: '/diseno-web' },
+      { label: 'Analizador', href: '/tools/analizador-web' },
+      { label: 'Guías', href: '/blog' },
       { label: 'Trayectoria', href: '#', openCareerModal: true }
     ],
     ctaLabel: 'Contacto',
     ctaHref: '/#contacto'
   },
   seo: {
-    title: 'Moisés Valero – Desarrollador Web | SvelteKit, WordPress, Soporte IT',
+    title: 'Moisés Valero – Desarrollador Web | SvelteKit, WordPress, Performance',
     description:
-      'Desarrollo web con foco en rendimiento, WordPress, SvelteKit y soporte técnico. Disponible para empresa o proyectos freelance.',
+      'Portfolio profesional de Moisés Valero, desarrollador web orientado a SvelteKit, WordPress, rendimiento, SEO técnico e integraciones.',
     ogTitle: 'Moisés Valero – Desarrollador Web',
     ogDescription:
       'Desarrollo web con foco en rendimiento, WordPress, SvelteKit y soporte técnico.',
@@ -47,12 +47,12 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     twitterCard: 'summary_large_image'
   },
   hero: {
-    cvHref: '/#contacto',
+    cvHref: '/api/cv',
     label: 'PORTFOLIO – MOISÉS VALERO · Alcoy / Alicante',
     title: 'Desarrollador Web',
     subtitle: 'SvelteKit | WordPress | Sistemas & SEO',
-    bio: 'Desarrollo soluciones robustas enfocadas en Web Performance. Me encargo de la infraestructura técnica y el soporte para que tú solo te preocupes de tu negocio. Uso IA para optimizar tiempos, ya sea colaborando con empresas de la zona (Alcoy/Alicante) o integrándome en plantilla.',
-    ctaPrimaryLabel: '¿Hablamos?',
+    bio: 'Desarrollo sitios web y web apps rápidas, robustas y mantenibles, con foco en rendimiento, IA e integraciones reales. Busco incorporarme a un equipo donde aportar criterio técnico, aprendizaje rápido y valor desde el primer día.',
+    ctaPrimaryLabel: 'Ver CV',
     careerCtaLabel: 'Ver Trayectoria'
   },
   about: {
@@ -63,26 +63,26 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     aboutHtml
   },
   services: {
-    meta: 'MIS ESPECIALIDADES',
-    title: 'Soluciones Web de Alto Rendimiento',
+    meta: 'COMPETENCIAS',
+    title: 'Lo que puedo aportar dentro de un equipo.',
     items: [
       {
-        icon: '🛒',
-        title: 'E-commerce',
+        icon: 'web_asset',
+        title: 'Frontend y producto',
         description:
-          'Tiendas online con WordPress y WooCommerce diseñadas para convertir visitas en clientes. Priorizo la velocidad de carga, la seguridad en las transacciones y una gestión de inventario que te ahorre tiempo.'
+          'Desarrollo interfaces con SvelteKit, TypeScript, HTML y CSS moderno, cuidando estados, accesibilidad, responsive, rendimiento percibido y claridad para el usuario final.'
       },
       {
-        icon: '🌐',
-        title: 'Desarrollo Web',
+        icon: 'article',
+        title: 'CMS, SEO técnico y performance',
         description:
-          'Creo sitios web optimizados con arquitecturas ligeras para un SEO imbatible. Combino el poder de SvelteKit para aplicaciones a medida con la flexibilidad de WordPress, utilizando IA para entregar resultados en tiempo récord.'
+          'Trabajo con WordPress, Sanity y SvelteKit para crear sitios mantenibles. Me fijo en Core Web Vitals, estructura semántica, metadatos, sitemap, JSON-LD y arquitectura de contenido.'
       },
       {
-        icon: '⚙️',
-        title: 'Soporte Técnico IT',
+        icon: 'desktop_windows',
+        title: 'Integraciones y soporte técnico',
         description:
-          'Me encargo de que tu infraestructura nunca falle: redes, hardware, hosting y configuración de correos. Aporto soluciones rápidas a incidencias y mantenimiento preventivo para que tu empresa no se detenga.'
+          'Aporto base de sistemas, soporte IT, APIs, automatizaciones, formularios, despliegues y diagnóstico de incidencias. Me gusta entender el problema completo, no solo tocar la capa visual.'
       }
     ]
   },
@@ -93,28 +93,28 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
       {
         title: 'Lenguajes y Core',
         icons: [
-          { iconify: 'logos:typescript-icon', alt: 'TypeScript', title: 'TypeScript' },
-          { src: '/imagenes/javascript.svg', alt: 'JavaScript', title: 'JavaScript (ES6+)' },
-          { src: '/imagenes/html5.svg', alt: 'HTML5', title: 'HTML5' },
-          { src: '/imagenes/css.svg', alt: 'CSS3', title: 'CSS3' }
+          { devicon: 'typescript/typescript-original.svg', alt: 'TypeScript', title: 'TypeScript' },
+          { devicon: 'javascript/javascript-original.svg', alt: 'JavaScript', title: 'JavaScript (ES6+)' },
+          { devicon: 'html5/html5-original.svg', alt: 'HTML5', title: 'HTML5' },
+          { devicon: 'css3/css3-original.svg', alt: 'CSS3', title: 'CSS3' }
         ]
       },
       {
         title: 'Frameworks y Librerías',
         icons: [
-          { src: '/imagenes/svelte.svg', alt: 'SvelteKit', title: 'SvelteKit / Svelte 5' },
-          { src: '/imagenes/tailwindcss.svg', alt: 'Tailwind CSS', title: 'Tailwind CSS' },
-          { iconify: 'logos:vitejs', alt: 'Vite', title: 'Vite' },
+          { devicon: 'svelte/svelte-original.svg', alt: 'SvelteKit', title: 'SvelteKit / Svelte 5' },
+          { devicon: 'tailwindcss/tailwindcss-original.svg', alt: 'Tailwind CSS', title: 'Tailwind CSS' },
+          { devicon: 'vitejs/vitejs-original.svg', alt: 'Vite', title: 'Vite' },
           { iconify: 'logos:pwa', alt: 'PWA', title: 'Progressive Web Apps' }
         ]
       },
       {
         title: 'Backend e Infraestructura',
         icons: [
-          { iconify: 'logos:supabase-icon', alt: 'Supabase', title: 'Supabase (PostgreSQL)' },
-          { iconify: 'logos:vercel-icon', alt: 'Vercel', title: 'Vercel' },
-          { src: '/imagenes/cloudflare.svg', alt: 'Cloudflare', title: 'Cloudflare' },
-          { src: '/imagenes/github.svg', alt: 'GitHub', title: 'GitHub' }
+          { devicon: 'supabase/supabase-original.svg', alt: 'Supabase', title: 'Supabase (PostgreSQL)' },
+          { devicon: 'vercel/vercel-original.svg', alt: 'Vercel', title: 'Vercel' },
+          { devicon: 'cloudflare/cloudflare-original.svg', alt: 'Cloudflare', title: 'Cloudflare' },
+          { devicon: 'github/github-original.svg', alt: 'GitHub', title: 'GitHub' }
         ]
       },
       {
@@ -129,10 +129,10 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
       {
         title: 'CMS y Low-Code',
         icons: [
-          { src: '/imagenes/wordpress.svg', alt: 'WordPress', title: 'WordPress' },
+          { devicon: 'wordpress/wordpress-plain.svg', alt: 'WordPress', title: 'WordPress' },
           { src: '/imagenes/kadence.svg', alt: 'Kadence', title: 'Kadence' },
           { src: '/imagenes/elementor.svg', alt: 'Elementor', title: 'Elementor' },
-          { iconify: 'logos:sanity', alt: 'Sanity', title: 'Sanity.io' }
+          { devicon: 'sanity/sanity-original.svg', alt: 'Sanity', title: 'Sanity.io' }
         ]
       },
       {
@@ -147,8 +147,8 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     ]
   },
   quality: {
-    meta: 'MI ESTÁNDAR DE TRABAJO',
-    title: 'Compromiso con la Calidad',
+    meta: 'FORMA DE TRABAJAR',
+    title: 'Criterios que cuido en cada proyecto',
     items: [
       {
         icon: '🚀',
@@ -261,10 +261,10 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
   },
   footer: {
     copyrightTemplate:
-      'Desarrollo web a medida, rendimiento y SEO para empresas y profesionales | Proyectos en remoto y presenciales. Moisés Valero © {{year}} | Especialista en SvelteKit, WordPress y Sanity CMS.',
+      'Moisés Valero © {{year}} | Desarrollador web orientado a producto, rendimiento e integraciones | SvelteKit, WordPress, Sanity CMS y SEO técnico.',
     githubHref: 'https://github.com/moisesvalero',
     linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
-    maltHref: 'https://www.malt.es/profile/moisesvalerosanchez',
+    maltHref: '',
     emailHref: 'mailto:info@moisesvalero.es'
   },
   careerModal: {

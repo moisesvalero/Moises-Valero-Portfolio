@@ -8,7 +8,7 @@
 
   let { data }: { data: PageData } = $props();
 
-  const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
+  const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/vshield`;
   const ogImage = `${baseUrl}/og-image.png`;
   const ogTitleShort = 'V-Shield — Caso de Estudio';

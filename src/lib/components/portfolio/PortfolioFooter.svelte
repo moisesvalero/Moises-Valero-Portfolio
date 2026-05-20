@@ -18,7 +18,7 @@
       'Desarrollo web a medida, rendimiento y SEO para empresas y profesionales | Proyectos en remoto y presenciales. Moisés Valero © {{year}} | Especialista en SvelteKit, WordPress y Sanity CMS.',
     githubHref = 'https://github.com/moisesvalero',
     linkedinHref = 'https://www.linkedin.com/in/moisesvalero',
-    maltHref = 'https://www.malt.es/profile/moisesvalerosanchez',
+    maltHref = '',
     emailHref = 'mailto:info@moisesvalero.es'
   }: Props = $props();
 
@@ -62,11 +62,9 @@
       {$t('legalFooter.preferences')}
     </button>
     <span class="footer-dot" aria-hidden="true">·</span>
-    <a href="/diseno-web" class="footer-landing-link" data-sveltekit-reload="true">Diseño web</a>
+    <a href="/blog">Guías</a>
     <span class="footer-dot" aria-hidden="true">·</span>
-    <a href="/diseno-web-alcoy/articulos" class="footer-landing-link" data-sveltekit-reload="true">Artículos</a>
-    <span class="footer-dot" aria-hidden="true">·</span>
-    <a href="/diseno-web-alcoy" class="footer-portfolio-link" data-sveltekit-reload="true">Diseño web Alcoy</a>
+    <a href="/tools/analizador-web">Analizador web</a>
   </nav>
 
   <div class="footer-icons">
@@ -86,15 +84,17 @@
       </svg>
     </a>
 
-    <a
-      href={maltHref}
-      class="footer-malt"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Malt"
-    >
-      <span class="footer-malt-icon" aria-hidden="true"></span>
-    </a>
+    {#if maltHref}
+      <a
+        href={maltHref}
+        class="footer-malt"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Malt"
+      >
+        <span class="footer-malt-icon" aria-hidden="true"></span>
+      </a>
+    {/if}
 
     <a href={emailHref} aria-label="Email">
       <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -136,18 +136,6 @@
 
   .footer-legal a {
     color: #64748b;
-    text-decoration: none;
-  }
-
-  .footer-landing-link,
-  .footer-portfolio-link {
-    color: #64748b !important;
-    font-weight: 500;
-  }
-
-  .footer-landing-link:hover,
-  .footer-portfolio-link:hover {
-    color: #334155 !important;
     text-decoration: none;
   }
 

@@ -5,7 +5,7 @@ import { fetchLandingSupportArticles } from '$lib/server/fetch-landing-support-a
 import type { LandingDisenoWebAlcoy } from '$lib/types/landing-alcoy';
 import type { RequestHandler } from './$types';
 
-const DEFAULT_SITE_URL = 'http://localhost:5173';
+const DEFAULT_SITE_URL = 'https://moisesvalero.es';
 
 const normalizeBaseUrl = (url: string | undefined): string => {
   try {
@@ -130,7 +130,7 @@ export const GET: RequestHandler = async () => {
     for (const article of articles) {
       articleLines.push('');
       articleLines.push(`## ${article.title}`);
-      articleLines.push(`URL: ${baseUrl}/diseno-web-alcoy/${article.slug}`);
+      articleLines.push(`URL: ${baseUrl}/blog/${article.slug}`);
       if (article.publishedAt) articleLines.push(`Publicado: ${article.publishedAt}`);
       if (article.excerpt) articleLines.push('');
       if (article.excerpt) articleLines.push(stripHtml(article.excerpt));
@@ -143,7 +143,6 @@ export const GET: RequestHandler = async () => {
       '# Contacto',
       '',
       `- Formulario: ${baseUrl}/#contacto`,
-      `- WhatsApp: ${baseUrl}/api/contact/whatsapp`,
       '- Email: info@moisesvalero.es',
       ''
     ].join('\n')

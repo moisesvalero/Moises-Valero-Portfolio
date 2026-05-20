@@ -7,7 +7,7 @@
 
   let { data }: { data: PageData } = $props();
 
-  const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
+  const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
   const canonical = $derived(`${baseUrl}/proyectos/${data.studySeo.slug}`);
   const ogImageDefault = `${baseUrl}/og-image.png`;
   const ogDescription = $derived(data.studySeo.seoDescription ?? data.studySeo.heroDescription);

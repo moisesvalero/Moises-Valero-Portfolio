@@ -1,7 +1,6 @@
-import { fetchLandingSupportArticles } from '$lib/server/fetch-landing-support-articles';
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-  const articles = await fetchLandingSupportArticles();
-  return { articles, basePath: '/diseno-web-alcoy' };
+  redirect(308, '/blog');
 };

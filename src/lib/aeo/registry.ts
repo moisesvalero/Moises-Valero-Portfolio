@@ -14,7 +14,7 @@ const STATIC_BUILDERS: Record<string, MarkdownBuilder> = {
 	'/': (locale) => buildHomeMarkdown(locale),
 	'/diseno-web': (locale) => buildDisenoWebMarkdown(locale),
 	'/diseno-web-alcoy': (locale) => buildDisenoWebAlcoyMarkdown(locale),
-	'/diseno-web-alcoy/articulos': (locale) => buildArticulosMarkdown(locale),
+	'/blog': (locale) => buildArticulosMarkdown(locale),
 	'/proyectos/vshield': (locale) => buildProjectMarkdown('/proyectos/vshield', locale),
 	'/proyectos/ember-iron': (locale) => buildProjectMarkdown('/proyectos/ember-iron', locale),
 	'/proyectos/galeria-nova': (locale) => buildProjectMarkdown('/proyectos/galeria-nova', locale),
@@ -23,7 +23,7 @@ const STATIC_BUILDERS: Record<string, MarkdownBuilder> = {
 	'/cookies': (locale) => buildSitePageMarkdownByPath('/cookies', locale)
 };
 
-const ARTICLE_SLUG_RE = /^\/diseno-web-alcoy\/([^/]+)$/;
+const ARTICLE_SLUG_RE = /^\/blog\/([^/]+)$/;
 
 function articleSlugFromPath(path: string): string | null {
 	const match = ARTICLE_SLUG_RE.exec(path);

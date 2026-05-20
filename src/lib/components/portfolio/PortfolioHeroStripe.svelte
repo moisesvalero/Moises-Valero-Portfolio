@@ -18,12 +18,11 @@
     label = 'PORTFOLIO – MOISÉS VALERO · Alcoy / Alicante',
     title = 'Desarrollador Web',
     subtitle = 'SvelteKit | WordPress | Sistemas & SEO',
-    bio = 'Desarrollo soluciones robustas enfocadas en Web Performance. Me encargo de la infraestructura técnica y el soporte para que tú solo te preocupes de tu negocio. Uso IA para optimizar tiempos, ya sea colaborando con empresas de la zona (Alcoy/Alicante) o integrándome en plantilla.',
+    bio = 'Desarrollo sitios web y web apps rápidas, robustas y mantenibles, con foco en rendimiento, IA e integraciones reales. Busco incorporarme a un equipo donde aportar criterio técnico, aprendizaje rápido y valor desde el primer día.',
     ctaPrimaryLabel = '¿Hablamos?',
     careerCtaLabel = 'Ver Trayectoria'
   }: Props = $props();
 
-  const primaryOpensNewTab = $derived(/^https?:\/\//i.test(cvHref));
   const heroCapabilities = $derived([
     { label: 'SvelteKit', icon: 'simple-icons:svelte' },
     { label: 'WordPress', icon: 'simple-icons:wordpress' },
@@ -396,17 +395,17 @@
       </h2>
       <p class="texto-bio anim-fade-up">{bio}</p>
       <div class="botones-wrap anim-fade-up">
+        <button type="button" class="btn-apple-blue" onclick={() => careerModal?.open()}>
+          {careerCtaLabel}
+        </button>
         <a
           href={cvHref}
-          class="btn-apple-blue"
-          target={primaryOpensNewTab ? '_blank' : undefined}
-          rel={primaryOpensNewTab ? 'noopener noreferrer' : undefined}
+          class="btn-ghost-slim"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           {ctaPrimaryLabel}
         </a>
-        <button type="button" class="btn-ghost-slim" onclick={() => careerModal?.open()}>
-          {careerCtaLabel}
-        </button>
       </div>
     </div>
   </div>
@@ -701,8 +700,12 @@
   }
 
   .btn-apple-blue {
+    appearance: none;
     background: #0066e5;
+    border: 1px solid transparent;
     color: #ffffff !important;
+    cursor: pointer;
+    font-family: inherit;
     padding: 14px 28px;
     border-radius: 8px;
     text-decoration: none;

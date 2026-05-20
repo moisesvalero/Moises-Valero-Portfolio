@@ -1,11 +1,15 @@
 <script lang="ts">
   import { locale } from '$lib/i18n/index.js';
-  import CardFluidOverlay from '$lib/components/portfolio/CardFluidOverlay.svelte';
 
   type ServiceItem = {
     icon: string;
     title: string;
     description: string;
+  };
+
+  type RoleFact = {
+    label: string;
+    value: string;
   };
 
   interface Props {
@@ -14,59 +18,60 @@
     items?: ServiceItem[];
   }
 
-  const defaultItems: ServiceItem[] = [
-    {
-      icon: '🛒',
-      title: 'E-commerce',
-      description:
-        'Tiendas online con WordPress y WooCommerce diseñadas para convertir visitas en clientes. Priorizo la velocidad de carga, la seguridad en las transacciones y una gestión de inventario que te ahorre tiempo.'
-    },
-    {
-      icon: '🌐',
-      title: 'Desarrollo Web',
-      description:
-        'Creo sitios web optimizados con arquitecturas ligeras para un SEO imbatible. Combino el poder de SvelteKit para aplicaciones a medida con la flexibilidad de WordPress, utilizando IA para entregar resultados en tiempo récord.'
-    },
-    {
-      icon: '⚙️',
-      title: 'Soporte Técnico IT',
-      description:
-        'Me encargo de que tu infraestructura nunca falle: redes, hardware, hosting y configuración de correos. Aporto soluciones rápidas a incidencias y mantenimiento preventivo para que tu empresa no se detenga.'
-    }
-  ];
-
   let {
-    meta = 'MIS ESPECIALIDADES',
-    title = 'Soluciones Web de Alto Rendimiento',
-    items = defaultItems
+    meta = 'COMPETENCIAS',
+    items = []
   }: Props = $props();
 
-  const designLandingLabel = $derived(
-    $locale === 'en' ? 'View web design service' : 'Ver servicio de diseño web'
+  const heading = $derived(
+    $locale === 'en' ? 'What I can bring to a team.' : 'Lo que puedo aportar dentro de un equipo.'
   );
 
-  function isWebDesignService(titleText: string): boolean {
-    const normalized = titleText.trim().toLowerCase();
-    return normalized === 'desarrollo web' || normalized === 'web development';
-  }
+  const summary = $derived(
+    $locale === 'en'
+      ? 'I work from clear specs: I define what needs to be built, guide AI through the development process, review the result and connect the pieces without losing sight of performance, maintainability and user value.'
+      : 'Trabajo desde especificaciones claras: defino qué hay que construir, guío a la IA durante el desarrollo, reviso el resultado y conecto las piezas sin perder de vista rendimiento, mantenibilidad y valor para el usuario.'
+  );
+
+  const roleFacts = $derived<RoleFact[]>(
+    $locale === 'en'
+      ? [
+          { label: 'Target role', value: 'Frontend / Web Developer' },
+          { label: 'Stack + focus', value: 'SvelteKit · TypeScript · Performance · SEO' },
+          { label: 'Development practices', value: 'AI-Driven Dev · Spec-Driven Development' },
+          { label: 'Attitude', value: 'I learn what the team needs' }
+        ]
+      : [
+          { label: 'Rol objetivo', value: 'Frontend / Web Developer' },
+          { label: 'Stack + foco', value: 'SvelteKit · TypeScript · Performance · SEO' },
+          { label: 'Buenas prácticas', value: 'AI-Driven Dev · Spec-Driven Development' },
+          { label: 'Actitud', value: 'Aprendo lo que el equipo necesite' }
+        ]
+  );
+
+  const hasLegacyItems = $derived(items.length > 0);
 </script>
 
-<section class="servicios-grid-container" id="servicios" aria-labelledby="servicios-titulo">
-  <div class="servicios-header">
-    <p class="meta-servicios">{meta}</p>
-    <h2 id="servicios-titulo">{title}</h2>
+<section
+  class="servicios-grid-container"
+  class:has-legacy-items={hasLegacyItems}
+  id="servicios"
+  aria-labelledby="servicios-titulo"
+>
+  <div class="servicios-intro">
+    <div class="servicios-heading">
+      <p class="meta-servicios">{meta}</p>
+      <h2 id="servicios-titulo">{heading}</h2>
+    </div>
+
+    <p class="servicios-summary">{summary}</p>
   </div>
 
-  <div class="servicios-flex">
-    {#each items as item (item.title)}
-      <article class="card-servicio">
-        <CardFluidOverlay />
-        <div class="icono-wrap" aria-hidden="true">{item.icon}</div>
-        <h3>{item.title}</h3>
-        <p>{item.description}</p>
-        {#if isWebDesignService(item.title)}
-          <a href="/diseno-web" class="service-cta-link" data-sveltekit-reload="true">{designLandingLabel}</a>
-        {/if}
+  <div class="role-strip" aria-label={$locale === 'en' ? 'Professional fit summary' : 'Resumen de encaje profesional'}>
+    {#each roleFacts as fact, index (fact.label)}
+      <article class="role-card" class:is-primary={index === 0}>
+        <span>{fact.label}</span>
+        <strong>{fact.value}</strong>
       </article>
     {/each}
   </div>
@@ -74,114 +79,254 @@
 
 <style>
   .servicios-grid-container {
-    max-width: 1200px;
+    max-width: 1180px;
     margin: 80px auto;
-    padding: 0 20px;
+    padding: 34px 20px 0;
+    border-top: 1px solid rgba(21, 23, 26, 0.12);
     font-family: inherit;
     scroll-margin-top: 96px;
   }
 
-  .servicios-header {
-    text-align: center;
-    margin-bottom: 60px;
+  .servicios-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.48fr);
+    gap: clamp(28px, 5vw, 72px);
+    align-items: end;
+    margin-bottom: 34px;
   }
 
   .meta-servicios {
-    color: #86868b;
-    font-size: 13.5px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    margin-bottom: 10px;
+    color: #0071e3;
+    font-size: 12px;
+    font-weight: 850;
+    letter-spacing: 0.16em;
+    margin: 0 0 12px;
+    text-transform: uppercase;
   }
 
-  .servicios-header h2 {
-    color: #1d1d1f !important;
-    font-size: 42px !important;
-    font-weight: 800 !important;
-    letter-spacing: -1px;
+  .servicios-heading h2 {
+    max-width: 780px;
+    color: #15171a !important;
+    font-size: clamp(42px, 6vw, 78px) !important;
+    font-weight: 850 !important;
+    line-height: 0.94 !important;
+    letter-spacing: -0.055em;
+    margin: 0 !important;
+    text-wrap: balance;
   }
 
-  .servicios-flex {
-    display: flex;
-    gap: 30px;
-    justify-content: center;
+  .servicios-summary {
+    color: #1f2937;
+    font-size: 18px;
+    line-height: 1.55;
+    margin: 0 0 5px;
+    text-wrap: pretty;
   }
 
-  .card-servicio {
-    flex: 1;
-    min-width: 0;
-    background: #ffffff;
-    padding: 40px;
-    border: 1px solid #f1f5f9;
-    border-radius: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: left;
-    position: relative;
+  .role-strip {
+    display: grid;
+    grid-template-columns: minmax(0, 1.32fr) repeat(3, minmax(0, 0.58fr));
+    border: 1px solid rgba(21, 23, 26, 0.12);
+    background:
+      linear-gradient(90deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.72)),
+      linear-gradient(135deg, rgba(0, 113, 227, 0.05), rgba(124, 92, 191, 0.035));
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.055);
     overflow: hidden;
     isolation: isolate;
   }
 
-  .card-servicio:hover {
-    border-color: #0071e3;
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  .role-card {
+    position: relative;
+    min-height: 110px;
+    padding: 24px 22px;
+    overflow: hidden;
+    border-left: 1px solid rgba(21, 23, 26, 0.1);
+    background: rgba(255, 255, 255, 0.62);
+    transition:
+      background-color 680ms cubic-bezier(0.16, 1, 0.3, 1),
+      color 680ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 680ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 680ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .icono-wrap {
-    font-size: 40px;
-    margin-bottom: 25px;
-    transition: transform 0.3s ease;
+  .role-card:first-child {
+    border-left: 0;
   }
 
-  .card-servicio:hover .icono-wrap {
-    transform: scale(1.1) rotate(-5deg);
+  .role-card::before {
+    content: "";
+    position: absolute;
+    inset: auto -20% 0 -20%;
+    height: 3px;
+    background: linear-gradient(90deg, #0071e3, #7c5cbf 55%, #f59e0b);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .card-servicio h3 {
-    color: #1d1d1f !important;
-    font-size: 24px !important;
-    font-weight: 700 !important;
-    margin-bottom: 15px !important;
+  .role-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      115deg,
+      transparent 12%,
+      rgba(255, 255, 255, 0.58) 42%,
+      transparent 66%
+    );
+    opacity: 0;
+    transform: translateX(-120%);
+    transition:
+      opacity 360ms ease,
+      transform 980ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .card-servicio p {
-    color: #424245;
-    font-size: 16.5px;
-    line-height: 1.58;
-    margin: 0;
+  .role-card span,
+  .role-card strong {
+    position: relative;
+    z-index: 1;
   }
 
-  .service-cta-link {
-    display: inline-flex;
-    margin-top: 16px;
-    color: #0071e3;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: -0.01em;
+  .role-card span {
+    display: block;
+    margin-bottom: 10px;
+    color: #9aa4b2;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    transition: color 680ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .service-cta-link:hover {
-    color: #005bb5;
-    text-decoration: underline;
-    text-underline-offset: 3px;
+  .role-card strong {
+    display: block;
+    color: #111317;
+    font-size: clamp(17px, 1.55vw, 24px);
+    font-weight: 850;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    transition: color 680ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  @media (max-width: 992px) {
+  .role-card.is-primary {
+    background: #111317;
+    color: #ffffff;
+  }
+
+  .role-card.is-primary span {
+    color: #aeb8c5;
+  }
+
+  .role-card.is-primary strong {
+    color: #ffffff;
+  }
+
+  .role-card:hover,
+  .role-card:focus-within {
+    z-index: 2;
+    background: #111317;
+    transform: translateY(-3px);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.13);
+  }
+
+  .role-card:hover::before,
+  .role-card:focus-within::before {
+    transform: scaleX(1);
+  }
+
+  .role-card:hover::after,
+  .role-card:focus-within::after {
+    opacity: 1;
+    transform: translateX(120%);
+  }
+
+  .role-card:hover span,
+  .role-card:focus-within span {
+    color: #aeb8c5;
+  }
+
+  .role-card:hover strong,
+  .role-card:focus-within strong {
+    color: #ffffff;
+  }
+
+  @media (max-width: 1100px) {
+    .role-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .role-card:nth-child(3) {
+      border-left: 0;
+      border-top: 1px solid rgba(21, 23, 26, 0.1);
+    }
+
+    .role-card:nth-child(4) {
+      border-top: 1px solid rgba(21, 23, 26, 0.1);
+    }
+  }
+
+  @media (max-width: 860px) {
     .servicios-grid-container {
+      margin: 58px auto;
       scroll-margin-top: 88px;
     }
 
-    .servicios-flex {
-      flex-direction: column;
+    .servicios-intro {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin-bottom: 26px;
     }
 
-    .card-servicio {
-      padding: 30px;
+    .servicios-heading h2 {
+      font-size: clamp(40px, 11vw, 64px) !important;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .servicios-grid-container {
+      padding: 26px 16px 0;
     }
 
-    .servicios-header h2 {
-      font-size: 32px !important;
+    .servicios-summary {
+      font-size: 16.5px;
+    }
+
+    .role-strip {
+      grid-template-columns: 1fr;
+    }
+
+    .role-card,
+    .role-card:nth-child(3),
+    .role-card:nth-child(4) {
+      min-height: 96px;
+      border-left: 0;
+      border-top: 1px solid rgba(21, 23, 26, 0.1);
+      padding: 20px;
+    }
+
+    .role-card:first-child {
+      border-top: 0;
+    }
+
+    .role-card:hover,
+    .role-card:focus-within {
+      transform: translateY(-3px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .role-card,
+    .role-card::before,
+    .role-card::after,
+    .role-card span,
+    .role-card strong {
+      transition: none;
+    }
+
+    .role-card:hover,
+    .role-card:focus-within {
+      transform: none;
     }
   }
 </style>

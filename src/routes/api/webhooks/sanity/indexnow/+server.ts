@@ -91,10 +91,10 @@ export const POST: RequestHandler = async ({ request }) => {
   }
 
   const baseUrl = resolveBaseUrl();
-  const articleCanonical = `${baseUrl}/diseno-web-alcoy/${slug}`;
+  const articleCanonical = `${baseUrl}/blog/${slug}`;
   const urls = [
     articleCanonical,
-    `${baseUrl}/diseno-web-alcoy/articulos`,
+    `${baseUrl}/blog`,
     `${baseUrl}/diseno-web`,
     `${baseUrl}/diseno-web-alcoy`
   ];

@@ -42,6 +42,7 @@
   const pdfIframeSrc = '/api/cv';
   type StackIcon = {
     src?: string;
+    devicon?: string;
     iconify?: string;
     alt?: string;
     title: string;
@@ -56,28 +57,28 @@
     {
       title: 'Lenguajes y Core',
       icons: [
-        { iconify: 'logos:typescript-icon', alt: 'TypeScript', title: 'TypeScript' },
-        { src: '/imagenes/javascript.svg', alt: 'JavaScript', title: 'JavaScript (ES6+)' },
-        { src: '/imagenes/html5.svg', alt: 'HTML5', title: 'HTML5' },
-        { src: '/imagenes/css.svg', alt: 'CSS3', title: 'CSS3' }
+        { devicon: 'typescript/typescript-original.svg', alt: 'TypeScript', title: 'TypeScript' },
+        { devicon: 'javascript/javascript-original.svg', alt: 'JavaScript', title: 'JavaScript (ES6+)' },
+        { devicon: 'html5/html5-original.svg', alt: 'HTML5', title: 'HTML5' },
+        { devicon: 'css3/css3-original.svg', alt: 'CSS3', title: 'CSS3' }
       ]
     },
     {
       title: 'Frameworks y Librerías',
       icons: [
-        { src: '/imagenes/svelte.svg', alt: 'SvelteKit', title: 'SvelteKit / Svelte 5' },
-        { src: '/imagenes/tailwindcss.svg', alt: 'Tailwind CSS', title: 'Tailwind CSS' },
-        { iconify: 'logos:vitejs', alt: 'Vite', title: 'Vite' },
+        { devicon: 'svelte/svelte-original.svg', alt: 'SvelteKit', title: 'SvelteKit / Svelte 5' },
+        { devicon: 'tailwindcss/tailwindcss-original.svg', alt: 'Tailwind CSS', title: 'Tailwind CSS' },
+        { devicon: 'vitejs/vitejs-original.svg', alt: 'Vite', title: 'Vite' },
         { iconify: 'logos:pwa', alt: 'PWA', title: 'Progressive Web Apps' }
       ]
     },
     {
       title: 'Backend e Infraestructura',
       icons: [
-        { iconify: 'logos:supabase-icon', alt: 'Supabase', title: 'Supabase (PostgreSQL)' },
-        { iconify: 'logos:vercel-icon', alt: 'Vercel', title: 'Vercel' },
-        { src: '/imagenes/cloudflare.svg', alt: 'Cloudflare', title: 'Cloudflare' },
-        { src: '/imagenes/github.svg', alt: 'GitHub', title: 'GitHub' }
+        { devicon: 'supabase/supabase-original.svg', alt: 'Supabase', title: 'Supabase (PostgreSQL)' },
+        { devicon: 'vercel/vercel-original.svg', alt: 'Vercel', title: 'Vercel' },
+        { devicon: 'cloudflare/cloudflare-original.svg', alt: 'Cloudflare', title: 'Cloudflare' },
+        { devicon: 'github/github-original.svg', alt: 'GitHub', title: 'GitHub' }
       ]
     },
     {
@@ -92,10 +93,10 @@
     {
       title: 'CMS y Low-Code',
       icons: [
-        { src: '/imagenes/wordpress.svg', alt: 'WordPress', title: 'WordPress' },
+        { devicon: 'wordpress/wordpress-plain.svg', alt: 'WordPress', title: 'WordPress' },
         { src: '/imagenes/kadence.svg', alt: 'Kadence', title: 'Kadence' },
         { src: '/imagenes/elementor.svg', alt: 'Elementor', title: 'Elementor' },
-        { iconify: 'logos:sanity', alt: 'Sanity', title: 'Sanity.io' }
+        { devicon: 'sanity/sanity-original.svg', alt: 'Sanity', title: 'Sanity.io' }
       ]
     },
     {
@@ -111,6 +112,10 @@
 
   function iconifySvgUrl(name: string): string {
     return `https://api.iconify.design/${encodeURIComponent(name)}.svg`;
+  }
+
+  function deviconSvgUrl(path: string): string {
+    return `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${path}`;
   }
 
   let showPdf = $state(false);
@@ -198,7 +203,7 @@
                     <li class="career-stack-icon-item">
                       <span class="career-stack-icon-mark">
                         <img
-                          src={icon.iconify ? iconifySvgUrl(icon.iconify) : icon.src}
+                          src={icon.devicon ? deviconSvgUrl(icon.devicon) : icon.iconify ? iconifySvgUrl(icon.iconify) : icon.src}
                           alt={icon.title}
                           title={icon.title}
                           width="16"

@@ -18,7 +18,7 @@
     ...landing.hero.marquee.items
   ]);
 
-  const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
+  const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
   const canonicalUrl = $derived(
     landing.seo.canonicalPath.startsWith('http')
       ? landing.seo.canonicalPath
@@ -39,7 +39,8 @@
       return normalized !== '/' ? normalized.replace(/\/$/, '') : normalized;
     })()
   );
-  const articlesCanonicalBasePath = '/diseno-web-alcoy';
+  const articlesIndexPath = '/blog';
+  const articlesCanonicalBasePath = '/blog';
   const footerIntro = $derived(
     landingBasePath === '/diseno-web'
       ? 'Diseño y desarrollo web para negocios en toda España.'
@@ -51,7 +52,16 @@
   const heroSecondaryCtaLabel = $derived(
     landing.hero.cta.secondaryLabel?.trim() || analyzerModal.triggerLabel
   );
-  const supportArticles = $derived(data.supportArticles ?? []);
+  const supportArticles = $derived([] as Array<{
+    slug: string;
+    title: string;
+    coverImageSrc: string;
+    coverImageAlt: string;
+    categoryLabel: string;
+    publishedAt: string;
+    readingMinutes: number;
+    excerpt: string;
+  }>);
   const analyzerLoadingSteps = $derived([
     analyzerModal.loadingSteps[0] || 'Midiendo tiempos de carga y respuesta',
     analyzerModal.loadingSteps[1] || 'Revisando estabilidad visual y recursos pesados',
@@ -810,26 +820,6 @@
     })
   );
 
-  /** WebSite + SearchAction: pista para buscadores generativos sobre la búsqueda interna del blog. */
-  const websiteSearchJsonLd = $derived(
-    stringifyJsonLdForHtml({
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      '@id': `${baseUrl}/#website`,
-      url: `${baseUrl}/`,
-      name: 'Moisés Valero',
-      publisher: { '@id': `${baseUrl}/#organization` },
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: {
-          '@type': 'EntryPoint',
-          urlTemplate: `${baseUrl}/diseno-web-alcoy/articulos?q={search_term_string}`
-        },
-        'query-input': 'required name=search_term_string'
-      }
-    })
-  );
-
   /** SoftwareApplication: presenta el analizador PageSpeed embebido como herramienta gratuita. */
   const analyzerSoftwareJsonLd = $derived(
     stringifyJsonLdForHtml({
@@ -871,7 +861,6 @@
   <JsonLdScript json={webPageJsonLd} />
   <JsonLdScript json={faqJsonLd} />
   <JsonLdScript json={breadcrumbJsonLd} />
-  <JsonLdScript json={websiteSearchJsonLd} />
   <JsonLdScript json={analyzerSoftwareJsonLd} />
 </svelte:head>
 
@@ -910,11 +899,6 @@
             isHeaderScrolled ? 'is-scrolled text-slate-700 hover:text-[#006c49]' : 'is-top text-white/90 hover:text-white'
           }`}
           href="#faq">FAQ</a>
-        <a
-          class={`alcoy-nav-link header-link-premium font-medium transition-colors duration-200 no-underline ${
-            isHeaderScrolled ? 'is-scrolled text-slate-700 hover:text-[#006c49]' : 'is-top text-white/90 hover:text-white'
-          }`}
-          href={`${articlesCanonicalBasePath}/articulos`}>Artículos</a>
         <a
           class={`alcoy-nav-link header-link-premium font-medium transition-colors duration-200 no-underline ${
             isHeaderScrolled ? 'is-scrolled text-slate-700 hover:text-[#006c49]' : 'is-top text-white/90 hover:text-white'
@@ -980,12 +964,6 @@
             }`}
             href="#faq"
             onclick={closeMobileNav}>FAQ</a>
-          <a
-            class={`font-medium no-underline py-1 ${
-              isHeaderScrolled ? 'text-slate-700' : 'text-white/90 hover:text-white'
-            }`}
-            href={`${articlesCanonicalBasePath}/articulos`}
-            onclick={closeMobileNav}>Artículos</a>
           <a
             class={`font-medium no-underline py-1 ${
               isHeaderScrolled ? 'text-slate-700' : 'text-white/90 hover:text-white'
@@ -1364,7 +1342,7 @@
               </p>
             </div>
             <a
-              href={`${articlesCanonicalBasePath}/articulos`}
+              href={articlesIndexPath}
               class="cta-hover cta-hover-ghost inline-flex items-center justify-center rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-primary no-underline hover:border-secondary transition-colors"
             >
               Ver todos los articulos
@@ -1440,8 +1418,6 @@
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#services">Servicios</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#benefits">Beneficios</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#faq">FAQ</a></li>
-            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#articulos">Destacados</a></li>
-            <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href={`${articlesCanonicalBasePath}/articulos`}>Ver articulos</a></li>
             <li><a class="text-slate-600 hover:text-[#002045] transition-colors no-underline" href="#contact">Contacto</a></li>
           </ul>
         </div>

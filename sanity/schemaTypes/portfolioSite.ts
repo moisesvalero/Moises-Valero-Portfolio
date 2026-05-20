@@ -141,7 +141,9 @@ export const portfolioSite = defineType({
         { name: 'label', type: 'string', title: 'Etiqueta superior' },
         { name: 'title', type: 'string', title: 'Título H1' },
         { name: 'subtitle', type: 'string', title: 'Subtítulo' },
-        { name: 'bio', type: 'text', title: 'Bio' }
+        { name: 'bio', type: 'text', title: 'Bio' },
+        { name: 'ctaPrimaryLabel', type: 'string', title: 'Texto botón principal' },
+        { name: 'careerCtaLabel', type: 'string', title: 'Texto botón trayectoria' }
       ]
     }),
     defineField({

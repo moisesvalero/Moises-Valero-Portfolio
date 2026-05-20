@@ -26,10 +26,10 @@ export function htmlPathFromMdUrl(pathname: string): string | null {
  */
 export function canonicalHtmlPath(pathname: string): string {
 	const norm = normalizePathname(pathname);
-	if (norm === '/diseno-web/articulos') return '/diseno-web-alcoy/articulos';
-	const dup = /^\/diseno-web\/([^/]+)$/.exec(norm);
+	if (norm === '/diseno-web/articulos' || norm === '/diseno-web-alcoy/articulos') return '/blog';
+	const dup = /^\/diseno-web(?:-alcoy)?\/([^/]+)$/.exec(norm);
 	if (dup && dup[1] !== 'articulos') {
-		return `/diseno-web-alcoy/${dup[1]}`;
+		return `/blog/${dup[1]}`;
 	}
 	return norm;
 }

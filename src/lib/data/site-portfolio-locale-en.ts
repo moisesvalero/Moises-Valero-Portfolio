@@ -1,19 +1,23 @@
 import type { SitePortfolioContent } from '$lib/types/site-portfolio';
 
 const aboutHtmlEn = `<p>
-  I'm <strong>Moisés Valero</strong>. After a solid professional track record in demanding sectors, I returned
-  to technology with a clear goal: build web solutions that not only work, but perform. I hold a
-  <strong>Level 3 Vocational Certificate in Web Development</strong> and up-to-date training on the modern stack.
+  I'm <strong>Moisés Valero</strong>. After years in the industrial sector, I returned to technology
+  with a clear goal: to build efficient, practical and user-oriented websites, applications and
+  digital solutions. I hold a <strong>Level 3 Vocational Certificate in Web Development</strong>
+  and work from hands-on practice.
 </p>
 <p>
-  I focus on <strong>WordPress</strong>, <strong>SvelteKit</strong>, and <strong>IT support</strong>,
-  prioritising performance, security, and efficient maintenance. I use <strong>generative AI</strong> as a
-  strategic tool to speed up delivery without sacrificing quality.
+  I specialise in <strong>AI-Driven Development</strong> and
+  <strong>Spec-Driven Development (SDD)</strong> methodologies to design software architectures and
+  connect solutions with autonomy. My main stack focuses on <strong>SvelteKit</strong>,
+  <strong>Supabase</strong>, <strong>Tailwind CSS</strong> and AI APIs
+  (<strong>Gemini</strong>, <strong>OpenAI</strong>, <strong>Anthropic</strong>, <strong>Fal.ai</strong>),
+  plus WordPress management and maintenance.
 </p>
 <p>
-  I want to bring my experience and problem-solving skills to a company where I can grow, or collaborate on
-  freelance projects that need reliable technical support in <strong>Alcoy</strong> and <strong>Alicante</strong>.
-  If you value commitment, maturity, and strong technical skills, let's talk.
+  I'm based in <strong>Alcoy (Alicante)</strong> and looking to join development teams
+  (remote, hybrid or on-site). If you value maturity, problem-solving ability and command of the
+  tools shaping the future, let's talk.
 </p>`;
 
 /**
@@ -28,7 +32,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
       { label: 'Home', href: '/#top' },
       { label: 'Services', href: '/#servicios' },
       { label: 'Projects', href: '/#proyectos' },
-      { label: 'Articles', href: '/diseno-web-alcoy/articulos' },
+      { label: 'Articles', href: '/blog' },
       { label: 'Web Design', href: '/diseno-web' },
       { label: 'Career', href: '#', openCareerModal: true }
     ],
@@ -40,7 +44,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     label: 'PORTFOLIO — MOISÉS VALERO · Alcoy / Alicante',
     title: 'Web Developer',
     subtitle: 'SvelteKit | WordPress | IT Support',
-    bio: 'I build robust solutions focused on web performance. I handle the technical stack and support so you can focus on your business. I use AI to optimise delivery time, whether working with local companies (Alcoy/Alicante) or as part of an in-house team.',
+    bio: 'I develop fast, robust and maintainable websites and web apps, with a focus on performance, AI and real integrations. I am looking to join a team where I can bring technical judgement, fast learning and value from day one.',
     ctaPrimaryLabel: "Let's talk",
     careerCtaLabel: 'View career'
   },
@@ -52,23 +56,23 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     aboutHtml: aboutHtmlEn
   },
   services: {
-    meta: 'MY SPECIALTIES',
-    title: 'High-Performance Web Solutions',
+    meta: 'SKILLS',
+    title: 'What I can bring to a team.',
     items: [
       {
-        icon: '🛒',
+        icon: 'web_asset',
         title: 'E-commerce',
         description:
           'Online stores with WordPress and WooCommerce built to turn visits into customers. I focus on load speed, transaction security, and inventory workflows that save you time.'
       },
       {
-        icon: '🌐',
+        icon: 'article',
         title: 'Web Development',
         description:
           'I build optimised sites with lean architecture for strong SEO. I pair SvelteKit for custom apps with WordPress where it fits, using AI to ship faster without cutting corners.'
       },
       {
-        icon: '⚙️',
+        icon: 'desktop_windows',
         title: 'IT Support',
         description:
           'I keep your stack running: networks, hardware, hosting, and email setup. Fast incident response and preventive maintenance so your business does not stop.'
@@ -82,28 +86,28 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
       {
         title: 'Languages & Core',
         icons: [
-          { iconify: 'logos:typescript-icon', alt: 'TypeScript', title: 'TypeScript' },
-          { src: '/imagenes/javascript.svg', alt: 'JavaScript', title: 'JavaScript (ES6+)' },
-          { src: '/imagenes/html5.svg', alt: 'HTML5', title: 'HTML5' },
-          { src: '/imagenes/css.svg', alt: 'CSS3', title: 'CSS3' }
+          { devicon: 'typescript/typescript-original.svg', alt: 'TypeScript', title: 'TypeScript' },
+          { devicon: 'javascript/javascript-original.svg', alt: 'JavaScript', title: 'JavaScript (ES6+)' },
+          { devicon: 'html5/html5-original.svg', alt: 'HTML5', title: 'HTML5' },
+          { devicon: 'css3/css3-original.svg', alt: 'CSS3', title: 'CSS3' }
         ]
       },
       {
         title: 'Frameworks & Libraries',
         icons: [
-          { src: '/imagenes/svelte.svg', alt: 'SvelteKit', title: 'SvelteKit / Svelte 5' },
-          { src: '/imagenes/tailwindcss.svg', alt: 'Tailwind CSS', title: 'Tailwind CSS' },
-          { iconify: 'logos:vitejs', alt: 'Vite', title: 'Vite' },
+          { devicon: 'svelte/svelte-original.svg', alt: 'SvelteKit', title: 'SvelteKit / Svelte 5' },
+          { devicon: 'tailwindcss/tailwindcss-original.svg', alt: 'Tailwind CSS', title: 'Tailwind CSS' },
+          { devicon: 'vitejs/vitejs-original.svg', alt: 'Vite', title: 'Vite' },
           { iconify: 'logos:pwa', alt: 'PWA', title: 'Progressive Web Apps' }
         ]
       },
       {
         title: 'Backend & Infrastructure',
         icons: [
-          { iconify: 'logos:supabase-icon', alt: 'Supabase', title: 'Supabase (PostgreSQL)' },
-          { iconify: 'logos:vercel-icon', alt: 'Vercel', title: 'Vercel' },
-          { src: '/imagenes/cloudflare.svg', alt: 'Cloudflare', title: 'Cloudflare' },
-          { src: '/imagenes/github.svg', alt: 'GitHub', title: 'GitHub' }
+          { devicon: 'supabase/supabase-original.svg', alt: 'Supabase', title: 'Supabase (PostgreSQL)' },
+          { devicon: 'vercel/vercel-original.svg', alt: 'Vercel', title: 'Vercel' },
+          { devicon: 'cloudflare/cloudflare-original.svg', alt: 'Cloudflare', title: 'Cloudflare' },
+          { devicon: 'github/github-original.svg', alt: 'GitHub', title: 'GitHub' }
         ]
       },
       {
@@ -118,10 +122,10 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
       {
         title: 'CMS & Low-Code',
         icons: [
-          { src: '/imagenes/wordpress.svg', alt: 'WordPress', title: 'WordPress' },
+          { devicon: 'wordpress/wordpress-plain.svg', alt: 'WordPress', title: 'WordPress' },
           { src: '/imagenes/kadence.svg', alt: 'Kadence', title: 'Kadence' },
           { src: '/imagenes/elementor.svg', alt: 'Elementor', title: 'Elementor' },
-          { iconify: 'logos:sanity', alt: 'Sanity', title: 'Sanity.io' }
+          { devicon: 'sanity/sanity-original.svg', alt: 'Sanity', title: 'Sanity.io' }
         ]
       },
       {

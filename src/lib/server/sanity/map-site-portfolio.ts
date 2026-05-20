@@ -221,9 +221,11 @@ function mapStackIcon(
   const fromImg = imageUrl(ctx.projectId, ctx.dataset, o.iconImage, 80);
   const srcFallback = fallback.src ?? '';
   const src = fromImg || asString(o.src, srcFallback);
+  const devicon = asStringOpt(o.devicon) ?? fallback.devicon;
   const iconify = asStringOpt(o.iconify) ?? fallback.iconify;
   return {
     src: src || undefined,
+    devicon,
     iconify,
     alt: asString(o.alt, fallback.alt),
     title: asStringOpt(o.title) ?? fallback.title

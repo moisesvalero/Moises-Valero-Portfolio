@@ -36,10 +36,10 @@ export type SitePage = {
 export const sitePages: SitePage[] = [
   {
     path: '/',
-    titleEs: 'Moisés Valero — Desarrollador Web freelance',
-    titleEn: 'Moisés Valero — Freelance Web Developer',
+    titleEs: 'Moisés Valero — Desarrollador Web',
+    titleEn: 'Moisés Valero — Web Developer',
     descEs:
-      'Portfolio de Moisés Valero. Desarrollo web con SvelteKit y WordPress, SEO técnico, rendimiento y soporte IT.',
+      'Portfolio profesional de Moisés Valero. Desarrollo web con SvelteKit y WordPress, SEO técnico, rendimiento e integraciones.',
     descEn:
       'Moisés Valero portfolio. Web development with SvelteKit and WordPress, technical SEO, performance and IT support.',
     changefreq: 'weekly',
@@ -48,12 +48,32 @@ export const sitePages: SitePage[] = [
     locales: ['es', 'en']
   },
   {
+    path: '/blog',
+    titleEs: 'Blog técnico de desarrollo web',
+    descEs:
+      'Artículos de Moisés Valero sobre desarrollo web, rendimiento, seguridad, SEO técnico y arquitectura de contenido.',
+    changefreq: 'weekly',
+    priority: 0.82,
+    group: 'support',
+    locales: ['es']
+  },
+  {
+    path: '/tools/analizador-web',
+    titleEs: 'Analizador web técnico',
+    descEs:
+      'Herramienta propia para auditar rendimiento web con PageSpeed, métricas Core Web Vitals y señales técnicas.',
+    changefreq: 'monthly',
+    priority: 0.78,
+    group: 'portfolio',
+    locales: ['es']
+  },
+  {
     path: '/diseno-web',
     titleEs: 'Diseño web profesional para captar clientes',
     descEs:
       'Servicio de diseño web orientado a conversión, velocidad y SEO. Landings y webs corporativas para crecer a nivel nacional.',
     changefreq: 'weekly',
-    priority: 0.95,
+    priority: 0.45,
     group: 'landing',
     locales: ['es']
   },
@@ -63,7 +83,7 @@ export const sitePages: SitePage[] = [
     descEs:
       'Diseño web en Alcoy y Alicante orientado a conversión y SEO local. Webs rápidas, mantenibles y con soporte real.',
     changefreq: 'weekly',
-    priority: 0.95,
+    priority: 0.45,
     group: 'landing',
     locales: ['es']
   },
@@ -73,9 +93,10 @@ export const sitePages: SitePage[] = [
     descEs:
       'Guías prácticas para mejorar velocidad, seguridad y posicionamiento local de webs en Alcoy.',
     changefreq: 'weekly',
-    priority: 0.75,
+    priority: 0.2,
     group: 'support',
-    locales: ['es']
+    locales: ['es'],
+    indexable: false
   },
   {
     path: '/proyectos/vshield',

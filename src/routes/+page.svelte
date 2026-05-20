@@ -5,7 +5,6 @@
   import PortfolioAbout from '$lib/components/portfolio/PortfolioAbout.svelte';
   import PortfolioServices from '$lib/components/portfolio/PortfolioServices.svelte';
   import PortfolioTechStack from '$lib/components/portfolio/PortfolioTechStack.svelte';
-  import PortfolioQuality from '$lib/components/portfolio/PortfolioQuality.svelte';
   import PortfolioProjects from '$lib/components/portfolio/PortfolioProjects.svelte';
   import PortfolioContactCta from '$lib/components/portfolio/PortfolioContactCta.svelte';
   import JsonLdScript from '$lib/components/JsonLdScript.svelte';
@@ -14,7 +13,7 @@
 
   let { data }: { data: PageData } = $props();
 
-  const baseUrl = new URL(env.PUBLIC_SITE_URL || 'http://localhost:5173').toString().replace(/\/$/, '');
+  const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
   const site = $derived(data.site);
   const absoluteOgImage = $derived(
     site.seo.ogImage.startsWith('http') ? site.seo.ogImage : `${baseUrl}${site.seo.ogImage}`
@@ -214,14 +213,11 @@
 <div class="reveal-block" use:revealOnScroll>
   <PortfolioServices {...site.services} />
 </div>
-<div class="reveal-block" use:revealOnScroll>
-  <PortfolioTechStack {...site.techStack} />
-</div>
-<div class="reveal-block" use:revealOnScroll>
-  <PortfolioQuality {...site.quality} />
-</div>
 <div class="reveal-block" use:revealOnScrollProjects>
   <PortfolioProjects {...site.projects} />
+</div>
+<div class="reveal-block" use:revealOnScroll>
+  <PortfolioTechStack {...site.techStack} />
 </div>
 <div class="reveal-block" use:revealOnScroll>
   <PortfolioContactCta {...site.contact} />
@@ -267,14 +263,14 @@
     animation-timeline: scroll(root block);
   }
 
-  .reveal-block.is-visible :global(.servicios-header),
+  .reveal-block.is-visible :global(.servicios-intro),
   .reveal-block.is-visible :global(.stack-header),
   .reveal-block.is-visible :global(.garantias-header),
   .reveal-block.is-visible :global(.proyectos-header) {
     animation: sectionTitleIn 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  .reveal-block.is-visible :global(.servicios-flex .card-servicio),
+  .reveal-block.is-visible :global(.role-strip .role-card),
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
   .reveal-block.is-visible :global(.project-card),
   .reveal-block.is-visible :global(.garantias-grid .garantia-item),
@@ -282,7 +278,7 @@
     animation: cardIn 780ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(2)),
+  .reveal-block.is-visible :global(.role-strip .role-card:nth-child(2)),
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(2)),
   .reveal-block.is-visible :global(.project-card:nth-child(2)),
   .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(2)),
@@ -290,7 +286,7 @@
     animation-delay: 120ms;
   }
 
-  .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(3)),
+  .reveal-block.is-visible :global(.role-strip .role-card:nth-child(3)),
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(3)),
   .reveal-block.is-visible :global(.project-card:nth-child(3)),
   .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(3)),
@@ -298,6 +294,7 @@
     animation-delay: 240ms;
   }
 
+  .reveal-block.is-visible :global(.role-strip .role-card:nth-child(4)),
   .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(4)),
   .reveal-block.is-visible :global(.project-card:nth-child(4)),
   .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(4)),
@@ -316,7 +313,7 @@
     animation-delay: 480ms;
   }
 
-  :global(.card-servicio),
+  :global(.role-card),
   :global(.proyecto-card),
   :global(.project-card),
   :global(.garantia-item),
@@ -331,7 +328,6 @@
       background-color 420ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  :global(.card-servicio::after),
   :global(.proyecto-card::after),
   :global(.project-card::after),
   :global(.garantia-item::after),
@@ -351,7 +347,7 @@
       transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  :global(.card-servicio:hover),
+  :global(.role-card:hover),
   :global(.proyecto-card:hover),
   :global(.project-card:hover),
   :global(.garantia-item:hover),
@@ -361,7 +357,6 @@
       0 0 0 1px rgba(0, 113, 227, 0.14) inset;
   }
 
-  :global(.card-servicio:hover::after),
   :global(.proyecto-card:hover::after),
   :global(.project-card:hover::after),
   :global(.garantia-item:hover::after),
@@ -443,7 +438,7 @@
         clip-path 400ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .reveal-block.is-visible :global(.servicios-flex .card-servicio),
+    .reveal-block.is-visible :global(.role-strip .role-card),
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
     .reveal-block.is-visible :global(.project-card),
     .reveal-block.is-visible :global(.garantias-grid .garantia-item),
@@ -451,7 +446,7 @@
       animation: cardInMobile 420ms cubic-bezier(0.16, 0.84, 0.32, 1) both;
     }
 
-    .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(2)),
+    .reveal-block.is-visible :global(.role-strip .role-card:nth-child(2)),
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(2)),
     .reveal-block.is-visible :global(.project-card:nth-child(2)),
     .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(2)),
@@ -459,7 +454,7 @@
       animation-delay: 45ms;
     }
 
-    .reveal-block.is-visible :global(.servicios-flex .card-servicio:nth-child(3)),
+    .reveal-block.is-visible :global(.role-strip .role-card:nth-child(3)),
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(3)),
     .reveal-block.is-visible :global(.project-card:nth-child(3)),
     .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(3)),
@@ -467,6 +462,7 @@
       animation-delay: 85ms;
     }
 
+    .reveal-block.is-visible :global(.role-strip .role-card:nth-child(4)),
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(4)),
     .reveal-block.is-visible :global(.project-card:nth-child(4)),
     .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(4)),
@@ -496,7 +492,7 @@
       transform: none !important;
       transition: none !important;
     }
-    .reveal-block :global(.card-servicio),
+    .reveal-block :global(.role-card),
     .reveal-block :global(.proyecto-card),
     .reveal-block :global(.project-card),
     .reveal-block :global(.garantia-item),

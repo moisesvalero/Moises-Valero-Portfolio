@@ -3,7 +3,7 @@ import type { SiteLocale } from '$lib/i18n/site-locale';
 import type { SitePage } from '$lib/site-pages';
 import type { SeoFaqItem } from '$lib/seo';
 
-const DEFAULT_SITE_URL = 'http://localhost:5173';
+const DEFAULT_SITE_URL = 'https://moisesvalero.es';
 
 export function getAeoBaseUrl(): string {
 	try {

@@ -11,7 +11,7 @@
     softwareCategory?: string;
     /** Si false, no emite Organization (úsalo cuando la página ya inyecta su propio Organization). */
     emitOrganization?: boolean;
-    /** Si false, no emite WebSite + SearchAction. */
+    /** Si false, no emite WebSite. */
     emitWebsite?: boolean;
     /** Si false, no emite BreadcrumbList. */
     emitBreadcrumb?: boolean;
@@ -52,15 +52,7 @@
       '@id': `${SITE_BASE_URL}/#website`,
       url: `${SITE_BASE_URL}/`,
       name: 'Moisés Valero',
-      publisher: { '@id': `${SITE_BASE_URL}/#organization` },
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: {
-          '@type': 'EntryPoint',
-          urlTemplate: `${SITE_BASE_URL}/diseno-web-alcoy/articulos?q={search_term_string}`
-        },
-        'query-input': 'required name=search_term_string'
-      }
+      publisher: { '@id': `${SITE_BASE_URL}/#organization` }
     })
   );
 

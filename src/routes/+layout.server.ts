@@ -8,6 +8,7 @@ import { fetchSitePortfolio } from '$lib/server/fetch-site-portfolio';
 import type { LayoutServerLoad } from './$types';
 
 const PRIMARY_CANONICAL_HOST = 'moisesvalero.es';
+const PRIMARY_CANONICAL_ORIGIN = `https://${PRIMARY_CANONICAL_HOST}`;
 
 export const load: LayoutServerLoad = async ({ cookies, depends, url }) => {
   depends(LOCALE_LOAD_DEPENDENCY);
@@ -23,20 +24,33 @@ export const load: LayoutServerLoad = async ({ cookies, depends, url }) => {
   const isProductionHost =
     url.hostname === PRIMARY_CANONICAL_HOST || url.hostname === `www.${PRIMARY_CANONICAL_HOST}`;
   const normalizedPath = url.pathname === '/' ? '/' : url.pathname.replace(/\/$/, '');
-  const canonicalOrigin = isProductionHost ? `https://${PRIMARY_CANONICAL_HOST}` : url.origin;
-  /** Misma pieza de contenido bajo /diseno-web/... y /diseno-web-alcoy/... → canónica única en Alcoy. */
+  const hideLocaleToggle =
+    normalizedPath === '/blog' ||
+    normalizedPath.startsWith('/blog/') ||
+    normalizedPath === '/tools/analizador-web';
+  const canonicalOrigin = isProductionHost ? PRIMARY_CANONICAL_ORIGIN : url.origin;
   let canonicalPath = normalizedPath;
-  if (canonicalPath === '/diseno-web/articulos') {
-    canonicalPath = '/diseno-web-alcoy/articulos';
+  if (canonicalPath === '/diseno-web/articulos' || canonicalPath === '/diseno-web-alcoy/articulos') {
+    canonicalPath = '/blog';
   } else {
-    const dup = /^\/diseno-web\/([^/]+)$/.exec(canonicalPath);
+    const dup = /^\/diseno-web(?:-alcoy)?\/([^/]+)$/.exec(canonicalPath);
     if (dup && dup[1] !== 'articulos') {
-      canonicalPath = `/diseno-web-alcoy/${dup[1]}`;
+      canonicalPath = `/blog/${dup[1]}`;
     }
   }
   const canonicalUrl = `${canonicalOrigin}${canonicalPath}`;
   const noIndex = !isProductionHost;
   const htmlPath = canonicalHtmlPath(normalizedPath);
   const markdownAlternateHref = hasMarkdownTwin(htmlPath) ? markdownTwinPath(htmlPath) : null;
-  return { site, locale, hideSiteChrome, canonicalUrl, noIndex, markdownAlternateHref };
+  const xDefaultHref = canonicalUrl;
+  return {
+    site,
+    locale,
+    hideSiteChrome,
+    hideLocaleToggle,
+    canonicalUrl,
+    noIndex,
+    markdownAlternateHref,
+    xDefaultHref
+  };
 };

@@ -8,5 +8,5 @@ export const load: PageServerLoad = async ({ params }) => {
     error(404, 'Articulo no encontrado');
   }
 
-  redirect(301, `/diseno-web-alcoy/${article.slug}`);
+  redirect(308, `/blog/${article.slug}`);
 };

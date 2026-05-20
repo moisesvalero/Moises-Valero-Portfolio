@@ -1,7 +1,7 @@
 import { env } from '$env/dynamic/public';
 import { publicPages } from '$lib/site-pages';
 
-const DEFAULT_SITE_URL = 'http://localhost:5173';
+const DEFAULT_SITE_URL = 'https://moisesvalero.es';
 
 /** @param {string | undefined} url */
 const normalizeBaseUrl = (url) => {
@@ -25,9 +25,9 @@ export const GET = () => {
 	const baseUrl = normalizeBaseUrl(env.PUBLIC_SITE_URL);
 	const pages = publicPages();
 
-	const landing = pages.filter((p) => p.group === 'landing');
 	const portfolio = pages.filter((p) => p.group === 'portfolio');
 	const support = pages.filter((p) => p.group === 'support');
+	const landing = pages.filter((p) => p.group === 'landing');
 	const projects = pages.filter((p) => p.group === 'project');
 	const legal = pages.filter((p) => p.group === 'legal');
 
@@ -37,16 +37,16 @@ export const GET = () => {
 
 	const body = `# Moisés Valero — moisesvalero.es
 
-> Portfolio y servicios de Moisés Valero, desarrollador web freelance en Alcoy (Alicante, España). Diseño web orientado a conversión, SEO técnico y soporte IT. Stack: SvelteKit, WordPress, Sanity CMS.
-
-## Servicios de diseño web (landings principales)
-${landing.map(line).join('\n')}
+> Portfolio profesional de Moisés Valero, desarrollador web orientado a SvelteKit, WordPress, rendimiento, SEO técnico, integraciones y soporte IT.
 
 ## Portfolio
 ${portfolio.map(line).join('\n')}
 
-## Recursos (artículos de apoyo)
+## Guías técnicas
 ${support.map(line).join('\n')}
+
+## Landings comerciales secundarias
+${landing.map(line).join('\n')}
 
 ## Proyectos / casos de estudio
 ${projects.map(line).join('\n')}
@@ -60,21 +60,21 @@ ${legal.map(line).join('\n')}
 - [Robots](${baseUrl}/robots.txt)
 
 ## Canonicalización
-- Landings de servicios indexables: ${baseUrl}/diseno-web y ${baseUrl}/diseno-web-alcoy.
-- Artículos: la canónica es siempre ${baseUrl}/diseno-web-alcoy/{slug}. La variante ${baseUrl}/diseno-web/{slug} apunta a la canónica de Alcoy.
+- Portfolio principal: ${baseUrl}/
+- Guías técnicas: ${baseUrl}/blog y ${baseUrl}/blog/{slug}.
+- Landings comerciales secundarias: ${baseUrl}/diseno-web y ${baseUrl}/diseno-web-alcoy.
 
 ## Contacto
 - Web: ${baseUrl}/
 - Formulario: ${baseUrl}/#contacto
-- WhatsApp: ${baseUrl}/api/contact/whatsapp
 - Email: info@moisesvalero.es
 
 ## Datos de la entidad
 - Nombre: Moisés Valero
-- Rol: Desarrollador web freelance
+- Rol: Desarrollador web
 - Zona principal: Alcoy, Alicante, España
 - Idiomas: español (principal), inglés
-- Servicios: diseño web, desarrollo web, SEO técnico, rendimiento, mantenimiento, e-commerce, WooCommerce, SvelteKit, WordPress, Sanity CMS, soporte IT.
+- Áreas: desarrollo web, frontend, SvelteKit, WordPress, Sanity CMS, rendimiento, SEO técnico, integraciones, soporte IT.
 `;
 
 	return new Response(body, {

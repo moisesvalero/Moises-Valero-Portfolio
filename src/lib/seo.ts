@@ -2,7 +2,7 @@ import { env } from '$env/dynamic/public';
 import { writable } from 'svelte/store';
 import type { SiteLocale } from '$lib/i18n/site-locale';
 
-const DEFAULT_SITE_URL = 'http://localhost:5173';
+const DEFAULT_SITE_URL = 'https://moisesvalero.es';
 const baseUrl = new URL(env.PUBLIC_SITE_URL || DEFAULT_SITE_URL).toString().replace(/\/$/, '');
 
 export type SeoSchemaType =
@@ -48,9 +48,9 @@ export type SeoState = {
 
 /** Defaults SSR-safe: los crawlers leen el HTML antes de que `$effect` actualice el store. */
 export const defaultSeo: SeoState = {
-  title: 'Moisés Valero – Desarrollador Web | SvelteKit, WordPress, Soporte IT',
+  title: 'Moisés Valero – Desarrollador Web | SvelteKit, WordPress, Performance',
   description:
-    'Desarrollo web con foco en rendimiento, WordPress, SvelteKit y soporte técnico. Disponible para empresa o proyectos freelance.',
+    'Portfolio profesional de Moisés Valero, desarrollador web orientado a SvelteKit, WordPress, rendimiento, SEO técnico e integraciones.',
   ogTitle: 'Moisés Valero – Desarrollador Web',
   ogDescription:
     'Desarrollo web con foco en rendimiento, WordPress, SvelteKit y soporte técnico.',
@@ -65,7 +65,7 @@ export const defaultSeo: SeoState = {
   datePublished: undefined,
   dateModified: undefined,
   author: 'Moisés Valero',
-  keywords: ['diseño web', 'desarrollo web', 'SvelteKit', 'WordPress', 'SEO técnico'],
+  keywords: ['desarrollo web', 'SvelteKit', 'WordPress', 'performance', 'SEO técnico', 'TypeScript'],
   locale: 'es',
   faq: [],
   howto: [],

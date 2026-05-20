@@ -22,7 +22,9 @@
 
   const site = $derived(data.site);
   const hideSiteChrome = $derived(data.hideSiteChrome === true);
+  const hideLocaleToggle = $derived(data.hideLocaleToggle === true);
   const noIndex = $derived((data as LayoutData & { noIndex?: boolean }).noIndex === true);
+  const xDefaultHref = $derived((data as LayoutData & { xDefaultHref?: string }).xDefaultHref ?? data.canonicalUrl);
   type HeaderNavItem = (typeof site.header.navItems)[number];
 
   function normalizeNavHref(href: string): string {
@@ -43,8 +45,8 @@
 
   const headerNavItems = $derived(
     (() => {
-      const articleLabel = data.locale === 'en' ? 'Articles' : 'Artículos';
-      const webDesignLabel = data.locale === 'en' ? 'Web Design' : 'Diseño web';
+      const guideLabel = data.locale === 'en' ? 'Guides' : 'Guías';
+      const analyzerLabel = data.locale === 'en' ? 'Analyzer' : 'Analizador';
 
       const source = site.header.navItems
         .map((item) => {
@@ -55,11 +57,13 @@
           if (normalizedHref === '#sobre' || normalizedHref === '#stack') {
             return null;
           }
-          if (normalizedHref === '/diseno-web-alcoy') {
-            return { ...item, href: '/diseno-web', label: webDesignLabel };
-          }
-          if (normalizedHref === '/diseno-web-alcoy/articulos' || normalizedHref === '/diseno-web/articulos') {
-            return { ...item, href: '/diseno-web-alcoy/articulos', label: articleLabel };
+          if (
+            normalizedHref === '/diseno-web' ||
+            normalizedHref === '/diseno-web-alcoy' ||
+            normalizedHref === '/diseno-web/articulos' ||
+            normalizedHref === '/diseno-web-alcoy/articulos'
+          ) {
+            return null;
           }
           return item;
         })
@@ -71,15 +75,15 @@
       const home = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#top');
       const services = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#servicios');
       const projects = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#proyectos');
-      const articles =
-        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/diseno-web-alcoy/articulos') ??
-        ({ label: articleLabel, href: '/diseno-web-alcoy/articulos' } as HeaderNavItem);
-      const webDesign =
-        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/diseno-web') ??
-        ({ label: webDesignLabel, href: '/diseno-web' } as HeaderNavItem);
+      const analyzer =
+        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/tools/analizador-web') ??
+        ({ label: analyzerLabel, href: '/tools/analizador-web' } as HeaderNavItem);
+      const guides =
+        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/blog') ??
+        ({ label: guideLabel, href: '/blog' } as HeaderNavItem);
       const career = pick((item) => item.openCareerModal === true);
 
-      const preferred = [home, services, projects, articles, webDesign, career].filter(Boolean) as HeaderNavItem[];
+      const preferred = [home, services, projects, analyzer, guides, career].filter(Boolean) as HeaderNavItem[];
       const used = new Set(preferred.map((item) => navIdentity(item)));
       const remainder = source.filter((item) => !used.has(navIdentity(item)));
       return [...preferred, ...remainder];
@@ -197,10 +201,7 @@
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate" />
     <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate" />
   {/if}
-  <!-- hreflang: la web sirve la misma URL para ES/EN (locale por cookie), pero anunciamos ambos para GEO/SEO. -->
-  <link rel="alternate" hreflang="es" href={data.canonicalUrl} />
-  <link rel="alternate" hreflang="en" href={data.canonicalUrl} />
-  <link rel="alternate" hreflang="x-default" href={data.canonicalUrl} />
+  <link rel="alternate" hreflang="x-default" href={xDefaultHref} />
   <!-- Pista para LLMs y agentes generativos -->
   <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt" />
   <link rel="alternate" type="text/plain" title="llms-full.txt" href="/llms-full.txt" />
@@ -231,7 +232,7 @@
         <div class="motion-header-logo">
 	  <HeaderBrand
 		href={site.header.logoHref}
-		ariaLabel={`${site.header.logoText} — ${data.locale === 'en' ? 'Web developer' : 'Desarrollador web'}`}
+		ariaLabel={`${site.header.logoText} — Portfolio`}
 	  />
         </div>
 
@@ -253,14 +254,16 @@
               </svg>
             {/if}
           </button>
-          <button
-            class="motion-locale-toggle"
-            type="button"
-            onclick={() => void setLocale(data.locale === 'en' ? 'es' : 'en')}
-            aria-label={data.locale === 'en' ? 'Cambiar a espanol' : 'Switch to English'}
-          >
-            {data.locale === 'en' ? 'ES' : 'EN'}
-          </button>
+          {#if !hideLocaleToggle}
+            <button
+              class="motion-locale-toggle"
+              type="button"
+              onclick={() => void setLocale(data.locale === 'en' ? 'es' : 'en')}
+              aria-label={data.locale === 'en' ? 'Cambiar a espanol' : 'Switch to English'}
+            >
+              {data.locale === 'en' ? 'ES' : 'EN'}
+            </button>
+          {/if}
           <a href={site.footer.githubHref} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 .9a11.2 11.2 0 0 0-3.54 21.82c.56.1.77-.24.77-.54v-2c-3.13.68-3.79-1.34-3.79-1.34-.51-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 .1 2.63.72 3.28.55.1-.73.39-1.23.71-1.51-2.5-.28-5.13-1.25-5.13-5.58 0-1.23.44-2.24 1.16-3.03-.12-.29-.5-1.43.11-2.99 0 0 .95-.3 3.1 1.16.9-.25 1.86-.38 2.82-.38.96 0 1.92.13 2.82.38 2.15-1.46 3.1-1.16 3.1-1.16.61 1.56.23 2.7.11 2.99.72.79 1.16 1.8 1.16 3.03 0 4.34-2.64 5.29-5.15 5.57.4.35.76 1.03.76 2.08v3.09c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .9Z" />

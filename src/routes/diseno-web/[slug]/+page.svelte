@@ -1,8 +1,5 @@
-<script lang="ts">
-  import ArticuloPage from '../../diseno-web-alcoy/[slug]/+page.svelte';
-  import type { PageData } from './$types';
+<svelte:head>
+  <meta name="robots" content="noindex,follow" />
+</svelte:head>
 
-  let { data }: { data: PageData } = $props();
-</script>
-
-<ArticuloPage {data} />
+<main aria-label="Redirección al blog"></main>

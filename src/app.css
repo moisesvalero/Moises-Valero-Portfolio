@@ -237,7 +237,7 @@ html.dark :where(.label-top, .meta-servicios, .meta-stack, .meta-garantias, .met
   color: #a1a1aa !important;
 }
 
-html.dark :where(.hero-stripe-pro-v2 h1, .servicios-header h2, .stack-header h2, .garantias-header h2, .proyectos-header h2) {
+html.dark :where(.hero-stripe-pro-v2 h1, .servicios-heading h2, .stack-header h2, .garantias-header h2, .proyectos-header h2) {
   color: #f8fafc !important;
 }
 
@@ -249,7 +249,7 @@ html.dark :where(.meta-sobre) {
   color: #94a3b8 !important;
 }
 
-html.dark :where(.texto-bio, .texto-contenido p, .card-servicio p, .garantia-item p, .proyecto-info p) {
+html.dark :where(.texto-bio, .texto-contenido p, .servicios-summary, .garantia-item p, .proyecto-info p) {
   color: #d4d4d8 !important;
   text-shadow: none !important;
 }
@@ -317,13 +317,13 @@ html.dark :where(.btn-apple-blue:hover) {
     0 0 0 1px rgba(0, 0, 0, 0.07) inset !important;
 }
 
-html.dark :where(.card-servicio, .garantia-item, .stack-cat, .proyecto-card) {
+html.dark :where(.role-strip, .role-card, .garantia-item, .stack-cat, .proyecto-card) {
   background: rgba(18, 18, 18, 0.86) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
 }
 
-html.dark :where(.card-servicio:hover, .garantia-item:hover, .stack-cat:hover, .proyecto-card:hover, .proyecto-card:focus-within) {
+html.dark :where(.role-card:hover, .garantia-item:hover, .stack-cat:hover, .proyecto-card:hover, .proyecto-card:focus-within) {
   background: rgba(24, 24, 27, 0.96) !important;
   border-color: rgba(255, 255, 255, 0.28) !important;
   box-shadow:
@@ -331,7 +331,7 @@ html.dark :where(.card-servicio:hover, .garantia-item:hover, .stack-cat:hover, .
     0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
 }
 
-html.dark :where(.card-servicio h3, .garantia-item h3, .cat-title, .proyecto-info h3) {
+html.dark :where(.role-card strong, .garantia-item h3, .cat-title, .proyecto-info h3) {
   color: #f8fafc !important;
 }
 
@@ -444,7 +444,7 @@ html.dark :where(.footer-icons a:hover) {
 
 html.dark .hero-stripe-pro-v2 h1,
 html.dark .col-texto h2,
-html.dark .servicios-header h2,
+html.dark .servicios-heading h2,
 html.dark .stack-header h2,
 html.dark .garantias-header h2,
 html.dark .proyectos-header h2 {
@@ -470,14 +470,14 @@ html.dark .sub-frase {
 
 html.dark .texto-contenido p,
 html.dark .texto-bio,
-html.dark .card-servicio p,
+html.dark .servicios-summary,
 html.dark .garantia-item p,
 html.dark .proyecto-info p {
   color: #d4d4d8 !important;
 }
 
 html.dark .texto-contenido strong,
-html.dark .card-servicio h3,
+html.dark .role-card strong,
 html.dark .garantia-item h3,
 html.dark .cat-title,
 html.dark .proyecto-info h3 {
