@@ -69,6 +69,9 @@
       ]
     })
   );
+  let articleContent: HTMLElement | undefined = $state();
+  let lightboxCloseButton: HTMLButtonElement | undefined = $state();
+  let lightboxImage: { src: string; alt: string } | null = $state(null);
 
   function formatArticleDate(iso: string): string {
     const date = new Date(iso);
@@ -85,7 +88,71 @@
   function shouldForceDocumentNavigation(href: string): boolean {
     return /^\/diseno-web(?:\/|$)/i.test(href.trim()) || /^\/diseno-web-alcoy(?:\/|$)/i.test(href.trim());
   }
+
+  function openImageLightbox(image: HTMLImageElement): void {
+    const src = image.currentSrc || image.src;
+    if (!src) {
+      return;
+    }
+    lightboxImage = {
+      src,
+      alt: image.alt || article.title
+    };
+  }
+
+  function closeLightbox(): void {
+    lightboxImage = null;
+  }
+
+  function handleWindowKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && lightboxImage) {
+      closeLightbox();
+    }
+  }
+
+  $effect(() => {
+    article.bodyHtml;
+    if (!articleContent) {
+      return;
+    }
+
+    const controller = new AbortController();
+    articleContent.querySelectorAll('img').forEach((image) => {
+      image.setAttribute('role', 'button');
+      image.setAttribute('tabindex', '0');
+      image.setAttribute('aria-label', `Ampliar imagen: ${image.getAttribute('alt') || article.title}`);
+      image.addEventListener('click', () => openImageLightbox(image), { signal: controller.signal });
+      image.addEventListener(
+        'keydown',
+        (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openImageLightbox(image);
+          }
+        },
+        { signal: controller.signal }
+      );
+    });
+
+    return () => controller.abort();
+  });
+
+  $effect(() => {
+    if (!lightboxImage || typeof document === 'undefined') {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.requestAnimationFrame(() => lightboxCloseButton?.focus());
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  });
 </script>
+
+<svelte:window onkeydown={handleWindowKeydown} />
 
 <svelte:head>
   <title>{seoTitle}</title>
@@ -121,8 +188,21 @@
   </header>
 
   <section class="content-wrap">
-    <img class="cover" src={article.coverImageSrc} alt={article.coverImageAlt} loading="eager" />
-    <div class="content prose">{@html article.bodyHtml}</div>
+    <button
+      type="button"
+      class="cover-trigger"
+      aria-label={`Ampliar imagen: ${article.coverImageAlt || article.title}`}
+      onclick={(event) => {
+        event.stopPropagation();
+        const image = event.currentTarget.querySelector('img');
+        if (image instanceof HTMLImageElement) {
+          openImageLightbox(image);
+        }
+      }}
+    >
+      <img class="cover" src={article.coverImageSrc} alt={article.coverImageAlt} loading="eager" />
+    </button>
+    <div class="content prose" bind:this={articleContent}>{@html article.bodyHtml}</div>
   </section>
 
   <section class="cta-box">
@@ -212,6 +292,38 @@
   </footer>
 </article>
 
+{#if lightboxImage}
+  <div
+    class="image-lightbox"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Imagen ampliada"
+    tabindex="-1"
+  >
+    <button
+      type="button"
+      class="image-lightbox-backdrop"
+      aria-label="Cerrar imagen ampliada"
+      onclick={closeLightbox}
+    ></button>
+    <div class="image-lightbox-panel">
+      <button
+        bind:this={lightboxCloseButton}
+        type="button"
+        class="image-lightbox-close"
+        aria-label="Cerrar imagen ampliada"
+        onclick={closeLightbox}
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+      <img src={lightboxImage.src} alt={lightboxImage.alt} />
+      {#if lightboxImage.alt}
+        <p>{lightboxImage.alt}</p>
+      {/if}
+    </div>
+  </div>
+{/if}
+
 <style>
   :global(body) {
     background: #f8fafc;
@@ -293,7 +405,24 @@
     padding: 0 1.2rem;
   }
 
+  .cover-trigger {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+    text-align: inherit;
+  }
+
+  .cover-trigger:focus-visible {
+    outline: 3px solid rgba(0, 108, 73, 0.38);
+    outline-offset: 4px;
+    border-radius: 1rem;
+  }
+
   .cover {
+    display: block;
     width: 100%;
     border-radius: 1rem;
     border: 1px solid #e2e8f0;
@@ -302,6 +431,18 @@
     max-height: 430px;
     margin-bottom: 1.8rem;
     background: #fff;
+  }
+
+  .cover,
+  .prose :global(img) {
+    transition: filter 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .cover-trigger:hover .cover,
+  .cover-trigger:focus-visible .cover,
+  .prose :global(img:hover),
+  .prose :global(img:focus-visible) {
+    filter: saturate(1.04) contrast(1.02);
   }
 
   .content {
@@ -334,6 +475,127 @@
 
   .prose :global(li) {
     margin: 0.3rem 0;
+  }
+
+  .prose :global(img) {
+    cursor: zoom-in;
+  }
+
+  .prose :global(img:focus-visible) {
+    outline: 3px solid rgba(0, 108, 73, 0.38);
+    outline-offset: 4px;
+    border-radius: 0.75rem;
+  }
+
+  .image-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 3vw, 2rem);
+    isolation: isolate;
+    animation: lightboxFade 0.18s ease-out;
+  }
+
+  .image-lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border: 0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(0, 108, 73, 0.22), transparent 38%),
+      rgba(2, 6, 23, 0.78);
+    backdrop-filter: blur(16px);
+    cursor: zoom-out;
+  }
+
+  .image-lightbox-panel {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 0.8rem;
+    width: min(1120px, 100%);
+    max-height: min(86vh, 860px);
+    padding: clamp(0.55rem, 1.5vw, 0.85rem);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 28px 80px rgba(2, 6, 23, 0.36);
+    animation: lightboxRise 0.22s ease-out;
+  }
+
+  .image-lightbox-panel img {
+    display: block;
+    width: 100%;
+    max-height: calc(86vh - 5.8rem);
+    object-fit: contain;
+    border-radius: 0.95rem;
+    background: #ffffff;
+  }
+
+  .image-lightbox-panel p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.92rem;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .image-lightbox-close {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.8rem;
+    z-index: 2;
+    display: inline-flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.72);
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(2, 6, 23, 0.28);
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .image-lightbox-close:hover,
+  .image-lightbox-close:focus-visible {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.85);
+    background: rgba(15, 23, 42, 0.92);
+  }
+
+  .image-lightbox-close:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.45);
+    outline-offset: 3px;
+  }
+
+  .image-lightbox-close :global(.material-symbols-outlined) {
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+
+  @keyframes lightboxFade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes lightboxRise {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   .cta-box {
@@ -596,6 +858,26 @@
 
     .cta-actions .btn {
       width: 100%;
+    }
+
+    .image-lightbox {
+      padding: 0.75rem;
+    }
+
+    .image-lightbox-panel {
+      border-radius: 1rem;
+    }
+
+    .image-lightbox-panel img {
+      max-height: calc(88vh - 5.4rem);
+      border-radius: 0.75rem;
+    }
+
+    .image-lightbox-close {
+      top: 0.6rem;
+      right: 0.6rem;
+      width: 2.55rem;
+      height: 2.55rem;
     }
 
     .related-shell {

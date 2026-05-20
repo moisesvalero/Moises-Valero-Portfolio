@@ -595,6 +595,7 @@
 
   .label-top {
     color: #64748b;
+    font-family: var(--font-mono);
     font-size: 12.5px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -635,6 +636,10 @@
     min-height: 32px;
     padding: 0 2px;
     color: inherit;
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+    font-weight: 650;
+    letter-spacing: 0.01em;
     white-space: nowrap;
     opacity: 0;
     animation: hero-tech-pop 0.62s cubic-bezier(0.16, 1, 0.3, 1) forwards;

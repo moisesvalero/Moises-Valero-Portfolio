@@ -1,41 +1,12 @@
 /* src/app.css */
-/* Inter queda como fallback autoalojado; Satoshi se sirve localmente para evitar dependencias de CDN en produccion. */
+/* Geist es la fuente principal del portfolio; Inter queda como fallback autoalojado. */
+@import '@fontsource-variable/geist/index.css';
+@import '@fontsource-variable/geist-mono/index.css';
 @import '@fontsource-variable/inter/index.css';
 
-@font-face {
-  font-family: 'Satoshi';
-  src: url('/fonts/satoshi/satoshi-400.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Satoshi';
-  src: url('/fonts/satoshi/satoshi-500.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Satoshi';
-  src: url('/fonts/satoshi/satoshi-700.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Satoshi';
-  src: url('/fonts/satoshi/satoshi-900.woff2') format('woff2');
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
-  --font-sans: 'Satoshi', 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Geist Variable', 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', 'SFMono-Regular', 'Cascadia Code', 'Roboto Mono', ui-monospace, monospace;
 
   /* Tus colores de marca NovaKit */
   --accent: #6366f1;

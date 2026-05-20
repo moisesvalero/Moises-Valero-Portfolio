@@ -145,9 +145,11 @@
 
   .meta-stack {
     color: #86868b;
+    font-family: var(--font-mono);
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 1.5px;
+    text-transform: uppercase;
   }
 
   .stack-header h2 {
@@ -175,8 +177,10 @@
 
   .cat-title {
     color: #1d1d1f;
+    font-family: var(--font-mono);
     font-weight: 700;
     font-size: 15px;
+    letter-spacing: 0.01em;
     margin-bottom: 20px;
     border-bottom: 2px solid #0071e3;
     display: inline-block;

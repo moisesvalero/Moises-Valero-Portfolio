@@ -54,9 +54,10 @@ window.tailwind.config = {
         'error-container': '#ffdad6'
       },
       fontFamily: {
-        headline: ['Manrope Variable', 'Manrope', 'system-ui', 'sans-serif'],
-        body: ['Inter Variable', 'Inter', 'system-ui', 'sans-serif'],
-        label: ['Inter Variable', 'Inter', 'system-ui', 'sans-serif']
+        headline: ['Geist Variable', 'Inter Variable', 'system-ui', 'sans-serif'],
+        body: ['Geist Variable', 'Inter Variable', 'system-ui', 'sans-serif'],
+        label: ['Geist Mono Variable', 'Geist Mono', 'ui-monospace', 'monospace'],
+        mono: ['Geist Mono Variable', 'Geist Mono', 'ui-monospace', 'monospace']
       },
       borderRadius: { DEFAULT: '0.125rem', lg: '0.25rem', xl: '0.5rem', full: '0.75rem' }
     }

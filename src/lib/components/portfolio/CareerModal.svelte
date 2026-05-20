@@ -395,6 +395,7 @@
 
   .career-stack-group-title {
     margin: 0 0 0.45rem;
+    font-family: var(--font-mono);
     font-size: 0.74rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -438,6 +439,7 @@
   }
 
   .career-stack-icon-text {
+    font-family: var(--font-mono);
     font-size: 0.8rem;
     font-weight: 500;
     color: #1d1d1f;
