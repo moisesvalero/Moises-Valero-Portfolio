@@ -91,8 +91,33 @@
 
   let typebotStandardStarted = false;
   let typebotLoadError = $state(false);
+  let shouldLoadTypebot = $state(false);
+
+  function loadTypebotWhenVisible(node: HTMLElement) {
+    if (typeof IntersectionObserver === 'undefined') {
+      shouldLoadTypebot = true;
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        shouldLoadTypebot = true;
+        observer.disconnect();
+      },
+      { rootMargin: '220px 0px', threshold: 0.01 }
+    );
+
+    observer.observe(node);
+    return {
+      destroy() {
+        observer.disconnect();
+      }
+    };
+  }
 
   $effect(() => {
+    if (!shouldLoadTypebot) return;
     if (typebotStandardStarted) return;
     typebotStandardStarted = true;
     typebotLoadError = false;
@@ -202,7 +227,7 @@
       {/if}
     </div>
 
-    <div class="chat-container-final" role="group">
+    <div class="chat-container-final" role="group" use:loadTypebotWhenVisible>
       {#if typebotLoadError}
         <div class="chat-load-error" role="alert">
           <p class="chat-load-error-title">No se ha podido cargar el asistente.</p>
@@ -218,12 +243,18 @@
             Reintentar
           </button>
         </div>
-      {:else}
+      {:else if shouldLoadTypebot}
         <typebot-standard
           class="typebot-frame typebot-standard-embed"
           style="width: 100%; height: 380px;"
           aria-label={iframeTitle}
         ></typebot-standard>
+      {:else}
+        <div class="chat-placeholder" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       {/if}
     </div>
 
@@ -430,6 +461,39 @@
     justify-content: center;
     text-align: center;
     box-sizing: border-box;
+  }
+
+  .chat-placeholder {
+    width: 100%;
+    min-height: 300px;
+    border-radius: 12px;
+    background:
+      linear-gradient(180deg, rgba(77, 163, 255, 0.12), rgba(77, 163, 255, 0.04)),
+      rgba(13, 26, 46, 0.34);
+    border: 1px solid rgba(77, 163, 255, 0.18);
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 12px;
+  }
+
+  .chat-placeholder span {
+    display: block;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(194, 210, 233, 0.22);
+  }
+
+  .chat-placeholder span:nth-child(1) {
+    width: min(360px, 72%);
+  }
+
+  .chat-placeholder span:nth-child(2) {
+    width: min(280px, 58%);
+  }
+
+  .chat-placeholder span:nth-child(3) {
+    width: min(210px, 44%);
   }
 
   .chat-load-error-title {
@@ -745,6 +809,13 @@
     border-color: rgba(255, 255, 255, 0.12);
   }
 
+  :global(html.dark) .chat-placeholder {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02)),
+      rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
   :global(html.dark) .chat-load-error-title {
     color: #f8fafc;
   }
@@ -873,6 +944,10 @@
     .chat-load-error {
       min-height: 220px;
       padding: 20px 16px;
+    }
+
+    .chat-placeholder {
+      min-height: 220px;
     }
 
     .contact-cta-mobile-intro-wrap {
