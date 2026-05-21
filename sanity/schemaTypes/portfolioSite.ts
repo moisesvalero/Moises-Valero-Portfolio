@@ -297,8 +297,8 @@ export const portfolioSite = defineType({
           name: 'maxHomeProjects',
           type: 'number',
           title: 'Maximo de proyectos en portada',
-          description: 'La home mantiene una seleccion curada. Usa 9 o 12 como limite razonable.',
-          initialValue: 9
+          description: 'La home mantiene una seleccion curada. Usa 4 como limite recomendado.',
+          initialValue: 4
         },
         {
           name: 'archiveLinkLabel',

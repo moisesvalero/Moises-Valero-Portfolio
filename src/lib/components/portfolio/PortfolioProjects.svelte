@@ -13,6 +13,7 @@
     projects?: SiteProjectCard[];
   }
 
+  const homeProjectCap = 4;
   const fallbackIntro =
     'Una seleccion curada de productos, e-commerce, automatizaciones e interfaces donde el criterio visual pesa tanto como la arquitectura.';
   const resolvePath = resolve as unknown as (href: string) => string;
@@ -21,14 +22,17 @@
     meta = sitePortfolioDefaults.projects.meta,
     title = sitePortfolioDefaults.projects.title,
     intro = sitePortfolioDefaults.projects.intro ?? fallbackIntro,
-    maxHomeProjects = sitePortfolioDefaults.projects.maxHomeProjects ?? 9,
+    maxHomeProjects = sitePortfolioDefaults.projects.maxHomeProjects ?? homeProjectCap,
     archiveLinkLabel = sitePortfolioDefaults.projects.archiveLinkLabel ?? 'Ver todos los proyectos',
     archiveHref = sitePortfolioDefaults.projects.archiveHref,
     projects = sitePortfolioDefaults.projects.projects
   }: Props = $props();
 
+  const effectiveHomeLimit = $derived(
+    maxHomeProjects > 0 ? Math.min(maxHomeProjects, homeProjectCap) : homeProjectCap
+  );
   const visibleProjects = $derived(
-    maxHomeProjects > 0 ? projects.slice(0, maxHomeProjects) : projects
+    effectiveHomeLimit > 0 ? projects.slice(0, effectiveHomeLimit) : projects
   );
   const heroProject = $derived(
     visibleProjects.find((project) => project.homeLayoutTier === 'hero') ?? visibleProjects[0]
@@ -43,7 +47,7 @@
   const standardProjects = $derived(
     projectsAfterHero.filter((project) => !spotlightHrefs.has(project.href))
   );
-  const hasHiddenProjects = $derived(maxHomeProjects > 0 && projects.length > maxHomeProjects);
+  const hasHiddenProjects = $derived(effectiveHomeLimit > 0 && projects.length > effectiveHomeLimit);
 
   function projectTarget(project: SiteProjectCard): string | undefined {
     return project.external ? '_blank' : undefined;

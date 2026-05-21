@@ -272,7 +272,7 @@ function mergeQuality(raw: unknown, d: SitePortfolioContent['quality']): SitePor
   };
 }
 
-function mapProject(
+export function mapProject(
   raw: unknown,
   ctx: { projectId: string; dataset: string; locale: SiteLocale }
 ): SiteProjectCard | null {

@@ -1,0 +1,339 @@
+<script lang="ts">
+  import { resolve } from '$app/paths';
+  import type { PageData } from './$types';
+
+  let { data }: { data: PageData } = $props();
+
+  const resolvePath = resolve as unknown as (href: string) => string;
+  const projects = $derived(data.projects ?? []);
+  const baseUrl = $derived((data.canonicalUrl ?? 'https://moisesvalero.es/proyectos').replace(/\/$/, ''));
+
+  function hrefFor(href: string): string {
+    return /^https?:\/\//i.test(href) ? href : resolvePath(href);
+  }
+</script>
+
+<svelte:head>
+  <title>Proyectos | Moisés Valero</title>
+  <meta
+    name="description"
+    content="Archivo de proyectos web, aplicaciones, integraciones e interfaces desarrolladas por Moisés Valero."
+  />
+  <link rel="canonical" href={baseUrl} />
+</svelte:head>
+
+<main class="projects-page">
+  <section class="projects-hero" aria-labelledby="projects-title">
+    <div>
+      <a class="back-link" href={resolve('/#proyectos')}>Portfolio</a>
+      <p class="eyebrow">Archivo de proyectos</p>
+      <h1 id="projects-title">Proyectos</h1>
+      <p class="hero-copy">
+        Trabajos, pruebas técnicas y soluciones web organizadas como archivo vivo. La home muestra una selección;
+        aquí queda el recorrido completo.
+      </p>
+    </div>
+    <div class="hero-meta" aria-label="Resumen del archivo">
+      <span>{projects.length}</span>
+      <p>{projects.length === 1 ? 'proyecto publicado' : 'proyectos publicados'}</p>
+    </div>
+  </section>
+
+  <section class="projects-archive" aria-label="Listado de proyectos">
+    {#if projects.length}
+      <div class="archive-grid">
+        {#each projects as project (project.href)}
+          <a
+            class="archive-card"
+            href={hrefFor(project.href)}
+            target={project.external ? '_blank' : undefined}
+            rel={project.external ? 'noopener noreferrer' : undefined}
+            aria-label={`${project.linkLabel}: ${project.title}`}
+          >
+            <article>
+              <div class="card-media">
+                <img
+                  src={project.imageSrc}
+                  alt={project.imageAlt}
+                  width="720"
+                  height="405"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="card-copy">
+                <div class="card-topline">
+                  <span>{project.homeEyebrow || project.tags[0] || 'Proyecto'}</span>
+                  {#if project.homeYear}
+                    <time>{project.homeYear}</time>
+                  {/if}
+                </div>
+                <h2>{project.title}</h2>
+                <p>{project.homeProofLine || project.description}</p>
+                {#if project.tags.length}
+                  <ul class="tag-list" aria-label="Tecnologías">
+                    {#each project.tags.slice(0, 4) as tag (tag)}
+                      <li>{tag}</li>
+                    {/each}
+                  </ul>
+                {/if}
+              </div>
+            </article>
+          </a>
+        {/each}
+      </div>
+    {:else}
+      <p class="empty-state">Todavía no hay proyectos publicados.</p>
+    {/if}
+  </section>
+</main>
+
+<style>
+  .projects-page {
+    background:
+      radial-gradient(circle at 18% 8%, rgba(0, 113, 227, 0.12), transparent 28%),
+      radial-gradient(circle at 82% 2%, rgba(20, 184, 166, 0.11), transparent 28%),
+      linear-gradient(rgba(15, 23, 42, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 23, 42, 0.055) 1px, transparent 1px),
+      #f8fafc;
+    background-size: auto, auto, 76px 76px, 76px 76px, auto;
+    color: #111827;
+    min-height: 100vh;
+  }
+
+  .projects-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+    gap: clamp(36px, 7vw, 96px);
+    align-items: end;
+    width: min(100% - 48px, 1120px);
+    margin: 0 auto;
+    padding: clamp(78px, 12vw, 148px) 0 clamp(44px, 8vw, 86px);
+  }
+
+  .back-link,
+  .eyebrow,
+  .card-topline {
+    font-size: 12px;
+    font-weight: 820;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .back-link {
+    color: #006ee6;
+    text-decoration: none;
+  }
+
+  .eyebrow {
+    color: #006ee6;
+    margin-top: 28px;
+  }
+
+  h1 {
+    max-width: 780px;
+    margin: 18px 0 0;
+    color: #111827;
+    font-size: clamp(64px, 12vw, 132px);
+    font-weight: 880;
+    line-height: 0.88;
+    letter-spacing: -0.065em;
+  }
+
+  .hero-copy {
+    max-width: 720px;
+    margin-top: 28px;
+    color: #526070;
+    font-size: clamp(17px, 2vw, 21px);
+    line-height: 1.58;
+  }
+
+  .hero-meta {
+    border-left: 1px solid rgba(15, 23, 42, 0.18);
+    padding-left: 28px;
+  }
+
+  .hero-meta span {
+    display: block;
+    color: #111827;
+    font-size: clamp(44px, 6vw, 72px);
+    font-weight: 860;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+
+  .hero-meta p {
+    margin-top: 12px;
+    color: #5b6676;
+    font-size: 15px;
+    font-weight: 680;
+  }
+
+  .projects-archive {
+    border-top: 1px solid rgba(15, 23, 42, 0.1);
+    padding: clamp(34px, 6vw, 64px) 0 clamp(74px, 10vw, 128px);
+  }
+
+  .archive-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    width: min(100% - 48px, 1120px);
+    margin: 0 auto;
+  }
+
+  .archive-card {
+    color: inherit;
+    text-decoration: none;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 20px 54px rgba(15, 23, 42, 0.07);
+    transition:
+      transform 360ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 360ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 360ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .archive-card:hover,
+  .archive-card:focus-visible {
+    transform: translateY(-6px);
+    border-color: rgba(0, 113, 227, 0.34);
+    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.14);
+    outline: none;
+  }
+
+  .archive-card article {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+  }
+
+  .card-media {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(232, 238, 247, 0.78)),
+      #eef2f7;
+  }
+
+  .card-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center top;
+    padding: 10px;
+    transition: transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .archive-card:hover .card-media img,
+  .archive-card:focus-visible .card-media img {
+    transform: scale(1.035);
+  }
+
+  .card-copy {
+    padding: 22px;
+  }
+
+  .card-topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    color: #006ee6;
+  }
+
+  .card-topline time {
+    color: #7b8190;
+  }
+
+  h2 {
+    margin-top: 14px;
+    color: #111827;
+    font-size: clamp(22px, 2.2vw, 28px);
+    font-weight: 840;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+  }
+
+  .card-copy p {
+    display: -webkit-box;
+    margin-top: 12px;
+    overflow: hidden;
+    color: #4b5563;
+    font-size: 14.5px;
+    line-height: 1.5;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tag-list li {
+    min-height: 25px;
+    padding: 6px 10px;
+    border: 1px solid rgba(0, 113, 227, 0.16);
+    border-radius: 999px;
+    background: rgba(0, 113, 227, 0.06);
+    color: #155ea8;
+    font-size: 11px;
+    font-weight: 760;
+    line-height: 1;
+  }
+
+  .empty-state {
+    width: min(100% - 48px, 1120px);
+    margin: 0 auto;
+    color: #526070;
+    font-size: 17px;
+  }
+
+  @media (max-width: 960px) {
+    .projects-hero {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .hero-meta {
+      border-left: 0;
+      border-top: 1px solid rgba(15, 23, 42, 0.14);
+      padding: 24px 0 0;
+    }
+
+    .archive-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .projects-hero,
+    .archive-grid,
+    .empty-state {
+      width: min(100% - 28px, 1120px);
+    }
+
+    h1 {
+      font-size: clamp(56px, 22vw, 84px);
+    }
+
+    .archive-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .archive-card,
+    .card-media img {
+      transition: none !important;
+    }
+  }
+</style>

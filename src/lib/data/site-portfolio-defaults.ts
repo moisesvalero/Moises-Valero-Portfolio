@@ -185,6 +185,11 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
   projects: {
     meta: 'PORTFOLIO SELECCIONADO',
     title: 'Proyectos Destacados',
+    intro:
+      'Una seleccion breve de proyectos que resumen mi forma de trabajar: criterio tecnico, producto, rendimiento e integraciones reales.',
+    maxHomeProjects: 4,
+    archiveLinkLabel: 'Ver todos los proyectos',
+    archiveHref: '/proyectos',
     projects: [
       {
         imageSrc: '/imagenes/captura-novakit_ember.avif',

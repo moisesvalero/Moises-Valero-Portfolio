@@ -58,6 +58,20 @@ export const sitePages: SitePage[] = [
     locales: ['es']
   },
   {
+    path: '/proyectos',
+    titleEs: 'Proyectos - Archivo de portfolio',
+    titleEn: 'Projects - Portfolio archive',
+    descEs:
+      'Archivo de proyectos web, aplicaciones, integraciones e interfaces desarrolladas por MoisÃ©s Valero.',
+    descEn:
+      'Archive of web projects, applications, integrations and interfaces developed by MoisÃ©s Valero.',
+    changefreq: 'weekly',
+    priority: 0.86,
+    group: 'portfolio',
+    locales: ['es', 'en'],
+    aeoTwin: false
+  },
+  {
     path: '/tools/analizador-web',
     titleEs: 'Analizador web técnico',
     descEs:
