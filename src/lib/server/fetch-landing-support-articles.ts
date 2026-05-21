@@ -29,25 +29,6 @@ function asBoolean(value: unknown, fallback = true): boolean {
   return typeof value === 'boolean' ? value : fallback;
 }
 
-function resolveFeaturedPlacement(row: LandingSupportArticleListRow): {
-  showOnNationalLanding: boolean;
-  showOnAlcoyLanding: boolean;
-} {
-  const hasNational = typeof row.showOnNationalLanding === 'boolean';
-  const hasAlcoy = typeof row.showOnAlcoyLanding === 'boolean';
-
-  // Compatibilidad con contenido legado: si ambos campos no existen, mostrar en ambas landings.
-  if (!hasNational && !hasAlcoy) {
-    return { showOnNationalLanding: true, showOnAlcoyLanding: true };
-  }
-
-  // Si el editor define uno y deja el otro vacío, lo tratamos como false para evitar ambigüedad.
-  return {
-    showOnNationalLanding: asBoolean(row.showOnNationalLanding, false),
-    showOnAlcoyLanding: asBoolean(row.showOnAlcoyLanding, false)
-  };
-}
-
 function mapRow(
   row: LandingSupportArticleListRow,
   ctx?: { projectId: string; dataset: string }
@@ -58,14 +39,14 @@ function mapRow(
   if (!slug || !title) {
     return undefined;
   }
+
   const imageFromAsset =
     ctx && ctx.projectId && ctx.dataset ? imageUrl(ctx.projectId, ctx.dataset, row.image, 1200) : undefined;
-  const placement = resolveFeaturedPlacement(row);
 
   return {
     slug,
     title,
-    categoryLabel: asString(row.categoryLabel, 'Guia local'),
+    categoryLabel: asString(row.categoryLabel, 'Guia tecnica'),
     excerpt,
     publishedAt: asString(row.publishedAt, new Date().toISOString()),
     readingMinutes: asNumber(row.readingMinutes, 5),
@@ -73,35 +54,16 @@ function mapRow(
     coverImageAlt: asString(row.coverImageAlt, title),
     bodyHtml: asString(row.bodyHtml, ''),
     ctaTitle: asString(row.ctaTitle, 'Quieres mejorar tu web en Alcoy?'),
-    ctaText: asString(
-      row.ctaText,
-      'Te ayudo a mejorar velocidad, seguridad y conversion en tu web local.'
-    ),
+    ctaText: asString(row.ctaText, 'Te ayudo a mejorar velocidad, seguridad y conversion en tu web local.'),
     ctaPrimaryLabel: asString(row.ctaPrimaryLabel, 'Pedir una revision'),
     ctaPrimaryHref: asString(row.ctaPrimaryHref, '/api/contact/whatsapp'),
     ctaSecondaryLabel: asString(row.ctaSecondaryLabel, 'Volver a la web'),
     ctaSecondaryHref: asString(row.ctaSecondaryHref, '/diseno-web-alcoy'),
     seoTitle: asString(row.seoTitle, title),
     seoDescription: asString(row.seoDescription, excerpt),
-    showOnNationalLanding: placement.showOnNationalLanding,
-    showOnAlcoyLanding: placement.showOnAlcoyLanding,
+    showOnBlog: asBoolean(row.showOnBlog, false),
     featuredOrder: asOptionalNumber(row.featuredOrder)
   };
-}
-
-function sortFeaturedArticles(a: LandingSupportArticle, b: LandingSupportArticle): number {
-  const aOrder = a.featuredOrder;
-  const bOrder = b.featuredOrder;
-  if (typeof aOrder === 'number' && typeof bOrder === 'number' && aOrder !== bOrder) {
-    return aOrder - bOrder;
-  }
-  if (typeof aOrder === 'number' && typeof bOrder !== 'number') {
-    return -1;
-  }
-  if (typeof aOrder !== 'number' && typeof bOrder === 'number') {
-    return 1;
-  }
-  return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
 }
 
 export async function fetchLandingSupportArticles(limit?: number): Promise<LandingSupportArticle[]> {
@@ -119,13 +81,10 @@ export async function fetchLandingSupportArticles(limit?: number): Promise<Landi
       .filter(Boolean) as LandingSupportArticle[];
     const fallback = landingSupportArticleFallbacks;
 
-    // Normal path: Sanity trae una lista suficiente y consistente.
     if (mapped.length >= 3) {
       return typeof limit === 'number' ? mapped.slice(0, limit) : mapped;
     }
 
-    // Fallback controlado: si Sanity responde con pocos artículos por desajuste de entorno/cache,
-    // completamos con locales para evitar que la web quede "vacía" en producción.
     const mergedBySlug = new Map<string, LandingSupportArticle>();
     for (const article of mapped) {
       mergedBySlug.set(article.slug, article);
@@ -145,17 +104,4 @@ export async function fetchLandingSupportArticles(limit?: number): Promise<Landi
     const fallback = landingSupportArticleFallbacks;
     return typeof limit === 'number' ? fallback.slice(0, limit) : fallback;
   }
-}
-
-export async function fetchFeaturedLandingSupportArticles(
-  placement: 'national' | 'alcoy',
-  limit = 4
-): Promise<LandingSupportArticle[]> {
-  const articles = await fetchLandingSupportArticles();
-  const predicate =
-    placement === 'national'
-      ? (article: LandingSupportArticle) => article.showOnNationalLanding !== false
-      : (article: LandingSupportArticle) => article.showOnAlcoyLanding !== false;
-
-  return articles.filter(predicate).sort(sortFeaturedArticles).slice(0, limit);
 }

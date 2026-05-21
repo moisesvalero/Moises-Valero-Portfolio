@@ -2,20 +2,19 @@ import { defineField, defineType } from 'sanity';
 
 export const landingSupportArticle = defineType({
   name: 'landingSupportArticle',
-  title: 'Artículo apoyo SEO (Alcoy)',
+  title: 'Articulo del blog',
   type: 'document',
   initialValue: {
-    categoryLabel: 'Guia local',
+    categoryLabel: 'Guia tecnica',
     publishedAt: new Date().toISOString(),
-    showOnNationalLanding: true,
-    showOnAlcoyLanding: true
+    showOnBlog: false
   },
   groups: [
-    { name: 'editorial', title: '✍️ Editorial', default: true },
-    { name: 'content', title: '🧩 Contenido' },
-    { name: 'featured', title: '⭐ Destacados' },
-    { name: 'seo', title: '📈 SEO' },
-    { name: 'cta', title: '💬 CTA' }
+    { name: 'editorial', title: 'Editorial', default: true },
+    { name: 'content', title: 'Contenido' },
+    { name: 'featured', title: 'Destacados' },
+    { name: 'seo', title: 'SEO' },
+    { name: 'cta', title: 'CTA' }
   ],
   fields: [
     defineField({
@@ -30,7 +29,7 @@ export const landingSupportArticle = defineType({
       name: 'slug',
       type: 'slug',
       title: 'Slug',
-      description: 'Genera la URL: /diseno-web-alcoy/[slug]',
+      description: 'Genera la URL: /blog/[slug]',
       options: { source: 'title', maxLength: 96 },
       validation: (rule) => rule.required(),
       group: 'editorial'
@@ -39,7 +38,7 @@ export const landingSupportArticle = defineType({
       name: 'categoryLabel',
       type: 'string',
       title: 'Etiqueta superior',
-      initialValue: 'Guia local',
+      initialValue: 'Guia tecnica',
       group: 'editorial'
     }),
     defineField({
@@ -67,29 +66,19 @@ export const landingSupportArticle = defineType({
       group: 'editorial'
     }),
     defineField({
-      name: 'showOnNationalLanding',
+      name: 'showOnBlog',
       type: 'boolean',
-      title: 'Destacar en /diseno-web',
-      description:
-        'Muestra este artículo en el bloque de artículos de la landing nacional. No cambia la URL canónica.',
-      initialValue: true,
-      group: 'featured'
-    }),
-    defineField({
-      name: 'showOnAlcoyLanding',
-      type: 'boolean',
-      title: 'Destacar en /diseno-web-alcoy',
-      description:
-        'Muestra este artículo en el bloque de artículos de la landing local. No cambia la URL canónica.',
-      initialValue: true,
+      title: 'Recomendar en /blog',
+      description: 'Muestra este articulo en el bloque "Guias recomendadas" de la portada del blog.',
+      initialValue: false,
       group: 'featured'
     }),
     defineField({
       name: 'featuredOrder',
       type: 'number',
-      title: 'Orden destacado',
+      title: 'Orden recomendado',
       description:
-        'Opcional. Números más bajos salen antes. Si lo dejas vacío, se ordena por fecha de publicación.',
+        'Opcional. Numeros mas bajos salen antes en las guias recomendadas. Si lo dejas vacio, se ordena por fecha de publicacion.',
       validation: (rule) => rule.min(0).integer(),
       group: 'featured'
     }),
@@ -188,20 +177,13 @@ export const landingSupportArticle = defineType({
       title: 'title',
       slug: 'slug.current',
       publishedAt: 'publishedAt',
-      showOnNationalLanding: 'showOnNationalLanding',
-      showOnAlcoyLanding: 'showOnAlcoyLanding'
+      showOnBlog: 'showOnBlog'
     },
-    prepare: ({ title, slug, publishedAt, showOnNationalLanding, showOnAlcoyLanding }) => {
-      const placements = [
-        showOnNationalLanding !== false ? 'nacional' : '',
-        showOnAlcoyLanding !== false ? 'Alcoy' : ''
-      ].filter(Boolean);
-      return {
-        title: title || 'Articulo apoyo',
-        subtitle: `${slug ? `/diseno-web-alcoy/${slug}` : ''}${publishedAt ? ` · ${publishedAt.slice(0, 10)}` : ''}${
-          placements.length ? ` · Destacado: ${placements.join(' + ')}` : ' · No destacado'
-        }`
-      };
-    }
+    prepare: ({ title, slug, publishedAt, showOnBlog }) => ({
+      title: title || 'Articulo del blog',
+      subtitle: `${slug ? `/blog/${slug}` : ''}${publishedAt ? ` - ${publishedAt.slice(0, 10)}` : ''}${
+        showOnBlog === true ? ' - Recomendado en blog' : ''
+      }`
+    })
   }
 });

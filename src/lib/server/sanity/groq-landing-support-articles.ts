@@ -10,8 +10,7 @@ export const landingSupportArticlesQuery = `*[
   image,
   coverImageSrc,
   coverImageAlt,
-  showOnNationalLanding,
-  showOnAlcoyLanding,
+  showOnBlog,
   featuredOrder,
   seoTitle,
   seoDescription

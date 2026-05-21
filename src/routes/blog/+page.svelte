@@ -11,7 +11,7 @@
   const articles = $derived(data.articles ?? []);
   const featuredArticles = $derived(
     [...articles]
-      .filter((article) => article.showOnNationalLanding !== false || article.showOnAlcoyLanding !== false)
+      .filter((article) => article.showOnBlog === true)
       .sort((a, b) => {
         const aOrder = a.featuredOrder;
         const bOrder = b.featuredOrder;
