@@ -77,6 +77,10 @@
                     {/each}
                   </ul>
                 {/if}
+                <span class="project-cta">
+                  {project.linkLabel}
+                  <span aria-hidden="true">-></span>
+                </span>
               </div>
             </article>
           </a>
@@ -290,6 +294,26 @@
     line-height: 1;
   }
 
+  .project-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 20px;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 820;
+  }
+
+  .project-cta span {
+    color: #0071e3;
+    transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .archive-card:hover .project-cta span,
+  .archive-card:focus-visible .project-cta span {
+    transform: translateX(5px);
+  }
+
   .empty-state {
     width: min(100% - 48px, 1120px);
     margin: 0 auto;
@@ -332,7 +356,8 @@
 
   @media (prefers-reduced-motion: reduce) {
     .archive-card,
-    .card-media img {
+    .card-media img,
+    .project-cta span {
       transition: none !important;
     }
   }

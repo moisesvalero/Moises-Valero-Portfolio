@@ -198,6 +198,10 @@
                       <span>{tag}</span>
                     {/each}
                   </div>
+                  <span class="project-cta">
+                    {project.linkLabel}
+                    <span aria-hidden="true">-></span>
+                  </span>
                 </div>
               </article>
             </a>
@@ -242,6 +246,10 @@
                   <span>{tag}</span>
                 {/each}
               </div>
+              <span class="project-cta">
+                {project.linkLabel}
+                <span aria-hidden="true">-></span>
+              </span>
             </div>
           </article>
         </a>
