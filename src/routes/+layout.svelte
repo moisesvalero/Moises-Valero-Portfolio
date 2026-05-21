@@ -74,7 +74,9 @@
 
       const home = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#top');
       const services = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#servicios');
-      const projects = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#proyectos');
+      const projects =
+        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/proyectos') ??
+        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#proyectos');
       const analyzer =
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/tools/analizador-web') ??
         ({ label: analyzerLabel, href: '/tools/analizador-web' } as HeaderNavItem);

@@ -28,7 +28,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     navItems: [
       { label: 'Inicio', href: '/#top' },
       { label: 'Competencias', href: '/#servicios' },
-      { label: 'Proyectos', href: '/#proyectos' },
+      { label: 'Proyectos', href: '/proyectos' },
       { label: 'Analizador', href: '/tools/analizador-web' },
       { label: 'Guías', href: '/blog' },
       { label: 'Trayectoria', href: '#', openCareerModal: true }

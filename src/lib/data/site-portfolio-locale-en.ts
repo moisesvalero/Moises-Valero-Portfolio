@@ -31,7 +31,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     navItems: [
       { label: 'Home', href: '/#top' },
       { label: 'Services', href: '/#servicios' },
-      { label: 'Projects', href: '/#proyectos' },
+      { label: 'Projects', href: '/proyectos' },
       { label: 'Articles', href: '/blog' },
       { label: 'Web Design', href: '/diseno-web' },
       { label: 'Career', href: '#', openCareerModal: true }
