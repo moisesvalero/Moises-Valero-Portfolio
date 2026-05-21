@@ -598,7 +598,7 @@
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     display: block;
   }
 
@@ -606,16 +606,16 @@
     color: #0f172a !important;
     font-size: clamp(36px, 5.5vw, 80px) !important;
     font-weight: 800 !important;
-    margin: 0 0 16px 0 !important;
-    letter-spacing: -0.03em;
-    line-height: 1;
+    margin: 0 0 13px 0 !important;
+    letter-spacing: -0.062em;
+    line-height: 0.9;
     white-space: nowrap;
   }
 
   .sub-frase {
     color: #111827 !important;
     font-size: clamp(14px, 1.55vw, 18px) !important;
-    margin: 0 0 28px 0 !important;
+    margin: 0 0 24px 0 !important;
     font-weight: 600 !important;
     line-height: 1.2;
     display: inline-flex;
@@ -680,7 +680,7 @@
     font-weight: 500;
     line-height: 1.74;
     letter-spacing: 0.005em;
-    margin-bottom: 44px;
+    margin-bottom: 40px;
     max-width: min(700px, 92vw);
     margin-left: auto;
     margin-right: auto;
@@ -862,6 +862,8 @@
 
     .hero-stripe-pro-v2 h1 {
       font-size: clamp(48px, 11vw, 64px) !important;
+      letter-spacing: -0.046em;
+      line-height: 0.94;
     }
 
     .sub-frase {
@@ -933,6 +935,8 @@
 
     .hero-stripe-pro-v2 h1 {
       font-size: clamp(34px, 10vw, 54px) !important;
+      letter-spacing: -0.034em;
+      line-height: 0.96;
     }
 
     .sub-frase {

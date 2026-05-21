@@ -29,8 +29,8 @@
 
   const summary = $derived(
     $locale === 'en'
-      ? 'I work from clear specs: I define what needs to be built, guide AI through the development process, review the result and connect the pieces without losing sight of performance, maintainability and user value.'
-      : 'Trabajo desde especificaciones claras: defino qué hay que construir, guío a la IA durante el desarrollo, reviso el resultado y conecto las piezas sin perder de vista rendimiento, mantenibilidad y valor para el usuario.'
+      ? 'I work from clear specs, guide AI with technical criteria and review every result with performance and maintainability in mind.'
+      : 'Trabajo desde especificaciones claras, guío la IA con criterio técnico y reviso cada resultado con foco en rendimiento y mantenibilidad.'
   );
 
   const roleFacts = $derived<RoleFact[]>(

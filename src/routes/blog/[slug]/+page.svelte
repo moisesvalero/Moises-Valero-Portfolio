@@ -64,10 +64,6 @@
       <p class="eyebrow">{article.categoryLabel} · {formatArticleDate(article.publishedAt)} · {article.readingMinutes} min</p>
       <h1>{article.title}</h1>
       <p class="lead">{article.excerpt}</p>
-      <div class="article-actions">
-        <a class="btn-apple-blue" href={resolve('/#proyectos')}>Ver portfolio</a>
-        <a class="btn-ghost-slim" href={resolve('/blog')}>Todos los articulos</a>
-      </div>
     </div>
   </header>
 
@@ -117,8 +113,9 @@
     padding: clamp(7rem, 12vw, 9rem) 0 2.8rem;
     border-bottom: 1px solid rgba(15, 23, 42, 0.08);
     background:
-      radial-gradient(circle at 18% 18%, rgba(0, 113, 227, 0.14), transparent 34%),
-      radial-gradient(circle at 82% 12%, rgba(124, 92, 191, 0.1), transparent 32%),
+      linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px) 0 0 / 76px 76px,
+      radial-gradient(circle at 18% 18%, rgba(0, 113, 227, 0.13), transparent 34%),
+      radial-gradient(circle at 82% 12%, rgba(20, 184, 166, 0.1), transparent 32%),
       linear-gradient(180deg, var(--bg-main) 0%, var(--bg-surface) 100%);
   }
 
@@ -152,64 +149,6 @@
     color: var(--text-secondary);
     font-size: clamp(1rem, 2vw, 1.14rem);
     line-height: 1.7;
-  }
-
-  .article-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-    margin-top: 1.6rem;
-  }
-
-  .btn-apple-blue,
-  .btn-ghost-slim {
-    min-height: 46px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.45rem;
-    border-radius: 8px;
-    padding: 0.82rem 1.35rem;
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1;
-    text-decoration: none;
-    transition:
-      transform 0.32s cubic-bezier(0.23, 1, 0.32, 1),
-      background 0.32s cubic-bezier(0.23, 1, 0.32, 1),
-      border-color 0.32s cubic-bezier(0.23, 1, 0.32, 1),
-      box-shadow 0.32s cubic-bezier(0.23, 1, 0.32, 1),
-      color 0.32s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .btn-apple-blue {
-    border: 1px solid #0066e5;
-    background: #0066e5;
-    color: #ffffff;
-    box-shadow: 0 12px 28px rgba(0, 102, 229, 0.22);
-  }
-
-  .btn-apple-blue:hover,
-  .btn-apple-blue:focus-visible {
-    transform: translateY(-3px);
-    border-color: #0052b8;
-    background: #0052b8;
-    color: #ffffff;
-    box-shadow: 0 16px 34px rgba(0, 102, 229, 0.32);
-  }
-
-  .btn-ghost-slim {
-    border: 1.5px solid #e2e8f0;
-    background: transparent;
-    color: #0f172a;
-  }
-
-  .btn-ghost-slim:hover,
-  .btn-ghost-slim:focus-visible {
-    transform: translateY(-3px);
-    border-color: #cbd5e1;
-    background: rgba(15, 23, 42, 0.04);
-    color: #0f172a;
   }
 
   .article-body-shell {
@@ -327,7 +266,7 @@
     border-bottom-color: rgba(255, 255, 255, 0.12);
     background:
       radial-gradient(circle at 20% 12%, rgba(0, 113, 227, 0.16), transparent 34%),
-      radial-gradient(circle at 82% 10%, rgba(167, 243, 255, 0.08), transparent 32%),
+      radial-gradient(circle at 82% 10%, rgba(20, 184, 166, 0.1), transparent 32%),
       linear-gradient(180deg, #0a0a0a 0%, #0b0b0b 100%);
   }
 
@@ -344,40 +283,6 @@
     background: rgba(24, 24, 27, 0.96);
   }
 
-  :global(html.dark) .btn-apple-blue {
-    border-color: rgba(255, 255, 255, 0.78);
-    background: linear-gradient(135deg, #ffffff 0%, #f5f7ff 52%, #e7fbff 100%);
-    color: #0a0a0a;
-    box-shadow:
-      0 16px 38px rgba(0, 0, 0, 0.34),
-      0 0 24px rgba(167, 243, 255, 0.14),
-      0 0 0 1px rgba(0, 0, 0, 0.06) inset;
-  }
-
-  :global(html.dark) .btn-apple-blue:hover,
-  :global(html.dark) .btn-apple-blue:focus-visible {
-    border-color: rgba(255, 255, 255, 0.9);
-    background: linear-gradient(135deg, #ffffff 0%, #f7f8ff 48%, #ecfbff 100%);
-    color: #000000;
-  }
-
-  :global(html.dark) .btn-ghost-slim {
-    border-color: rgba(167, 243, 255, 0.24);
-    background: rgba(10, 10, 10, 0.68);
-    color: #f4f4f5;
-    box-shadow:
-      0 14px 34px rgba(0, 0, 0, 0.28),
-      0 0 22px rgba(139, 156, 255, 0.09),
-      0 1px 0 rgba(255, 255, 255, 0.08) inset;
-  }
-
-  :global(html.dark) .btn-ghost-slim:hover,
-  :global(html.dark) .btn-ghost-slim:focus-visible {
-    border-color: #ffffff;
-    background: #fafafa;
-    color: #0a0a0a;
-  }
-
   @media (max-width: 760px) {
     .article-shell {
       width: min(100% - 1.25rem, 860px);
@@ -385,11 +290,6 @@
 
     .article-hero {
       padding-top: 6.5rem;
-    }
-
-    .article-actions {
-      flex-direction: column;
-      align-items: stretch;
     }
 
     .related-grid {

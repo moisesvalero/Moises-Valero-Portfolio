@@ -38,6 +38,7 @@
   let status = $state<'idle' | 'loading' | 'success' | 'error'>('idle');
   let errorMessage = $state('');
   let result = $state<AnalyzerResult | null>(null);
+  let elapsedSeconds = $state(0);
 
   const scoreLabel = $derived(result ? `${result.performanceScore}/100` : '--');
   const scoreClass = $derived(
@@ -62,6 +63,33 @@
     'Calculando peso de recursos',
     'Preparando diagnostico'
   ];
+  const loadingMessages = [
+    { after: 0, text: 'Enviando la URL a Google PageSpeed. Esto puede tardar un poco.' },
+    { after: 8, text: 'PageSpeed esta abriendo la pagina como un movil real. Seguimos midiendo.' },
+    { after: 18, text: 'La API suele tardar mas cuando la web tiene muchos recursos o imagenes pesadas.' },
+    { after: 32, text: 'Seguimos esperando la respuesta de Google. No cierres esta ventana.' },
+    { after: 50, text: 'Esta prueba va lenta, pero sigue activa. Si termina fuera de tiempo te avisare.' }
+  ];
+  const activeLoadingMessage = $derived(
+    loadingMessages.findLast((message) => elapsedSeconds >= message.after)?.text ?? loadingMessages[0].text
+  );
+  const loadingProgress = $derived(Math.min(94, Math.round(12 + elapsedSeconds * 1.65)));
+  const loadingProgressStyle = $derived(`--loading-progress:${loadingProgress}%`);
+
+  $effect(() => {
+    if (status !== 'loading') {
+      elapsedSeconds = 0;
+      return;
+    }
+
+    const startedAt = Date.now();
+    elapsedSeconds = 0;
+    const timer = window.setInterval(() => {
+      elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  });
 
   function normalizeResult(input: Partial<AnalyzerResult>): AnalyzerResult {
     return {
@@ -183,7 +211,7 @@
     <div class="tool-copy">
       <a class="back-link" href={resolve('/#proyectos')}>Portfolio</a>
       <p class="eyebrow">Herramienta propia</p>
-      <h1>Analizador web con diagnostico visual</h1>
+      <h1>Analizador web</h1>
       <p class="lead">
         Una web app para medir rendimiento real, peso de recursos y senales Core Web Vitals con una lectura clara
         para tomar decisiones tecnicas sin perderse en ruido.
@@ -266,10 +294,22 @@
       </div>
 
       {#if status === 'loading'}
-        <div class="loading-steps" aria-label="Progreso del analisis">
-          {#each loadingSteps as step, index (step)}
-            <span style={`--delay:${index * 120}ms`}>{step}</span>
-          {/each}
+        <div class="loading-panel" aria-live="polite">
+          <div class="loading-panel__head">
+            <div>
+              <p>Analisis en curso</p>
+              <strong>{activeLoadingMessage}</strong>
+            </div>
+            <span>{elapsedSeconds}s</span>
+          </div>
+          <div class="loading-bar" style={loadingProgressStyle} aria-hidden="true">
+            <span></span>
+          </div>
+          <div class="loading-steps" aria-label="Progreso del analisis">
+            {#each loadingSteps as step, index (step)}
+              <span class:step-active={index <= Math.min(3, Math.floor(elapsedSeconds / 10))} style={`--delay:${index * 120}ms`}>{step}</span>
+            {/each}
+          </div>
         </div>
       {/if}
 
@@ -630,8 +670,74 @@
     font-size: 1.12rem;
   }
 
-  .loading-steps {
+  .loading-panel {
     margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(0, 113, 227, 0.14);
+    border-radius: 8px;
+    background:
+      linear-gradient(180deg, rgba(0, 113, 227, 0.06), rgba(255, 255, 255, 0.84));
+  }
+
+  .loading-panel__head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .loading-panel__head p {
+    margin: 0 0 0.2rem;
+    color: #0066e5;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .loading-panel__head strong {
+    display: block;
+    color: #0f172a;
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+
+  .loading-panel__head span {
+    flex: 0 0 auto;
+    color: #475569;
+    font-size: 0.82rem;
+    font-weight: 900;
+  }
+
+  .loading-bar {
+    position: relative;
+    height: 8px;
+    margin-top: 0.9rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.22);
+  }
+
+  .loading-bar span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--loading-progress);
+    min-width: 18%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #0066e5, #11a37f);
+    transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .loading-bar span::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+    animation: loadingSweep 1.4s ease-in-out infinite;
+  }
+
+  .loading-steps {
+    margin-top: 0.9rem;
     display: grid;
     gap: 0.45rem;
   }
@@ -643,6 +749,11 @@
     font-size: 0.9rem;
     animation: stepGlow 1.2s ease-in-out infinite alternate;
     animation-delay: var(--delay);
+  }
+
+  .loading-steps span.step-active {
+    color: #0f172a;
+    font-weight: 800;
   }
 
   .loading-steps span::before {
@@ -710,6 +821,15 @@
     }
   }
 
+  @keyframes loadingSweep {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+
   :global(html.dark) .tool-page {
     background:
       linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 72px 72px,
@@ -731,7 +851,8 @@
   :global(html.dark) .analyzer-card,
   :global(html.dark) .metrics div,
   :global(html.dark) .score-core,
-  :global(html.dark) .highlights-panel {
+  :global(html.dark) .highlights-panel,
+  :global(html.dark) .loading-panel {
     border-color: rgba(255, 255, 255, 0.12);
     background: rgba(18, 18, 18, 0.86);
     box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
@@ -762,8 +883,14 @@
 
   :global(html.dark) .score-core small,
   :global(html.dark) .metrics span,
-  :global(html.dark) .highlights {
+  :global(html.dark) .highlights,
+  :global(html.dark) .loading-panel__head span {
     color: #d4d4d8;
+  }
+
+  :global(html.dark) .loading-panel__head strong,
+  :global(html.dark) .loading-steps span.step-active {
+    color: #f8fafc;
   }
 
   :global(html.dark) .notes-section {

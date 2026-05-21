@@ -67,6 +67,13 @@
     analyzerModal.loadingSteps[1] || 'Revisando estabilidad visual y recursos pesados',
     analyzerModal.loadingSteps[2] || 'Preparando recomendaciones claras para mejorar resultados'
   ]);
+  const analyzerLoadingMessages = [
+    { after: 0, text: 'Conectando con Google PageSpeed. La prueba puede tardar unos segundos.' },
+    { after: 8, text: 'Google esta cargando tu pagina como un usuario movil real.' },
+    { after: 18, text: 'Seguimos midiendo recursos, tiempos de carga e imagenes pesadas.' },
+    { after: 32, text: 'La API esta tardando mas de lo normal, pero el analisis sigue activo.' },
+    { after: 50, text: 'No cierres la ventana. Si PageSpeed agota el tiempo te avisare aqui.' }
+  ];
   const sectionData = $derived({
     eyebrow: 'Por qué elegirme',
     title: landing.benefits.heading,
@@ -104,6 +111,7 @@
   let analyzerLeadStatus = $state<'idle' | 'sending' | 'success' | 'error'>('idle');
   let analyzerLeadError = $state('');
   let analyzerLeadHoneypot = $state('');
+  let analyzerElapsedSeconds = $state(0);
   type AnalyzerResult = {
     requestedUrl: string;
     strategy: string;
@@ -119,6 +127,12 @@
     highlights: string[];
   };
   let analyzerResult = $state<AnalyzerResult | null>(null);
+  const analyzerLoadingMessage = $derived(
+    analyzerLoadingMessages.findLast((message) => analyzerElapsedSeconds >= message.after)?.text ??
+      analyzerLoadingMessages[0].text
+  );
+  const analyzerProgress = $derived(Math.min(94, Math.round(14 + analyzerElapsedSeconds * 1.6)));
+  const analyzerProgressStyle = $derived(`--analyzer-progress:${analyzerProgress}%`);
 
   type TailwindRuntime = {
     refresh?: () => void;
@@ -668,6 +682,21 @@
     return () => {
       document.body.style.overflow = '';
     };
+  });
+
+  $effect(() => {
+    if (analyzerStatus !== 'loading') {
+      analyzerElapsedSeconds = 0;
+      return;
+    }
+
+    const startedAt = Date.now();
+    analyzerElapsedSeconds = 0;
+    const timer = window.setInterval(() => {
+      analyzerElapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
+    }, 1000);
+
+    return () => window.clearInterval(timer);
   });
 
   function revealOnScroll(node: HTMLElement) {
@@ -1577,33 +1606,35 @@
           {/if}
 
           {#if analyzerStatus === 'loading'}
-            <div class="analyzer-loading-shell rounded-xl border border-slate-200 bg-slate-50 p-4 md:p-5">
+            <div class="analyzer-loading-shell rounded-xl border border-slate-200 bg-slate-50 p-4 md:p-5" aria-live="polite">
               <div class="flex items-start gap-3">
                 <span class="analyzer-loading-spinner mt-0.5" aria-hidden="true"></span>
-                <div class="space-y-1">
+                <div class="space-y-1 min-w-0">
                   <p class="text-sm font-semibold text-slate-800">{analyzerModal.loadingTitle.replace(/movil/gi, '').replace(/\s{2,}/g, ' ').trim()}</p>
                   <p class="text-xs text-slate-600">
-                    {analyzerModal.loadingText}
+                    {analyzerLoadingMessage}
                   </p>
                 </div>
+                <span class="analyzer-loading-time">{analyzerElapsedSeconds}s</span>
               </div>
-              <div class="analyzer-loading-progress mt-4" aria-hidden="true">
+              <div class="analyzer-loading-progress mt-4" style={analyzerProgressStyle} aria-hidden="true">
                 <span></span>
               </div>
               <ul class="mt-4 space-y-2 text-xs text-slate-600">
-                <li class="flex items-center gap-2">
+                <li class:analyzer-step-active={analyzerElapsedSeconds >= 0} class="flex items-center gap-2">
                   <span class="material-symbols-outlined text-slate-500" style="font-size:16px;">bolt</span>
                   {analyzerLoadingSteps[0]}
                 </li>
-                <li class="flex items-center gap-2">
+                <li class:analyzer-step-active={analyzerElapsedSeconds >= 10} class="flex items-center gap-2">
                   <span class="material-symbols-outlined text-slate-500" style="font-size:16px;">developer_mode</span>
                   {analyzerLoadingSteps[1]}
                 </li>
-                <li class="flex items-center gap-2">
+                <li class:analyzer-step-active={analyzerElapsedSeconds >= 22} class="flex items-center gap-2">
                   <span class="material-symbols-outlined text-slate-500" style="font-size:16px;">tips_and_updates</span>
                   {analyzerLoadingSteps[2]}
                 </li>
               </ul>
+              <p class="analyzer-loading-note">PageSpeed puede tardar mas en horas punta. La prueba sigue activa mientras este contador avance.</p>
             </div>
           {/if}
 
@@ -2450,6 +2481,19 @@
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
   }
 
+  .analyzer-loading-time {
+    margin-left: auto;
+    flex: 0 0 auto;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    padding: 0.18rem 0.5rem;
+    color: #0f766e;
+    background: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
   .analyzer-loading-spinner {
     width: 18px;
     height: 18px;
@@ -2472,10 +2516,35 @@
   .analyzer-loading-progress span {
     position: absolute;
     inset: 0 auto 0 0;
-    width: 42%;
+    width: var(--analyzer-progress);
+    min-width: 16%;
     border-radius: 999px;
     background: linear-gradient(90deg, #0f766e 0%, #14b8a6 100%);
-    animation: analyzerProgress 1.25s ease-in-out infinite;
+    transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .analyzer-loading-progress span::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.58), transparent);
+    animation: analyzerProgressSweep 1.35s ease-in-out infinite;
+  }
+
+  .analyzer-step-active {
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  .analyzer-step-active .material-symbols-outlined {
+    color: #0f766e !important;
+  }
+
+  .analyzer-loading-note {
+    margin: 0.85rem 0 0;
+    color: #64748b;
+    font-size: 0.72rem;
+    line-height: 1.45;
   }
 
   @keyframes analyzerSpin {
@@ -2487,15 +2556,12 @@
     }
   }
 
-  @keyframes analyzerProgress {
-    0% {
-      left: -42%;
+  @keyframes analyzerProgressSweep {
+    from {
+      transform: translateX(-100%);
     }
-    50% {
-      left: 32%;
-    }
-    100% {
-      left: 100%;
+    to {
+      transform: translateX(100%);
     }
   }
 
