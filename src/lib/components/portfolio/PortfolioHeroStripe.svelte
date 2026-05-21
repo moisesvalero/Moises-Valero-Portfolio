@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { Camera, Mesh, Program, Renderer, Transform, Triangle, Vec2, Vec3 } from 'ogl';
   import { getCareerModalControls } from '$lib/career-modal-context';
 
   interface Props {
@@ -23,17 +24,19 @@
   }: Props = $props();
 
   const heroCapabilities = $derived([
-    { label: 'SvelteKit', mark: 'S' },
-    { label: 'WordPress', mark: 'W' },
-    { label: 'APIs', mark: '{}' },
-    { label: /IT Support/i.test(subtitle) ? 'AI' : 'IA', mark: /IT Support/i.test(subtitle) ? 'AI' : 'IA' }
+    { label: 'SvelteKit', icon: 'simple-icons:svelte' },
+    { label: 'WordPress', icon: 'simple-icons:wordpress' },
+    { label: 'APIs', icon: 'lucide:webhook' },
+    { label: /IT Support/i.test(subtitle) ? 'AI' : 'IA', icon: 'lucide:sparkles' }
   ]);
+  const iconifySvgUrl = (name: string) =>
+    `url("https://api.iconify.design/${encodeURIComponent(name)}.svg")`;
 
   const careerModal = getCareerModalControls();
 
   let scrollHintOpacity = $state(1);
   let showScrollHint = $state(true);
-  let disableHeroShader = $state(true);
+  let disableHeroShader = $state(false);
   const lightShaderConfig = {
     color: '#0066E5',
     secondaryColor: '#0052B8',
@@ -93,11 +96,7 @@
     return [toLinearChannel(r), toLinearChannel(g), toLinearChannel(b)];
   };
 
-  type Vec3Like = {
-    set: (r: number, g: number, b: number) => void;
-  };
-
-  const applyHexColor = (target: Vec3Like, hex: string, fallback: [number, number, number]) => {
+  const applyHexColor = (target: Vec3, hex: string, fallback: [number, number, number]) => {
     const [r, g, b] = hexToLinearRgb(hex);
     target.set(
       Number.isFinite(r) ? r : fallback[0],
@@ -226,14 +225,13 @@
      * por privacidad y quitaba el canvas entero sin ser un móvil “cutre”.
      */
     const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const lightweightMq = window.matchMedia('(max-width: 1024px), (hover: none), (pointer: coarse)');
     const syncHeroShaderMode = () => {
-      if (motionMq.matches || lightweightMq.matches) {
+      if (motionMq.matches) {
         disableHeroShader = true;
         return;
       }
       const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
-      disableHeroShader = typeof mem === 'number' && mem <= 4;
+      disableHeroShader = typeof mem === 'number' && mem <= 2;
     };
 
     const hintMedia = window.matchMedia('(max-width: 1199px), (hover: none), (pointer: coarse)');
@@ -247,13 +245,11 @@
     syncScrollHintVisibility();
     onScroll();
     motionMq.addEventListener('change', syncHeroShaderMode);
-    lightweightMq.addEventListener('change', syncHeroShaderMode);
     window.addEventListener('scroll', onScroll, { passive: true });
     hintMedia.addEventListener('change', syncScrollHintVisibility);
     window.addEventListener('resize', syncScrollHintVisibility, { passive: true });
     return () => {
       motionMq.removeEventListener('change', syncHeroShaderMode);
-      lightweightMq.removeEventListener('change', syncHeroShaderMode);
       window.removeEventListener('scroll', onScroll);
       hintMedia.removeEventListener('change', syncScrollHintVisibility);
       window.removeEventListener('resize', syncScrollHintVisibility);
@@ -261,12 +257,6 @@
   });
 
   const mountSpecularBand = (targetCanvas: HTMLCanvasElement) => {
-    let destroyed = false;
-    let teardown: (() => void) | null = null;
-
-    void import('ogl').then(({ Camera, Mesh, Program, Renderer, Transform, Triangle, Vec2, Vec3 }) => {
-      if (destroyed) return;
-
     const renderer = new Renderer({
       canvas: targetCanvas,
       alpha: true,
@@ -370,16 +360,10 @@
     });
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
 
-      teardown = () => {
-        window.cancelAnimationFrame(raf);
-        themeObserver.disconnect();
-      };
-    });
-
     return {
       destroy() {
-        destroyed = true;
-        teardown?.();
+        window.cancelAnimationFrame(raf);
+        themeObserver.disconnect();
       }
     };
   };
@@ -404,7 +388,7 @@
       <h2 class="sub-frase anim-fade-up" aria-label={subtitle}>
         {#each heroCapabilities as item (item.label)}
           <span class="hero-tech-item">
-            <span class="hero-tech-mark" aria-hidden="true">{item.mark}</span>
+            <span class="hero-tech-icon" style:--hero-tech-icon={iconifySvgUrl(item.icon)} aria-hidden="true"></span>
             <span>{item.label}</span>
           </span>
         {/each}
@@ -467,10 +451,7 @@
     flex: 1;
     min-height: 100vh;
     min-height: 100svh;
-    background:
-      radial-gradient(circle at 76% 18%, rgba(167, 243, 255, 0.28), transparent 24%),
-      radial-gradient(circle at 18% 78%, rgba(0, 102, 229, 0.14), transparent 28%),
-      linear-gradient(135deg, #f8fafc 0%, #eef6ff 48%, #f8fafc 100%);
+    background: #f8fafc;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -678,23 +659,19 @@
     animation-delay: 0.82s;
   }
 
-  .hero-tech-mark {
+  .hero-tech-icon {
     width: 18px;
     height: 18px;
     flex: 0 0 auto;
+    color: #005fcf;
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.72));
+    opacity: 0.92;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
-    border: 1px solid rgba(0, 95, 207, 0.28);
-    background: rgba(255, 255, 255, 0.34);
-    color: #005fcf;
-    font-family: var(--font-mono);
-    font-size: 9px;
-    font-weight: 850;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.72) inset;
+    background: currentColor;
+    mask: var(--hero-tech-icon) center / contain no-repeat;
+    -webkit-mask: var(--hero-tech-icon) center / contain no-repeat;
   }
 
   .texto-bio {
@@ -818,11 +795,10 @@
       0 12px 42px rgba(0, 0, 0, 0.46);
   }
 
-  :global(html.dark) .hero-tech-mark {
+  :global(html.dark) .hero-tech-icon {
     color: #a7f3ff;
-    border-color: rgba(167, 243, 255, 0.32);
-    background: rgba(167, 243, 255, 0.08);
-    box-shadow: 0 0 14px rgba(167, 243, 255, 0.08);
+    filter: drop-shadow(0 0 14px rgba(167, 243, 255, 0.2));
+    opacity: 0.96;
   }
 
   :global(html.dark) .hero-stripe-pro-v2::before {
@@ -946,10 +922,6 @@
       align-items: flex-start;
       padding-top: max(6.25rem, calc(env(safe-area-inset-top, 0px) + 5.25rem));
       padding-bottom: 72px;
-      background:
-        radial-gradient(circle at 78% 16%, rgba(167, 243, 255, 0.22), transparent 26%),
-        radial-gradient(circle at 10% 82%, rgba(0, 102, 229, 0.12), transparent 30%),
-        linear-gradient(145deg, #f8fafc 0%, #eef6ff 54%, #f8fafc 100%);
     }
 
     .label-top {
@@ -978,11 +950,9 @@
       gap: 6px;
     }
 
-    .hero-tech-mark {
+    .hero-tech-icon {
       width: 16px;
       height: 16px;
-      border-radius: 5px;
-      font-size: 8px;
     }
 
     .texto-bio {
