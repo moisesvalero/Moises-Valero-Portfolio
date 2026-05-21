@@ -22,12 +22,7 @@
       })
       .slice(0, 3)
   );
-  const featuredSlugs = $derived(new Set(featuredArticles.map((article) => article.slug)));
-  const latestArticles = $derived(
-    articles.filter((article) => !featuredSlugs.has(article.slug)).length
-      ? articles.filter((article) => !featuredSlugs.has(article.slug))
-      : articles.slice(featuredArticles.length)
-  );
+  const latestArticles = $derived(articles);
   const canonical = `${baseUrl}/blog`;
   const listJsonLd = $derived(
     stringifyJsonLdForHtml({

@@ -346,7 +346,8 @@
     }
 
     h1 {
-      font-size: clamp(56px, 22vw, 84px);
+      font-size: clamp(48px, 18vw, 72px);
+      letter-spacing: -0.055em;
     }
 
     .archive-grid {
