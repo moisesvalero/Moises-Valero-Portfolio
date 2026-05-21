@@ -47,7 +47,6 @@
   const standardProjects = $derived(
     projectsAfterHero.filter((project) => !spotlightHrefs.has(project.href))
   );
-  const hasHiddenProjects = $derived(effectiveHomeLimit > 0 && projects.length > effectiveHomeLimit);
 
   function projectTarget(project: SiteProjectCard): string | undefined {
     return project.external ? '_blank' : undefined;
@@ -98,8 +97,8 @@
       {#if archiveHref}
         <a class="proyectos-archive-link" href={internalHref(archiveHref)}>
           {archiveLinkLabel}
-          {#if hasHiddenProjects}
-            <span aria-hidden="true">+{projects.length - visibleProjects.length}</span>
+          {#if projects.length}
+            <span aria-label={`${projects.length} proyectos`}>{projects.length}</span>
           {/if}
         </a>
       {/if}

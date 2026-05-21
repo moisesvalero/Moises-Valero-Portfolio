@@ -224,6 +224,14 @@ export const caseStudy = defineType({
       group: 'imagenes',
       fields: [
         {
+          name: 'cardImage',
+          type: 'image',
+          title: 'Imagen de tarjeta en portfolio',
+          description:
+            'Opcional. Se usa en las tarjetas de la home y en /proyectos. Si lo dejas vacio, se usa la imagen principal.',
+          options: { hotspot: true }
+        },
+        {
           name: 'principalImage',
           type: 'image',
           title: 'Imagen principal (subida en Sanity)',

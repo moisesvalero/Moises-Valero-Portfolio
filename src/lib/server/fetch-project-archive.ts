@@ -8,7 +8,7 @@ const projectArchiveQuery = `*[
   _type == "caseStudy" &&
   defined(slug.current)
 ] | order(coalesce(homeSortOrder, 999) asc, _updatedAt desc){
-  "thumbnail": images.principalImage,
+  "thumbnail": coalesce(images.cardImage, images.principalImage),
   "imageSrc": coalesce(
     images.principal,
     "/imagenes/captura-novakit_ember.avif"
