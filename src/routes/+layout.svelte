@@ -166,8 +166,8 @@
   let linkMoveRaf = 0;
   let pendingLinkMove: { el: HTMLElement; cx: number; cy: number } | null = null;
 
-  /** getBoundingClientRect en cada mousemove fuerza reflow; una lectura por frame basta. */
-  const handleLinkMove = (event: MouseEvent) => {
+  /** getBoundingClientRect en cada movimiento fuerza reflow; una lectura por frame basta. */
+  const handleLinkMove = (event: PointerEvent) => {
     const el = event.currentTarget as HTMLElement;
     pendingLinkMove = { el, cx: event.clientX, cy: event.clientY };
     if (linkMoveRaf) return;
@@ -292,7 +292,7 @@
                         type="button"
                         class="motion-menu-link"
                         style={`--stagger:${groupIndex * 3 + itemIndex}`}
-                        onmousemove={handleLinkMove}
+                        onpointermove={handleLinkMove}
                         onclick={() => {
                           careerOpen = true;
                           closeMenu();
@@ -306,7 +306,7 @@
                         style={`--stagger:${groupIndex * 3 + itemIndex}`}
                         href={item.href}
                         data-sveltekit-reload={shouldForceDocumentNavigation(item.href) ? 'true' : undefined}
-                        onmousemove={handleLinkMove}
+                        onpointermove={handleLinkMove}
                         onclick={closeMenu}
                       >
                         <span><span>{item.label}</span></span>

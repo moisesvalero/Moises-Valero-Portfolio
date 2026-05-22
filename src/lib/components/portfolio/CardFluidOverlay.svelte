@@ -104,19 +104,17 @@
       currentY = targetY;
       targetActive = 0.7;
       ensureRunning();
-      window.setTimeout(() => {
-        targetActive = 0;
-        ensureRunning();
-      }, 380);
     };
 
     if (isCoarse) {
-      card.addEventListener('pointerdown', onTouchTap);
+      card.addEventListener('pointerdown', onTouchTap, { passive: true });
+      card.addEventListener('pointerup', onLeave, { passive: true });
+      card.addEventListener('pointercancel', onLeave, { passive: true });
     } else {
-      card.addEventListener('pointerenter', onEnter);
-      card.addEventListener('pointermove', onMove);
-      card.addEventListener('pointerleave', onLeave);
-      card.addEventListener('pointercancel', onLeave);
+      card.addEventListener('pointerenter', onEnter, { passive: true });
+      card.addEventListener('pointermove', onMove, { passive: true });
+      card.addEventListener('pointerleave', onLeave, { passive: true });
+      card.addEventListener('pointercancel', onLeave, { passive: true });
     }
 
     applyVars();
@@ -128,6 +126,7 @@
       card.removeEventListener('pointerleave', onLeave);
       card.removeEventListener('pointercancel', onLeave);
       card.removeEventListener('pointerdown', onTouchTap);
+      card.removeEventListener('pointerup', onLeave);
     };
   });
 </script>

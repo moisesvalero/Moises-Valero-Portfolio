@@ -116,12 +116,31 @@
     let lastY = currentY;
     let velX = 0;
     let velY = 0;
-    let idlePhase = Math.random() * Math.PI * 2;
     let intensity = 0;
     let targetIntensity = 0;
     let pointerInside = false;
     let lastFrame = performance.now();
     let raf = 0;
+    let running = false;
+    let inViewport = false;
+    let pageVisible = !document.hidden;
+
+    const canRun = () => inViewport && pageVisible;
+
+    const stopLoop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    const startLoop = () => {
+      if (running || !canRun()) return;
+      running = true;
+      raf = requestAnimationFrame((t) => {
+        lastFrame = t;
+        tick(t);
+      });
+    };
 
     const setTargetFromEvent = (event: PointerEvent) => {
       const rect = section.getBoundingClientRect();
@@ -138,12 +157,14 @@
       lastX = currentX;
       lastY = currentY;
       targetIntensity = 1;
+      startLoop();
     };
 
     const onPointerMove = (event: PointerEvent) => {
       pointerInside = true;
       setTargetFromEvent(event);
       targetIntensity = 1;
+      startLoop();
     };
 
     const onPointerLeave = () => {
@@ -158,15 +179,14 @@
       lastX = currentX;
       lastY = currentY;
       targetIntensity = 1;
-      if (event.pointerType !== 'mouse') {
-        window.setTimeout(() => {
-          if (!pointerInside) targetIntensity = 0;
-        }, 700);
-      }
+      startLoop();
     };
 
     const tick = (now: number) => {
-      if (!ctx) return;
+      if (!ctx || !canRun()) {
+        stopLoop();
+        return;
+      }
       const dt = Math.min(48, now - lastFrame);
       const dtN = dt / 16.6667;
       lastFrame = now;
@@ -175,12 +195,8 @@
       ctx.fillStyle = `rgba(0,0,0,${0.038 + dt * 0.00065})`;
       ctx.fillRect(0, 0, width, height);
 
-      // Cuando no hay pointer activo, mantenemos deriva lenta para que el fluido no "muera".
       if (!pointerInside) {
-        idlePhase += 0.0085 * dtN;
-        targetX = width * (0.5 + Math.cos(idlePhase * 0.83) * 0.11);
-        targetY = height * (0.5 + Math.sin(idlePhase * 0.67) * 0.1);
-        targetIntensity = 0.42;
+        targetIntensity = 0;
       }
 
       const spring = 0.095;
@@ -227,28 +243,50 @@
       lastX = currentX;
       lastY = currentY;
 
+      if (!pointerInside && intensity < 0.006) {
+        ctx.clearRect(0, 0, width, height);
+        stopLoop();
+        return;
+      }
+
       raf = requestAnimationFrame(tick);
     };
 
-    section.addEventListener('pointerenter', onPointerEnter);
-    section.addEventListener('pointermove', onPointerMove);
-    section.addEventListener('pointerleave', onPointerLeave);
-    section.addEventListener('pointercancel', onPointerLeave);
-    section.addEventListener('pointerdown', onPointerDown);
+    const onVisibility = () => {
+      pageVisible = !document.hidden;
+      if (pageVisible) startLoop();
+      else stopLoop();
+    };
 
-    raf = requestAnimationFrame((t) => {
-      lastFrame = t;
-      tick(t);
+    const io = new IntersectionObserver(([entry]) => {
+      inViewport = entry.isIntersecting;
+      if (inViewport) startLoop();
+      else stopLoop();
+    }, {
+      rootMargin: '120px 0px',
+      threshold: 0.01
     });
+    io.observe(section);
+
+    section.addEventListener('pointerenter', onPointerEnter, { passive: true });
+    section.addEventListener('pointermove', onPointerMove, { passive: true });
+    section.addEventListener('pointerleave', onPointerLeave, { passive: true });
+    section.addEventListener('pointercancel', onPointerLeave, { passive: true });
+    section.addEventListener('pointerdown', onPointerDown, { passive: true });
+    section.addEventListener('pointerup', onPointerLeave, { passive: true });
+    document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
-      cancelAnimationFrame(raf);
+      stopLoop();
       ro.disconnect();
+      io.disconnect();
       section.removeEventListener('pointerenter', onPointerEnter);
       section.removeEventListener('pointermove', onPointerMove);
       section.removeEventListener('pointerleave', onPointerLeave);
       section.removeEventListener('pointercancel', onPointerLeave);
       section.removeEventListener('pointerdown', onPointerDown);
+      section.removeEventListener('pointerup', onPointerLeave);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   });
 </script>
