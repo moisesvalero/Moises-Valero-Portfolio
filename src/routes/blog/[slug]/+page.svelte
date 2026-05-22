@@ -31,6 +31,7 @@
       mainEntityOfPage: canonical
     })
   );
+  let lightboxImage = $state<{ src: string; alt: string } | null>(null);
 
   function formatArticleDate(iso: string): string {
     const date = new Date(iso);
@@ -41,6 +42,44 @@
       year: 'numeric'
     }).format(date);
   }
+
+  function openLightbox(src: string, alt: string) {
+    lightboxImage = { src, alt };
+  }
+
+  function closeLightbox() {
+    lightboxImage = null;
+  }
+
+  function handleImageClick(event: MouseEvent) {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const image = target.closest('img');
+    if (!(image instanceof HTMLImageElement)) return;
+    openLightbox(image.currentSrc || image.src, image.alt || article.title);
+  }
+
+  function handleLightboxKeydown(event: KeyboardEvent) {
+    if (!lightboxImage) return;
+    if (event.key === 'Escape') closeLightbox();
+  }
+
+  function articleImageLightbox(node: HTMLElement) {
+    node.addEventListener('click', handleImageClick);
+    return {
+      destroy() {
+        node.removeEventListener('click', handleImageClick);
+      }
+    };
+  }
+
+  $effect(() => {
+    if (!lightboxImage) return;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  });
 </script>
 
 <svelte:head>
@@ -57,6 +96,8 @@
   <JsonLdScript json={articleJsonLd} />
 </svelte:head>
 
+<svelte:window onkeydown={handleLightboxKeydown} />
+
 <article class="blog-article">
   <header class="article-hero">
     <div class="article-shell">
@@ -68,8 +109,15 @@
   </header>
 
   <div class="article-shell article-body-shell">
-    <img class="cover" src={article.coverImageSrc} alt={article.coverImageAlt} loading="eager" />
-    <div class="content prose">{@html article.bodyHtml}</div>
+    <button
+      class="image-open cover-open"
+      type="button"
+      aria-label="Abrir imagen destacada"
+      onclick={() => openLightbox(article.coverImageSrc, article.coverImageAlt)}
+    >
+      <img class="cover" src={article.coverImageSrc} alt={article.coverImageAlt} loading="eager" />
+    </button>
+    <div class="content prose" use:articleImageLightbox>{@html article.bodyHtml}</div>
   </div>
 
   {#if relatedArticles.length}
@@ -92,6 +140,24 @@
     </section>
   {/if}
 </article>
+
+{#if lightboxImage}
+  <div class="image-lightbox" role="presentation" onmousedown={closeLightbox}>
+    <div
+      class="image-lightbox-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Vista ampliada de imagen"
+      tabindex="-1"
+      onmousedown={(event) => event.stopPropagation()}
+    >
+      <button class="image-lightbox-close" type="button" aria-label="Cerrar imagen" onclick={closeLightbox}>
+        <span aria-hidden="true">×</span>
+      </button>
+      <img src={lightboxImage.src} alt={lightboxImage.alt} />
+    </div>
+  </div>
+{/if}
 
 <style>
   :global(body) {
@@ -155,6 +221,16 @@
     padding: 2rem 0 3.5rem;
   }
 
+  .image-open {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+    font: inherit;
+  }
+
   .cover {
     display: block;
     width: 100%;
@@ -205,6 +281,7 @@
   .prose :global(img) {
     max-width: 100%;
     border-radius: 8px;
+    cursor: zoom-in;
   }
 
   .related {
@@ -281,6 +358,54 @@
   :global(html.dark) .related-grid a:hover {
     border-color: rgba(255, 255, 255, 0.28);
     background: rgba(24, 24, 27, 0.96);
+  }
+
+  .image-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 3vw, 2rem);
+    background: rgba(6, 8, 14, 0.78);
+    backdrop-filter: blur(18px) saturate(120%);
+  }
+
+  .image-lightbox-panel {
+    position: relative;
+    width: min(1120px, 100%);
+    max-height: min(86vh, 900px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    background: rgba(8, 10, 16, 0.92);
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.42);
+    overflow: hidden;
+  }
+
+  .image-lightbox-panel img {
+    display: block;
+    width: 100%;
+    max-height: min(86vh, 900px);
+    object-fit: contain;
+    background: #05070d;
+  }
+
+  .image-lightbox-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 1;
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    background: rgba(8, 10, 16, 0.72);
+    color: #fff;
+    font-size: 1.45rem;
+    line-height: 1;
+    cursor: pointer;
   }
 
   @media (max-width: 760px) {

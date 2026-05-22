@@ -398,8 +398,9 @@
   }
 
   .stats-section {
-    background: var(--principal);
+    background: #1d1d1f;
     padding: 48px;
+    color: #fff;
   }
 
   .stats-grid {
