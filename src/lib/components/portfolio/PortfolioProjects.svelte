@@ -1,5 +1,6 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
+  import { reveal } from '$lib';
   import { sitePortfolioDefaults } from '$lib/data/site-portfolio-defaults';
   import { sanityDefaultSrc, sanityImageSrcSet } from '$lib/sanity-image-url';
   import type { SiteProjectCard } from '$lib/types/site-portfolio';
@@ -53,8 +54,12 @@
     return project.external ? '_blank' : undefined;
   }
 
-  function projectHref(project: SiteProjectCard): string {
-    return project.external ? project.href : resolvePath(project.href);
+  function projectLinkProps(project: SiteProjectCard) {
+    return {
+      href: project.external ? project.href : resolvePath(project.href),
+      target: projectTarget(project),
+      rel: projectRel(project)
+    };
   }
 
   function projectRel(project: SiteProjectCard): string | undefined {
@@ -85,8 +90,10 @@
     );
   }
 
-  function internalHref(href: string): string {
-    return /^https?:\/\//i.test(href) ? href : resolvePath(href);
+  function archiveLinkProps(href: string) {
+    return {
+      href: /^https?:\/\//i.test(href) ? href : resolvePath(href)
+    };
   }
 
   function heroProjectImage(project: SiteProjectCard) {
@@ -117,15 +124,28 @@
   }
 
   const heroImg = $derived(heroProject ? heroProjectImage(heroProject) : null);
+  const projectRevealOptions = {
+    stage: 'content',
+    distance: 28,
+    threshold: 0.22,
+    rootMargin: '0px 0px -24% 0px'
+  } as const;
+
+  function staggerDelay(index: number, step: number, max: number) {
+    return Math.min(index * step, max);
+  }
 </script>
 
 <section class="proyectos-container" id="proyectos" aria-labelledby="proyectos-titulo">
-  <div class="proyectos-header">
+  <div class="proyectos-header" use:reveal={{ stage: 'title', distance: 24, threshold: 0.18, rootMargin: '0px 0px -20% 0px' }}>
     <p class="meta-proyectos">{meta}</p>
     <div class="proyectos-heading-row">
       <h2 id="proyectos-titulo">{title}</h2>
       {#if archiveHref}
-        <a class="proyectos-archive-link" href={internalHref(archiveHref)}>
+        <a
+          class="proyectos-archive-link"
+          {...archiveLinkProps(archiveHref)}
+        >
           {archiveLinkLabel}
           {#if projects.length}
             <span aria-label={`${projects.length} proyectos`}>{projects.length}</span>
@@ -142,9 +162,8 @@
     <div class="project-showcase">
       <a
         class="project-card project-card-hero"
-        href={projectHref(heroProject)}
-        target={projectTarget(heroProject)}
-        rel={projectRel(heroProject)}
+        use:reveal={{ ...projectRevealOptions, delay: 70 }}
+        {...projectLinkProps(heroProject)}
         aria-label={`${heroProject.linkLabel}: ${heroProject.title}`}
       >
         <article>
@@ -202,9 +221,11 @@
             {@const spotlightImg = spotlightProjectImage(project)}
             <a
               class="project-card project-card-spotlight"
-              href={projectHref(project)}
-              target={projectTarget(project)}
-              rel={projectRel(project)}
+              use:reveal={{
+                ...projectRevealOptions,
+                delay: staggerDelay(index, 80, 160)
+              }}
+              {...projectLinkProps(project)}
               aria-label={`${project.linkLabel}: ${project.title}`}
             >
               <article>
@@ -251,9 +272,11 @@
         {@const standardImg = standardProjectImage(project)}
         <a
           class="project-card project-card-standard"
-          href={projectHref(project)}
-          target={projectTarget(project)}
-          rel={projectRel(project)}
+          use:reveal={{
+            ...projectRevealOptions,
+            delay: staggerDelay(index, 70, 140)
+          }}
+          {...projectLinkProps(project)}
           aria-label={`${project.linkLabel}: ${project.title}`}
         >
           <article>

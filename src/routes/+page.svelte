@@ -8,6 +8,7 @@
   import PortfolioContactCta from '$lib/components/portfolio/PortfolioContactCta.svelte';
   import JsonLdScript from '$lib/components/JsonLdScript.svelte';
   import { stringifyJsonLdForHtml } from '$lib/json-ld-html.js';
+  import { reveal } from '$lib';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -140,8 +141,16 @@
 </svelte:head>
 
 <PortfolioHeroStripe {...site.hero} />
-<PortfolioAbout {...site.about} />
-<PortfolioServices {...site.services} />
+<div use:reveal={{ stage: 'title' }}>
+  <PortfolioAbout {...site.about} />
+</div>
+<div use:reveal={{ stage: 'content', delay: 60 }}>
+  <PortfolioServices {...site.services} />
+</div>
 <PortfolioProjects {...site.projects} />
-<PortfolioTechStack {...site.techStack} />
-<PortfolioContactCta {...site.contact} />
+<div use:reveal={{ stage: 'content', delay: 80 }}>
+  <PortfolioTechStack {...site.techStack} />
+</div>
+<div use:reveal={{ stage: 'content', delay: 60 }}>
+  <PortfolioContactCta {...site.contact} />
+</div>

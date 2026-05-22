@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import { onMount } from 'svelte';
+  import { fromAction } from 'svelte/attachments';
   import { getCareerModalControls } from '$lib/career-modal-context';
 
   interface Props {
@@ -30,6 +32,12 @@
   ]);
   const iconifySvgUrl = (name: string) =>
     `url("https://api.iconify.design/${encodeURIComponent(name)}.svg")`;
+  const resolvePath = resolve as unknown as (href: string) => string;
+  const cvLinkProps = $derived({
+    href: /^\/(?!\/)/.test(cvHref) ? resolvePath(cvHref) : cvHref,
+    target: '_blank',
+    rel: 'noopener noreferrer'
+  });
 
   const careerModal = getCareerModalControls();
 
@@ -435,7 +443,7 @@
   <div class="hero-stripe-pro-v2">
     {#if !disableHeroShader}
       <canvas
-        use:mountSpecularBand
+        {@attach fromAction(mountSpecularBand)}
         class="luces-dinamicas-canvas"
         style="width:100%;height:100%;"
         aria-hidden="true"
@@ -444,9 +452,9 @@
     <div class="hero-bottom-fade" aria-hidden="true"></div>
 
     <div class="contenido-hero">
-      <p class="label-top">{label}</p>
-      <h1>{title}</h1>
-      <h2 class="sub-frase" aria-label={subtitle}>
+      <p class="label-top hero-entry hero-entry-1">{label}</p>
+      <h1 class="hero-entry hero-entry-2">{title}</h1>
+      <h2 class="sub-frase hero-entry hero-entry-3" aria-label={subtitle}>
         {#each heroCapabilities as item (item.label)}
           <span class="hero-tech-item">
             <span class="hero-tech-icon" style:--hero-tech-icon={iconifySvgUrl(item.icon)} aria-hidden="true"></span>
@@ -454,17 +462,12 @@
           </span>
         {/each}
       </h2>
-      <p class="texto-bio">{bio}</p>
-      <div class="botones-wrap">
+      <p class="texto-bio hero-entry hero-entry-4">{bio}</p>
+      <div class="botones-wrap hero-entry hero-entry-5">
         <button type="button" class="btn-apple-blue" onclick={() => careerModal?.open()}>
           {careerCtaLabel}
         </button>
-        <a
-          href={cvHref}
-          class="btn-ghost-slim"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a {...cvLinkProps} class="btn-ghost-slim">
           {ctaPrimaryLabel}
         </a>
       </div>
@@ -565,6 +568,63 @@
     text-align: center;
     margin: 0 auto;
     width: 100%;
+  }
+
+  @keyframes heroCinematicIn {
+    from {
+      opacity: 0;
+      transform: translate3d(0, var(--hero-entry-y, 24px), 0)
+        scale(var(--hero-entry-scale, 0.985));
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  }
+
+  .hero-entry {
+    --hero-entry-y: 24px;
+    --hero-entry-scale: 0.985;
+    animation: heroCinematicIn var(--hero-entry-duration, 1080ms) cubic-bezier(0.19, 1, 0.22, 1)
+      both;
+    transform-origin: center;
+    backface-visibility: hidden;
+    will-change: opacity, transform;
+  }
+
+  .hero-entry-1 {
+    --hero-entry-y: -10px;
+    --hero-entry-scale: 1;
+    --hero-entry-duration: 860ms;
+    animation-delay: 90ms;
+  }
+
+  .hero-entry-2 {
+    --hero-entry-y: 34px;
+    --hero-entry-scale: 0.972;
+    --hero-entry-duration: 1220ms;
+    animation-delay: 180ms;
+  }
+
+  .hero-entry-3 {
+    --hero-entry-y: 22px;
+    --hero-entry-scale: 0.99;
+    --hero-entry-duration: 1040ms;
+    animation-delay: 300ms;
+  }
+
+  .hero-entry-4 {
+    --hero-entry-y: 20px;
+    --hero-entry-scale: 0.995;
+    --hero-entry-duration: 980ms;
+    animation-delay: 390ms;
+  }
+
+  .hero-entry-5 {
+    --hero-entry-y: 18px;
+    --hero-entry-scale: 1;
+    --hero-entry-duration: 900ms;
+    animation-delay: 500ms;
   }
 
   .label-top {
@@ -821,6 +881,13 @@
 
   /* Cabecera fija: el label gris no debe quedar tapado en móvil */
   @media (prefers-reduced-motion: reduce) {
+    .hero-entry {
+      opacity: 1;
+      animation: none !important;
+      transform: none !important;
+      will-change: auto;
+    }
+
     .luces-dinamicas-canvas {
       display: none;
     }
@@ -828,6 +895,36 @@
   }
 
   @media (max-width: 768px) {
+    .hero-entry {
+      --hero-entry-y: 18px;
+      --hero-entry-duration: 860ms;
+    }
+
+    .hero-entry-1 {
+      --hero-entry-y: -8px;
+      animation-delay: 60ms;
+    }
+
+    .hero-entry-2 {
+      --hero-entry-y: 24px;
+      animation-delay: 130ms;
+    }
+
+    .hero-entry-3 {
+      --hero-entry-y: 18px;
+      animation-delay: 220ms;
+    }
+
+    .hero-entry-4 {
+      --hero-entry-y: 16px;
+      animation-delay: 300ms;
+    }
+
+    .hero-entry-5 {
+      --hero-entry-y: 14px;
+      animation-delay: 390ms;
+    }
+
     .hero-stripe-pro-v2 {
       align-items: flex-start;
       padding-top: max(6.25rem, calc(env(safe-area-inset-top, 0px) + 5.25rem));

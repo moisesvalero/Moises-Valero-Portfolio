@@ -24,8 +24,8 @@
   --shadow-soft-lg: 0 22px 55px rgba(15, 23, 42, 0.14);
   --shadow-soft-md: 0 14px 35px rgba(15, 23, 42, 0.12);
   --ring-soft: 0 0 0 1px rgba(148, 163, 184, 0.18);
-  --assembly-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --assembly-duration: 1260ms;
+  --assembly-ease: cubic-bezier(0.19, 1, 0.22, 1);
+  --assembly-duration: 1180ms;
   --btn-shine-duration: 0.55s;
   --btn-shine-opacity-duration: 0.3s;
 }
@@ -83,8 +83,11 @@ html.dark body {
 /* Sistema global de ensamblaje magnético */
 .assembly-item {
   opacity: 0;
-  transform: translate3d(var(--assembly-x, 0), var(--assembly-distance, 64px), 0)
-    rotate(var(--assembly-rotate, 0deg)) scale(var(--assembly-scale-from, 0.76));
+  --assembly-distance: 38px;
+  --assembly-scale-from: 0.985;
+  --assembly-scale-to: 1;
+  transform: translate3d(var(--assembly-x, 0), var(--assembly-distance), 0)
+    scale(var(--assembly-scale-from));
   transform-origin: center;
   transition:
     opacity var(--assembly-duration) var(--assembly-ease),
@@ -103,7 +106,7 @@ html.dark body {
 }
 
 .assembly-content {
-  --assembly-delay: 120ms;
+  --assembly-delay: 90ms;
 }
 
 /* Tarjetas y bloques con sensación premium (hover suave) */
@@ -195,7 +198,16 @@ html.dark body {
   .assembly-item {
     opacity: 1;
     transform: none;
-    transition: none;
+    transition: none !important;
+    will-change: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .assembly-item {
+    --assembly-distance: 24px;
+    --assembly-duration: 980ms;
+    --assembly-scale-from: 0.992;
   }
 }
 
@@ -369,10 +381,6 @@ html.dark :where(.proyecto-tags span) {
 
 html.dark :where(.card-fluid-overlay) {
   opacity: calc(var(--cf-a, 0) * 0.86);
-}
-
-html.dark :where(.scroll-hint-fixed polyline) {
-  stroke: #e2e8f0;
 }
 
 html.dark :where(.cookie-banner-root, .career-backdrop) {

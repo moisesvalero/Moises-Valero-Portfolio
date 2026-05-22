@@ -6,6 +6,7 @@ type RevealOptions = {
   stage?: RevealStage;
   threshold?: number;
   rootMargin?: string;
+  immediate?: boolean;
 };
 
 const STAGE_DELAY: Record<RevealStage, number> = {
@@ -16,10 +17,11 @@ const STAGE_DELAY: Record<RevealStage, number> = {
 function normalizeOptions(value: RevealOptions | undefined) {
   return {
     delay: value?.delay,
-    distance: value?.distance ?? 40,
+    distance: value?.distance,
     stage: value?.stage ?? 'content',
-    threshold: value?.threshold ?? 0.24,
-    rootMargin: value?.rootMargin ?? '0px 0px -8% 0px'
+    threshold: value?.threshold ?? 0.18,
+    rootMargin: value?.rootMargin ?? '0px 0px -18% 0px',
+    immediate: value?.immediate ?? false
   };
 }
 
@@ -28,7 +30,11 @@ function applyAssemblyVars(node: HTMLElement, options: ReturnType<typeof normali
   node.classList.remove('assembly-title', 'assembly-content');
   node.classList.add('assembly-item', `assembly-${options.stage}`);
   node.style.setProperty('--assembly-delay', `${totalDelay}ms`);
-  node.style.setProperty('--assembly-distance', `${options.distance}px`);
+  if (typeof options.distance === 'number') {
+    node.style.setProperty('--assembly-distance', `${options.distance}px`);
+  } else {
+    node.style.removeProperty('--assembly-distance');
+  }
 }
 
 /**
@@ -38,21 +44,23 @@ function applyAssemblyVars(node: HTMLElement, options: ReturnType<typeof normali
 export function reveal(node: HTMLElement, options?: RevealOptions) {
   let config = normalizeOptions(options);
   applyAssemblyVars(node, config);
-  let rafA = 0;
-  let rafB = 0;
 
-  const revealWithFrameGap = () => {
-    rafA = requestAnimationFrame(() => {
-      rafB = requestAnimationFrame(() => {
-        node.classList.add('is-visible');
-      });
-    });
-  };
+  if (config.immediate || typeof IntersectionObserver === 'undefined') {
+    node.classList.add('is-visible');
+    return {
+      update(nextOptions?: RevealOptions) {
+        config = normalizeOptions(nextOptions);
+        applyAssemblyVars(node, config);
+        if (config.immediate) node.classList.add('is-visible');
+      },
+      destroy() {}
+    };
+  }
 
-  let observer = new IntersectionObserver(
+  const observer = new IntersectionObserver(
     ([entry]) => {
       if (!entry.isIntersecting) return;
-      revealWithFrameGap();
+      node.classList.add('is-visible');
       observer.unobserve(node);
     },
     {
@@ -69,8 +77,6 @@ export function reveal(node: HTMLElement, options?: RevealOptions) {
       applyAssemblyVars(node, config);
     },
     destroy() {
-      cancelAnimationFrame(rafA);
-      cancelAnimationFrame(rafB);
       observer.disconnect();
     }
   };
