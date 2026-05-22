@@ -1,3 +1,4 @@
+import { env } from '$env/dynamic/private';
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
@@ -10,15 +11,12 @@ function normalizeE164(raw: string | undefined): string | null {
 
 /**
  * Redirige a wa.me sin poner el número en el HTML de la página.
- * Número activo: +34 660 47 12 98.
  */
 export const GET: RequestHandler = () => {
-  const id = normalizeE164('34660471298');
+  const id = normalizeE164(env.WHATSAPP_E164 || '34627950559');
   if (!id) {
     throw redirect(302, '/');
   }
-  const text = encodeURIComponent(
-    'Hola, Moisés! He visto tu web y me gustaría pedirte presupuesto para un proyecto. ¿Hablamos?'
-  );
+  const text = encodeURIComponent('Hola, Moisés. He visto tu web y quería contactar contigo.');
   throw redirect(302, `https://wa.me/${id}?text=${text}`);
 };

@@ -209,9 +209,9 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
   const toEmail = env.CONTACT_TO_EMAIL || env.PUBLIC_CONTACT_EMAIL || 'info@moisesvalero.es';
   const fromEmail = env.CONTACT_FROM_EMAIL || 'Web <onboarding@resend.dev>';
   const publicSiteUrl = (publicEnv.PUBLIC_SITE_URL || 'https://moisesvalero.es').replace(/\/$/, '');
-  const whatsappId = normalizeE164(env.WHATSAPP_E164 || '34660471298');
+  const whatsappId = normalizeE164(env.WHATSAPP_E164 || '34627950559');
   const whatsappText = encodeURIComponent(
-    `Hola, Moisés. He recibido el informe de mi web (${url || 'sin URL'}) y quiero mejorarla.`
+    `Hola, Moisés. He recibido el informe de mi web (${url || 'sin URL'}) y quería comentarlo contigo.`
   );
   const whatsappHref = whatsappId
     ? `https://wa.me/${whatsappId}?text=${whatsappText}`
