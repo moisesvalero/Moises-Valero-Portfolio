@@ -116,41 +116,82 @@
     })
   );
 
-  /** Reveal por sección: el contenido siempre es visible (opacity 1); solo animamos transform. */
-  function homeReveal(node: HTMLElement) {
-    if (typeof window === 'undefined') return;
+  function revealMotionQuery() {
+    return typeof window !== 'undefined'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : null;
+  }
 
-    const show = () => node.classList.add('is-in');
+  function isRevealMobileViewport() {
+    return typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+  }
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      show();
+  function revealWithFrameGap(node: HTMLElement) {
+    let rafA = 0;
+    let rafB = 0;
+    rafA = requestAnimationFrame(() => {
+      rafB = requestAnimationFrame(() => {
+        node.classList.add('is-visible');
+      });
+    });
+    return () => {
+      cancelAnimationFrame(rafA);
+      cancelAnimationFrame(rafB);
+    };
+  }
+
+  function revealOnScroll(node: HTMLElement, projects = false) {
+    const motionMq = revealMotionQuery();
+    if (motionMq?.matches) {
+      node.classList.add('is-visible');
       return;
     }
 
-    const isInViewport = () => {
-      const rect = node.getBoundingClientRect();
-      return rect.top < window.innerHeight * 0.94 && rect.bottom > 0;
+    let cancelRaf: (() => void) | undefined;
+    const show = () => {
+      if (node.classList.contains('is-visible')) return;
+      cancelRaf?.();
+      cancelRaf = revealWithFrameGap(node);
+      observer.disconnect();
+      clearTimeout(failsafe);
     };
 
-    if (isInViewport()) {
-      show();
-      return;
-    }
-
+    const mobile = isRevealMobileViewport();
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           show();
-          observer.disconnect();
           break;
         }
       },
-      { threshold: 0, rootMargin: '0px 0px -6% 0px' }
+      mobile
+        ? {
+            threshold: projects ? 0.06 : 0.06,
+            rootMargin: projects ? '0px 0px 12% 0px' : '0px 0px 14% 0px'
+          }
+        : {
+            threshold: projects ? 0.2 : 0.34,
+            rootMargin: projects ? '0px 0px -6% 0px' : '0px 0px -14% 0px'
+          }
     );
 
     observer.observe(node);
-    return { destroy: () => observer.disconnect() };
+    const failsafe = window.setTimeout(() => {
+      if (!node.classList.contains('is-visible')) show();
+    }, 2800);
+
+    return {
+      destroy() {
+        cancelRaf?.();
+        observer.disconnect();
+        clearTimeout(failsafe);
+      }
+    };
+  }
+
+  function revealOnScrollProjects(node: HTMLElement) {
+    return revealOnScroll(node, true);
   }
 </script>
 
@@ -175,41 +216,203 @@
   <JsonLdScript json={personJsonLd} />
 </svelte:head>
 
-<div class="home-section home-section--hero">
+<div class="reveal-block hero-block is-visible">
   <PortfolioHeroStripe {...site.hero} />
 </div>
-<div class="home-section" use:homeReveal>
+<div class="reveal-block" use:revealOnScroll>
   <PortfolioAbout {...site.about} />
 </div>
-<div class="home-section" use:homeReveal>
+<div class="reveal-block" use:revealOnScroll>
   <PortfolioServices {...site.services} />
 </div>
-<div class="home-section" use:homeReveal>
+<div class="reveal-block" use:revealOnScrollProjects>
   <PortfolioProjects {...site.projects} />
 </div>
-<div class="home-section" use:homeReveal>
+<div class="reveal-block" use:revealOnScroll>
   <PortfolioTechStack {...site.techStack} />
 </div>
-<div class="home-section" use:homeReveal>
+<div class="reveal-block" use:revealOnScroll>
   <PortfolioContactCta {...site.contact} />
 </div>
 
 <style>
-  .home-section:not(.home-section--hero) {
-    opacity: 1;
-    transform: translateY(28px);
-    transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+  .reveal-block {
+    position: relative;
+    opacity: 0;
+    transform: translate3d(0, 48px, 0) scale(0.985);
+    clip-path: inset(0 0 14% 0);
+    transition:
+      opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 940ms cubic-bezier(0.16, 1, 0.3, 1),
+      clip-path 940ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .home-section.is-in,
-  .home-section--hero {
-    transform: translateY(0);
+  .reveal-block.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    clip-path: inset(0 0 0 0);
+  }
+
+  .hero-block {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .reveal-block.is-visible :global(.servicios-intro),
+  .reveal-block.is-visible :global(.stack-header),
+  .reveal-block.is-visible :global(.garantias-header),
+  .reveal-block.is-visible :global(.proyectos-header) {
+    animation: sectionTitleIn 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .reveal-block.is-visible :global(.role-strip .role-card),
+  .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
+  .reveal-block.is-visible :global(.project-card),
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item),
+  .reveal-block.is-visible :global(.stack-grid .stack-cat) {
+    animation: cardIn 780ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .reveal-block.is-visible :global(.role-strip .role-card:nth-child(2)),
+  .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(2)),
+  .reveal-block.is-visible :global(.project-card:nth-child(2)),
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(2)),
+  .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(2)) {
+    animation-delay: 120ms;
+  }
+
+  .reveal-block.is-visible :global(.role-strip .role-card:nth-child(3)),
+  .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(3)),
+  .reveal-block.is-visible :global(.project-card:nth-child(3)),
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(3)),
+  .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(3)) {
+    animation-delay: 240ms;
+  }
+
+  .reveal-block.is-visible :global(.role-strip .role-card:nth-child(4)),
+  .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(4)),
+  .reveal-block.is-visible :global(.project-card:nth-child(4)),
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(4)),
+  .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(4)) {
+    animation-delay: 320ms;
+  }
+
+  .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(5)),
+  .reveal-block.is-visible :global(.project-card:nth-child(5)),
+  .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(5)),
+  .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(5)) {
+    animation-delay: 400ms;
+  }
+
+  .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(6)) {
+    animation-delay: 480ms;
+  }
+
+  @keyframes sectionTitleIn {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes cardIn {
+    from {
+      opacity: 0;
+      transform: translateY(32px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes cardInMobile {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .reveal-block {
+      transform: translate3d(0, 22px, 0);
+      clip-path: none;
+      transition:
+        opacity 480ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 440ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reveal-block.is-visible :global(.servicios-intro),
+    .reveal-block.is-visible :global(.stack-header),
+    .reveal-block.is-visible :global(.garantias-header),
+    .reveal-block.is-visible :global(.proyectos-header) {
+      animation: sectionTitleIn 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .reveal-block.is-visible :global(.role-strip .role-card),
+    .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
+    .reveal-block.is-visible :global(.project-card),
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item),
+    .reveal-block.is-visible :global(.stack-grid .stack-cat) {
+      animation: cardInMobile 420ms cubic-bezier(0.16, 0.84, 0.32, 1) both;
+    }
+
+    .reveal-block.is-visible :global(.role-strip .role-card:nth-child(2)),
+    .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(2)),
+    .reveal-block.is-visible :global(.project-card:nth-child(2)),
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(2)),
+    .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(2)) {
+      animation-delay: 45ms;
+    }
+
+    .reveal-block.is-visible :global(.role-strip .role-card:nth-child(3)),
+    .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(3)),
+    .reveal-block.is-visible :global(.project-card:nth-child(3)),
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(3)),
+    .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(3)) {
+      animation-delay: 85ms;
+    }
+
+    .reveal-block.is-visible :global(.role-strip .role-card:nth-child(4)),
+    .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(4)),
+    .reveal-block.is-visible :global(.project-card:nth-child(4)),
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(4)),
+    .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(4)) {
+      animation-delay: 120ms;
+    }
+
+    .reveal-block.is-visible :global(.proyectos-grid .proyecto-card:nth-child(5)),
+    .reveal-block.is-visible :global(.project-card:nth-child(5)),
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item:nth-child(5)),
+    .reveal-block.is-visible :global(.stack-grid .stack-cat:nth-child(5)) {
+      animation-delay: 155ms;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .home-section {
-      transform: none;
-      transition: none;
+    .reveal-block,
+    .hero-block {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+      clip-path: none !important;
+    }
+
+    .reveal-block :global(.role-card),
+    .reveal-block :global(.proyecto-card),
+    .reveal-block :global(.project-card),
+    .reveal-block :global(.garantia-item),
+    .reveal-block :global(.stack-cat) {
+      animation: none !important;
     }
   }
 </style>
