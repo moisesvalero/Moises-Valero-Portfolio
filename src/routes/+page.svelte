@@ -123,10 +123,7 @@
   }
 
   function isRevealMobileViewport() {
-    return (
-      typeof window !== 'undefined' &&
-      window.matchMedia('(max-width: 768px), (hover: none), (pointer: coarse)').matches
-    );
+    return typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
   }
 
   function revealOnScroll(node: HTMLElement) {
@@ -136,10 +133,6 @@
       return;
     }
     const mobile = isRevealMobileViewport();
-    if (mobile) {
-      node.classList.add('is-visible');
-      return;
-    }
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -168,10 +161,6 @@
       return;
     }
     const mobile = isRevealMobileViewport();
-    if (mobile) {
-      node.classList.add('is-visible');
-      return;
-    }
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -332,7 +321,6 @@
   :global(.stack-cat) {
     position: relative;
     overflow: hidden;
-    transform-style: preserve-3d;
     transition:
       transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
       box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -441,32 +429,34 @@
     }
   }
 
-  @media (max-width: 768px), (hover: none), (pointer: coarse) {
+  @media (max-width: 768px) {
     .site-scroll-progress {
       display: none;
     }
 
     .reveal-block {
-      opacity: 1;
-      transform: none;
+      transform: translate3d(0, 22px, 0);
       clip-path: none;
-      transition: none;
+      transition:
+        opacity 480ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 440ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    :global(.role-card),
+    :global(.proyecto-card),
+    :global(.project-card),
+    :global(.garantia-item),
+    :global(.stack-cat) {
+      transform-style: flat;
     }
 
     .reveal-block.is-visible :global(.servicios-intro),
     .reveal-block.is-visible :global(.stack-header),
     .reveal-block.is-visible :global(.garantias-header),
-    .reveal-block.is-visible :global(.proyectos-header),
-    .reveal-block.is-visible :global(.role-strip .role-card),
-    .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
-    .reveal-block.is-visible :global(.project-card),
-    .reveal-block.is-visible :global(.garantias-grid .garantia-item),
-    .reveal-block.is-visible :global(.stack-grid .stack-cat) {
-      animation: none;
+    .reveal-block.is-visible :global(.proyectos-header) {
+      animation: sectionTitleIn 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
     }
-  }
 
-  @media (max-width: 768px) {
     .reveal-block.is-visible :global(.role-strip .role-card),
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
     .reveal-block.is-visible :global(.project-card),

@@ -220,56 +220,6 @@
     }
   `;
 
-  /** Menos iteraciones del bucle GLSL en táctil (~40 % menos trabajo por frame). */
-  const fragmentShaderLite = `
-    precision mediump float;
-    varying vec2 vUv;
-
-    uniform float uTime;
-    uniform vec2 uResolution;
-    uniform vec3 uColor;
-    uniform vec3 uColorSecondary;
-    uniform vec3 uColorAccent;
-    uniform vec3 uBackgroundColor;
-    uniform float uSpeed;
-    uniform float uDistortion;
-    uniform float uHueShift;
-    uniform float uIntensity;
-
-    vec3 linearToSrgb(vec3 color) {
-      vec3 safe = max(color, vec3(0.0));
-      vec3 low = safe * 12.92;
-      vec3 high = 1.055 * pow(safe, vec3(1.0 / 2.4)) - 0.055;
-      vec3 cutoff = step(vec3(0.0031308), safe);
-      return mix(low, high, cutoff);
-    }
-
-    void main() {
-      vec2 u = (vUv * 2.0 - 1.0);
-      u.x *= uResolution.x / max(uResolution.y, 0.001);
-      float time = uTime * uSpeed;
-      u /= 0.5 + uDistortion * dot(u, u);
-      u += 0.2 * cos(time) - 7.56;
-
-      vec3 col = vec3(0.0);
-      float edgeField = 0.0;
-      for (int i = 0; i < 3; i++) {
-        vec2 uvLoop = sin(1.5 * u.yx + 2.0 * cos(u -= 0.01));
-        float val = 1.0 - exp(-6.0 / exp(6.0 * length(uvLoop + sin(5.0 * uvLoop.y - 3.0 * time) / 4.0)));
-        val = pow(clamp(val, 0.0, 1.0), 1.4);
-        edgeField += val;
-        float w = i == 0 ? 1.0 : (i == 1 ? 0.36 : 0.22);
-        vec3 tint = i == 0 ? uColor : (i == 1 ? uColorAccent : uColorSecondary);
-        col += val * tint * w;
-      }
-
-      vec3 bands = col * uIntensity;
-      float softMask = 1.0 - exp(-0.85 * edgeField * uIntensity);
-      vec3 rgb = mix(uBackgroundColor, bands, softMask * 0.92);
-      gl_FragColor = vec4(linearToSrgb(rgb), 1.0);
-    }
-  `;
-
   onMount(() => {
     /**
      * Safari/iOS suele crear contexto WebGL2; el fragment shader usa `gl_FragColor` (GLSL100) y falla allí.
@@ -278,7 +228,6 @@
      * por privacidad y quitaba el canvas entero sin ser un móvil “cutre”.
      */
     const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const lightweightMq = window.matchMedia('(max-width: 1024px), (hover: none), (pointer: coarse)');
     const syncHeroShaderMode = () => {
       if (motionMq.matches) {
         disableHeroShader = true;
@@ -299,13 +248,11 @@
     syncScrollHintVisibility();
     onScroll();
     motionMq.addEventListener('change', syncHeroShaderMode);
-    lightweightMq.addEventListener('change', syncHeroShaderMode);
     window.addEventListener('scroll', onScroll, { passive: true });
     hintMedia.addEventListener('change', syncScrollHintVisibility);
     window.addEventListener('resize', syncScrollHintVisibility, { passive: true });
     return () => {
       motionMq.removeEventListener('change', syncHeroShaderMode);
-      lightweightMq.removeEventListener('change', syncHeroShaderMode);
       window.removeEventListener('scroll', onScroll);
       hintMedia.removeEventListener('change', syncScrollHintVisibility);
       window.removeEventListener('resize', syncScrollHintVisibility);
@@ -318,18 +265,8 @@
     const root = targetCanvas.closest('.hero-stripe-pro-v2');
 
     const resolveMaxDpr = () => {
-      const coarse =
-        typeof window !== 'undefined' &&
-        window.matchMedia('(max-width: 1024px), (hover: none), (pointer: coarse)').matches;
       const raw = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-      return Math.min(raw, coarse ? 1 : 2);
-    };
-
-    const resolveRenderScale = () => {
-      const coarse =
-        typeof window !== 'undefined' &&
-        window.matchMedia('(max-width: 1024px), (hover: none), (pointer: coarse)').matches;
-      return coarse ? 0.62 : 1;
+      return Math.min(raw, 2);
     };
 
     void import('ogl').then(({ Camera, Mesh, Program, Renderer, Transform, Triangle, Vec2, Vec3 }) => {
@@ -354,22 +291,8 @@
     const scene = new Transform();
     const geometry = new Triangle(gl);
 
-    const isLite =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(max-width: 1024px), (hover: none), (pointer: coarse)').matches;
-
-    const getActiveShaderConfig = (): ShaderConfig => {
-      const base = document.documentElement.classList.contains('dark')
-        ? darkShaderConfig
-        : lightShaderConfig;
-      if (!isLite) return base;
-      return {
-        ...base,
-        speed: base.speed * 0.82,
-        intensity: base.intensity * 0.86,
-        distortion: base.distortion * 0.88
-      };
-    };
+    const getActiveShaderConfig = (): ShaderConfig =>
+      document.documentElement.classList.contains('dark') ? darkShaderConfig : lightShaderConfig;
 
     const applyShaderConfig = (config: ShaderConfig) => {
       applyHexColor(uniforms.uColor.value, config.color, [0, 102 / 255, 229 / 255]);
@@ -413,7 +336,7 @@
 
     const program = new Program(gl, {
       vertex: vertexShader,
-      fragment: isLite ? fragmentShaderLite : fragmentShader,
+      fragment: fragmentShader,
       uniforms,
       depthTest: false,
       depthWrite: false
@@ -425,13 +348,8 @@
     let raf = 0;
     let previous = 0;
     let visible = true;
-    let animating = false;
-    let animUntil = 0;
-    const WARMUP_MS = isLite ? 5500 : 14000;
-    const ACTIVITY_MS = isLite ? 2800 : 6000;
-    const renderScale = resolveRenderScale();
 
-    const renderFrame = (now: number, advanceTime: boolean) => {
+    const renderFrame = (now: number) => {
       const nextDpr = resolveMaxDpr();
       if (renderer.dpr !== nextDpr) {
         renderer.dpr = nextDpr;
@@ -439,8 +357,8 @@
 
       const w = Math.max(1, targetCanvas.clientWidth);
       const h = Math.max(1, targetCanvas.clientHeight);
-      const bufW = Math.max(1, Math.round(w * renderer.dpr * renderScale));
-      const bufH = Math.max(1, Math.round(h * renderer.dpr * renderScale));
+      const bufW = Math.round(w * renderer.dpr);
+      const bufH = Math.round(h * renderer.dpr);
       if (targetCanvas.width !== bufW || targetCanvas.height !== bufH) {
         targetCanvas.width = bufW;
         targetCanvas.height = bufH;
@@ -449,58 +367,39 @@
         renderer.state.viewport = { x: 0, y: 0, width: null, height: null };
         uniforms.uResolution.value.set(w, h);
       }
-      if (advanceTime) {
-        const delta = previous ? (now - previous) / 1000 : 0;
-        previous = now;
-        uniforms.uTime.value += delta;
-      }
+      const delta = previous ? (now - previous) / 1000 : 0;
+      previous = now;
+      uniforms.uTime.value += delta;
       renderer.render({ scene, camera });
     };
 
-    const schedule = () => {
-      if (raf) return;
+    const stopLoop = () => {
+      if (!raf) return;
+      window.cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    const startLoop = () => {
+      if (raf || !visible || document.hidden) return;
+      previous = 0;
+      const tick = (now: number) => {
+        if (!visible || document.hidden) {
+          stopLoop();
+          return;
+        }
+        renderFrame(now);
+        raf = window.requestAnimationFrame(tick);
+      };
       raf = window.requestAnimationFrame(tick);
     };
 
-    const stopAnimating = () => {
-      animating = false;
-      if (raf) {
-        window.cancelAnimationFrame(raf);
-        raf = 0;
-      }
-    };
-
-    const startAnimating = (durationMs: number) => {
-      if (!visible || document.hidden) return;
-      animUntil = Math.max(animUntil, performance.now() + durationMs);
-      if (animating) return;
-      animating = true;
-      previous = 0;
-      schedule();
-    };
-
-    const tick = (now: number) => {
-      raf = 0;
-      if (!animating || !visible || document.hidden) {
-        stopAnimating();
-        return;
-      }
-
-      if (now >= animUntil) {
-        renderFrame(now, false);
-        stopAnimating();
-        return;
-      }
-
-      renderFrame(now, true);
-      schedule();
-    };
-
-    startAnimating(WARMUP_MS);
+    startLoop();
 
     const themeObserver = new MutationObserver(() => {
       applyShaderConfig(getActiveShaderConfig());
-      renderFrame(performance.now(), false);
+      if (visible && !document.hidden) {
+        renderFrame(performance.now());
+      }
     });
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
 
@@ -508,10 +407,9 @@
       root && typeof IntersectionObserver !== 'undefined'
         ? new IntersectionObserver(
             (entries) => {
-              const nextVisible = entries.some((e) => e.isIntersecting);
-              if (visible && !nextVisible) stopAnimating();
-              visible = nextVisible;
-              if (visible) startAnimating(ACTIVITY_MS);
+              visible = entries.some((e) => e.isIntersecting);
+              if (visible) startLoop();
+              else stopLoop();
             },
             { root: null, threshold: 0.02 }
           )
@@ -520,28 +418,18 @@
 
     const onVisibility = () => {
       if (document.hidden) {
-        stopAnimating();
+        stopLoop();
         return;
       }
-      previous = 0;
-      if (visible) startAnimating(ACTIVITY_MS);
+      if (visible) startLoop();
     };
     document.addEventListener('visibilitychange', onVisibility);
 
-    const onActivity = () => {
-      if (!visible || document.hidden) return;
-      startAnimating(ACTIVITY_MS);
-    };
-    window.addEventListener('scroll', onActivity, { passive: true });
-    window.addEventListener('pointerdown', onActivity, { passive: true });
-
       teardown = () => {
-        stopAnimating();
+        stopLoop();
         themeObserver.disconnect();
         visibilityObserver?.disconnect();
         document.removeEventListener('visibilitychange', onVisibility);
-        window.removeEventListener('scroll', onActivity);
-        window.removeEventListener('pointerdown', onActivity);
       };
     });
 

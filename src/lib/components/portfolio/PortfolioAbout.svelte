@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { sanityDefaultSrc, sanityImageSrcSet } from '$lib/sanity-image-url';
+
   interface Props {
     imageSrc?: string;
     imageAlt?: string;
@@ -35,6 +37,10 @@
     title = 'Sobre mí',
     aboutHtml = defaultAboutHtml
   }: Props = $props();
+
+  const aboutPhotoWidths = [280, 300, 520, 600] as const;
+  const aboutPhotoSrc = $derived(sanityDefaultSrc(imageSrc, 300));
+  const aboutPhotoSrcSet = $derived(sanityImageSrcSet(imageSrc, aboutPhotoWidths));
 </script>
 
 <section class="sobre-mi-minimal" id="sobre" aria-labelledby="sobre-titulo">
@@ -42,7 +48,8 @@
     <div class="col-foto anim-sobre-mi-foto">
       <div class="foto-wrapper">
         <img
-          src={imageSrc}
+          src={aboutPhotoSrc}
+          srcset={aboutPhotoSrcSet}
           alt={imageAlt}
           width="300"
           height="350"
@@ -169,16 +176,15 @@
     }
   }
 
-  @media (max-width: 768px), (hover: none), (pointer: coarse) {
+  @media (max-width: 768px) {
+    /* En móvil el reveal lo hace el bloque padre (.reveal-block en +page). */
     .anim-sobre-mi-foto,
     .anim-sobre-mi-texto {
       animation: none;
       opacity: 1;
       transform: none;
     }
-  }
 
-  @media (max-width: 768px) {
     .sobre-mi-minimal {
       margin: 48px auto;
       padding: 0 20px;

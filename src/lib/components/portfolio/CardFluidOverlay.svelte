@@ -161,12 +161,6 @@
     filter: saturate(112%);
   }
 
-  @media (max-width: 768px), (hover: none), (pointer: coarse) {
-    .card-fluid-overlay {
-      display: none;
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .card-fluid-overlay {
       display: none;

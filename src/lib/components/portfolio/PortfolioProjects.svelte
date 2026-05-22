@@ -1,6 +1,7 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import { sitePortfolioDefaults } from '$lib/data/site-portfolio-defaults';
+  import { sanityDefaultSrc, sanityImageSrcSet } from '$lib/sanity-image-url';
   import type { SiteProjectCard } from '$lib/types/site-portfolio';
 
   interface Props {
@@ -87,6 +88,35 @@
   function internalHref(href: string): string {
     return /^https?:\/\//i.test(href) ? href : resolvePath(href);
   }
+
+  function heroProjectImage(project: SiteProjectCard) {
+    const widths = [400, 520, 640, 780] as const;
+    return {
+      src: sanityDefaultSrc(project.imageSrc, 640),
+      srcset: sanityImageSrcSet(project.imageSrc, widths),
+      sizes: '(max-width: 1100px) 100vw, 640px'
+    };
+  }
+
+  function spotlightProjectImage(project: SiteProjectCard) {
+    const widths = [320, 400, 520, 640] as const;
+    return {
+      src: sanityDefaultSrc(project.imageSrc, 520),
+      srcset: sanityImageSrcSet(project.imageSrc, widths),
+      sizes: '(max-width: 768px) 92vw, (max-width: 1100px) 33vw, 400px'
+    };
+  }
+
+  function standardProjectImage(project: SiteProjectCard) {
+    const widths = [280, 360, 480, 520] as const;
+    return {
+      src: sanityDefaultSrc(project.imageSrc, 480),
+      srcset: sanityImageSrcSet(project.imageSrc, widths),
+      sizes: '(max-width: 768px) 92vw, (max-width: 1100px) 33vw, 360px'
+    };
+  }
+
+  const heroImg = $derived(heroProject ? heroProjectImage(heroProject) : null);
 </script>
 
 <section class="proyectos-container" id="proyectos" aria-labelledby="proyectos-titulo">
@@ -108,7 +138,7 @@
     {/if}
   </div>
 
-  {#if heroProject}
+  {#if heroProject && heroImg}
     <div class="project-showcase">
       <a
         class="project-card project-card-hero"
@@ -120,7 +150,9 @@
         <article>
           <div class="project-hero-media">
             <img
-              src={heroProject.imageSrc}
+              src={heroImg.src}
+              srcset={heroImg.srcset}
+              sizes={heroImg.sizes}
               alt={heroProject.imageAlt}
               width="1200"
               height="675"
@@ -167,6 +199,7 @@
       {#if spotlightProjects.length}
         <div class="project-spotlight-grid" aria-label="Proyectos destacados">
           {#each spotlightProjects as project, index (project.href)}
+            {@const spotlightImg = spotlightProjectImage(project)}
             <a
               class="project-card project-card-spotlight"
               href={projectHref(project)}
@@ -177,7 +210,9 @@
               <article>
                 <div class="project-thumb">
                   <img
-                    src={project.imageSrc}
+                    src={spotlightImg.src}
+                    srcset={spotlightImg.srcset}
+                    sizes={spotlightImg.sizes}
                     alt={project.imageAlt}
                     width="700"
                     height="394"
@@ -213,6 +248,7 @@
   {#if standardProjects.length}
     <div class="project-standard-grid" aria-label="Mas casos de estudio">
       {#each standardProjects as project, index (project.href)}
+        {@const standardImg = standardProjectImage(project)}
         <a
           class="project-card project-card-standard"
           href={projectHref(project)}
@@ -223,7 +259,9 @@
           <article>
             <div class="project-standard-media">
               <img
-                src={project.imageSrc}
+                src={standardImg.src}
+                srcset={standardImg.srcset}
+                sizes={standardImg.sizes}
                 alt={project.imageAlt}
                 width="520"
                 height="293"
