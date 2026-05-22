@@ -444,9 +444,9 @@
     <div class="hero-bottom-fade" aria-hidden="true"></div>
 
     <div class="contenido-hero">
-      <p class="label-top anim-fade-up">{label}</p>
-      <h1 class="anim-fade-up">{title}</h1>
-      <h2 class="sub-frase anim-fade-up" aria-label={subtitle}>
+      <p class="label-top">{label}</p>
+      <h1>{title}</h1>
+      <h2 class="sub-frase" aria-label={subtitle}>
         {#each heroCapabilities as item (item.label)}
           <span class="hero-tech-item">
             <span class="hero-tech-icon" style:--hero-tech-icon={iconifySvgUrl(item.icon)} aria-hidden="true"></span>
@@ -454,8 +454,8 @@
           </span>
         {/each}
       </h2>
-      <p class="texto-bio anim-fade-up">{bio}</p>
-      <div class="botones-wrap anim-fade-up">
+      <p class="texto-bio">{bio}</p>
+      <div class="botones-wrap">
         <button type="button" class="btn-apple-blue" onclick={() => careerModal?.open()}>
           {careerCtaLabel}
         </button>
@@ -530,74 +530,6 @@
   .hero-stripe-pro-v2::after {
     content: none;
     display: none;
-  }
-
-  @keyframes aparecer {
-    from {
-      opacity: 0;
-      transform: translate3d(0, 18px, 0) scale(0.99);
-      filter: saturate(0.86);
-    }
-    to {
-      opacity: 1;
-      transform: translate3d(0, 0, 0) scale(1);
-      filter: saturate(1);
-    }
-  }
-
-  @keyframes hero-tech-pop {
-    from {
-      opacity: 0;
-      transform: translate3d(0, 10px, 0) scale(0.92);
-    }
-    to {
-      opacity: 1;
-      transform: translate3d(0, 0, 0) scale(1);
-    }
-  }
-
-  @keyframes hero-label-pulse {
-    0%,
-    100% {
-      opacity: 0.82;
-      letter-spacing: 2px;
-      transform: translate3d(0, 0, 0);
-    }
-    50% {
-      opacity: 0.94;
-      letter-spacing: 2.16px;
-      transform: translate3d(0, -0.5px, 0);
-    }
-  }
-
-  .anim-fade-up {
-    animation: aparecer 0.86s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .label-top {
-    animation-delay: 0.1s;
-  }
-
-  .label-top.anim-fade-up {
-    animation:
-      aparecer 0.86s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both,
-      hero-label-pulse 4.8s ease-in-out 1.2s infinite;
-  }
-
-  .hero-stripe-pro-v2 h1.anim-fade-up {
-    animation-delay: 0.25s;
-  }
-
-  .sub-frase {
-    animation-delay: 0.4s;
-  }
-
-  .texto-bio {
-    animation-delay: 0.55s;
-  }
-
-  .botones-wrap {
-    animation-delay: 0.7s;
   }
 
   .luces-dinamicas-canvas {
@@ -682,24 +614,6 @@
     letter-spacing: 0.01em;
     color: inherit;
     white-space: nowrap;
-    opacity: 0;
-    animation: hero-tech-pop 0.62s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .hero-tech-item:nth-child(1) {
-    animation-delay: 0.58s;
-  }
-
-  .hero-tech-item:nth-child(2) {
-    animation-delay: 0.66s;
-  }
-
-  .hero-tech-item:nth-child(3) {
-    animation-delay: 0.74s;
-  }
-
-  .hero-tech-item:nth-child(4) {
-    animation-delay: 0.82s;
   }
 
   .hero-tech-icon {
@@ -907,29 +821,10 @@
 
   /* Cabecera fija: el label gris no debe quedar tapado en móvil */
   @media (prefers-reduced-motion: reduce) {
-    .anim-fade-up,
-    .hero-tech-item {
-      animation: none !important;
-      opacity: 1 !important;
-      transform: none !important;
-      filter: none !important;
-    }
-
     .luces-dinamicas-canvas {
       display: none;
     }
 
-  }
-
-  @media (max-width: 1024px), (hover: none), (pointer: coarse) {
-    .anim-fade-up,
-    .hero-tech-item {
-      animation-duration: 0.55s;
-    }
-
-    .label-top.anim-fade-up {
-      animation: aparecer 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
-    }
   }
 
   @media (max-width: 768px) {

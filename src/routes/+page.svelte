@@ -116,32 +116,6 @@
     })
   );
 
-  function revealOnScroll(node: HTMLElement) {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      node.classList.add('is-visible');
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          node.classList.add('is-visible');
-          observer.disconnect();
-          break;
-        }
-      },
-      { threshold: 0.12, rootMargin: '0px 0px 8% 0px' }
-    );
-
-    observer.observe(node);
-
-    return {
-      destroy() {
-        observer.disconnect();
-      }
-    };
-  }
 </script>
 
 <svelte:head>
@@ -165,61 +139,9 @@
   <JsonLdScript json={personJsonLd} />
 </svelte:head>
 
-<div class="reveal-block hero-block is-visible">
-  <PortfolioHeroStripe {...site.hero} />
-</div>
-<div class="reveal-block" use:revealOnScroll>
-  <PortfolioAbout {...site.about} />
-</div>
-<div class="reveal-block" use:revealOnScroll>
-  <PortfolioServices {...site.services} />
-</div>
-<div class="reveal-block" use:revealOnScroll>
-  <PortfolioProjects {...site.projects} />
-</div>
-<div class="reveal-block" use:revealOnScroll>
-  <PortfolioTechStack {...site.techStack} />
-</div>
-<div class="reveal-block" use:revealOnScroll>
-  <PortfolioContactCta {...site.contact} />
-</div>
-
-<style>
-  .reveal-block {
-    position: relative;
-    opacity: 0;
-    transform: translate3d(0, 48px, 0) scale(0.985);
-    transition:
-      opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
-      transform 940ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .reveal-block.is-visible {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  .hero-block {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-
-  @media (max-width: 768px) {
-    .reveal-block {
-      transform: translate3d(0, 22px, 0);
-      transition:
-        opacity 480ms cubic-bezier(0.22, 1, 0.36, 1),
-        transform 440ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .reveal-block,
-    .hero-block {
-      opacity: 1 !important;
-      transform: none !important;
-      transition: none !important;
-    }
-  }
-</style>
+<PortfolioHeroStripe {...site.hero} />
+<PortfolioAbout {...site.about} />
+<PortfolioServices {...site.services} />
+<PortfolioProjects {...site.projects} />
+<PortfolioTechStack {...site.techStack} />
+<PortfolioContactCta {...site.contact} />
