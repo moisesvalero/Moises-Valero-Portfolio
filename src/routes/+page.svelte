@@ -144,13 +144,13 @@
 <div use:reveal={{ stage: 'title' }}>
   <PortfolioAbout {...site.about} />
 </div>
-<div use:reveal={{ stage: 'content', delay: 60 }}>
+<div use:reveal={{ stage: 'content', delay: 110 }}>
   <PortfolioServices {...site.services} />
 </div>
 <PortfolioProjects {...site.projects} />
-<div use:reveal={{ stage: 'content', delay: 80 }}>
+<div use:reveal={{ stage: 'content', delay: 140 }}>
   <PortfolioTechStack {...site.techStack} />
 </div>
-<div use:reveal={{ stage: 'content', delay: 60 }}>
+<div use:reveal={{ stage: 'content', delay: 110 }}>
   <PortfolioContactCta {...site.contact} />
 </div>

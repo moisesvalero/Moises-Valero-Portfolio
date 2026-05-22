@@ -126,18 +126,16 @@
   const heroImg = $derived(heroProject ? heroProjectImage(heroProject) : null);
   const projectRevealOptions = {
     stage: 'content',
-    distance: 28,
-    threshold: 0.22,
-    rootMargin: '0px 0px -24% 0px'
+    distance: 54
   } as const;
 
-  function staggerDelay(index: number, step: number, max: number) {
-    return Math.min(index * step, max);
+  function staggerDelay(index: number, base = 110) {
+    return base + index * 110;
   }
 </script>
 
 <section class="proyectos-container" id="proyectos" aria-labelledby="proyectos-titulo">
-  <div class="proyectos-header" use:reveal={{ stage: 'title', distance: 24, threshold: 0.18, rootMargin: '0px 0px -20% 0px' }}>
+  <div class="proyectos-header" use:reveal={{ stage: 'title' }}>
     <p class="meta-proyectos">{meta}</p>
     <div class="proyectos-heading-row">
       <h2 id="proyectos-titulo">{title}</h2>
@@ -162,7 +160,7 @@
     <div class="project-showcase">
       <a
         class="project-card project-card-hero"
-        use:reveal={{ ...projectRevealOptions, delay: 70 }}
+        use:reveal={{ ...projectRevealOptions, delay: 0 }}
         {...projectLinkProps(heroProject)}
         aria-label={`${heroProject.linkLabel}: ${heroProject.title}`}
       >
@@ -223,7 +221,7 @@
               class="project-card project-card-spotlight"
               use:reveal={{
                 ...projectRevealOptions,
-                delay: staggerDelay(index, 80, 160)
+                delay: staggerDelay(index, 220)
               }}
               {...projectLinkProps(project)}
               aria-label={`${project.linkLabel}: ${project.title}`}
@@ -274,7 +272,7 @@
           class="project-card project-card-standard"
           use:reveal={{
             ...projectRevealOptions,
-            delay: staggerDelay(index, 70, 140)
+            delay: staggerDelay(index)
           }}
           {...projectLinkProps(project)}
           aria-label={`${project.linkLabel}: ${project.title}`}

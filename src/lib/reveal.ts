@@ -17,50 +17,59 @@ const STAGE_DELAY: Record<RevealStage, number> = {
 function normalizeOptions(value: RevealOptions | undefined) {
   return {
     delay: value?.delay,
-    distance: value?.distance,
+    distance: value?.distance ?? 40,
     stage: value?.stage ?? 'content',
-    threshold: value?.threshold ?? 0.18,
-    rootMargin: value?.rootMargin ?? '0px 0px -18% 0px',
+    threshold: value?.threshold ?? 0.24,
+    rootMargin: value?.rootMargin ?? '0px 0px -8% 0px',
     immediate: value?.immediate ?? false
   };
 }
 
-function applyAssemblyVars(node: HTMLElement, options: ReturnType<typeof normalizeOptions>) {
+function applyRevealVars(node: HTMLElement, options: ReturnType<typeof normalizeOptions>) {
   const totalDelay = options.delay ?? STAGE_DELAY[options.stage];
-  node.classList.remove('assembly-title', 'assembly-content');
-  node.classList.add('assembly-item', `assembly-${options.stage}`);
-  node.style.setProperty('--assembly-delay', `${totalDelay}ms`);
-  if (typeof options.distance === 'number') {
-    node.style.setProperty('--assembly-distance', `${options.distance}px`);
-  } else {
-    node.style.removeProperty('--assembly-distance');
-  }
+  node.classList.remove('reveal-title', 'reveal-content');
+  node.classList.add('reveal-item', `reveal-${options.stage}`);
+  node.style.setProperty('--reveal-delay', `${totalDelay}ms`);
+  node.style.setProperty('--reveal-distance', `${options.distance}px`);
 }
 
 /**
- * Svelte action para reveal global con efecto de ensamblaje magnético.
+ * Svelte action para reveal global con efecto de ensamblaje suave.
  * Añade clases + variables CSS, y dispara la visibilidad al entrar en viewport.
  */
 export function reveal(node: HTMLElement, options?: RevealOptions) {
   let config = normalizeOptions(options);
-  applyAssemblyVars(node, config);
+  applyRevealVars(node, config);
+  let rafA = 0;
+  let rafB = 0;
 
   if (config.immediate || typeof IntersectionObserver === 'undefined') {
     node.classList.add('is-visible');
     return {
       update(nextOptions?: RevealOptions) {
         config = normalizeOptions(nextOptions);
-        applyAssemblyVars(node, config);
+        applyRevealVars(node, config);
         if (config.immediate) node.classList.add('is-visible');
       },
-      destroy() {}
+      destroy() {
+        cancelAnimationFrame(rafA);
+        cancelAnimationFrame(rafB);
+      }
     };
   }
+
+  const revealWithFrameGap = () => {
+    rafA = requestAnimationFrame(() => {
+      rafB = requestAnimationFrame(() => {
+        node.classList.add('is-visible');
+      });
+    });
+  };
 
   const observer = new IntersectionObserver(
     ([entry]) => {
       if (!entry.isIntersecting) return;
-      node.classList.add('is-visible');
+      revealWithFrameGap();
       observer.unobserve(node);
     },
     {
@@ -74,9 +83,11 @@ export function reveal(node: HTMLElement, options?: RevealOptions) {
   return {
     update(nextOptions?: RevealOptions) {
       config = normalizeOptions(nextOptions);
-      applyAssemblyVars(node, config);
+      applyRevealVars(node, config);
     },
     destroy() {
+      cancelAnimationFrame(rafA);
+      cancelAnimationFrame(rafB);
       observer.disconnect();
     }
   };
