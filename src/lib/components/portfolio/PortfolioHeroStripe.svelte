@@ -339,7 +339,8 @@
     let raf = 0;
     let previous = 0;
     let visible = true;
-    const minFrameMs = 1000 / 30;
+    const mobileMq = window.matchMedia('(max-width: 768px)');
+    const getMinFrameMs = () => 1000 / (mobileMq.matches ? 24 : 30);
 
     const renderFrame = (now: number) => {
       const nextDpr = resolveMaxDpr();
@@ -380,7 +381,7 @@
           stopLoop();
           return;
         }
-        if (now - lastRender >= minFrameMs) {
+        if (now - lastRender >= getMinFrameMs()) {
           lastRender = now;
           renderFrame(now);
         }
@@ -403,11 +404,11 @@
       root && typeof IntersectionObserver !== 'undefined'
         ? new IntersectionObserver(
             (entries) => {
-              visible = entries.some((e) => e.isIntersecting);
+              visible = entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.18);
               if (visible) startLoop();
               else stopLoop();
             },
-            { root: null, threshold: 0.02 }
+            { root: null, rootMargin: '-18% 0px -32% 0px', threshold: [0, 0.18, 0.35] }
           )
         : null;
     visibilityObserver?.observe(root ?? targetCanvas);
@@ -419,12 +420,21 @@
       }
       if (visible) startLoop();
     };
+
+    const onMobileMqChange = () => {
+      if (!visible || document.hidden) return;
+      stopLoop();
+      startLoop();
+    };
+
+    mobileMq.addEventListener('change', onMobileMqChange);
     document.addEventListener('visibilitychange', onVisibility);
 
       teardown = () => {
         stopLoop();
         themeObserver.disconnect();
         visibilityObserver?.disconnect();
+        mobileMq.removeEventListener('change', onMobileMqChange);
         document.removeEventListener('visibilitychange', onVisibility);
       };
     });
