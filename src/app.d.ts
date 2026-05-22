@@ -1,6 +1,10 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 declare global {
+	interface Window {
+		__typebotWebModule?: import('$lib/load-typebot').TypebotWebModule;
+	}
+
 	/** Web component del embed JS de Typebot (`initStandard`). */
 	namespace svelteHTML {
 		interface IntrinsicElements {

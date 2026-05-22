@@ -51,7 +51,7 @@ function productionContentSecurityPolicy(): string {
 		// Imágenes desde Sanity CDN o URL absoluta en documentos (case studies, CMS)
 		`img-src 'self' data: blob: https:`,
 		`font-src 'self' data:`,
-		`connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://www.googletagmanager.com https://*.googletagmanager.com https://typebot.io https://*.typebot.io wss://typebot.io wss://*.typebot.io`,
+		`connect-src 'self' https://cdn.jsdelivr.net https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://www.googletagmanager.com https://*.googletagmanager.com https://typebot.io https://*.typebot.io wss://typebot.io wss://*.typebot.io`,
 		`frame-src 'self' https://my.spline.design https://typebot.io https://*.typebot.io`,
 		`worker-src 'self' blob:`,
 		"frame-ancestors 'self'",

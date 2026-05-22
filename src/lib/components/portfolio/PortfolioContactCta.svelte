@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import { t } from '$lib/i18n/index.js';
+  import { loadTypebotWebModule, resetTypebotWebModuleCache } from '$lib/load-typebot';
   import ContactFluidOverlay from './ContactFluidOverlay.svelte';
 
   interface Props {
@@ -79,9 +81,6 @@
     readingFocusDepth = Math.max(0, readingFocusDepth - 1);
   }
 
-  /** CDN oficial Typebot (`initStandard`). `import()` dinámico con `@vite-ignore` (Safari no ejecutaba bien el hack `new Function(import)`). */
-  const TYPEBOT_WEB_JS =
-    'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js';
   const TYPEBOT_PUBLIC_ID = 'asistente-mois-s-valero-sud5oya';
   const typebotTheme = {
     chatWindow: {
@@ -89,58 +88,98 @@
     }
   };
 
-  let typebotStandardStarted = false;
+  let typebotLoadStarted = false;
   let typebotLoadError = $state(false);
+  let typebotReady = $state(false);
   let shouldLoadTypebot = $state(false);
 
+  function isChatNearViewport(node: HTMLElement, margin = 280) {
+    const rect = node.getBoundingClientRect();
+    return rect.top < window.innerHeight + margin && rect.bottom > -margin;
+  }
+
+  /** IO + scroll + timeout: Safari/iOS a veces no dispara IO dentro de overflow:hidden. */
   function loadTypebotWhenVisible(node: HTMLElement) {
-    if (typeof IntersectionObserver === 'undefined') {
+    const activate = () => {
       shouldLoadTypebot = true;
+    };
+
+    if (isChatNearViewport(node)) {
+      activate();
       return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return;
-        shouldLoadTypebot = true;
-        observer.disconnect();
-      },
-      { rootMargin: '220px 0px', threshold: 0.01 }
-    );
+    let io: IntersectionObserver | undefined;
+    if (typeof IntersectionObserver !== 'undefined') {
+      io = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          activate();
+        },
+        { rootMargin: '280px 0px', threshold: 0 }
+      );
+      io.observe(node);
+    }
 
-    observer.observe(node);
+    const onScrollOrResize = () => {
+      if (isChatNearViewport(node)) activate();
+    };
+
+    window.addEventListener('scroll', onScrollOrResize, { passive: true });
+    window.addEventListener('resize', onScrollOrResize, { passive: true });
+    const timeout = window.setTimeout(activate, 10_000);
+
     return {
       destroy() {
-        observer.disconnect();
+        io?.disconnect();
+        window.removeEventListener('scroll', onScrollOrResize);
+        window.removeEventListener('resize', onScrollOrResize);
+        window.clearTimeout(timeout);
       }
     };
   }
 
   $effect(() => {
     if (!shouldLoadTypebot) return;
-    if (typebotStandardStarted) return;
-    typebotStandardStarted = true;
+    if (typebotLoadStarted) return;
+    typebotLoadStarted = true;
     typebotLoadError = false;
+    typebotReady = false;
 
     let cancelled = false;
 
-    void import(/* @vite-ignore */ TYPEBOT_WEB_JS)
-      .then((mod: { default: { initStandard: (opts: Record<string, unknown>) => void } }) => {
+    void (async () => {
+      try {
+        await tick();
         if (cancelled) return;
-        mod.default.initStandard({
+        const mod = await loadTypebotWebModule();
+        if (cancelled) return;
+        await tick();
+        if (cancelled) return;
+        mod.initStandard({
           typebot: TYPEBOT_PUBLIC_ID,
           theme: typebotTheme
         });
-      })
-      .catch((err: unknown) => {
+        if (cancelled) return;
+        typebotReady = true;
+      } catch (err: unknown) {
+        if (cancelled) return;
         console.error('[typebot] No se pudo cargar el embed', err);
         typebotLoadError = true;
-      });
+      }
+    })();
 
     return () => {
       cancelled = true;
     };
   });
+
+  function retryTypebot() {
+    typebotLoadError = false;
+    typebotReady = false;
+    typebotLoadStarted = false;
+    resetTypebotWebModuleCache();
+  }
 
   function openFormModal() {
     isFormModalOpen = true;
@@ -232,23 +271,27 @@
         <div class="chat-load-error" role="alert">
           <p class="chat-load-error-title">No se ha podido cargar el asistente.</p>
           <p class="chat-load-error-body">Prueba de nuevo o escribe por WhatsApp.</p>
-          <button
-            type="button"
-            class="btn-enable-chat"
-            onclick={() => {
-              typebotLoadError = false;
-              typebotStandardStarted = false;
-            }}
-          >
+          <button type="button" class="btn-enable-chat" onclick={retryTypebot}>
             Reintentar
           </button>
         </div>
       {:else if shouldLoadTypebot}
-        <typebot-standard
-          class="typebot-frame typebot-standard-embed"
-          style="width: 100%; height: 380px;"
-          aria-label={iframeTitle}
-        ></typebot-standard>
+        <div class="chat-typebot-host">
+          {#if !typebotReady}
+            <div class="chat-placeholder" aria-busy="true" aria-label="Cargando asistente">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          {/if}
+          <typebot-standard
+            class="typebot-frame typebot-standard-embed"
+            class:typebot-frame-ready={typebotReady}
+            style="width: 100%; height: 380px;"
+            aria-label={iframeTitle}
+            aria-hidden={!typebotReady}
+          ></typebot-standard>
+        </div>
       {:else}
         <div class="chat-placeholder" aria-hidden="true">
           <span></span>
@@ -371,7 +414,7 @@
     padding: 60px clamp(16px, 5vw, 48px) 50px;
     background: #0b1220;
     border-radius: 20px;
-    overflow: hidden;
+    overflow: clip;
     text-align: center;
     font-family: inherit;
     box-sizing: border-box;
@@ -421,6 +464,18 @@
     position: relative;
   }
 
+  .chat-typebot-host {
+    position: relative;
+    width: 100%;
+  }
+
+  .chat-typebot-host .chat-placeholder {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    min-height: 380px;
+  }
+
   .typebot-frame {
     width: 100%;
     height: 380px;
@@ -429,6 +484,14 @@
     box-shadow: none;
     display: block;
     background: transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .typebot-frame-ready {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   :global(.typebot-standard-embed) {
@@ -939,6 +1002,10 @@
 
     .typebot-frame {
       height: min(52vh, 360px);
+    }
+
+    .chat-typebot-host .chat-placeholder {
+      min-height: min(52vh, 360px);
     }
 
     .chat-load-error {
