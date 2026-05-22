@@ -33,8 +33,6 @@
 
   const careerModal = getCareerModalControls();
 
-  let scrollHintOpacity = $state(1);
-  let showScrollHint = $state(true);
   let disableHeroShader = $state(false);
   const lightShaderConfig = {
     color: '#0066E5',
@@ -237,25 +235,10 @@
       disableHeroShader = typeof mem === 'number' && mem <= 2;
     };
 
-    const hintMedia = window.matchMedia('(max-width: 1199px), (hover: none), (pointer: coarse)');
-    const syncScrollHintVisibility = () => {
-      showScrollHint = !hintMedia.matches;
-    };
-    const onScroll = () => {
-      scrollHintOpacity = window.scrollY > 50 ? 0 : 1;
-    };
     syncHeroShaderMode();
-    syncScrollHintVisibility();
-    onScroll();
     motionMq.addEventListener('change', syncHeroShaderMode);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    hintMedia.addEventListener('change', syncScrollHintVisibility);
-    window.addEventListener('resize', syncScrollHintVisibility, { passive: true });
     return () => {
       motionMq.removeEventListener('change', syncHeroShaderMode);
-      window.removeEventListener('scroll', onScroll);
-      hintMedia.removeEventListener('change', syncScrollHintVisibility);
-      window.removeEventListener('resize', syncScrollHintVisibility);
     };
   });
 
@@ -348,9 +331,7 @@
     let raf = 0;
     let previous = 0;
     let visible = true;
-    let frame = 0;
-    const throttleFrames =
-      typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+    const minFrameMs = 1000 / 30;
 
     const renderFrame = (now: number) => {
       const nextDpr = resolveMaxDpr();
@@ -385,20 +366,16 @@
     const startLoop = () => {
       if (raf || !visible || document.hidden) return;
       previous = 0;
-      frame = 0;
+      let lastRender = 0;
       const tick = (now: number) => {
         if (!visible || document.hidden) {
           stopLoop();
           return;
         }
-        if (throttleFrames) {
-          frame += 1;
-          if (frame % 2 !== 0) {
-            raf = window.requestAnimationFrame(tick);
-            return;
-          }
+        if (now - lastRender >= minFrameMs) {
+          lastRender = now;
+          renderFrame(now);
         }
-        renderFrame(now);
         raf = window.requestAnimationFrame(tick);
       };
       raf = window.requestAnimationFrame(tick);
@@ -494,23 +471,6 @@
     </div>
   </div>
 
-  {#if showScrollHint}
-    <div
-      class="scroll-hint-fixed"
-      style:opacity={scrollHintOpacity}
-      aria-hidden="true"
-    >
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polyline
-          points="6,10 14,18 22,10"
-          stroke="#1d1d1f"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-    </div>
-  {/if}
 </div>
 
 <style>
@@ -898,34 +858,6 @@
     border-color: #ffffff !important;
   }
 
-  .scroll-hint-fixed {
-    position: fixed;
-    bottom: 32px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 9999;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-  }
-
-  .scroll-hint-fixed :global(svg) {
-    animation: bounceArrow 1.8s ease-in-out infinite;
-    display: block;
-    opacity: 0.5;
-  }
-
-  @keyframes bounceArrow {
-    0%,
-    100% {
-      transform: translateY(0);
-      opacity: 0.5;
-    }
-    50% {
-      transform: translateY(7px);
-      opacity: 1;
-    }
-  }
-
   /* iPad horizontal y portátiles estrechos: evitar desbordes del título */
   @media (max-width: 1199px) {
     .hero-stripe-pro-v2 h1 {
@@ -971,17 +903,6 @@
       text-align: center;
     }
 
-    .scroll-hint-fixed {
-      display: none;
-    }
-  }
-
-  /* En móviles y tablets táctiles no mostramos la pista de scroll:
-     evita que el chevron se perciba como una raya entre secciones. */
-  @media (max-width: 1199px), (hover: none), (pointer: coarse) {
-    .scroll-hint-fixed {
-      display: none !important;
-    }
   }
 
   /* Cabecera fija: el label gris no debe quedar tapado en móvil */
