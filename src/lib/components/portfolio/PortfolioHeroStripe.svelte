@@ -220,6 +220,56 @@
     }
   `;
 
+  /** Menos iteraciones del bucle GLSL en táctil (~40 % menos trabajo por frame). */
+  const fragmentShaderLite = `
+    precision mediump float;
+    varying vec2 vUv;
+
+    uniform float uTime;
+    uniform vec2 uResolution;
+    uniform vec3 uColor;
+    uniform vec3 uColorSecondary;
+    uniform vec3 uColorAccent;
+    uniform vec3 uBackgroundColor;
+    uniform float uSpeed;
+    uniform float uDistortion;
+    uniform float uHueShift;
+    uniform float uIntensity;
+
+    vec3 linearToSrgb(vec3 color) {
+      vec3 safe = max(color, vec3(0.0));
+      vec3 low = safe * 12.92;
+      vec3 high = 1.055 * pow(safe, vec3(1.0 / 2.4)) - 0.055;
+      vec3 cutoff = step(vec3(0.0031308), safe);
+      return mix(low, high, cutoff);
+    }
+
+    void main() {
+      vec2 u = (vUv * 2.0 - 1.0);
+      u.x *= uResolution.x / max(uResolution.y, 0.001);
+      float time = uTime * uSpeed;
+      u /= 0.5 + uDistortion * dot(u, u);
+      u += 0.2 * cos(time) - 7.56;
+
+      vec3 col = vec3(0.0);
+      float edgeField = 0.0;
+      for (int i = 0; i < 3; i++) {
+        vec2 uvLoop = sin(1.5 * u.yx + 2.0 * cos(u -= 0.01));
+        float val = 1.0 - exp(-6.0 / exp(6.0 * length(uvLoop + sin(5.0 * uvLoop.y - 3.0 * time) / 4.0)));
+        val = pow(clamp(val, 0.0, 1.0), 1.4);
+        edgeField += val;
+        float w = i == 0 ? 1.0 : (i == 1 ? 0.36 : 0.22);
+        vec3 tint = i == 0 ? uColor : (i == 1 ? uColorAccent : uColorSecondary);
+        col += val * tint * w;
+      }
+
+      vec3 bands = col * uIntensity;
+      float softMask = 1.0 - exp(-0.85 * edgeField * uIntensity);
+      vec3 rgb = mix(uBackgroundColor, bands, softMask * 0.92);
+      gl_FragColor = vec4(linearToSrgb(rgb), 1.0);
+    }
+  `;
+
   onMount(() => {
     /**
      * Safari/iOS suele crear contexto WebGL2; el fragment shader usa `gl_FragColor` (GLSL100) y falla allí.
@@ -272,7 +322,14 @@
         typeof window !== 'undefined' &&
         window.matchMedia('(max-width: 1024px), (hover: none), (pointer: coarse)').matches;
       const raw = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-      return Math.min(raw, coarse ? 1.25 : 2);
+      return Math.min(raw, coarse ? 1 : 2);
+    };
+
+    const resolveRenderScale = () => {
+      const coarse =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(max-width: 1024px), (hover: none), (pointer: coarse)').matches;
+      return coarse ? 0.62 : 1;
     };
 
     void import('ogl').then(({ Camera, Mesh, Program, Renderer, Transform, Triangle, Vec2, Vec3 }) => {
@@ -356,7 +413,7 @@
 
     const program = new Program(gl, {
       vertex: vertexShader,
-      fragment: fragmentShader,
+      fragment: isLite ? fragmentShaderLite : fragmentShader,
       uniforms,
       depthTest: false,
       depthWrite: false
@@ -368,17 +425,13 @@
     let raf = 0;
     let previous = 0;
     let visible = true;
-    let skipFrame = false;
+    let animating = false;
+    let animUntil = 0;
+    const WARMUP_MS = isLite ? 5500 : 14000;
+    const ACTIVITY_MS = isLite ? 2800 : 6000;
+    const renderScale = resolveRenderScale();
 
-    const tick = (now: number) => {
-      raf = window.requestAnimationFrame(tick);
-      if (!visible || document.hidden) return;
-
-      if (isLite) {
-        skipFrame = !skipFrame;
-        if (skipFrame) return;
-      }
-
+    const renderFrame = (now: number, advanceTime: boolean) => {
       const nextDpr = resolveMaxDpr();
       if (renderer.dpr !== nextDpr) {
         renderer.dpr = nextDpr;
@@ -386,8 +439,8 @@
 
       const w = Math.max(1, targetCanvas.clientWidth);
       const h = Math.max(1, targetCanvas.clientHeight);
-      const bufW = Math.round(w * renderer.dpr);
-      const bufH = Math.round(h * renderer.dpr);
+      const bufW = Math.max(1, Math.round(w * renderer.dpr * renderScale));
+      const bufH = Math.max(1, Math.round(h * renderer.dpr * renderScale));
       if (targetCanvas.width !== bufW || targetCanvas.height !== bufH) {
         targetCanvas.width = bufW;
         targetCanvas.height = bufH;
@@ -396,17 +449,58 @@
         renderer.state.viewport = { x: 0, y: 0, width: null, height: null };
         uniforms.uResolution.value.set(w, h);
       }
-      const delta = previous ? (now - previous) / 1000 : 0;
-      previous = now;
-      uniforms.uTime.value += delta;
-
+      if (advanceTime) {
+        const delta = previous ? (now - previous) / 1000 : 0;
+        previous = now;
+        uniforms.uTime.value += delta;
+      }
       renderer.render({ scene, camera });
     };
 
-    raf = window.requestAnimationFrame(tick);
+    const schedule = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(tick);
+    };
+
+    const stopAnimating = () => {
+      animating = false;
+      if (raf) {
+        window.cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    };
+
+    const startAnimating = (durationMs: number) => {
+      if (!visible || document.hidden) return;
+      animUntil = Math.max(animUntil, performance.now() + durationMs);
+      if (animating) return;
+      animating = true;
+      previous = 0;
+      schedule();
+    };
+
+    const tick = (now: number) => {
+      raf = 0;
+      if (!animating || !visible || document.hidden) {
+        stopAnimating();
+        return;
+      }
+
+      if (now >= animUntil) {
+        renderFrame(now, false);
+        stopAnimating();
+        return;
+      }
+
+      renderFrame(now, true);
+      schedule();
+    };
+
+    startAnimating(WARMUP_MS);
 
     const themeObserver = new MutationObserver(() => {
       applyShaderConfig(getActiveShaderConfig());
+      renderFrame(performance.now(), false);
     });
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
 
@@ -414,7 +508,10 @@
       root && typeof IntersectionObserver !== 'undefined'
         ? new IntersectionObserver(
             (entries) => {
-              visible = entries.some((e) => e.isIntersecting);
+              const nextVisible = entries.some((e) => e.isIntersecting);
+              if (visible && !nextVisible) stopAnimating();
+              visible = nextVisible;
+              if (visible) startAnimating(ACTIVITY_MS);
             },
             { root: null, threshold: 0.02 }
           )
@@ -422,15 +519,29 @@
     visibilityObserver?.observe(root ?? targetCanvas);
 
     const onVisibility = () => {
-      if (!document.hidden) previous = 0;
+      if (document.hidden) {
+        stopAnimating();
+        return;
+      }
+      previous = 0;
+      if (visible) startAnimating(ACTIVITY_MS);
     };
     document.addEventListener('visibilitychange', onVisibility);
 
+    const onActivity = () => {
+      if (!visible || document.hidden) return;
+      startAnimating(ACTIVITY_MS);
+    };
+    window.addEventListener('scroll', onActivity, { passive: true });
+    window.addEventListener('pointerdown', onActivity, { passive: true });
+
       teardown = () => {
-        window.cancelAnimationFrame(raf);
+        stopAnimating();
         themeObserver.disconnect();
         visibilityObserver?.disconnect();
         document.removeEventListener('visibilitychange', onVisibility);
+        window.removeEventListener('scroll', onActivity);
+        window.removeEventListener('pointerdown', onActivity);
       };
     });
 
@@ -997,9 +1108,7 @@
     }
 
     .label-top.anim-fade-up {
-      animation:
-        aparecer 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both,
-        hero-label-pulse 5.6s ease-in-out 1s infinite;
+      animation: aparecer 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
     }
   }
 
