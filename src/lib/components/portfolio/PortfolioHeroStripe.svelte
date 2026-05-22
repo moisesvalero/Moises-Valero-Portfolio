@@ -30,6 +30,7 @@
     { label: 'APIs', icon: 'lucide:webhook' },
     { label: /IT Support/i.test(subtitle) ? 'AI' : 'IA', icon: 'lucide:sparkles' }
   ]);
+  const titleWords = $derived(title.split(/\s+/).filter(Boolean));
   const iconifySvgUrl = (name: string) =>
     `url("https://api.iconify.design/${encodeURIComponent(name)}.svg")`;
   const resolvePath = resolve as unknown as (href: string) => string;
@@ -463,7 +464,13 @@
 
     <div class="contenido-hero">
       <p class="label-top hero-entry hero-entry-1">{label}</p>
-      <h1 class="hero-entry hero-entry-2">{title}</h1>
+      <h1 class="hero-entry hero-entry-2" aria-label={title}>
+        {#each titleWords as word, index (word + index)}
+          <span class:hero-title-accent={index === titleWords.length - 1}>
+            {word}
+          </span>
+        {/each}
+      </h1>
       <h2 class="sub-frase hero-entry hero-entry-3" aria-label={subtitle}>
         {#each heroCapabilities as item (item.label)}
           <span class="hero-tech-item">
@@ -655,6 +662,52 @@
     letter-spacing: -0.062em;
     line-height: 0.9;
     white-space: nowrap;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.08em 0.18em;
+  }
+
+  .hero-stripe-pro-v2 h1 span {
+    display: inline-block;
+  }
+
+  @keyframes heroAccentSweep {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .hero-title-accent {
+    position: relative;
+    margin-right: 0.035em;
+    padding-right: 0.045em;
+    color: #005fd6;
+    background-image: linear-gradient(110deg, #004fb8 0%, #0066e5 42%, #38bdf8 52%, #0066e5 62%, #003f95 100%);
+    background-size: 240% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: heroAccentSweep 7.5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  }
+
+  .hero-title-accent::after {
+    content: "";
+    position: absolute;
+    left: 0.04em;
+    right: 0.02em;
+    bottom: -0.08em;
+    height: 0.07em;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(0, 102, 229, 0.12), rgba(0, 102, 229, 0.72), rgba(56, 189, 248, 0.18));
+    transform: scaleX(0.92);
+    transform-origin: center;
+    opacity: 0.82;
   }
 
   .sub-frase {
@@ -822,6 +875,16 @@
       0 12px 42px rgba(0, 0, 0, 0.46);
   }
 
+  :global(html.dark) .hero-title-accent {
+    color: #f8fafc;
+    background-image: linear-gradient(110deg, #ffffff 0%, #dff9ff 34%, #a7f3ff 48%, #ffffff 62%, #c7d2fe 100%);
+    text-shadow: 0 0 24px rgba(167, 243, 255, 0.18);
+  }
+
+  :global(html.dark) .hero-title-accent::after {
+    background: linear-gradient(90deg, rgba(167, 243, 255, 0.06), rgba(167, 243, 255, 0.62), rgba(139, 156, 255, 0.18));
+  }
+
   :global(html.dark) .hero-tech-icon {
     color: #a7f3ff;
     filter: drop-shadow(0 0 14px rgba(167, 243, 255, 0.2));
@@ -896,6 +959,12 @@
       animation: none !important;
       transform: none !important;
       will-change: auto;
+    }
+
+    .hero-title-accent {
+      animation: none !important;
+      background: none;
+      -webkit-text-fill-color: currentColor;
     }
 
     .luces-dinamicas-canvas {
