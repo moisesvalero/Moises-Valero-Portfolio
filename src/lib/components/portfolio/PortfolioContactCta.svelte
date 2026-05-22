@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { tick } from 'svelte';
   import { t } from '$lib/i18n/index.js';
   import { loadTypebotWebModule, resetTypebotWebModuleCache } from '$lib/load-typebot';
   import ContactFluidOverlay from './ContactFluidOverlay.svelte';
@@ -88,86 +87,29 @@
     }
   };
 
-  let typebotLoadStarted = false;
+  let typebotStandardStarted = false;
   let typebotLoadError = $state(false);
-  let typebotReady = $state(false);
-  let shouldLoadTypebot = $state(false);
-
-  function isChatNearViewport(node: HTMLElement, margin = 280) {
-    const rect = node.getBoundingClientRect();
-    return rect.top < window.innerHeight + margin && rect.bottom > -margin;
-  }
-
-  /** IO + scroll + timeout: Safari/iOS a veces no dispara IO dentro de overflow:hidden. */
-  function loadTypebotWhenVisible(node: HTMLElement) {
-    const activate = () => {
-      shouldLoadTypebot = true;
-    };
-
-    if (isChatNearViewport(node)) {
-      activate();
-      return;
-    }
-
-    let io: IntersectionObserver | undefined;
-    if (typeof IntersectionObserver !== 'undefined') {
-      io = new IntersectionObserver(
-        (entries) => {
-          if (!entries.some((entry) => entry.isIntersecting)) return;
-          activate();
-        },
-        { rootMargin: '280px 0px', threshold: 0 }
-      );
-      io.observe(node);
-    }
-
-    const onScrollOrResize = () => {
-      if (isChatNearViewport(node)) activate();
-    };
-
-    window.addEventListener('scroll', onScrollOrResize, { passive: true });
-    window.addEventListener('resize', onScrollOrResize, { passive: true });
-    const timeout = window.setTimeout(activate, 10_000);
-
-    return {
-      destroy() {
-        io?.disconnect();
-        window.removeEventListener('scroll', onScrollOrResize);
-        window.removeEventListener('resize', onScrollOrResize);
-        window.clearTimeout(timeout);
-      }
-    };
-  }
 
   $effect(() => {
-    if (!shouldLoadTypebot) return;
-    if (typebotLoadStarted) return;
-    typebotLoadStarted = true;
+    if (typebotStandardStarted) return;
+    typebotStandardStarted = true;
     typebotLoadError = false;
-    typebotReady = false;
 
     let cancelled = false;
 
-    void (async () => {
-      try {
-        await tick();
+    void loadTypebotWebModule()
+      .then((Typebot) => {
         if (cancelled) return;
-        const mod = await loadTypebotWebModule();
-        if (cancelled) return;
-        await tick();
-        if (cancelled) return;
-        mod.initStandard({
+        Typebot.initStandard({
           typebot: TYPEBOT_PUBLIC_ID,
           theme: typebotTheme
         });
-        if (cancelled) return;
-        typebotReady = true;
-      } catch (err: unknown) {
+      })
+      .catch((err: unknown) => {
         if (cancelled) return;
         console.error('[typebot] No se pudo cargar el embed', err);
         typebotLoadError = true;
-      }
-    })();
+      });
 
     return () => {
       cancelled = true;
@@ -176,8 +118,7 @@
 
   function retryTypebot() {
     typebotLoadError = false;
-    typebotReady = false;
-    typebotLoadStarted = false;
+    typebotStandardStarted = false;
     resetTypebotWebModuleCache();
   }
 
@@ -266,7 +207,7 @@
       {/if}
     </div>
 
-    <div class="chat-container-final" role="group" use:loadTypebotWhenVisible>
+    <div class="chat-container-final" role="group">
       {#if typebotLoadError}
         <div class="chat-load-error" role="alert">
           <p class="chat-load-error-title">No se ha podido cargar el asistente.</p>
@@ -275,29 +216,12 @@
             Reintentar
           </button>
         </div>
-      {:else if shouldLoadTypebot}
-        <div class="chat-typebot-host">
-          {#if !typebotReady}
-            <div class="chat-placeholder" aria-busy="true" aria-label="Cargando asistente">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          {/if}
-          <typebot-standard
-            class="typebot-frame typebot-standard-embed"
-            class:typebot-frame-ready={typebotReady}
-            style="width: 100%; height: 380px;"
-            aria-label={iframeTitle}
-            aria-hidden={!typebotReady}
-          ></typebot-standard>
-        </div>
       {:else}
-        <div class="chat-placeholder" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
+        <typebot-standard
+          class="typebot-frame typebot-standard-embed"
+          style="width: 100%; height: 380px;"
+          aria-label={iframeTitle}
+        ></typebot-standard>
       {/if}
     </div>
 
@@ -414,7 +338,7 @@
     padding: 60px clamp(16px, 5vw, 48px) 50px;
     background: #0b1220;
     border-radius: 20px;
-    overflow: clip;
+    overflow: hidden;
     text-align: center;
     font-family: inherit;
     box-sizing: border-box;
@@ -464,18 +388,6 @@
     position: relative;
   }
 
-  .chat-typebot-host {
-    position: relative;
-    width: 100%;
-  }
-
-  .chat-typebot-host .chat-placeholder {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    min-height: 380px;
-  }
-
   .typebot-frame {
     width: 100%;
     height: 380px;
@@ -484,14 +396,6 @@
     box-shadow: none;
     display: block;
     background: transparent;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease;
-  }
-
-  .typebot-frame-ready {
-    opacity: 1;
-    pointer-events: auto;
   }
 
   :global(.typebot-standard-embed) {
@@ -1002,10 +906,6 @@
 
     .typebot-frame {
       height: min(52vh, 360px);
-    }
-
-    .chat-typebot-host .chat-placeholder {
-      min-height: min(52vh, 360px);
     }
 
     .chat-load-error {

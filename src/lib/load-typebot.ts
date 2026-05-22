@@ -67,10 +67,10 @@ window.dispatchEvent(new Event("typebot:module-ready"));
 }
 
 async function loadViaDynamicImport(): Promise<TypebotWebModule> {
-	const mod = (await import(/* @vite-ignore */ TYPEBOT_WEB_JS)) as {
-		default: TypebotWebModule;
-	};
-	return mod.default;
+	const mod = (await import(/* @vite-ignore */ TYPEBOT_WEB_JS)) as
+		| TypebotWebModule
+		| { default: TypebotWebModule };
+	return 'initStandard' in mod ? mod : mod.default;
 }
 
 /** Carga el SDK de Typebot (import dinámico; fallback con `<script type="module">` para Safari/iOS). */
