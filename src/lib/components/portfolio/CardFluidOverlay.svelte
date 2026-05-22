@@ -159,7 +159,12 @@
         transparent 70%
       );
     filter: saturate(112%);
-    will-change: opacity, background-position;
+  }
+
+  @media (max-width: 768px), (hover: none), (pointer: coarse) {
+    .card-fluid-overlay {
+      display: none;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

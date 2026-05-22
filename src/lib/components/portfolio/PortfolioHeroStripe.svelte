@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Camera, Mesh, Program, Renderer, Transform, Triangle, Vec2, Vec3 } from 'ogl';
   import { getCareerModalControls } from '$lib/career-modal-context';
 
   interface Props {
@@ -96,7 +95,11 @@
     return [toLinearChannel(r), toLinearChannel(g), toLinearChannel(b)];
   };
 
-  const applyHexColor = (target: Vec3, hex: string, fallback: [number, number, number]) => {
+  type Vec3Like = {
+    set: (r: number, g: number, b: number) => void;
+  };
+
+  const applyHexColor = (target: Vec3Like, hex: string, fallback: [number, number, number]) => {
     const [r, g, b] = hexToLinearRgb(hex);
     target.set(
       Number.isFinite(r) ? r : fallback[0],
@@ -225,6 +228,7 @@
      * por privacidad y quitaba el canvas entero sin ser un móvil “cutre”.
      */
     const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const lightweightMq = window.matchMedia('(max-width: 1024px), (hover: none), (pointer: coarse)');
     const syncHeroShaderMode = () => {
       if (motionMq.matches) {
         disableHeroShader = true;
@@ -245,11 +249,13 @@
     syncScrollHintVisibility();
     onScroll();
     motionMq.addEventListener('change', syncHeroShaderMode);
+    lightweightMq.addEventListener('change', syncHeroShaderMode);
     window.addEventListener('scroll', onScroll, { passive: true });
     hintMedia.addEventListener('change', syncScrollHintVisibility);
     window.addEventListener('resize', syncScrollHintVisibility, { passive: true });
     return () => {
       motionMq.removeEventListener('change', syncHeroShaderMode);
+      lightweightMq.removeEventListener('change', syncHeroShaderMode);
       window.removeEventListener('scroll', onScroll);
       hintMedia.removeEventListener('change', syncScrollHintVisibility);
       window.removeEventListener('resize', syncScrollHintVisibility);
@@ -257,12 +263,27 @@
   });
 
   const mountSpecularBand = (targetCanvas: HTMLCanvasElement) => {
+    let destroyed = false;
+    let teardown: (() => void) | null = null;
+    const root = targetCanvas.closest('.hero-stripe-pro-v2');
+
+    const resolveMaxDpr = () => {
+      const coarse =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(max-width: 1024px), (hover: none), (pointer: coarse)').matches;
+      const raw = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+      return Math.min(raw, coarse ? 1.25 : 2);
+    };
+
+    void import('ogl').then(({ Camera, Mesh, Program, Renderer, Transform, Triangle, Vec2, Vec3 }) => {
+      if (destroyed) return;
+
     const renderer = new Renderer({
       canvas: targetCanvas,
       alpha: true,
       /** GLSL con `gl_FragColor` es válido en WebGL1; en WebGL2 (Safari por defecto) el enlace del programa falla. */
       webgl: 1,
-      dpr: typeof window !== 'undefined' ? window.devicePixelRatio : 1
+      dpr: resolveMaxDpr()
     });
     const gl = renderer.gl;
     gl.clearColor(0, 0, 0, 0);
@@ -276,8 +297,22 @@
     const scene = new Transform();
     const geometry = new Triangle(gl);
 
-    const getActiveShaderConfig = (): ShaderConfig =>
-      document.documentElement.classList.contains('dark') ? darkShaderConfig : lightShaderConfig;
+    const isLite =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(max-width: 1024px), (hover: none), (pointer: coarse)').matches;
+
+    const getActiveShaderConfig = (): ShaderConfig => {
+      const base = document.documentElement.classList.contains('dark')
+        ? darkShaderConfig
+        : lightShaderConfig;
+      if (!isLite) return base;
+      return {
+        ...base,
+        speed: base.speed * 0.82,
+        intensity: base.intensity * 0.86,
+        distortion: base.distortion * 0.88
+      };
+    };
 
     const applyShaderConfig = (config: ShaderConfig) => {
       applyHexColor(uniforms.uColor.value, config.color, [0, 102 / 255, 229 / 255]);
@@ -332,7 +367,23 @@
 
     let raf = 0;
     let previous = 0;
+    let visible = true;
+    let skipFrame = false;
+
     const tick = (now: number) => {
+      raf = window.requestAnimationFrame(tick);
+      if (!visible || document.hidden) return;
+
+      if (isLite) {
+        skipFrame = !skipFrame;
+        if (skipFrame) return;
+      }
+
+      const nextDpr = resolveMaxDpr();
+      if (renderer.dpr !== nextDpr) {
+        renderer.dpr = nextDpr;
+      }
+
       const w = Math.max(1, targetCanvas.clientWidth);
       const h = Math.max(1, targetCanvas.clientHeight);
       const bufW = Math.round(w * renderer.dpr);
@@ -350,7 +401,6 @@
       uniforms.uTime.value += delta;
 
       renderer.render({ scene, camera });
-      raf = window.requestAnimationFrame(tick);
     };
 
     raf = window.requestAnimationFrame(tick);
@@ -360,10 +410,34 @@
     });
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
 
-    return {
-      destroy() {
+    const visibilityObserver =
+      root && typeof IntersectionObserver !== 'undefined'
+        ? new IntersectionObserver(
+            (entries) => {
+              visible = entries.some((e) => e.isIntersecting);
+            },
+            { root: null, threshold: 0.02 }
+          )
+        : null;
+    visibilityObserver?.observe(root ?? targetCanvas);
+
+    const onVisibility = () => {
+      if (!document.hidden) previous = 0;
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+      teardown = () => {
         window.cancelAnimationFrame(raf);
         themeObserver.disconnect();
+        visibilityObserver?.disconnect();
+        document.removeEventListener('visibilitychange', onVisibility);
+      };
+    });
+
+    return {
+      destroy() {
+        destroyed = true;
+        teardown?.();
       }
     };
   };
@@ -528,7 +602,6 @@
 
   .anim-fade-up {
     animation: aparecer 0.86s cubic-bezier(0.16, 1, 0.3, 1) both;
-    will-change: transform, opacity, filter;
   }
 
   .label-top {
@@ -915,6 +988,19 @@
       display: none;
     }
 
+  }
+
+  @media (max-width: 1024px), (hover: none), (pointer: coarse) {
+    .anim-fade-up,
+    .hero-tech-item {
+      animation-duration: 0.55s;
+    }
+
+    .label-top.anim-fade-up {
+      animation:
+        aparecer 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both,
+        hero-label-pulse 5.6s ease-in-out 1s infinite;
+    }
   }
 
   @media (max-width: 768px) {

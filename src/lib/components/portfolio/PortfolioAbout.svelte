@@ -169,6 +169,15 @@
     }
   }
 
+  @media (max-width: 768px), (hover: none), (pointer: coarse) {
+    .anim-sobre-mi-foto,
+    .anim-sobre-mi-texto {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   @media (max-width: 768px) {
     .sobre-mi-minimal {
       margin: 48px auto;

@@ -763,6 +763,13 @@
       .motion-header.menu-open .motion-header-shell { max-width: 85vw; }
     }
 
+    @media (max-width: 767px), (hover: none), (pointer: coarse) {
+      .motion-header-shell {
+        -webkit-backdrop-filter: blur(10px) saturate(1.1);
+        backdrop-filter: blur(10px) saturate(1.1);
+      }
+    }
+
     @media (max-width: 767px) {
       .motion-header {
         padding-top: 0.5rem;

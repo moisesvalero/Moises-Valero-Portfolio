@@ -1,6 +1,5 @@
 <script lang="ts">
   import { env } from '$env/dynamic/public';
-  import { onMount } from 'svelte';
   import PortfolioHeroStripe from '$lib/components/portfolio/PortfolioHeroStripe.svelte';
   import PortfolioAbout from '$lib/components/portfolio/PortfolioAbout.svelte';
   import PortfolioServices from '$lib/components/portfolio/PortfolioServices.svelte';
@@ -117,21 +116,30 @@
     })
   );
 
-  let prefersReducedMotion = false;
-  onMount(() => {
-    prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  });
+  function revealMotionQuery() {
+    return typeof window !== 'undefined'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : null;
+  }
 
   function isRevealMobileViewport() {
-    return typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+    return (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(max-width: 768px), (hover: none), (pointer: coarse)').matches
+    );
   }
 
   function revealOnScroll(node: HTMLElement) {
-    if (prefersReducedMotion) {
+    const motionMq = revealMotionQuery();
+    if (motionMq?.matches) {
       node.classList.add('is-visible');
       return;
     }
     const mobile = isRevealMobileViewport();
+    if (mobile) {
+      node.classList.add('is-visible');
+      return;
+    }
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -154,11 +162,16 @@
   }
 
   function revealOnScrollProjects(node: HTMLElement) {
-    if (prefersReducedMotion) {
+    const motionMq = revealMotionQuery();
+    if (motionMq?.matches) {
       node.classList.add('is-visible');
       return;
     }
     const mobile = isRevealMobileViewport();
+    if (mobile) {
+      node.classList.add('is-visible');
+      return;
+    }
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -233,7 +246,6 @@
       opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
       transform 940ms cubic-bezier(0.16, 1, 0.3, 1),
       clip-path 940ms cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: opacity, transform;
   }
 
   .reveal-block.is-visible {
@@ -429,15 +441,32 @@
     }
   }
 
-  @media (max-width: 768px) {
-    .reveal-block {
-      transform: translate3d(0, 22px, 0) scale(0.992);
-      transition:
-        opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
-        transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
-        clip-path 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  @media (max-width: 768px), (hover: none), (pointer: coarse) {
+    .site-scroll-progress {
+      display: none;
     }
 
+    .reveal-block {
+      opacity: 1;
+      transform: none;
+      clip-path: none;
+      transition: none;
+    }
+
+    .reveal-block.is-visible :global(.servicios-intro),
+    .reveal-block.is-visible :global(.stack-header),
+    .reveal-block.is-visible :global(.garantias-header),
+    .reveal-block.is-visible :global(.proyectos-header),
+    .reveal-block.is-visible :global(.role-strip .role-card),
+    .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
+    .reveal-block.is-visible :global(.project-card),
+    .reveal-block.is-visible :global(.garantias-grid .garantia-item),
+    .reveal-block.is-visible :global(.stack-grid .stack-cat) {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 768px) {
     .reveal-block.is-visible :global(.role-strip .role-card),
     .reveal-block.is-visible :global(.proyectos-grid .proyecto-card),
     .reveal-block.is-visible :global(.project-card),
