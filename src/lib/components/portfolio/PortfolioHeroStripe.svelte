@@ -348,6 +348,9 @@
     let raf = 0;
     let previous = 0;
     let visible = true;
+    let frame = 0;
+    const throttleFrames =
+      typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
 
     const renderFrame = (now: number) => {
       const nextDpr = resolveMaxDpr();
@@ -382,10 +385,18 @@
     const startLoop = () => {
       if (raf || !visible || document.hidden) return;
       previous = 0;
+      frame = 0;
       const tick = (now: number) => {
         if (!visible || document.hidden) {
           stopLoop();
           return;
+        }
+        if (throttleFrames) {
+          frame += 1;
+          if (frame % 2 !== 0) {
+            raf = window.requestAnimationFrame(tick);
+            return;
+          }
         }
         renderFrame(now);
         raf = window.requestAnimationFrame(tick);

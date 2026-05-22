@@ -141,24 +141,6 @@
     font-weight: 600;
   }
 
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .anim-sobre-mi-foto,
-  .anim-sobre-mi-texto {
-    animation: fadeInUp 1s ease-out forwards;
-    animation-timeline: view();
-    animation-range: entry 10% cover 40%;
-  }
-
   @media (max-width: 992px) {
     .sobre-mi-minimal {
       scroll-margin-top: 88px;
@@ -177,14 +159,6 @@
   }
 
   @media (max-width: 768px) {
-    /* En móvil el reveal lo hace el bloque padre (.reveal-block en +page). */
-    .anim-sobre-mi-foto,
-    .anim-sobre-mi-texto {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
-
     .sobre-mi-minimal {
       margin: 48px auto;
       padding: 0 20px;
