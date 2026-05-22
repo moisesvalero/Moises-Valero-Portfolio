@@ -116,22 +116,37 @@
     })
   );
 
-  /** Mismo patrón que Alcoy: una transición por sección, sin animaciones hijas. */
+  /** Reveal por sección: el contenido siempre es visible (opacity 1); solo animamos transform. */
   function homeReveal(node: HTMLElement) {
     if (typeof window === 'undefined') return;
 
+    const show = () => node.classList.add('is-in');
+
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      node.classList.add('is-in');
+      show();
+      return;
+    }
+
+    const isInViewport = () => {
+      const rect = node.getBoundingClientRect();
+      return rect.top < window.innerHeight * 0.94 && rect.bottom > 0;
+    };
+
+    if (isInViewport()) {
+      show();
       return;
     }
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        node.classList.add('is-in');
-        observer.disconnect();
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          show();
+          observer.disconnect();
+          break;
+        }
       },
-      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+      { threshold: 0, rootMargin: '0px 0px -6% 0px' }
     );
 
     observer.observe(node);
@@ -180,23 +195,19 @@
 </div>
 
 <style>
-  .home-section {
-    opacity: 0;
+  .home-section:not(.home-section--hero) {
+    opacity: 1;
     transform: translateY(28px);
-    transition:
-      opacity 720ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .home-section.is-in,
   .home-section--hero {
-    opacity: 1;
     transform: translateY(0);
   }
 
   @media (prefers-reduced-motion: reduce) {
     .home-section {
-      opacity: 1;
       transform: none;
       transition: none;
     }
