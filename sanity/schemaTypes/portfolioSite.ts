@@ -230,17 +230,23 @@ export const portfolioSite = defineType({
         {
           name: 'categories',
           type: 'array',
-          title: 'Categorías (solo títulos editables; iconos en código)',
+          title: 'Categorías (referencia / archivo)',
           description:
-            'Los iconos del stack se definen en el repositorio. Aquí solo puedes ajustar títulos de categoría si lo necesitas.',
+            'La web muestra el stack definido en código (devicons del repo). Estos datos son solo archivo: no edites iconos aquí salvo que más adelante conectemos esta sección.',
           of: [
             {
               type: 'object',
               fields: [
-                { name: 'title', type: 'localeString', title: 'Nombre categoría' },
+                {
+                  name: 'title',
+                  type: 'string',
+                  title: 'Nombre categoría (archivo)',
+                  readOnly: true
+                },
                 {
                   name: 'icons',
                   type: 'array',
+                  readOnly: true,
                   of: [
                     {
                       type: 'object',
