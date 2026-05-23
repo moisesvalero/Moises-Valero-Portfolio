@@ -4,6 +4,77 @@
 @import '@fontsource-variable/geist-mono/index.css';
 @import '@fontsource-variable/inter/index.css';
 
+/* Minimal utility classes used by Motion Core components installed in this project. */
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.inset-0 {
+  inset: 0;
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.h-14 {
+  height: 3.5rem;
+}
+
+.w-24 {
+  width: 6rem;
+}
+
+.h-auto {
+  height: auto;
+}
+
+.w-auto {
+  width: auto;
+}
+
+.max-h-\[70\%\] {
+  max-height: 70%;
+}
+
+.max-w-\[70\%\] {
+  max-width: 70%;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.object-contain {
+  object-fit: contain;
+}
+
+.space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  margin-left: 1rem;
+}
+
+@media (min-width: 768px) {
+  .md\:h-24 {
+    height: 6rem;
+  }
+
+  .md\:w-48 {
+    width: 12rem;
+  }
+}
+
 :root {
   --font-sans: 'Geist Variable', 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Geist Mono Variable', 'SFMono-Regular', 'Cascadia Code', 'Roboto Mono', ui-monospace, monospace;

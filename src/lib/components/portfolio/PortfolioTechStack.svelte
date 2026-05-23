@@ -1,5 +1,30 @@
 <script lang="ts">
-  import CardFluidOverlay from '$lib/components/portfolio/CardFluidOverlay.svelte';
+  import type { Component } from 'svelte';
+  import { LogoCarousel } from '$lib/motion-core';
+  import AntigravityLogo from './tech-logos/AntigravityLogo.svelte';
+  import ClaudeLogo from './tech-logos/ClaudeLogo.svelte';
+  import CloudflareLogo from './tech-logos/CloudflareLogo.svelte';
+  import CodexLogo from './tech-logos/CodexLogo.svelte';
+  import Css3Logo from './tech-logos/Css3Logo.svelte';
+  import CursorLogo from './tech-logos/CursorLogo.svelte';
+  import ElementorLogo from './tech-logos/ElementorLogo.svelte';
+  import GeminiLogo from './tech-logos/GeminiLogo.svelte';
+  import GitHubLogo from './tech-logos/GitHubLogo.svelte';
+  import Html5Logo from './tech-logos/Html5Logo.svelte';
+  import JavaScriptLogo from './tech-logos/JavaScriptLogo.svelte';
+  import KadenceLogo from './tech-logos/KadenceLogo.svelte';
+  import OpenAiLogo from './tech-logos/OpenAiLogo.svelte';
+  import OpenCodeLogo from './tech-logos/OpenCodeLogo.svelte';
+  import PwaLogo from './tech-logos/PwaLogo.svelte';
+  import SanityLogo from './tech-logos/SanityLogo.svelte';
+  import StripeLogo from './tech-logos/StripeLogo.svelte';
+  import SupabaseLogo from './tech-logos/SupabaseLogo.svelte';
+  import SvelteKitLogo from './tech-logos/SvelteKitLogo.svelte';
+  import TailwindLogo from './tech-logos/TailwindLogo.svelte';
+  import TypeScriptLogo from './tech-logos/TypeScriptLogo.svelte';
+  import VercelLogo from './tech-logos/VercelLogo.svelte';
+  import ViteLogo from './tech-logos/ViteLogo.svelte';
+  import WordPressLogo from './tech-logos/WordPressLogo.svelte';
 
   type StackIcon = {
     src?: string;
@@ -12,6 +37,12 @@
   type StackCategory = {
     title: string;
     icons: StackIcon[];
+  };
+
+  type Logo = {
+    name: string;
+    id: number;
+    component: Component;
   };
 
   interface Props {
@@ -77,19 +108,56 @@
     }
   ];
 
+  const logoComponents: Partial<Record<string, Component>> = {
+    Antigravity: AntigravityLogo,
+    Claude: ClaudeLogo,
+    Cloudflare: CloudflareLogo,
+    CSS3: Css3Logo,
+    Cursor: CursorLogo,
+    Elementor: ElementorLogo,
+    Gemini: GeminiLogo,
+    GitHub: GitHubLogo,
+    HTML5: Html5Logo,
+    JavaScript: JavaScriptLogo,
+    Kadence: KadenceLogo,
+    OpenAI: OpenAiLogo,
+    'OpenAI Codex': CodexLogo,
+    OpenCode: OpenCodeLogo,
+    PWA: PwaLogo,
+    Sanity: SanityLogo,
+    Stripe: StripeLogo,
+    Supabase: SupabaseLogo,
+    SvelteKit: SvelteKitLogo,
+    'Tailwind CSS': TailwindLogo,
+    TypeScript: TypeScriptLogo,
+    Vercel: VercelLogo,
+    Vite: ViteLogo,
+    WordPress: WordPressLogo
+  };
+
   let {
     meta = 'TECNOLOGÍAS Y HERRAMIENTAS',
     title = 'Mi Stack Tecnológico',
     categories = defaultCategories
   }: Props = $props();
 
-  function iconifySvgUrl(name: string): string {
-    return `https://api.iconify.design/${encodeURIComponent(name)}.svg`;
-  }
+  const logos: Logo[] = $derived(
+    categories.flatMap((category, categoryIndex) =>
+      category.icons.flatMap((icon, iconIndex) => {
+        const component = logoComponents[icon.alt];
 
-  function deviconSvgUrl(path: string): string {
-    return `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${path}`;
-  }
+        return component
+          ? [
+              {
+                name: icon.title ?? icon.alt,
+                id: categoryIndex * 100 + iconIndex,
+                component
+              }
+            ]
+          : [];
+      })
+    )
+  );
 </script>
 
 <section class="stack-container" id="stack" aria-labelledby="stack-titulo">
@@ -98,50 +166,8 @@
     <h2 id="stack-titulo">{title}</h2>
   </div>
 
-  <div class="stack-grid">
-    {#each categories as cat (cat.title)}
-      <div class="stack-cat">
-        <CardFluidOverlay radius={260} blur={36} />
-        <p class="cat-title">{cat.title}</p>
-        <div class="iconos-flex">
-          {#each cat.icons as icon ((icon.devicon ?? icon.iconify ?? icon.src ?? '') + icon.alt)}
-            <div class="item-stack" class:is-woocommerce={icon.alt === 'WooCommerce'}>
-              {#if icon.devicon}
-                <img
-                  src={deviconSvgUrl(icon.devicon)}
-                  alt={icon.alt}
-                  title={icon.title ?? icon.alt}
-                  width="40"
-                  height="40"
-                  loading="lazy"
-                  decoding="async"
-                />
-              {:else if icon.iconify}
-                <img
-                  src={iconifySvgUrl(icon.iconify)}
-                  alt={icon.alt}
-                  title={icon.title ?? icon.alt}
-                  width="40"
-                  height="40"
-                  loading="lazy"
-                  decoding="async"
-                />
-              {:else if icon.src}
-                <img
-                  src={icon.src}
-                  alt={icon.alt}
-                  title={icon.title ?? icon.alt}
-                  width="40"
-                  height="40"
-                  loading="lazy"
-                  decoding="async"
-                />
-              {/if}
-            </div>
-          {/each}
-        </div>
-      </div>
-    {/each}
+  <div class="carousel-stage" aria-label="Tecnologías y herramientas">
+    <LogoCarousel logos={logos} columnCount={4} cycleInterval={1800} />
   </div>
 </section>
 
@@ -171,125 +197,86 @@
     font-weight: 800;
   }
 
-  .stack-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 25px;
-  }
-
-  .stack-cat {
-    background: #fbfbfd;
-    padding: 30px;
-    border: 1px solid #f1f5f9;
-    border-radius: 8px;
-    min-width: 0;
+  .carousel-stage {
     position: relative;
-    overflow: hidden;
-    isolation: isolate;
-  }
-
-  .cat-title {
-    color: #1d1d1f;
-    font-weight: 700;
-    font-size: 15px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #0071e3;
-    display: inline-block;
-  }
-
-  .iconos-flex {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-    justify-items: center;
-    align-items: center;
-  }
-
-  .item-stack {
-    width: 72px;
-    height: 72px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
     display: flex;
+    min-height: 320px;
     align-items: center;
     justify-content: center;
-    padding: 12px;
-    border-radius: 12px;
-    transition: all 0.25s ease;
-    box-sizing: border-box;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid rgba(226, 232, 240, 0.74);
+    background:
+      linear-gradient(90deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.7)),
+      radial-gradient(circle at 50% 50%, rgba(0, 113, 227, 0.11), transparent 48%);
   }
 
-  .item-stack img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: grayscale(20%);
-    opacity: 0.92;
+  .carousel-stage::before,
+  .carousel-stage::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    z-index: 1;
+    width: 16%;
+    pointer-events: none;
   }
 
-  .item-stack:hover {
-    border-color: #0071e3;
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 113, 227, 0.12);
+  .carousel-stage::before {
+    left: 0;
+    background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0));
   }
 
-  .item-stack:hover img {
-    filter: grayscale(0%);
-    opacity: 1;
+  .carousel-stage::after {
+    right: 0;
+    background: linear-gradient(270deg, #fff, rgba(255, 255, 255, 0));
   }
 
-  .item-stack.is-woocommerce img {
-    width: 120%;
+  .carousel-stage :global(.flex.space-x-4) {
+    position: relative;
+    z-index: 0;
+    gap: clamp(14px, 3vw, 34px);
   }
 
-  /* Tablet / iPad horizontal: 3 columnas estrechas rompían la fila de 4 iconos */
+  .carousel-stage :global(img) {
+    max-width: 84%;
+    max-height: 84%;
+    filter: saturate(1.04);
+  }
+
+  :global(html.dark) .carousel-stage {
+    border-color: rgba(148, 163, 184, 0.16);
+    background:
+      linear-gradient(90deg, rgba(17, 24, 39, 0.9), rgba(15, 23, 42, 0.66)),
+      radial-gradient(circle at 50% 50%, rgba(10, 132, 255, 0.14), transparent 50%);
+  }
+
+  :global(html.dark) .carousel-stage::before {
+    background: linear-gradient(90deg, #0a0a0a, rgba(10, 10, 10, 0));
+  }
+
+  :global(html.dark) .carousel-stage::after {
+    background: linear-gradient(270deg, #0a0a0a, rgba(10, 10, 10, 0));
+  }
+
   @media (max-width: 1199px) {
     .stack-container {
       scroll-margin-top: 88px;
     }
-
-    .stack-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 20px;
-    }
-
-    .stack-cat {
-      padding: 22px;
-      margin: 0;
-      max-width: none;
-    }
   }
 
   @media (max-width: 768px) {
-    .stack-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .stack-cat {
-      padding: 20px;
-    }
-
-    .item-stack {
-      width: 68px;
-      height: 68px;
-      padding: 10px;
+    .carousel-stage {
+      min-height: 260px;
     }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 560px) {
     .stack-header h2 {
       font-size: 28px;
     }
 
-    .iconos-flex {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .item-stack {
-      width: 64px;
-      height: 64px;
-      padding: 8px;
+    .carousel-stage {
+      min-height: 220px;
     }
   }
 </style>
