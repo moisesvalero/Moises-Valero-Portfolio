@@ -1,3 +1,5 @@
+import { sitePortfolioDefaults } from '$lib/data/site-portfolio-defaults';
+import type { SiteLocale } from '$lib/i18n/site-locale';
 import type { SitePortfolioContent } from '$lib/types/site-portfolio';
 
 const aboutHtmlEn = `<p>
@@ -178,6 +180,9 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
   projects: {
     meta: 'SELECTED PORTFOLIO',
     title: 'Featured Projects',
+    intro:
+      'A brief selection of projects that summarise how I work: technical judgement, product thinking, performance and real integrations.',
+    archiveLinkLabel: 'View all projects',
     projects: [
       {
         imageSrc: '/imagenes/captura-novakit_ember.avif',
@@ -303,34 +308,34 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
   }
 };
 
-export function applyPortfolioEnglishDemo(
-  site: SitePortfolioContent,
-  opts?: { preserveSanityServices?: boolean; preserveSanityProjects?: boolean }
-): SitePortfolioContent {
-  const seo = site.seo;
+/** Defaults de UI por idioma (fallback si Sanity no trae el campo o falta `en`). SEO sigue en español. */
+export function buildPortfolioLocaleDefaults(locale: SiteLocale): SitePortfolioContent {
+  if (locale === 'es') {
+    return sitePortfolioDefaults;
+  }
   const en = portfolioEnglishDemo;
-  const preserveServices = opts?.preserveSanityServices === true;
-  const preserveProjects = opts?.preserveSanityProjects === true;
-  const categories = site.techStack.categories.map((cat, i) => ({
-    ...cat,
-    title: en.techStack.categories[i]?.title ?? cat.title
-  }));
+  const es = sitePortfolioDefaults;
   return {
-    ...site,
+    ...es,
     header: en.header,
     hero: en.hero,
-    /** Texto/meta EN; la foto y el alt siguen viniendo de Sanity (CDN optimizado). */
-    about: { ...en.about, imageSrc: site.about.imageSrc, imageAlt: site.about.imageAlt },
-    services: preserveServices ? site.services : en.services,
-    techStack: {
-      meta: en.techStack.meta,
-      title: en.techStack.title,
-      categories
+    about: {
+      ...en.about,
+      imageSrc: es.about.imageSrc
     },
+    services: en.services,
+    techStack: en.techStack,
     quality: en.quality,
-    projects: preserveProjects ? site.projects : en.projects,
+    projects: {
+      ...es.projects,
+      meta: en.projects.meta,
+      title: en.projects.title,
+      intro: en.projects.intro ?? es.projects.intro,
+      archiveLinkLabel: en.projects.archiveLinkLabel ?? es.projects.archiveLinkLabel,
+      projects: en.projects.projects
+    },
     contact: en.contact,
     footer: en.footer,
-    seo
+    careerModal: en.careerModal
   };
 }
