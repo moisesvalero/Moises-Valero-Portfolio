@@ -60,7 +60,7 @@ export const portfolioSite = defineType({
       description: 'Logo, menu y boton principal.',
       group: 'home',
       fields: [
-        { name: 'logoText', type: 'localeString', title: 'Marca / logo' },
+        { name: 'logoText', type: 'string', title: 'Marca / logo' },
         { name: 'logoHref', type: 'string', title: 'Enlace del logo', initialValue: '/' },
         {
           name: 'navItems',
@@ -70,7 +70,7 @@ export const portfolioSite = defineType({
             {
               type: 'object',
               fields: [
-                { name: 'label', type: 'localeString', title: 'Texto' },
+                { name: 'label', type: 'string', title: 'Texto' },
                 {
                   name: 'href',
                   type: 'string',
@@ -89,7 +89,7 @@ export const portfolioSite = defineType({
             }
           ]
         },
-        { name: 'ctaLabel', type: 'localeString', title: 'Texto botón CTA (ej. Contacto)' },
+        { name: 'ctaLabel', type: 'string', title: 'Texto botón CTA (ej. Contacto)' },
         {
           name: 'ctaHref',
           type: 'string',
@@ -138,12 +138,12 @@ export const portfolioSite = defineType({
           description: 'Ej. /#contacto para el chat, o https://… para otra URL.',
           options: { placeholder: '/#contacto' }
         },
-        { name: 'label', type: 'localeString', title: 'Etiqueta superior' },
-        { name: 'title', type: 'localeString', title: 'Título H1' },
-        { name: 'subtitle', type: 'localeString', title: 'Subtítulo' },
-        { name: 'bio', type: 'localeText', title: 'Bio' },
-        { name: 'ctaPrimaryLabel', type: 'localeString', title: 'Texto botón principal' },
-        { name: 'careerCtaLabel', type: 'localeString', title: 'Texto botón trayectoria' }
+        { name: 'label', type: 'string', title: 'Etiqueta superior' },
+        { name: 'title', type: 'string', title: 'Título H1' },
+        { name: 'subtitle', type: 'string', title: 'Subtítulo' },
+        { name: 'bio', type: 'text', title: 'Bio' },
+        { name: 'ctaPrimaryLabel', type: 'string', title: 'Texto botón principal' },
+        { name: 'careerCtaLabel', type: 'string', title: 'Texto botón trayectoria' }
       ]
     }),
     defineField({
@@ -167,13 +167,14 @@ export const portfolioSite = defineType({
           description:
             'Solo si no hay imagen subida. Archivos locales (/imagenes/…) o URL absolutas no pasan por el pipeline de Sanity.'
         },
-        { name: 'imageAlt', type: 'localeString', title: 'Alt imagen' },
-        { name: 'meta', type: 'localeString', title: 'Meta sección' },
-        { name: 'title', type: 'localeString', title: 'Título H2' },
+        { name: 'imageAlt', type: 'string', title: 'Alt imagen' },
+        { name: 'meta', type: 'string', title: 'Meta sección' },
+        { name: 'title', type: 'string', title: 'Título H2' },
         {
           name: 'aboutHtml',
-          type: 'localeText',
+          type: 'text',
           title: 'Cuerpo (HTML)',
+          rows: 10,
           description: 'Párrafos con <p>, <strong>, enlaces… Solo contenido tuyo.'
         }
       ]
@@ -222,8 +223,8 @@ export const portfolioSite = defineType({
       title: 'Stack tecnologico',
       group: 'servicios',
       fields: [
-        { name: 'meta', type: 'localeString', title: 'Meta sección' },
-        { name: 'title', type: 'localeString', title: 'Título H2' },
+        { name: 'meta', type: 'string' },
+        { name: 'title', type: 'string' },
         {
           name: 'categories',
           type: 'array',
@@ -231,7 +232,7 @@ export const portfolioSite = defineType({
             {
               type: 'object',
               fields: [
-                { name: 'title', type: 'localeString', title: 'Nombre categoría' },
+                { name: 'title', type: 'string', title: 'Nombre categoría' },
                 {
                   name: 'icons',
                   type: 'array',
@@ -259,8 +260,8 @@ export const portfolioSite = defineType({
       title: 'Bloque de calidad / beneficios',
       group: 'servicios',
       fields: [
-        { name: 'meta', type: 'localeString', title: 'Meta sección' },
-        { name: 'title', type: 'localeString', title: 'Título H2' },
+        { name: 'meta', type: 'string' },
+        { name: 'title', type: 'string' },
         {
           name: 'items',
           type: 'array',
@@ -269,8 +270,8 @@ export const portfolioSite = defineType({
               type: 'object',
               fields: [
                 { name: 'icon', type: 'string' },
-                { name: 'title', type: 'localeString', title: 'Título' },
-                { name: 'description', type: 'localeText', title: 'Descripción' }
+                { name: 'title', type: 'string' },
+                { name: 'description', type: 'text' }
               ]
             }
           ]
@@ -354,28 +355,24 @@ export const portfolioSite = defineType({
       title: 'Seccion de contacto',
       group: 'contacto',
       fields: [
-        { name: 'heading', type: 'localeString', title: 'Título H2' },
-        { name: 'subtitle', type: 'localeString', title: 'Subtítulo' },
+        { name: 'heading', type: 'string' },
+        { name: 'subtitle', type: 'string' },
         { name: 'typebotSrc', type: 'url', title: 'URL iframe Typebot' },
         {
           name: 'whatsappLead',
-          type: 'localeString',
+          type: 'string',
           title: 'Texto sobre el botón WhatsApp',
           description: 'El número no va aquí: se gestiona en el endpoint /api/contact/whatsapp.'
         },
-        { name: 'whatsappButtonLabel', type: 'localeString', title: 'Texto del botón WhatsApp' },
-        { name: 'formLead', type: 'localeString', title: 'Texto sobre el botón formulario' },
-        { name: 'formButtonLabel', type: 'localeString', title: 'Texto del botón formulario' },
-        { name: 'formModalHeading', type: 'localeString', title: 'Título modal formulario' },
-        { name: 'formModalText', type: 'localeString', title: 'Texto modal formulario' },
-        { name: 'formModalSubmitLabel', type: 'localeString', title: 'Texto botón enviar formulario' },
-        { name: 'formModalPrivacyLabel', type: 'localeString', title: 'Texto privacidad formulario' },
-        {
-          name: 'formModalSuccessMessage',
-          type: 'localeString',
-          title: 'Mensaje éxito formulario'
-        },
-        { name: 'iframeTitle', type: 'localeString', title: 'Título accesible del iframe' }
+        { name: 'whatsappButtonLabel', type: 'string', title: 'Texto del botón WhatsApp' },
+        { name: 'formLead', type: 'string', title: 'Texto sobre el botón formulario' },
+        { name: 'formButtonLabel', type: 'string', title: 'Texto del botón formulario' },
+        { name: 'formModalHeading', type: 'string', title: 'Título modal formulario' },
+        { name: 'formModalText', type: 'string', title: 'Texto modal formulario' },
+        { name: 'formModalSubmitLabel', type: 'string', title: 'Texto botón enviar formulario' },
+        { name: 'formModalPrivacyLabel', type: 'string', title: 'Texto privacidad formulario' },
+        { name: 'formModalSuccessMessage', type: 'string', title: 'Mensaje éxito formulario' },
+        { name: 'iframeTitle', type: 'string' }
       ]
     }),
     defineField({
@@ -386,9 +383,10 @@ export const portfolioSite = defineType({
       fields: [
         {
           name: 'copyrightTemplate',
-          type: 'localeText',
+          type: 'string',
           title: 'Copyright',
-          description: 'Usa {{year}} para el año dinámico.'
+          description: 'Usa {{year}} para el año dinámico.',
+          initialValue: 'Moisés Valero © {{year}} | Web Developer'
         },
         { name: 'githubHref', type: 'url' },
         { name: 'linkedinHref', type: 'url' },
