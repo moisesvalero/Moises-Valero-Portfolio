@@ -24,6 +24,7 @@ function enforceCareerFirstPortfolio(site: SitePortfolioContent): SitePortfolioC
     hero: {
       ...site.hero,
       cvHref: sitePortfolioDefaults.hero.cvHref,
+      bio: sitePortfolioDefaults.hero.bio,
       ctaPrimaryLabel: sitePortfolioDefaults.hero.ctaPrimaryLabel,
       careerCtaLabel: sitePortfolioDefaults.hero.careerCtaLabel
     },
