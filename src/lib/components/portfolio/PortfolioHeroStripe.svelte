@@ -1,7 +1,5 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
-  import { onMount } from 'svelte';
-  import { fromAction } from 'svelte/attachments';
   import { getCareerModalControls } from '$lib/career-modal-context';
 
   interface Props {
@@ -42,424 +40,11 @@
 
   const careerModal = getCareerModalControls();
 
-  let disableHeroShader = $state(false);
-  const lightShaderConfig = {
-    color: '#0066E5',
-    secondaryColor: '#0052B8',
-    accentColor: '#F59E0B',
-    backgroundColor: '#F8FAFC',
-    speed: 0.52,
-    distortion: 0.2,
-    hueShift: 9,
-    intensity: 4.2
-  } as const;
-
-  const darkShaderConfig: ShaderConfig = {
-    color: '#8B9CFF',
-    secondaryColor: '#3F3F46',
-    accentColor: '#A7F3FF',
-    backgroundColor: '#0A0A0A',
-    speed: 0.4,
-    distortion: 0.16,
-    hueShift: -6,
-    intensity: 0.74
-  };
-
-  type ShaderConfig = {
-    color: string;
-    secondaryColor: string;
-    accentColor: string;
-    backgroundColor: string;
-    speed: number;
-    distortion: number;
-    hueShift: number;
-    intensity: number;
-  };
-
-  const toLinearChannel = (channel: number) => {
-    const normalized = channel / 255;
-    return normalized <= 0.04045
-      ? normalized / 12.92
-      : ((normalized + 0.055) / 1.055) ** 2.4;
-  };
-
-  const hexToLinearRgb = (hex: string): [number, number, number] => {
-    const sanitized = hex.replace('#', '').trim();
-    const expanded =
-      sanitized.length === 3
-        ? sanitized
-            .split('')
-            .map((c) => c + c)
-            .join('')
-        : sanitized;
-    const int = Number.parseInt(expanded, 16);
-    if (!Number.isFinite(int) || expanded.length !== 6) {
-      return [1, 1, 1];
-    }
-    const r = (int >> 16) & 255;
-    const g = (int >> 8) & 255;
-    const b = int & 255;
-    return [toLinearChannel(r), toLinearChannel(g), toLinearChannel(b)];
-  };
-
-  type Vec3Like = {
-    set: (r: number, g: number, b: number) => void;
-  };
-
-  const applyHexColor = (target: Vec3Like, hex: string, fallback: [number, number, number]) => {
-    const [r, g, b] = hexToLinearRgb(hex);
-    target.set(
-      Number.isFinite(r) ? r : fallback[0],
-      Number.isFinite(g) ? g : fallback[1],
-      Number.isFinite(b) ? b : fallback[2]
-    );
-  };
-
-  const vertexShader = `
-    attribute vec2 uv;
-    attribute vec2 position;
-    varying vec2 vUv;
-
-    void main() {
-      vUv = uv;
-      gl_Position = vec4(position, 0.0, 1.0);
-    }
-  `;
-
-  const fragmentShader = `
-    precision highp float;
-    varying vec2 vUv;
-
-    uniform float uTime;
-    uniform vec2 uResolution;
-    uniform vec3 uColor;
-    uniform vec3 uColorSecondary;
-    uniform vec3 uColorAccent;
-    uniform vec3 uBackgroundColor;
-    uniform float uSpeed;
-    uniform float uDistortion;
-    uniform float uHueShift;
-    uniform float uIntensity;
-
-    mat3 hueRot(float a) {
-      float c = cos(a), s = sin(a), t = 1.0 - c;
-      return mat3(
-      t*.333+c,    t*.333-s*.577, t*.333+s*.577,
-      t*.333+s*.577, t*.333+c,   t*.333-s*.577,
-      t*.333-s*.577, t*.333+s*.577, t*.333+c
-      );
-    }
-
-    float colorLuma(vec3 c) {
-      return dot(c, vec3(0.2126, 0.7152, 0.0722));
-    }
-
-    vec3 hueFromColor(vec3 c, vec3 fallback) {
-      float m = max(max(c.r, c.g), c.b);
-      if (m < 1e-5) return fallback;
-      return clamp(c / m, 0.0, 1.0);
-    }
-
-    vec3 blendAdaptive(vec3 bg, vec3 effect, float softness) {
-      float bgLum = colorLuma(bg);
-      float lightBg = smoothstep(0.45, 0.95, bgLum);
-      float edge = clamp(softness, 0.0, 1.0);
-
-      vec3 additive = bg + effect;
-      vec3 effectHue = hueFromColor(effect, vec3(1.0));
-      vec3 tintTarget = mix(bg, effectHue, 0.9);
-      vec3 tint = mix(bg, tintTarget, edge);
-
-      return mix(additive, tint, lightBg);
-    }
-
-    vec3 linearToSrgb(vec3 color) {
-      vec3 safe = max(color, vec3(0.0));
-      vec3 low = safe * 12.92;
-      vec3 high = 1.055 * pow(safe, vec3(1.0 / 2.4)) - 0.055;
-      vec3 cutoff = step(vec3(0.0031308), safe);
-      return mix(low, high, cutoff);
-    }
-
-    void mainImage(out vec4 o, vec2 uv) {
-      vec2 u = (uv * 2.0 - 1.0);
-      u.x *= uResolution.x / uResolution.y;
-
-      float time = uTime * uSpeed;
-
-      u /= 0.5 + uDistortion * dot(u, u);
-      u += 0.2 * cos(time) - 7.56;
-
-      vec3 palette[5];
-      palette[0] = uColor;
-      palette[1] = hueRot(radians(uHueShift * 0.35)) * uColor;
-      palette[2] = uColorAccent;
-      palette[3] = uColorSecondary;
-      palette[4] = mix(uColorAccent, uColor, 0.7);
-
-      float weight[5];
-      weight[0] = 1.0;
-      weight[1] = 0.36;
-      weight[2] = 0.22;
-      weight[3] = 0.0;
-      weight[4] = 0.26;
-
-      vec3 col = vec3(0.0);
-      float edgeField = 0.0;
-      for(int i = 0; i < 5; i++) {
-        vec2 uv_loop = sin(1.5 * u.yx + 2.0 * cos(u -= 0.01));
-        float val = 1.0 - exp(-6.0 / exp(6.0 * length(uv_loop + sin(5.0 * uv_loop.y - 3.0 * time) / 4.0)));
-        val = pow(clamp(val, 0.0, 1.0), 1.4);
-        edgeField += val;
-        col += val * palette[i] * weight[i];
-      }
-      vec3 bands = col * uIntensity;
-      float softMask = 1.0 - exp(-0.85 * edgeField * uIntensity);
-      vec3 rgb = blendAdaptive(uBackgroundColor, bands, softMask);
-      o = vec4(rgb, 1.0);
-    }
-
-    void main() {
-      vec4 fragColor;
-      mainImage(fragColor, vUv);
-      fragColor.rgb = linearToSrgb(fragColor.rgb);
-      gl_FragColor = fragColor;
-    }
-  `;
-
-  onMount(() => {
-    /**
-     * Safari/iOS suele crear contexto WebGL2; el fragment shader usa `gl_FragColor` (GLSL100) y falla allí.
-     * Forzamos WebGL1 en `mountSpecularBand`. Aquí solo evitamos animación si el usuario pide menos movimiento
-     * o si Chrome reporta RAM muy baja (`deviceMemory`). No usamos `hardwareConcurrency`: en iPhone suele ser ≤4
-     * por privacidad y quitaba el canvas entero sin ser un móvil “cutre”.
-     */
-    const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const syncHeroShaderMode = () => {
-      if (motionMq.matches) {
-        disableHeroShader = true;
-        return;
-      }
-      const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
-      disableHeroShader = typeof mem === 'number' && mem <= 2;
-    };
-
-    syncHeroShaderMode();
-    motionMq.addEventListener('change', syncHeroShaderMode);
-    return () => {
-      motionMq.removeEventListener('change', syncHeroShaderMode);
-    };
-  });
-
-  const mountSpecularBand = (targetCanvas: HTMLCanvasElement) => {
-    let destroyed = false;
-    let teardown: (() => void) | null = null;
-    const root = targetCanvas.closest('.hero-stripe-pro-v2');
-
-    const resolveMaxDpr = () => {
-      const raw = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-      return Math.min(raw, 2);
-    };
-
-    void import('ogl').then(({ Camera, Mesh, Program, Renderer, Transform, Triangle, Vec2, Vec3 }) => {
-      if (destroyed) return;
-
-    const renderer = new Renderer({
-      canvas: targetCanvas,
-      alpha: true,
-      /** GLSL con `gl_FragColor` es válido en WebGL1; en WebGL2 (Safari por defecto) el enlace del programa falla. */
-      webgl: 1,
-      dpr: resolveMaxDpr()
-    });
-    const gl = renderer.gl;
-    gl.clearColor(0, 0, 0, 0);
-
-    targetCanvas.style.width = '100%';
-    targetCanvas.style.height = '100%';
-
-    const camera = new Camera(gl);
-    camera.position.z = 1;
-
-    const scene = new Transform();
-    const geometry = new Triangle(gl);
-
-    const getActiveShaderConfig = (): ShaderConfig =>
-      document.documentElement.classList.contains('dark') ? darkShaderConfig : lightShaderConfig;
-
-    const applyShaderConfig = (config: ShaderConfig) => {
-      applyHexColor(uniforms.uColor.value, config.color, [0, 102 / 255, 229 / 255]);
-      applyHexColor(uniforms.uColorSecondary.value, config.secondaryColor, [0, 82 / 255, 184 / 255]);
-      applyHexColor(uniforms.uColorAccent.value, config.accentColor, [245 / 255, 158 / 255, 11 / 255]);
-      applyHexColor(uniforms.uBackgroundColor.value, config.backgroundColor, [248 / 255, 250 / 255, 252 / 255]);
-      uniforms.uSpeed.value = config.speed;
-      uniforms.uDistortion.value = config.distortion;
-      uniforms.uHueShift.value = config.hueShift;
-      uniforms.uIntensity.value = config.intensity;
-    };
-
-    const initialConfig = getActiveShaderConfig();
-    const initialColor = hexToLinearRgb(initialConfig.color);
-    const initialBackgroundColor = hexToLinearRgb(initialConfig.backgroundColor);
-    const uniforms = {
-      uTime: { value: 0 },
-      uResolution: { value: new Vec2(1, 1) },
-      uColor: {
-        value: new Vec3(initialColor[0], initialColor[1], initialColor[2])
-      },
-      uColorSecondary: {
-        value: new Vec3(1, 1, 1)
-      },
-      uColorAccent: {
-        value: new Vec3(1, 1, 1)
-      },
-      uBackgroundColor: {
-        value: new Vec3(
-          initialBackgroundColor[0],
-          initialBackgroundColor[1],
-          initialBackgroundColor[2]
-        )
-      },
-      uSpeed: { value: initialConfig.speed },
-      uDistortion: { value: initialConfig.distortion },
-      uHueShift: { value: initialConfig.hueShift },
-      uIntensity: { value: initialConfig.intensity }
-    };
-    applyShaderConfig(initialConfig);
-
-    const program = new Program(gl, {
-      vertex: vertexShader,
-      fragment: fragmentShader,
-      uniforms,
-      depthTest: false,
-      depthWrite: false
-    });
-
-    const mesh = new Mesh(gl, { geometry, program });
-    mesh.setParent(scene);
-
-    let raf = 0;
-    let previous = 0;
-    let visible = true;
-    const mobileMq = window.matchMedia('(max-width: 768px)');
-    const getMinFrameMs = () => 1000 / (mobileMq.matches ? 24 : 30);
-
-    const renderFrame = (now: number) => {
-      const nextDpr = resolveMaxDpr();
-      if (renderer.dpr !== nextDpr) {
-        renderer.dpr = nextDpr;
-      }
-
-      const w = Math.max(1, targetCanvas.clientWidth);
-      const h = Math.max(1, targetCanvas.clientHeight);
-      const bufW = Math.round(w * renderer.dpr);
-      const bufH = Math.round(h * renderer.dpr);
-      if (targetCanvas.width !== bufW || targetCanvas.height !== bufH) {
-        targetCanvas.width = bufW;
-        targetCanvas.height = bufH;
-        renderer.width = w;
-        renderer.height = h;
-        renderer.state.viewport = { x: 0, y: 0, width: null, height: null };
-        uniforms.uResolution.value.set(w, h);
-      }
-      const delta = previous ? (now - previous) / 1000 : 0;
-      previous = now;
-      uniforms.uTime.value += delta;
-      renderer.render({ scene, camera });
-    };
-
-    const stopLoop = () => {
-      if (!raf) return;
-      window.cancelAnimationFrame(raf);
-      raf = 0;
-    };
-
-    const startLoop = () => {
-      if (raf || !visible || document.hidden) return;
-      previous = 0;
-      let lastRender = 0;
-      const tick = (now: number) => {
-        if (!visible || document.hidden) {
-          stopLoop();
-          return;
-        }
-        if (now - lastRender >= getMinFrameMs()) {
-          lastRender = now;
-          renderFrame(now);
-        }
-        raf = window.requestAnimationFrame(tick);
-      };
-      raf = window.requestAnimationFrame(tick);
-    };
-
-    startLoop();
-
-    const themeObserver = new MutationObserver(() => {
-      applyShaderConfig(getActiveShaderConfig());
-      if (visible && !document.hidden) {
-        renderFrame(performance.now());
-      }
-    });
-    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
-
-    const visibilityObserver =
-      root && typeof IntersectionObserver !== 'undefined'
-        ? new IntersectionObserver(
-            (entries) => {
-              visible = entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.18);
-              if (visible) startLoop();
-              else stopLoop();
-            },
-            { root: null, rootMargin: '-18% 0px -32% 0px', threshold: [0, 0.18, 0.35] }
-          )
-        : null;
-    visibilityObserver?.observe(root ?? targetCanvas);
-
-    const onVisibility = () => {
-      if (document.hidden) {
-        stopLoop();
-        return;
-      }
-      if (visible) startLoop();
-    };
-
-    const onMobileMqChange = () => {
-      if (!visible || document.hidden) return;
-      stopLoop();
-      startLoop();
-    };
-
-    mobileMq.addEventListener('change', onMobileMqChange);
-    document.addEventListener('visibilitychange', onVisibility);
-
-      teardown = () => {
-        stopLoop();
-        themeObserver.disconnect();
-        visibilityObserver?.disconnect();
-        mobileMq.removeEventListener('change', onMobileMqChange);
-        document.removeEventListener('visibilitychange', onVisibility);
-      };
-    });
-
-    return {
-      destroy() {
-        destroyed = true;
-        teardown?.();
-      }
-    };
-  };
-
 </script>
 
 <div class="hero-viewport-root" id="top">
   <div class="hero-stripe-pro-v2">
-    {#if !disableHeroShader}
-      <canvas
-        {@attach fromAction(mountSpecularBand)}
-        class="luces-dinamicas-canvas"
-        style="width:100%;height:100%;"
-        aria-hidden="true"
-      ></canvas>
-    {/if}
+    <div class="luces-dinamicas" aria-hidden="true"></div>
     <div class="hero-bottom-fade" aria-hidden="true"></div>
 
     <div class="contenido-hero">
@@ -552,13 +137,36 @@
     display: none;
   }
 
-  .luces-dinamicas-canvas {
+  .luces-dinamicas {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background:
+      radial-gradient(circle at 15% 25%, rgba(0, 113, 227, 0.4) 0%, transparent 35%),
+      radial-gradient(circle at 85% 15%, rgba(255, 45, 85, 0.35) 0%, transparent 35%),
+      radial-gradient(circle at 50% 85%, rgba(251, 191, 36, 0.3) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 35%);
+    filter: blur(60px);
+    animation: tormentaColores 12s linear infinite;
     z-index: 1;
     pointer-events: none;
+  }
+
+  @keyframes tormentaColores {
+    0% {
+      transform: rotate(0deg) scale(1) translate(0, 0);
+    }
+    33% {
+      transform: rotate(120deg) scale(1.2) translate(5%, 5%);
+    }
+    66% {
+      transform: rotate(240deg) scale(0.8) translate(-5%, -5%);
+    }
+    100% {
+      transform: rotate(360deg) scale(1) translate(0, 0);
+    }
   }
 
   .hero-bottom-fade {
@@ -891,12 +499,82 @@
     opacity: 0.96;
   }
 
+  /*
+   * Hero oscuro — "luz de estudio nocturna": malla azul de marca, deriva lenta,
+   * núcleo detrás del título y viñeta para profundidad (sin rosa/amarillo del claro).
+   */
+  :global(html.dark) .hero-stripe-pro-v2 {
+    --hero-dark-glow-primary: rgba(77, 163, 255, 0.42);
+    --hero-dark-glow-secondary: rgba(139, 156, 255, 0.26);
+    --hero-dark-glow-depth: rgba(0, 102, 229, 0.3);
+    --hero-dark-glow-core: rgba(167, 243, 255, 0.16);
+    --hero-dark-drift-duration: 32s;
+    --hero-dark-breathe-duration: 26s;
+  }
+
   :global(html.dark) .hero-stripe-pro-v2::before {
     opacity: 1;
+    background:
+      radial-gradient(circle at 50% 42%, rgba(167, 243, 255, 0.26), transparent 44%),
+      radial-gradient(circle at 40% 46%, rgba(139, 156, 255, 0.2), transparent 48%);
+    animation: heroDarkCoreBreathe var(--hero-dark-breathe-duration) ease-in-out infinite;
+  }
+
+  @keyframes heroDarkCoreBreathe {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(0.96);
+      opacity: 0.82;
+    }
+
+    50% {
+      transform: translate(-50%, -50%) scale(1.06);
+      opacity: 1;
+    }
   }
 
   :global(html.dark) .hero-stripe-pro-v2::after {
-    opacity: 0;
+    content: "";
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    opacity: 1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 92% 68% at 50% 44%, transparent 30%, rgba(0, 0, 0, 0.5) 100%),
+      linear-gradient(180deg, rgba(10, 10, 10, 0) 55%, rgba(10, 10, 10, 0.4) 100%);
+  }
+
+  :global(html.dark) .luces-dinamicas {
+    background:
+      radial-gradient(ellipse 58% 48% at 22% 34%, var(--hero-dark-glow-primary), transparent 68%),
+      radial-gradient(ellipse 52% 44% at 80% 26%, var(--hero-dark-glow-secondary), transparent 66%),
+      radial-gradient(ellipse 62% 52% at 54% 78%, var(--hero-dark-glow-depth), transparent 72%),
+      radial-gradient(circle at 50% 48%, var(--hero-dark-glow-core), transparent 58%);
+    filter: blur(48px) saturate(1.12);
+    opacity: 1;
+    animation: heroDarkAmbientDrift var(--hero-dark-drift-duration) ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @keyframes heroDarkAmbientDrift {
+    0%,
+    100% {
+      transform: translate(-2%, -1%) scale(1.04) rotate(0deg);
+    }
+
+    25% {
+      transform: translate(2.5%, 1.5%) scale(1.08) rotate(2.5deg);
+    }
+
+    50% {
+      transform: translate(1.5%, -2%) scale(1.02) rotate(-1.5deg);
+    }
+
+    75% {
+      transform: translate(-1.5%, 2%) scale(1.06) rotate(1.5deg);
+    }
   }
 
   :global(html.dark) .btn-ghost-slim:hover {
@@ -967,8 +645,24 @@
       -webkit-text-fill-color: currentColor;
     }
 
-    .luces-dinamicas-canvas {
-      display: none;
+    .luces-dinamicas {
+      animation: none;
+      transform: none;
+    }
+
+    :global(html.dark) .luces-dinamicas {
+      animation: none;
+      transform: none;
+    }
+
+    :global(html.dark) .hero-stripe-pro-v2::before,
+    :global(html.dark) .hero-stripe-pro-v2::after {
+      animation: none;
+    }
+
+    :global(html.dark) .hero-stripe-pro-v2::before {
+      opacity: 0.9;
+      transform: translate(-50%, -50%) scale(1);
     }
 
   }

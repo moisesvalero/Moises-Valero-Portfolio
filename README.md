@@ -25,7 +25,7 @@ Portfolio profesional de [moisesvalero.es](https://moisesvalero.es), construido 
 | Frontend | SvelteKit 2, Svelte 5, TypeScript, Vite |
 | CMS | Sanity |
 | Deploy | Vercel / adapter auto |
-| UI | CSS custom, WebGL shader con OGL, animaciones propias |
+| UI | CSS custom, animaciones propias |
 | Email/leads | Resend, formularios server-side |
 | SEO/AEO | JSON-LD, sitemap, robots, llms.txt, Markdown twins |
 | Analítica/performance | GA4 opcional, PageSpeed Insights API |

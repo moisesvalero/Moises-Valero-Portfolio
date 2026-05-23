@@ -130,11 +130,6 @@ html.dark :where(.hero-stripe-pro-v2) {
   background: #0a0a0a !important;
 }
 
-html.dark :where(.luces-dinamicas-canvas) {
-  opacity: 1;
-  mix-blend-mode: normal;
-}
-
 html.dark :where(.hero-bottom-fade) {
   background: linear-gradient(
     to bottom,
