@@ -9,7 +9,8 @@ export function imageUrl(
   projectId: string,
   dataset: string,
   source: unknown,
-  width?: number
+  width?: number,
+  quality = 82
 ): string | undefined {
   if (!source || typeof source !== 'object') {
     return undefined;
@@ -19,7 +20,7 @@ export function imageUrl(
     if (width) {
       b = b.width(width);
     }
-    return b.auto('format').url();
+    return b.auto('format').quality(quality).url();
   } catch {
     return undefined;
   }

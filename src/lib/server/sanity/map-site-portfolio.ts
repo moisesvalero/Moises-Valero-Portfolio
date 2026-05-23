@@ -230,7 +230,7 @@ function mergeAbout(
   if (!o) {
     return d;
   }
-  const fromImage = imageUrl(ctx.projectId, ctx.dataset, o.image, 520);
+  const fromImage = imageUrl(ctx.projectId, ctx.dataset, o.image, 900);
   return {
     imageSrc: fromImage || asString(o.imageSrc, d.imageSrc),
     imageAlt: pickLocalized(o.imageAlt, ctx.locale, d.imageAlt, enUi.about.imageAlt),
@@ -389,7 +389,7 @@ export function mapProject(
   const href = normalizedHref;
   const external = /^https?:\/\//i.test(href);
   const imageSrc =
-    imageUrl(ctx.projectId, ctx.dataset, o.thumbnail, 640) ||
+    imageUrl(ctx.projectId, ctx.dataset, o.thumbnail, 1200) ||
     asString(o.imageSrc, '') ||
     'https://placehold.co/800x450/f1f5f9/64748b?text=Proyecto';
   const tags = Array.isArray(o.tags) ? (o.tags as unknown[]).filter((t): t is string => typeof t === 'string') : [];

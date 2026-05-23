@@ -38,8 +38,8 @@
     aboutHtml = defaultAboutHtml
   }: Props = $props();
 
-  const aboutPhotoWidths = [280, 300, 520, 600] as const;
-  const aboutPhotoSrc = $derived(sanityDefaultSrc(imageSrc, 300));
+  const aboutPhotoWidths = [320, 480, 600, 720, 900] as const;
+  const aboutPhotoSrc = $derived(sanityDefaultSrc(imageSrc, 600));
   const aboutPhotoSrcSet = $derived(sanityImageSrcSet(imageSrc, aboutPhotoWidths));
 </script>
 

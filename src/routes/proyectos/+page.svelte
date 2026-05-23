@@ -1,5 +1,6 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
+  import { sanityDefaultSrc, sanityImageSrcSet } from '$lib/sanity-image-url';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -10,6 +11,15 @@
 
   function hrefFor(href: string): string {
     return /^https?:\/\//i.test(href) ? href : resolvePath(href);
+  }
+
+  function projectImage(src: string) {
+    const widths = [360, 520, 720, 900, 1100] as const;
+    return {
+      src: sanityDefaultSrc(src, 720),
+      srcset: sanityImageSrcSet(src, widths),
+      sizes: '(max-width: 640px) 92vw, (max-width: 960px) 46vw, 352px'
+    };
   }
 </script>
 
@@ -43,6 +53,7 @@
     {#if projects.length}
       <div class="archive-grid">
         {#each projects as project (project.href)}
+          {@const image = projectImage(project.imageSrc)}
           <a
             class="archive-card"
             href={hrefFor(project.href)}
@@ -53,7 +64,9 @@
             <article>
               <div class="card-media">
                 <img
-                  src={project.imageSrc}
+                  src={image.src}
+                  srcset={image.srcset}
+                  sizes={image.sizes}
                   alt={project.imageAlt}
                   width="720"
                   height="405"

@@ -97,27 +97,27 @@
   }
 
   function heroProjectImage(project: SiteProjectCard) {
-    const widths = [400, 520, 640, 780] as const;
+    const widths = [640, 800, 960, 1200, 1440, 1600] as const;
     return {
-      src: sanityDefaultSrc(project.imageSrc, 640),
+      src: sanityDefaultSrc(project.imageSrc, 1200),
       srcset: sanityImageSrcSet(project.imageSrc, widths),
-      sizes: '(max-width: 1100px) 100vw, 640px'
+      sizes: '(max-width: 1100px) 100vw, 670px'
     };
   }
 
   function spotlightProjectImage(project: SiteProjectCard) {
-    const widths = [320, 400, 520, 640] as const;
+    const widths = [360, 520, 720, 900, 1100] as const;
     return {
-      src: sanityDefaultSrc(project.imageSrc, 520),
+      src: sanityDefaultSrc(project.imageSrc, 720),
       srcset: sanityImageSrcSet(project.imageSrc, widths),
       sizes: '(max-width: 768px) 92vw, (max-width: 1100px) 33vw, 400px'
     };
   }
 
   function standardProjectImage(project: SiteProjectCard) {
-    const widths = [280, 360, 480, 520] as const;
+    const widths = [320, 480, 640, 800, 960] as const;
     return {
-      src: sanityDefaultSrc(project.imageSrc, 480),
+      src: sanityDefaultSrc(project.imageSrc, 640),
       srcset: sanityImageSrcSet(project.imageSrc, widths),
       sizes: '(max-width: 768px) 92vw, (max-width: 1100px) 33vw, 360px'
     };
