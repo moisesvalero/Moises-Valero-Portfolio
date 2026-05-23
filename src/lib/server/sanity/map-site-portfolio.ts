@@ -1,6 +1,9 @@
+import { portfolioEnglishDemo } from '$lib/data/site-portfolio-locale-en';
 import type { SiteLocale } from '$lib/i18n/site-locale';
 import type { SitePortfolioContent, SiteProjectCard, SiteStackIcon } from '$lib/types/site-portfolio';
 import { imageUrl } from './image-builder';
+
+const enUi = portfolioEnglishDemo;
 
 function asRecord(v: unknown): Record<string, unknown> | undefined {
   return v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : undefined;
@@ -22,20 +25,61 @@ function asHomeLayoutTier(v: unknown): SiteProjectCard['homeLayoutTier'] {
   return v === 'hero' || v === 'spotlight' || v === 'standard' ? v : undefined;
 }
 
-/** Campos `{ es, en }` en Sanity o string legacy → texto según `locale` con fallback al otro idioma y luego `fallback`. */
-function pickLocalized(raw: unknown, locale: SiteLocale, fallback: string): string {
+/** Campos `{ es, en }` en Sanity o string legacy → texto según `locale`. */
+function pickLocalized(
+  raw: unknown,
+  locale: SiteLocale,
+  fallback: string,
+  enFallback?: string
+): string {
   if (typeof raw === 'string') {
     const s = raw.trim();
+    if (locale === 'en' && enFallback?.trim()) {
+      return enFallback.trim();
+    }
     return s || fallback;
   }
   const o = asRecord(raw);
   if (!o) {
-    return fallback;
+    return locale === 'en' && enFallback?.trim() ? enFallback.trim() : fallback;
   }
   const primary = locale === 'en' ? asStringOpt(o.en) : asStringOpt(o.es);
   const secondary = locale === 'en' ? asStringOpt(o.es) : asStringOpt(o.en);
   const out = (primary?.trim() || secondary?.trim() || '').trim();
-  return out || fallback;
+  if (out) {
+    return out;
+  }
+  if (locale === 'en' && enFallback?.trim()) {
+    return enFallback.trim();
+  }
+  return fallback;
+}
+
+/** Botón «Ver CV»: en Studio a veces queda `/#contacto` por error; el enlace correcto es `/api/cv`. */
+function resolveHeroCvHref(cvHref: string, ctaPrimaryLabel: string, defaultCvHref: string): string {
+  const href = (cvHref || defaultCvHref).trim();
+  const label = ctaPrimaryLabel.trim();
+  const looksLikeCv = /\bcv\b/i.test(label);
+  const pointsToContact = href === '/#contacto' || href === '#contacto';
+  if (looksLikeCv && pointsToContact) {
+    return '/api/cv';
+  }
+  return href || defaultCvHref;
+}
+
+function pickNavLabel(
+  raw: unknown,
+  locale: SiteLocale,
+  href: string,
+  openCareerModal: boolean,
+  esFallback: string
+): string {
+  const enItem = enUi.header.navItems.find(
+    (item) =>
+      (openCareerModal && item.openCareerModal) ||
+      normalizeHashHref(item.href) === normalizeHashHref(href)
+  );
+  return pickLocalized(raw, locale, esFallback, enItem?.label);
 }
 
 /** Unifica `/#ancla` y `#ancla` para comparar destinos del menú con el CTA. */
@@ -63,9 +107,15 @@ function mergeHeader(
           if (!r) {
             return null;
           }
-          const label = pickLocalized(r.label, locale, d.navItems[i]?.label ?? '');
+          const href = asStringOpt(r.href) ?? (r.openCareerModal === true ? '#' : undefined);
+          const label = pickNavLabel(
+            r.label,
+            locale,
+            href ?? '',
+            r.openCareerModal === true,
+            d.navItems[i]?.label ?? ''
+          );
           const openCareerModal = r.openCareerModal === true;
-          const href = asStringOpt(r.href) ?? (openCareerModal ? '#' : undefined);
           if (!label || href === undefined) {
             return null;
           }
@@ -75,7 +125,7 @@ function mergeHeader(
         })
         .filter(Boolean)
     : [];
-  const ctaLabel = pickLocalized(o.ctaLabel, locale, d.ctaLabel);
+  const ctaLabel = pickLocalized(o.ctaLabel, locale, d.ctaLabel, enUi.header.ctaLabel);
   const ctaHref = asString(o.ctaHref, d.ctaHref);
   const baseNav = (nav.length ? nav : d.navItems) as SitePortfolioContent['header']['navItems'];
   const ctaDest = normalizeHashHref(ctaHref);
@@ -88,7 +138,7 @@ function mergeHeader(
       )
   );
   return {
-    logoText: pickLocalized(o.logoText, locale, d.logoText),
+    logoText: pickLocalized(o.logoText, locale, d.logoText, enUi.header.logoText),
     logoHref: asString(o.logoHref, d.logoHref),
     navItems,
     ctaLabel,
@@ -149,14 +199,25 @@ function mergeHero(
   if (!o) {
     return d;
   }
+  const ctaPrimaryLabel = pickLocalized(
+    o.ctaPrimaryLabel,
+    locale,
+    d.ctaPrimaryLabel ?? 'Ver CV',
+    enUi.hero.ctaPrimaryLabel
+  );
   return {
-    cvHref: asString(o.cvHref, d.cvHref),
-    label: pickLocalized(o.label, locale, d.label),
-    title: pickLocalized(o.title, locale, d.title),
-    subtitle: pickLocalized(o.subtitle, locale, d.subtitle),
-    bio: pickLocalized(o.bio, locale, d.bio),
-    ctaPrimaryLabel: pickLocalized(o.ctaPrimaryLabel, locale, d.ctaPrimaryLabel ?? ''),
-    careerCtaLabel: pickLocalized(o.careerCtaLabel, locale, d.careerCtaLabel ?? '')
+    cvHref: resolveHeroCvHref(asString(o.cvHref, d.cvHref), ctaPrimaryLabel, d.cvHref),
+    label: pickLocalized(o.label, locale, d.label, enUi.hero.label),
+    title: pickLocalized(o.title, locale, d.title, enUi.hero.title),
+    subtitle: pickLocalized(o.subtitle, locale, d.subtitle, enUi.hero.subtitle),
+    bio: pickLocalized(o.bio, locale, d.bio, enUi.hero.bio),
+    ctaPrimaryLabel,
+    careerCtaLabel: pickLocalized(
+      o.careerCtaLabel,
+      locale,
+      d.careerCtaLabel ?? 'Ver Trayectoria',
+      enUi.hero.careerCtaLabel
+    )
   };
 }
 
@@ -172,10 +233,10 @@ function mergeAbout(
   const fromImage = imageUrl(ctx.projectId, ctx.dataset, o.image, 520);
   return {
     imageSrc: fromImage || asString(o.imageSrc, d.imageSrc),
-    imageAlt: pickLocalized(o.imageAlt, ctx.locale, d.imageAlt),
-    meta: pickLocalized(o.meta, ctx.locale, d.meta),
-    title: pickLocalized(o.title, ctx.locale, d.title),
-    aboutHtml: pickLocalized(o.aboutHtml, ctx.locale, d.aboutHtml)
+    imageAlt: pickLocalized(o.imageAlt, ctx.locale, d.imageAlt, enUi.about.imageAlt),
+    meta: pickLocalized(o.meta, ctx.locale, d.meta, enUi.about.meta),
+    title: pickLocalized(o.title, ctx.locale, d.title, enUi.about.title),
+    aboutHtml: pickLocalized(o.aboutHtml, ctx.locale, d.aboutHtml, enUi.about.aboutHtml)
   };
 }
 
@@ -195,20 +256,30 @@ function mergeServices(
       if (!r) {
         return null;
       }
-      const title = pickLocalized(r.title, locale, d.items[i]?.title ?? '');
+      const title = pickLocalized(
+        r.title,
+        locale,
+        d.items[i]?.title ?? '',
+        enUi.services.items[i]?.title
+      );
       if (!title) {
         return null;
       }
       return {
         icon: asString(r.icon, '•'),
         title,
-        description: pickLocalized(r.description, locale, d.items[i]?.description ?? '')
+        description: pickLocalized(
+          r.description,
+          locale,
+          d.items[i]?.description ?? '',
+          enUi.services.items[i]?.description
+        )
       };
     })
     .filter(Boolean) as SitePortfolioContent['services']['items'];
   return {
-    meta: pickLocalized(o.meta, locale, d.meta),
-    title: pickLocalized(o.title, locale, d.title),
+    meta: pickLocalized(o.meta, locale, d.meta, enUi.services.meta),
+    title: pickLocalized(o.title, locale, d.title, enUi.services.title),
     items: items.length ? items : d.items
   };
 }
@@ -245,32 +316,11 @@ function mergeTechStack(
   if (!o) {
     return d;
   }
-  const catsRaw = Array.isArray(o.categories) ? (o.categories as unknown[]) : [];
-  const categories = catsRaw
-    .map((c, ci) => {
-      const r = asRecord(c);
-      if (!r) {
-        return null;
-      }
-      const title = pickLocalized(r.title, ctx.locale, d.categories[ci]?.title ?? '');
-      if (!title) {
-        return null;
-      }
-      const iconsRaw = Array.isArray(r.icons) ? (r.icons as unknown[]) : [];
-      const defaultIcons = d.categories[ci]?.icons ?? d.categories[0]?.icons ?? [];
-      const icons = iconsRaw.map((ic, ii) =>
-        mapStackIcon(ic, ctx, defaultIcons[ii] ?? { iconify: 'logos:code-icon', alt: 'icon', title: 'icon' })
-      );
-      return {
-        title,
-        icons: icons.length ? icons : defaultIcons
-      };
-    })
-    .filter(Boolean) as SitePortfolioContent['techStack']['categories'];
+  /** Iconos y categorías del repo (devicons locales). Solo meta/título editables en Sanity. */
   return {
-    meta: pickLocalized(o.meta, ctx.locale, d.meta),
-    title: pickLocalized(o.title, ctx.locale, d.title),
-    categories: categories.length ? categories : d.categories
+    meta: pickLocalized(o.meta, ctx.locale, d.meta, enUi.techStack.meta),
+    title: pickLocalized(o.title, ctx.locale, d.title, enUi.techStack.title),
+    categories: d.categories
   };
 }
 
@@ -290,20 +340,30 @@ function mergeQuality(
       if (!r) {
         return null;
       }
-      const title = pickLocalized(r.title, locale, d.items[i]?.title ?? '');
+      const title = pickLocalized(
+        r.title,
+        locale,
+        d.items[i]?.title ?? '',
+        enUi.quality.items[i]?.title
+      );
       if (!title) {
         return null;
       }
       return {
         icon: asString(r.icon, '•'),
         title,
-        description: pickLocalized(r.description, locale, d.items[i]?.description ?? '')
+        description: pickLocalized(
+          r.description,
+          locale,
+          d.items[i]?.description ?? '',
+          enUi.quality.items[i]?.description
+        )
       };
     })
     .filter(Boolean) as SitePortfolioContent['quality']['items'];
   return {
-    meta: pickLocalized(o.meta, locale, d.meta),
-    title: pickLocalized(o.title, locale, d.title),
+    meta: pickLocalized(o.meta, locale, d.meta, enUi.quality.meta),
+    title: pickLocalized(o.title, locale, d.title, enUi.quality.title),
     items: items.length ? items : d.items
   };
 }
@@ -414,24 +474,36 @@ function mergeContact(
   const whatsappButtonRaw =
     (o.whatsappButtonLabel as string | undefined) ??
     (o.linkedinButtonLabel as string | undefined);
+  const c = enUi.contact;
   return {
-    heading: pickLocalized(o.heading, locale, d.heading),
-    subtitle: pickLocalized(o.subtitle, locale, d.subtitle),
+    heading: pickLocalized(o.heading, locale, d.heading, c.heading),
+    subtitle: pickLocalized(o.subtitle, locale, d.subtitle, c.subtitle),
     typebotSrc: asString(o.typebotSrc, d.typebotSrc),
-    whatsappLead: pickLocalized(whatsappLeadRaw, locale, d.whatsappLead),
-    whatsappButtonLabel: pickLocalized(whatsappButtonRaw, locale, d.whatsappButtonLabel),
-    formLead: pickLocalized(o.formLead, locale, d.formLead),
-    formButtonLabel: pickLocalized(o.formButtonLabel, locale, d.formButtonLabel),
-    formModalHeading: pickLocalized(o.formModalHeading, locale, d.formModalHeading),
-    formModalText: pickLocalized(o.formModalText, locale, d.formModalText),
-    formModalSubmitLabel: pickLocalized(o.formModalSubmitLabel, locale, d.formModalSubmitLabel),
-    formModalPrivacyLabel: pickLocalized(o.formModalPrivacyLabel, locale, d.formModalPrivacyLabel),
+    whatsappLead: pickLocalized(whatsappLeadRaw, locale, d.whatsappLead, c.whatsappLead),
+    whatsappButtonLabel: pickLocalized(whatsappButtonRaw, locale, d.whatsappButtonLabel, c.whatsappButtonLabel),
+    formLead: pickLocalized(o.formLead, locale, d.formLead, c.formLead),
+    formButtonLabel: pickLocalized(o.formButtonLabel, locale, d.formButtonLabel, c.formButtonLabel),
+    formModalHeading: pickLocalized(o.formModalHeading, locale, d.formModalHeading, c.formModalHeading),
+    formModalText: pickLocalized(o.formModalText, locale, d.formModalText, c.formModalText),
+    formModalSubmitLabel: pickLocalized(
+      o.formModalSubmitLabel,
+      locale,
+      d.formModalSubmitLabel,
+      c.formModalSubmitLabel
+    ),
+    formModalPrivacyLabel: pickLocalized(
+      o.formModalPrivacyLabel,
+      locale,
+      d.formModalPrivacyLabel,
+      c.formModalPrivacyLabel
+    ),
     formModalSuccessMessage: pickLocalized(
       o.formModalSuccessMessage,
       locale,
-      d.formModalSuccessMessage
+      d.formModalSuccessMessage,
+      c.formModalSuccessMessage
     ),
-    iframeTitle: pickLocalized(o.iframeTitle, locale, d.iframeTitle)
+    iframeTitle: pickLocalized(o.iframeTitle, locale, d.iframeTitle, c.iframeTitle)
   };
 }
 
@@ -445,7 +517,12 @@ function mergeFooter(
     return d;
   }
   return {
-    copyrightTemplate: pickLocalized(o.copyrightTemplate, locale, d.copyrightTemplate),
+    copyrightTemplate: pickLocalized(
+      o.copyrightTemplate,
+      locale,
+      d.copyrightTemplate,
+      enUi.footer.copyrightTemplate
+    ),
     githubHref: asString(o.githubHref, d.githubHref),
     linkedinHref: asString(o.linkedinHref, d.linkedinHref),
     maltHref: asString(o.maltHref, d.maltHref),

@@ -30,22 +30,22 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     logoHref: '/',
     navItems: [
       { label: 'Home', href: '/#top' },
+      { label: 'About me', href: '/#sobre' },
       { label: 'Services', href: '/#servicios' },
-      { label: 'Projects', href: '/proyectos' },
-      { label: 'Articles', href: '/blog' },
-      { label: 'Web Design', href: '/diseno-web' },
+      { label: 'Stack', href: '/#stack' },
+      { label: 'Projects', href: '/#proyectos' },
       { label: 'Career', href: '#', openCareerModal: true }
     ],
     ctaLabel: 'Contact',
     ctaHref: '/#contacto'
   },
   hero: {
-    cvHref: '/#contacto',
+    cvHref: '/api/cv',
     label: 'PORTFOLIO — MOISÉS VALERO · Alcoy / Alicante',
     title: 'Web Developer',
     subtitle: 'SvelteKit | WordPress | IT Support',
     bio: 'I develop fast, robust and maintainable websites and web apps, with a focus on performance, AI and real integrations. I am looking to join a team where I can bring technical judgement, fast learning and value from day one.',
-    ctaPrimaryLabel: "Let's talk",
+    ctaPrimaryLabel: 'View CV',
     careerCtaLabel: 'View career'
   },
   about: {
