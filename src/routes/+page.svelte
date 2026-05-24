@@ -18,26 +18,6 @@
   const absoluteOgImage = $derived(
     site.seo.ogImage.startsWith('http') ? site.seo.ogImage : `${baseUrl}${site.seo.ogImage}`
   );
-  const offerCatalog = $derived({
-    '@type': 'OfferCatalog',
-    name: `Servicios de ${site.header.logoText || 'Moises Valero'}`,
-    itemListElement: site.services.items.map((service) => ({
-      '@type': 'Offer',
-      itemOffered: {
-        '@type': 'Service',
-        name: service.title,
-        description: service.description,
-        provider: {
-          '@id': `${baseUrl}/#organization`
-        },
-        areaServed: [
-          { '@type': 'Country', name: 'Espana' },
-          { '@type': 'City', name: 'Alcoy' },
-          { '@type': 'AdministrativeArea', name: 'Alicante' }
-        ]
-      }
-    }))
-  });
   const personJsonLd = $derived(
     stringifyJsonLdForHtml({
       '@context': 'https://schema.org',
@@ -112,8 +92,7 @@
         'Core Web Vitals',
         'WooCommerce',
         'Sanity CMS'
-      ],
-      hasOfferCatalog: offerCatalog
+      ]
     })
   );
 

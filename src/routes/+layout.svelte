@@ -46,7 +46,7 @@
   const headerNavItems = $derived(
     (() => {
       const guideLabel = data.locale === 'en' ? 'Guides' : 'Guías';
-      const analyzerLabel = data.locale === 'en' ? 'Analyzer' : 'Analizador';
+      const analyzerLabel = data.locale === 'en' ? 'Web analyzer' : 'Analizador web';
 
       const source = site.header.navItems
         .map((item) => {

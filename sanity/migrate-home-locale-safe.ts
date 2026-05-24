@@ -55,19 +55,16 @@ async function main() {
   const about = asRecord(doc.about);
   const services = asRecord(doc.services);
   const techStack = asRecord(doc.techStack);
-  const quality = asRecord(doc.quality);
   const contact = asRecord(doc.contact);
   const footer = asRecord(doc.footer);
 
   const navItems = Array.isArray(header?.navItems) ? (header.navItems as unknown[]) : [];
-  const serviceItems = Array.isArray(services?.items) ? (services.items as unknown[]) : [];
-  const qualityItems = Array.isArray(quality?.items) ? (quality.items as unknown[]) : [];
 
   const patched = {
     ...doc,
     header: {
-      ...header,
       logoText: toLs(header?.logoText, en.header.logoText),
+      logoHref: typeof header?.logoHref === 'string' ? header.logoHref : '/',
       navItems: navItems.map((item) => {
         const row = asRecord(item) ?? {};
         const href = typeof row.href === 'string' ? row.href : '#';
@@ -76,8 +73,7 @@ async function main() {
           ...row,
           label: toLs(row.label, navEn(href, open))
         };
-      }),
-      ctaLabel: toLs(header?.ctaLabel, en.header.ctaLabel)
+      })
     },
     hero: {
       ...hero,
@@ -97,44 +93,15 @@ async function main() {
       aboutHtml: toLt(about?.aboutHtml, en.about.aboutHtml)
     },
     services: {
-      ...services,
-      meta: toLs(services?.meta, en.services.meta),
-      title: toLs(services?.title, en.services.title),
-      items: serviceItems.map((item, i) => {
-        const row = asRecord(item) ?? {};
-        return {
-          ...row,
-          title: toLs(row.title, en.services.items[i]?.title ?? ''),
-          description: toLt(row.description, en.services.items[i]?.description ?? '')
-        };
-      })
+      meta: toLs(services?.meta, en.services.meta)
     },
     techStack: {
-      ...techStack,
       meta: toLs(techStack?.meta, en.techStack.meta),
       title: toLs(techStack?.title, en.techStack.title)
     },
-    quality: {
-      ...quality,
-      meta: toLs(quality?.meta, en.quality.meta),
-      title: toLs(quality?.title, en.quality.title),
-      items: qualityItems.map((item, i) => {
-        const row = asRecord(item) ?? {};
-        return {
-          ...row,
-          title: toLs(row.title, en.quality.items[i]?.title ?? ''),
-          description: toLt(row.description, en.quality.items[i]?.description ?? '')
-        };
-      })
-    },
     contact: {
-      ...contact,
       heading: toLs(contact?.heading, en.contact.heading),
       subtitle: toLs(contact?.subtitle, en.contact.subtitle),
-      whatsappLead: toLs(contact?.whatsappLead, en.contact.whatsappLead),
-      whatsappButtonLabel: toLs(contact?.whatsappButtonLabel, en.contact.whatsappButtonLabel),
-      formLead: toLs(contact?.formLead, en.contact.formLead),
-      formButtonLabel: toLs(contact?.formButtonLabel, en.contact.formButtonLabel),
       formModalHeading: toLs(contact?.formModalHeading, en.contact.formModalHeading),
       formModalText: toLs(contact?.formModalText, en.contact.formModalText),
       formModalSubmitLabel: toLs(contact?.formModalSubmitLabel, en.contact.formModalSubmitLabel),
@@ -142,8 +109,7 @@ async function main() {
       formModalSuccessMessage: toLs(
         contact?.formModalSuccessMessage,
         en.contact.formModalSuccessMessage
-      ),
-      iframeTitle: toLs(contact?.iframeTitle, en.contact.iframeTitle)
+      )
     },
     footer: {
       ...footer,

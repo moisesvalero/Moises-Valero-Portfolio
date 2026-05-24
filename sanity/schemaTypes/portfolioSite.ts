@@ -41,19 +41,6 @@ export const portfolioSite = defineType({
       group: 'panel'
     }),
     defineField({
-      name: 'checklistHome',
-      type: 'object',
-      title: 'Checklist rapido (opcional)',
-      description: 'Te ayuda a no olvidar nada antes de publicar.',
-      group: 'panel',
-      fields: [
-        { name: 'heroRevisado', type: 'boolean', title: 'Hero revisado (titulo y subtitulo)' },
-        { name: 'serviciosRevisados', type: 'boolean', title: 'Servicios revisados' },
-        { name: 'contactoRevisado', type: 'boolean', title: 'Contacto revisado' },
-        { name: 'seoRevisado', type: 'boolean', title: 'SEO basico revisado' }
-      ]
-    }),
-    defineField({
       name: 'header',
       type: 'object',
       title: 'Cabecera (menu)',
@@ -91,13 +78,6 @@ export const portfolioSite = defineType({
               }
             }
           ]
-        },
-        { name: 'ctaLabel', type: 'localeString', title: 'Texto botón CTA (ej. Contacto)' },
-        {
-          name: 'ctaHref',
-          type: 'string',
-          title: 'Enlace CTA',
-          description: 'Ej. /#contacto para scroll al chat, o https://… para externo.'
         }
       ]
     }),
@@ -184,38 +164,14 @@ export const portfolioSite = defineType({
     defineField({
       name: 'services',
       type: 'object',
-      title: 'Servicios',
-      description: 'Meta, título e ítems con campos ES/EN. Si falta un idioma, la web usa el otro.',
+      title: 'Competencias',
+      description: 'Solo controla la etiqueta superior del bloque. El contenido visible se define en la web.',
       group: 'servicios',
       fields: [
         {
           name: 'meta',
           type: 'localeString',
           title: 'Meta sección'
-        },
-        {
-          name: 'title',
-          type: 'localeString',
-          title: 'Título H2'
-        },
-        {
-          name: 'items',
-          type: 'array',
-          title: 'Servicios',
-          of: [
-            {
-              type: 'object',
-              fields: [
-                { name: 'icon', type: 'string', title: 'Emoji / icono (compartido)' },
-                { name: 'title', type: 'localeString', title: 'Título' },
-                { name: 'description', type: 'localeText', title: 'Descripción' }
-              ],
-              preview: {
-                select: { t: 'title.es', media: 'icon' },
-                prepare: ({ t }) => ({ title: t || 'Servicio' })
-              }
-            }
-          ]
         }
       ]
     }),
@@ -226,67 +182,7 @@ export const portfolioSite = defineType({
       group: 'servicios',
       fields: [
         { name: 'meta', type: 'localeString', title: 'Meta sección' },
-        { name: 'title', type: 'localeString', title: 'Título H2' },
-        {
-          name: 'categories',
-          type: 'array',
-          title: 'Categorías (referencia / archivo)',
-          description:
-            'La web muestra el stack definido en código (devicons del repo). Estos datos son solo archivo: no edites iconos aquí salvo que más adelante conectemos esta sección.',
-          of: [
-            {
-              type: 'object',
-              fields: [
-                {
-                  name: 'title',
-                  type: 'string',
-                  title: 'Nombre categoría (archivo)',
-                  readOnly: true
-                },
-                {
-                  name: 'icons',
-                  type: 'array',
-                  readOnly: true,
-                  of: [
-                    {
-                      type: 'object',
-                      fields: [
-                        { name: 'iconImage', type: 'image', title: 'Icono (imagen)' },
-                        { name: 'src', type: 'string', title: 'Ruta o URL del SVG/PNG' },
-                        { name: 'alt', type: 'string' },
-                        { name: 'title', type: 'string', title: 'Tooltip' }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }),
-    defineField({
-      name: 'quality',
-      type: 'object',
-      title: 'Bloque de calidad / beneficios',
-      group: 'servicios',
-      fields: [
-        { name: 'meta', type: 'localeString', title: 'Meta sección' },
-        { name: 'title', type: 'localeString', title: 'Título H2' },
-        {
-          name: 'items',
-          type: 'array',
-          of: [
-            {
-              type: 'object',
-              fields: [
-                { name: 'icon', type: 'string' },
-                { name: 'title', type: 'localeString', title: 'Título' },
-                { name: 'description', type: 'localeText', title: 'Descripción' }
-              ]
-            }
-          ]
-        }
+        { name: 'title', type: 'localeString', title: 'Título H2' }
       ]
     }),
     defineField({
@@ -368,7 +264,6 @@ export const portfolioSite = defineType({
       fields: [
         { name: 'heading', type: 'localeString', title: 'Título H2' },
         { name: 'subtitle', type: 'localeString', title: 'Subtítulo' },
-        { name: 'typebotSrc', type: 'url', title: 'URL iframe Typebot' },
         { name: 'formModalHeading', type: 'localeString', title: 'Título modal formulario' },
         { name: 'formModalText', type: 'localeString', title: 'Texto modal formulario' },
         { name: 'formModalSubmitLabel', type: 'localeString', title: 'Texto botón enviar formulario' },
@@ -377,8 +272,7 @@ export const portfolioSite = defineType({
           name: 'formModalSuccessMessage',
           type: 'localeString',
           title: 'Mensaje éxito formulario'
-        },
-        { name: 'iframeTitle', type: 'localeString', title: 'Título accesible del iframe' }
+        }
       ]
     }),
     defineField({

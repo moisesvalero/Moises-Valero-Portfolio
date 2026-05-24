@@ -11,8 +11,6 @@ export type SiteHeader = {
   logoText: string;
   logoHref: string;
   navItems: SiteNavItem[];
-  ctaLabel: string;
-  ctaHref: string;
 };
 
 export type SiteSeo = {
@@ -125,18 +123,11 @@ export type SiteProjectsSection = {
 export type SiteContact = {
   heading: string;
   subtitle: string;
-  typebotSrc: string;
-  /** Texto encima del botón (el enlace va a /api/contact/whatsapp; el número se resuelve en servidor). */
-  whatsappLead: string;
-  whatsappButtonLabel: string;
-  formLead: string;
-  formButtonLabel: string;
   formModalHeading: string;
   formModalText: string;
   formModalSubmitLabel: string;
   formModalPrivacyLabel: string;
   formModalSuccessMessage: string;
-  iframeTitle: string;
 };
 
 export type SiteFooter = {

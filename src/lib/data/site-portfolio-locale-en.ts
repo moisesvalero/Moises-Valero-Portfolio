@@ -35,9 +35,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
       { label: 'Stack', href: '/#stack' },
       { label: 'Projects', href: '/#proyectos' },
       { label: 'Career', href: '#', openCareerModal: true }
-    ],
-    ctaLabel: 'Contact',
-    ctaHref: '/#contacto'
+    ]
   },
   hero: {
     cvHref: '/api/cv',
@@ -240,17 +238,11 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
   contact: {
     heading: "Let's talk",
     subtitle: '',
-    typebotSrc: 'https://typebot.io/asistente-mois-s-valero-sud5oya',
-    whatsappLead: '',
-    whatsappButtonLabel: 'WhatsApp',
-    formLead: '',
-    formButtonLabel: 'Contact',
     formModalHeading: 'Tell me about your project',
     formModalText: 'Leave your details and I will get back to you soon.',
     formModalSubmitLabel: 'Send request',
     formModalPrivacyLabel: 'I have read and accept the privacy policy.',
-    formModalSuccessMessage: 'Message sent. I will reply soon.',
-    iframeTitle: 'Chat assistant — Moisés Valero'
+    formModalSuccessMessage: 'Message sent. I will reply soon.'
   },
   footer: {
     copyrightTemplate:

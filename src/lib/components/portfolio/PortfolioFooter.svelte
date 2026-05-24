@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { t } from '$lib/i18n/index.js';
-  import { openCookiePreferences } from '$lib/cookie-consent';
+  import { resolve } from '$app/paths';
 
   interface Props {
     /** Sustituye `{{year}}` por el año actual (útil con Sanity). */
@@ -12,6 +11,7 @@
   }
 
   const year = new Date().getFullYear();
+  const resolvePath = resolve as unknown as (href: string) => string;
 
   let {
     copyrightTemplate =
@@ -53,18 +53,12 @@
     {/if}
   </div>
 
-  <nav class="footer-legal" aria-label="Legal">
-    <a href="/privacidad">{$t('legalFooter.privacy')}</a>
+  <nav class="footer-legal" aria-label="Enlaces del sitio">
+    <a href={resolvePath('/blog')}>Guías</a>
     <span class="footer-dot" aria-hidden="true">·</span>
-    <a href="/cookies">{$t('legalFooter.cookies')}</a>
+    <a href={resolvePath('/tools/analizador-web')}>Analizador web</a>
     <span class="footer-dot" aria-hidden="true">·</span>
-    <button type="button" class="footer-legal-btn" onclick={() => openCookiePreferences()}>
-      {$t('legalFooter.preferences')}
-    </button>
-    <span class="footer-dot" aria-hidden="true">·</span>
-    <a href="/blog">Guías</a>
-    <span class="footer-dot" aria-hidden="true">·</span>
-    <a href="/tools/analizador-web">Analizador web</a>
+    <a href={resolvePath('/ia-moises')}>Asistente IA</a>
   </nav>
 
   <div class="footer-icons">
@@ -147,21 +141,6 @@
   .footer-dot {
     color: #94a3b8;
     user-select: none;
-  }
-
-  .footer-legal-btn {
-    background: none;
-    border: none;
-    padding: 0;
-    font: inherit;
-    font-weight: 600;
-    color: #64748b;
-    cursor: pointer;
-    text-decoration: none;
-  }
-
-  .footer-legal-btn:hover {
-    color: #334155;
   }
 
   .footer-primary,

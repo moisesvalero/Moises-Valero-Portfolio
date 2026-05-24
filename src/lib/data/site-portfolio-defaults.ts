@@ -32,9 +32,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
       { label: 'Analizador', href: '/tools/analizador-web' },
       { label: 'Guías', href: '/blog' },
       { label: 'Trayectoria', href: '#', openCareerModal: true }
-    ],
-    ctaLabel: 'Contacto',
-    ctaHref: '/#contacto'
+    ]
   },
   seo: {
     title: 'Moisés Valero – Desarrollador Web | SvelteKit, WordPress, Performance',
@@ -252,17 +250,11 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
   contact: {
     heading: '¿Hablamos?',
     subtitle: '',
-    typebotSrc: 'https://typebot.io/asistente-mois-s-valero-sud5oya',
-    whatsappLead: '',
-    whatsappButtonLabel: 'WhatsApp',
-    formLead: '',
-    formButtonLabel: 'Contacto',
     formModalHeading: 'Cuéntame tu proyecto',
     formModalText: 'Déjame tus datos y te responderé lo antes posible.',
     formModalSubmitLabel: 'Enviar solicitud',
     formModalPrivacyLabel: 'He leído y acepto la política de privacidad.',
-    formModalSuccessMessage: 'Mensaje enviado. Te responderé en breve.',
-    iframeTitle: 'Asistente de chat — Moisés Valero'
+    formModalSuccessMessage: 'Mensaje enviado. Te responderé en breve.'
   },
   footer: {
     copyrightTemplate:

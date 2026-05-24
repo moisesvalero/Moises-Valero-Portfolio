@@ -1,6 +1,6 @@
 import { portfolioEnglishDemo } from '$lib/data/site-portfolio-locale-en';
 import type { SiteLocale } from '$lib/i18n/site-locale';
-import type { SitePortfolioContent, SiteProjectCard, SiteStackIcon } from '$lib/types/site-portfolio';
+import type { SitePortfolioContent, SiteProjectCard } from '$lib/types/site-portfolio';
 import { imageUrl } from './image-builder';
 
 const enUi = portfolioEnglishDemo;
@@ -125,24 +125,11 @@ function mergeHeader(
         })
         .filter(Boolean)
     : [];
-  const ctaLabel = pickLocalized(o.ctaLabel, locale, d.ctaLabel, enUi.header.ctaLabel);
-  const ctaHref = asString(o.ctaHref, d.ctaHref);
   const baseNav = (nav.length ? nav : d.navItems) as SitePortfolioContent['header']['navItems'];
-  const ctaDest = normalizeHashHref(ctaHref);
-  const navItems = baseNav.filter(
-    (item) =>
-      !(
-        item.label === ctaLabel &&
-        !item.openCareerModal &&
-        normalizeHashHref(item.href) === ctaDest
-      )
-  );
   return {
     logoText: pickLocalized(o.logoText, locale, d.logoText, enUi.header.logoText),
     logoHref: asString(o.logoHref, d.logoHref),
-    navItems,
-    ctaLabel,
-    ctaHref
+    navItems: baseNav
   };
 }
 
@@ -249,61 +236,10 @@ function mergeServices(
   if (!o) {
     return d;
   }
-  const itemsRaw = Array.isArray(o.items) ? (o.items as unknown[]) : [];
-  const items = itemsRaw
-    .map((x, i) => {
-      const r = asRecord(x);
-      if (!r) {
-        return null;
-      }
-      const title = pickLocalized(
-        r.title,
-        locale,
-        d.items[i]?.title ?? '',
-        enUi.services.items[i]?.title
-      );
-      if (!title) {
-        return null;
-      }
-      return {
-        icon: asString(r.icon, '•'),
-        title,
-        description: pickLocalized(
-          r.description,
-          locale,
-          d.items[i]?.description ?? '',
-          enUi.services.items[i]?.description
-        )
-      };
-    })
-    .filter(Boolean) as SitePortfolioContent['services']['items'];
   return {
     meta: pickLocalized(o.meta, locale, d.meta, enUi.services.meta),
-    title: pickLocalized(o.title, locale, d.title, enUi.services.title),
-    items: items.length ? items : d.items
-  };
-}
-
-function mapStackIcon(
-  raw: unknown,
-  ctx: { projectId: string; dataset: string },
-  fallback: SiteStackIcon
-): SiteStackIcon {
-  const o = asRecord(raw);
-  if (!o) {
-    return fallback;
-  }
-  const fromImg = imageUrl(ctx.projectId, ctx.dataset, o.iconImage, 80);
-  const srcFallback = fallback.src ?? '';
-  const src = fromImg || asString(o.src, srcFallback);
-  const devicon = asStringOpt(o.devicon) ?? fallback.devicon;
-  const iconify = asStringOpt(o.iconify) ?? fallback.iconify;
-  return {
-    src: src || undefined,
-    devicon,
-    iconify,
-    alt: asString(o.alt, fallback.alt),
-    title: asStringOpt(o.title) ?? fallback.title
+    title: d.title,
+    items: d.items
   };
 }
 
@@ -321,50 +257,6 @@ function mergeTechStack(
     meta: pickLocalized(o.meta, ctx.locale, d.meta, enUi.techStack.meta),
     title: pickLocalized(o.title, ctx.locale, d.title, enUi.techStack.title),
     categories: d.categories
-  };
-}
-
-function mergeQuality(
-  raw: unknown,
-  d: SitePortfolioContent['quality'],
-  locale: SiteLocale
-): SitePortfolioContent['quality'] {
-  const o = asRecord(raw);
-  if (!o) {
-    return d;
-  }
-  const itemsRaw = Array.isArray(o.items) ? (o.items as unknown[]) : [];
-  const items = itemsRaw
-    .map((x, i) => {
-      const r = asRecord(x);
-      if (!r) {
-        return null;
-      }
-      const title = pickLocalized(
-        r.title,
-        locale,
-        d.items[i]?.title ?? '',
-        enUi.quality.items[i]?.title
-      );
-      if (!title) {
-        return null;
-      }
-      return {
-        icon: asString(r.icon, '•'),
-        title,
-        description: pickLocalized(
-          r.description,
-          locale,
-          d.items[i]?.description ?? '',
-          enUi.quality.items[i]?.description
-        )
-      };
-    })
-    .filter(Boolean) as SitePortfolioContent['quality']['items'];
-  return {
-    meta: pickLocalized(o.meta, locale, d.meta, enUi.quality.meta),
-    title: pickLocalized(o.title, locale, d.title, enUi.quality.title),
-    items: items.length ? items : d.items
   };
 }
 
@@ -473,11 +365,6 @@ function mergeContact(
   return {
     heading: pickLocalized(o.heading, locale, d.heading, c.heading),
     subtitle: pickLocalized(o.subtitle, locale, d.subtitle, c.subtitle),
-    typebotSrc: asString(o.typebotSrc, d.typebotSrc),
-    whatsappLead: '',
-    whatsappButtonLabel: 'WhatsApp',
-    formLead: '',
-    formButtonLabel: locale === 'en' ? 'Contact' : 'Contacto',
     formModalHeading: pickLocalized(o.formModalHeading, locale, d.formModalHeading, c.formModalHeading),
     formModalText: pickLocalized(o.formModalText, locale, d.formModalText, c.formModalText),
     formModalSubmitLabel: pickLocalized(
@@ -497,8 +384,7 @@ function mergeContact(
       locale,
       d.formModalSuccessMessage,
       c.formModalSuccessMessage
-    ),
-    iframeTitle: pickLocalized(o.iframeTitle, locale, d.iframeTitle, c.iframeTitle)
+    )
   };
 }
 
@@ -598,7 +484,7 @@ export function mapSanitySitePortfolio(
     about: mergeAbout(raw.about, defaults.about, ctx),
     services: mergeServices(raw.services, defaults.services, ctx.locale),
     techStack: mergeTechStack(raw.techStack, defaults.techStack, ctx),
-    quality: mergeQuality(raw.quality, defaults.quality, ctx.locale),
+    quality: defaults.quality,
     projects: mergeProjects(raw.projects, defaults.projects, ctx),
     contact: mergeContact(raw.contact, defaults.contact, ctx.locale),
     footer: mergeFooter(raw.footer, defaults.footer, ctx.locale),

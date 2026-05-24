@@ -21,7 +21,8 @@ function mapPortfolioDocument() {
     _type: 'sitePortfolio',
     title: 'Web principal',
     header: {
-      ...site.header,
+      logoText: site.header.logoText,
+      logoHref: site.header.logoHref,
       navItems: site.header.navItems.map((item, index) => ({
         _key: keyOf('nav', index),
         ...item
@@ -39,32 +40,11 @@ function mapPortfolioDocument() {
     },
     about: site.about,
     services: {
-      meta: asLocaleString(site.services.meta),
-      title: asLocaleString(site.services.title),
-      items: site.services.items.map((item, index) => ({
-        _key: keyOf('service', index),
-        icon: item.icon,
-        title: asLocaleString(item.title),
-        description: asLocaleText(item.description)
-      }))
+      meta: asLocaleString(site.services.meta)
     },
     techStack: {
-      ...site.techStack,
-      categories: site.techStack.categories.map((category, catIndex) => ({
-        _key: keyOf('stack-category', catIndex),
-        title: category.title,
-        icons: category.icons.map((icon, iconIndex) => ({
-          _key: keyOf(`stack-icon-${catIndex + 1}`, iconIndex),
-          ...icon
-        }))
-      }))
-    },
-    quality: {
-      ...site.quality,
-      items: site.quality.items.map((item, index) => ({
-        _key: keyOf('quality', index),
-        ...item
-      }))
+      meta: asLocaleString(site.techStack.meta),
+      title: asLocaleString(site.techStack.title)
     },
     projects: {
       meta: asLocaleString(site.projects.meta),

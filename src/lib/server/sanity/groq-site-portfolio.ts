@@ -8,13 +8,21 @@ export const sitePortfolioQuery = `coalesce(
   *[_type == "sitePortfolio" && _id == "portfolioSite"][0],
   *[_type == "sitePortfolio"] | order(_updatedAt desc)[0]
 ){
-  header,
+  header{
+    logoText,
+    logoHref,
+    navItems
+  },
   seo,
   hero,
   about,
-  services,
-  techStack,
-  quality,
+  services{
+    meta
+  },
+  techStack{
+    meta,
+    title
+  },
   projects{
     meta,
     title,
@@ -65,7 +73,15 @@ export const sitePortfolioQuery = `coalesce(
       } + coalesce(projects[] | order(sortOrder asc), [])
     )
   },
-  contact,
+  contact{
+    heading,
+    subtitle,
+    formModalHeading,
+    formModalText,
+    formModalSubmitLabel,
+    formModalPrivacyLabel,
+    formModalSuccessMessage
+  },
   footer,
   careerModal{
     ...,
