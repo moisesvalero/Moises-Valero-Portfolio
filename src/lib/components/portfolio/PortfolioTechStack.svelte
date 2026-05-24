@@ -174,7 +174,7 @@
 <style>
   .stack-container {
     max-width: 1200px;
-    margin: 60px auto;
+    margin: 72px auto;
     padding: 0 20px;
     scroll-margin-top: 96px;
   }
@@ -200,15 +200,10 @@
   .carousel-stage {
     position: relative;
     display: flex;
-    min-height: 320px;
+    min-height: 250px;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    border-radius: 8px;
-    border: 1px solid rgba(226, 232, 240, 0.74);
-    background:
-      linear-gradient(90deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.7)),
-      radial-gradient(circle at 50% 50%, rgba(0, 113, 227, 0.11), transparent 48%);
+    overflow: visible;
   }
 
   .carousel-stage::before,
@@ -217,18 +212,18 @@
     position: absolute;
     inset-block: 0;
     z-index: 1;
-    width: 16%;
+    width: 18%;
     pointer-events: none;
   }
 
   .carousel-stage::before {
     left: 0;
-    background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0));
+    background: linear-gradient(90deg, var(--bg-surface), rgba(255, 255, 255, 0));
   }
 
   .carousel-stage::after {
     right: 0;
-    background: linear-gradient(270deg, #fff, rgba(255, 255, 255, 0));
+    background: linear-gradient(270deg, var(--bg-surface), rgba(255, 255, 255, 0));
   }
 
   .carousel-stage :global(.flex.space-x-4) {
@@ -238,24 +233,63 @@
   }
 
   .carousel-stage :global(img) {
-    max-width: 84%;
-    max-height: 84%;
+    max-width: 78%;
+    max-height: 78%;
     filter: saturate(1.04);
   }
 
-  :global(html.dark) .carousel-stage {
-    border-color: rgba(148, 163, 184, 0.16);
-    background:
-      linear-gradient(90deg, rgba(17, 24, 39, 0.9), rgba(15, 23, 42, 0.66)),
-      radial-gradient(circle at 50% 50%, rgba(10, 132, 255, 0.14), transparent 50%);
+  .carousel-stage :global(.logo-fill) {
+    display: flex;
+    width: var(--logo-box, 78%);
+    height: var(--logo-box, 78%);
+    max-width: var(--logo-box, 78%);
+    max-height: var(--logo-box, 78%);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .carousel-stage :global(.logo-fill img) {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    object-fit: contain;
+  }
+
+  .carousel-stage :global(.logo-openai) {
+    --logo-box: 68%;
+  }
+
+  .carousel-stage :global(.logo-gemini) {
+    --logo-box: 70%;
+  }
+
+  .carousel-stage :global(.logo-opencode) {
+    --logo-box: 76%;
+  }
+
+  .carousel-stage :global(.logo-antigravity),
+  .carousel-stage :global(.logo-codex) {
+    --logo-box: 72%;
+  }
+
+  .carousel-stage :global(.logo-pwa),
+  .carousel-stage :global(.logo-stripe) {
+    --logo-box: 70%;
   }
 
   :global(html.dark) .carousel-stage::before {
-    background: linear-gradient(90deg, #0a0a0a, rgba(10, 10, 10, 0));
+    background: linear-gradient(90deg, var(--bg-surface), rgba(10, 10, 10, 0));
   }
 
   :global(html.dark) .carousel-stage::after {
-    background: linear-gradient(270deg, #0a0a0a, rgba(10, 10, 10, 0));
+    background: linear-gradient(270deg, var(--bg-surface), rgba(10, 10, 10, 0));
+  }
+
+  :global(html.dark) .carousel-stage :global(.logo-invert-dark img),
+  :global(html.dark) .carousel-stage :global(img.logo-invert-dark) {
+    filter: invert(1) grayscale(1) brightness(1.72);
+    opacity: 0.94;
   }
 
   @media (max-width: 1199px) {
@@ -266,7 +300,7 @@
 
   @media (max-width: 768px) {
     .carousel-stage {
-      min-height: 260px;
+      min-height: 220px;
     }
   }
 
@@ -276,7 +310,7 @@
     }
 
     .carousel-stage {
-      min-height: 220px;
+      min-height: 190px;
     }
   }
 </style>

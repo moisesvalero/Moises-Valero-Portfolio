@@ -2,22 +2,12 @@
   let { class: className = '' }: { class?: string } = $props();
 </script>
 
-<span class={`logo-fill ${className}`}>
+<span class={`logo-fill logo-opencode logo-invert-dark ${className}`}>
   <img src="/imagenes/opencode.svg" alt="OpenCode" loading="lazy" decoding="async" />
 </span>
 
 <style>
-  .logo-fill {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .logo-fill img {
-    width: 130%;
-    height: 130%;
-    object-fit: contain;
+  .logo-fill :global(img) {
+    display: block;
   }
 </style>
