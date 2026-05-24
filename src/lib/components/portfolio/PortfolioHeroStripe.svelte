@@ -23,10 +23,10 @@
   }: Props = $props();
 
   const heroCapabilities = $derived([
-    { label: 'SvelteKit', icon: 'simple-icons:svelte' },
-    { label: 'WordPress', icon: 'simple-icons:wordpress' },
-    { label: 'APIs', icon: 'lucide:webhook' },
-    { label: /IT Support/i.test(subtitle) ? 'AI' : 'IA', icon: 'lucide:sparkles' }
+    { label: 'SvelteKit', icon: 'simple-icons:svelte', color: '#ff3e00' },
+    { label: 'WordPress', icon: 'simple-icons:wordpress', color: '#21759b' },
+    { label: 'APIs', icon: 'lucide:webhook', color: '#0ea5e9' },
+    { label: /IT Support/i.test(subtitle) ? 'AI' : 'IA', icon: 'lucide:sparkles', color: '#7c3aed' }
   ]);
   const titleWords = $derived(title.split(/\s+/).filter(Boolean));
   const iconifySvgUrl = (name: string) =>
@@ -57,8 +57,8 @@
         {/each}
       </h1>
       <h2 class="sub-frase hero-entry hero-entry-3" aria-label={subtitle}>
-        {#each heroCapabilities as item (item.label)}
-          <span class="hero-tech-item">
+        {#each heroCapabilities as item, index (item.label)}
+          <span class="hero-tech-item" style:--hero-tech-index={index} style:--hero-tech-color={item.color}>
             <span class="hero-tech-icon" style:--hero-tech-icon={iconifySvgUrl(item.icon)} aria-hidden="true"></span>
             <span>{item.label}</span>
           </span>
@@ -319,40 +319,66 @@
   }
 
   .sub-frase {
-    color: #111827 !important;
-    font-size: clamp(14px, 1.55vw, 18px) !important;
-    margin: 0 0 24px 0 !important;
-    font-weight: 600 !important;
-    line-height: 1.2;
+    position: relative;
+    color: #0f172a !important;
+    font-size: clamp(14px, 1.22vw, 16px) !important;
+    margin: 0 0 22px 0 !important;
+    font-weight: 700 !important;
+    line-height: 1.25;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 10px 14px;
-    max-width: min(760px, 92vw);
+    column-gap: 22px;
+    row-gap: 12px;
+    max-width: min(820px, 92vw);
+    padding: 0;
     letter-spacing: 0;
   }
 
   .hero-tech-item {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    min-height: 32px;
-    padding: 0 2px;
+    min-height: 34px;
+    padding: 0;
     font-family: var(--font-mono);
-    font-size: 0.82em;
-    font-weight: 650;
-    letter-spacing: 0.01em;
+    font-size: 0.9em;
+    font-weight: 720;
+    letter-spacing: 0;
     color: inherit;
     white-space: nowrap;
+    transition:
+      color 220ms ease,
+      transform 220ms ease;
+  }
+
+  .hero-tech-item:not(:last-child)::after {
+    content: "/";
+    position: absolute;
+    top: 50%;
+    right: -16px;
+    transform: translateY(-50%);
+    color: rgba(15, 23, 42, 0.24);
+    font-family: var(--font-sans);
+    font-size: 0.9em;
+    font-weight: 500;
+  }
+
+  .hero-tech-item:hover {
+    color: var(--hero-tech-color);
+    transform: translateY(-2px);
   }
 
   .hero-tech-icon {
-    width: 18px;
-    height: 18px;
+    width: 28px;
+    height: 28px;
     flex: 0 0 auto;
-    color: #005fcf;
-    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.72));
+    color: var(--hero-tech-color, #005fcf);
+    filter:
+      drop-shadow(0 1px 0 rgba(255, 255, 255, 0.75))
+      drop-shadow(0 10px 18px color-mix(in srgb, var(--hero-tech-color, #005fcf) 24%, transparent));
     opacity: 0.92;
     display: inline-flex;
     align-items: center;
@@ -364,12 +390,12 @@
 
   .texto-bio {
     color: #172033;
-    font-size: 18px;
-    font-weight: 500;
-    line-height: 1.74;
-    letter-spacing: 0.005em;
-    margin-bottom: 40px;
-    max-width: min(700px, 92vw);
+    font-size: clamp(18px, 1.75vw, 24px);
+    font-weight: 650;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    margin-bottom: 36px;
+    max-width: min(760px, 92vw);
     margin-left: auto;
     margin-right: auto;
     text-wrap: pretty;
@@ -478,9 +504,15 @@
 
   :global(html.dark) .sub-frase {
     color: #f4f4f5 !important;
-    text-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.72),
-      0 12px 42px rgba(0, 0, 0, 0.46);
+    text-shadow: 0 10px 34px rgba(0, 0, 0, 0.44);
+  }
+
+  :global(html.dark) .hero-tech-item:not(:last-child)::after {
+    color: rgba(255, 255, 255, 0.28);
+  }
+
+  :global(html.dark) .hero-tech-item:hover {
+    color: var(--hero-tech-color);
   }
 
   :global(html.dark) .hero-title-accent {
@@ -494,8 +526,10 @@
   }
 
   :global(html.dark) .hero-tech-icon {
-    color: #a7f3ff;
-    filter: drop-shadow(0 0 14px rgba(167, 243, 255, 0.2));
+    color: var(--hero-tech-color, #a7f3ff);
+    filter:
+      drop-shadow(0 0 10px color-mix(in srgb, var(--hero-tech-color, #a7f3ff) 28%, transparent))
+      drop-shadow(0 10px 22px rgba(0, 0, 0, 0.24));
     opacity: 0.96;
   }
 
@@ -608,7 +642,7 @@
 
     .sub-frase {
       font-size: 16px !important;
-      gap: 8px 12px;
+      max-width: min(620px, 92vw);
     }
 
     .texto-bio {
@@ -714,31 +748,59 @@
     }
 
     .hero-stripe-pro-v2 h1 {
-      font-size: clamp(34px, 10vw, 54px) !important;
-      letter-spacing: -0.034em;
-      line-height: 0.96;
+      font-size: clamp(43px, 13.5vw, 58px) !important;
+      letter-spacing: -0.04em;
+      line-height: 0.92;
     }
 
     .sub-frase {
-      font-size: 14.5px !important;
+      display: inline-flex;
+      width: min(100%, 330px);
+      font-size: 13px !important;
       margin: 0 0 20px 0 !important;
-      gap: 6px 10px;
+      column-gap: 14px;
+      row-gap: 9px;
     }
 
     .hero-tech-item {
-      min-height: 28px;
-      gap: 6px;
+      justify-content: center;
+      min-height: 24px;
+      gap: 5px;
+    }
+
+    .hero-tech-item:not(:last-child)::after {
+      right: -10px;
     }
 
     .hero-tech-icon {
-      width: 16px;
-      height: 16px;
+      width: 17px;
+      height: 17px;
     }
 
     .texto-bio {
       font-size: 15.5px;
       line-height: 1.62;
       margin-bottom: 28px;
+    }
+
+    .botones-wrap {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: min(100%, 340px);
+      margin: 0 auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-apple-blue,
+    .btn-ghost-slim {
+      width: 100%;
+      min-height: 44px;
+      padding: 11px 12px;
+      border-radius: 7px;
+      font-size: 14.5px;
+      line-height: 1.15;
+      white-space: normal;
     }
   }
 </style>
