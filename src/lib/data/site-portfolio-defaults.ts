@@ -64,7 +64,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
   },
   services: {
     meta: 'COMPETENCIAS',
-    title: 'Lo que puedo aportar dentro de un equipo.',
+    title: 'Lo que puedo aportar dentro de un equipo',
     items: [
       {
         icon: 'web_asset',
@@ -253,10 +253,10 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     heading: '¿Hablamos?',
     subtitle: '',
     typebotSrc: 'https://typebot.io/asistente-mois-s-valero-sud5oya',
-    whatsappLead: '¿Prefieres WhatsApp? Te respondo rápido por ahí.',
-    whatsappButtonLabel: 'Escribir por WhatsApp',
-    formLead: 'Formulario',
-    formButtonLabel: 'Abrir formulario',
+    whatsappLead: '',
+    whatsappButtonLabel: 'WhatsApp',
+    formLead: '',
+    formButtonLabel: 'Contacto',
     formModalHeading: 'Cuéntame tu proyecto',
     formModalText: 'Déjame tus datos y te responderé lo antes posible.',
     formModalSubmitLabel: 'Enviar solicitud',

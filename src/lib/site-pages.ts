@@ -82,6 +82,16 @@ export const sitePages: SitePage[] = [
     locales: ['es']
   },
   {
+    path: '/ia-moises',
+    titleEs: 'Asistente IA de Moises Valero',
+    descEs:
+      'Demo conversacional para explorar el perfil tecnico, stack, proyectos y trayectoria de Moises Valero.',
+    changefreq: 'monthly',
+    priority: 0.76,
+    group: 'portfolio',
+    locales: ['es']
+  },
+  {
     path: '/diseno-web',
     titleEs: 'Diseño web profesional para captar clientes',
     descEs:

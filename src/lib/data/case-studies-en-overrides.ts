@@ -17,17 +17,17 @@ export const caseStudyEnOverrides: Partial<Record<string, Partial<CaseStudy>>> =
       { value: 'Mobile', label: 'First' }
     ],
     reto: {
-      title: 'Prove real SvelteKit skills without a client brief.',
+      title: 'Prove real SvelteKit skills without a client brief',
       bodyHtml:
         '<p>I needed a portfolio piece beyond a static site: something that showed component architecture, state, performance, and product thinking. With no client brief, the challenge was to set a high bar and let the landing speak for itself to recruiters and technical teams.</p>'
     },
     hice: {
-      title: 'A full UI toolkit landing with interactive mockups and a custom design system.',
+      title: 'A full UI toolkit landing with interactive mockups and a custom design system',
       bodyHtml:
         '<p>I built the landing with SvelteKit and TypeScript, with CSS-animated sections, browser-style mockups, and reusable blocks. I integrated a 3D scene with Spline, an i18n system for Spanish and English, and Vitest tests where they added value. Everything is mobile-first with a focus on Core Web Vitals.</p>'
     },
     resultado: {
-      title: 'From design intent to technical delivery: moving to the modern stack.',
+      title: 'From design intent to technical delivery: moving to the modern stack',
       bodyHtml:
         '<p>The result is a deployable, maintainable site aligned with how I work today: modern stack, fewer unnecessary dependencies, and a clear base to iterate on. It works as a live demo of the interfaces and discipline I can bring to a product or engineering team.</p>'
     },

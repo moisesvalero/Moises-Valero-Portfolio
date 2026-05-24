@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Component } from 'svelte';
+  import { onMount, type Component } from 'svelte';
   import { LogoCarousel } from '$lib/motion-core';
   import AntigravityLogo from './tech-logos/AntigravityLogo.svelte';
   import ClaudeLogo from './tech-logos/ClaudeLogo.svelte';
@@ -158,6 +158,20 @@
       })
     )
   );
+
+  let carouselColumnCount = $state(4);
+
+  onMount(() => {
+    const query = window.matchMedia('(max-width: 640px)');
+    const updateColumns = () => {
+      carouselColumnCount = query.matches ? 3 : 4;
+    };
+
+    updateColumns();
+    query.addEventListener('change', updateColumns);
+
+    return () => query.removeEventListener('change', updateColumns);
+  });
 </script>
 
 <section class="stack-container" id="stack" aria-labelledby="stack-titulo">
@@ -167,7 +181,7 @@
   </div>
 
   <div class="carousel-stage" aria-label="Tecnologías y herramientas">
-    <LogoCarousel logos={logos} columnCount={4} cycleInterval={1800} />
+    <LogoCarousel logos={logos} columnCount={carouselColumnCount} cycleInterval={1800} />
   </div>
 </section>
 
@@ -229,7 +243,19 @@
   .carousel-stage :global(.flex.space-x-4) {
     position: relative;
     z-index: 0;
-    gap: clamp(14px, 3vw, 34px);
+    width: min(100%, 1120px);
+    justify-content: center;
+    gap: clamp(12px, 2.6vw, 34px);
+  }
+
+  .carousel-stage :global(.flex.space-x-4 > :not([hidden]) ~ :not([hidden])) {
+    margin-left: 0;
+  }
+
+  .carousel-stage :global(.relative.h-14.w-24) {
+    width: clamp(8.5rem, 15.6vw, 12rem);
+    height: clamp(4.8rem, 7.8vw, 6rem);
+    flex: 0 0 auto;
   }
 
   .carousel-stage :global(img) {
@@ -301,6 +327,22 @@
   @media (max-width: 768px) {
     .carousel-stage {
       min-height: 220px;
+      overflow: hidden;
+    }
+
+    .carousel-stage::before,
+    .carousel-stage::after {
+      width: 10%;
+    }
+
+    .carousel-stage :global(.flex.space-x-4) {
+      gap: clamp(10px, 2.8vw, 16px);
+      width: min(100%, 680px);
+    }
+
+    .carousel-stage :global(.relative.h-14.w-24) {
+      width: clamp(5.8rem, 21vw, 7.4rem);
+      height: clamp(3.8rem, 13vw, 4.8rem);
     }
   }
 
@@ -310,7 +352,12 @@
     }
 
     .carousel-stage {
-      min-height: 190px;
+      min-height: 216px;
+    }
+
+    .carousel-stage :global(.relative.h-14.w-24) {
+      width: clamp(5.6rem, 27vw, 6.25rem);
+      height: clamp(3.7rem, 18vw, 4.15rem);
     }
   }
 </style>

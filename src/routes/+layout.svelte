@@ -73,7 +73,7 @@
         source.find(predicate);
 
       const home = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#top');
-      const services = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#servicios');
+      const assistant = { label: data.locale === 'en' ? 'AI Assistant' : 'Asistente IA', href: '/ia-moises' } as HeaderNavItem;
       const projects =
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/proyectos') ??
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#proyectos');
@@ -85,10 +85,8 @@
         ({ label: guideLabel, href: '/blog' } as HeaderNavItem);
       const career = pick((item) => item.openCareerModal === true);
 
-      const preferred = [home, services, projects, analyzer, guides, career].filter(Boolean) as HeaderNavItem[];
-      const used = new Set(preferred.map((item) => navIdentity(item)));
-      const remainder = source.filter((item) => !used.has(navIdentity(item)));
-      return [...preferred, ...remainder];
+      const preferred = [home, projects, assistant, analyzer, guides, career].filter(Boolean) as HeaderNavItem[];
+      return preferred;
     })()
   );
 

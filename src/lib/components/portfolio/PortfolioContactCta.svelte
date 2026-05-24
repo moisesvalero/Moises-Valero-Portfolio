@@ -1,42 +1,40 @@
 <script lang="ts">
-  import { t } from '$lib/i18n/index.js';
-  import { loadTypebotWebModule, resetTypebotWebModuleCache } from '$lib/load-typebot';
-  import ContactFluidOverlay from './ContactFluidOverlay.svelte';
+  import { Globe, type GlobeMarker, type GlobeMarkerTooltipContext } from '$lib/motion-core';
 
   interface Props {
     heading?: string;
     subtitle?: string;
-    typebotSrc?: string;
-    whatsappLead?: string;
-    whatsappButtonLabel?: string;
-    formLead?: string;
-    formButtonLabel?: string;
     formModalHeading?: string;
     formModalText?: string;
     formModalSubmitLabel?: string;
     formModalPrivacyLabel?: string;
     formModalSuccessMessage?: string;
-    iframeTitle?: string;
   }
 
   let {
-    heading = '¿Hablamos?',
-    subtitle = '',
-    typebotSrc = 'https://typebot.io/asistente-mois-s-valero-sud5oya',
-    whatsappLead = '¿Prefieres WhatsApp? Te respondo rápido por ahí.',
-    whatsappButtonLabel = 'Escribir por WhatsApp',
-    formLead = 'Formulario',
-    formButtonLabel = 'Abrir formulario',
-    formModalHeading = 'Cuéntame tu proyecto',
-    formModalText = 'Déjame tus datos y te responderé lo antes posible.',
-    formModalSubmitLabel = 'Enviar solicitud',
-    formModalPrivacyLabel = 'He leído y acepto la política de privacidad.',
-    formModalSuccessMessage = 'Mensaje enviado. Te responderé en breve.',
-    iframeTitle = 'Asistente de chat — Moisés Valero'
+    heading = 'Listo para aportar en un equipo tecnico',
+    subtitle = 'Busco incorporarme a una agencia, estudio digital o empresa tecnologica donde pueda sumar en frontend, producto web, rendimiento, integraciones e IA aplicada.',
+    formModalHeading = 'Hablemos de una oportunidad',
+    formModalText = 'Dejame tus datos y te respondere lo antes posible.',
+    formModalSubmitLabel = 'Enviar mensaje',
+    formModalPrivacyLabel = 'He leido y acepto la politica de privacidad.',
+    formModalSuccessMessage = 'Mensaje enviado. Te respondere en breve.'
   }: Props = $props();
 
-  /** El número no va en el HTML: redirección en servidor al WhatsApp activo. */
+  const resolvedHeading = $derived(
+    heading.trim().toLowerCase().includes('hablamos') ? 'Listo para aportar en un equipo tecnico' : heading
+  );
+  const resolvedSubtitle = $derived(
+    subtitle.trim().length > 0
+      ? subtitle
+      : 'Busco incorporarme a una agencia, estudio digital o empresa tecnologica donde pueda sumar en frontend, producto web, rendimiento, integraciones e IA aplicada.'
+  );
+
   const whatsappHref = '/api/contact/whatsapp';
+  const alcoyLocation: [number, number] = [38.6987, -0.4743];
+  const markers: GlobeMarker[] = [
+    { location: alcoyLocation, label: 'Alcoy', size: 0.16, color: '#f8fafc' }
+  ];
 
   let isFormModalOpen = $state(false);
   let formStatus = $state<'idle' | 'sending' | 'success' | 'error'>('idle');
@@ -48,79 +46,6 @@
     message: '',
     privacyAccepted: false
   });
-  /** Hover en textos y foco dentro de zonas de lectura pausan nuevos trazos del fluido. */
-  let readingHoverDepth = $state(0);
-  let readingFocusDepth = $state(0);
-  const fluidPaused = $derived(readingHoverDepth > 0 || readingFocusDepth > 0);
-
-  function readingZonePointerEnter() {
-    readingHoverDepth++;
-  }
-
-  function readingZonePointerLeave() {
-    readingHoverDepth = Math.max(0, readingHoverDepth - 1);
-  }
-
-  function isInsideReadingZone(node: EventTarget | null, root: HTMLElement): boolean {
-    const el = node instanceof Element ? node : null;
-    return !!(el && root.contains(el) && el.closest('.contact-reading-zone'));
-  }
-
-  function readingAreaFocusIn(event: FocusEvent & { currentTarget: HTMLElement }) {
-    if (!isInsideReadingZone(event.target, event.currentTarget)) return;
-    const prev = event.relatedTarget as Node | null;
-    if (isInsideReadingZone(prev, event.currentTarget)) return;
-    readingFocusDepth++;
-  }
-
-  function readingAreaFocusOut(event: FocusEvent & { currentTarget: HTMLElement }) {
-    const next = event.relatedTarget as Node | null;
-    if (isInsideReadingZone(next, event.currentTarget)) return;
-    if (!isInsideReadingZone(event.target, event.currentTarget)) return;
-    readingFocusDepth = Math.max(0, readingFocusDepth - 1);
-  }
-
-  const TYPEBOT_PUBLIC_ID = 'asistente-mois-s-valero-sud5oya';
-  const typebotTheme = {
-    chatWindow: {
-      backgroundColor: 'transparent'
-    }
-  };
-
-  let typebotStandardStarted = false;
-  let typebotLoadError = $state(false);
-
-  $effect(() => {
-    if (typebotStandardStarted) return;
-    typebotStandardStarted = true;
-    typebotLoadError = false;
-
-    let cancelled = false;
-
-    void loadTypebotWebModule()
-      .then((Typebot) => {
-        if (cancelled) return;
-        Typebot.initStandard({
-          typebot: TYPEBOT_PUBLIC_ID,
-          theme: typebotTheme
-        });
-      })
-      .catch((err: unknown) => {
-        if (cancelled) return;
-        console.error('[typebot] No se pudo cargar el embed', err);
-        typebotLoadError = true;
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  });
-
-  function retryTypebot() {
-    typebotLoadError = false;
-    typebotStandardStarted = false;
-    resetTypebotWebModuleCache();
-  }
 
   function openFormModal() {
     isFormModalOpen = true;
@@ -179,101 +104,47 @@
   }
 </script>
 
-<section class="seccion-final-unificada" id="contacto" aria-labelledby="contacto-titulo">
-  <div class="luces-fondo-unificado" aria-hidden="true"></div>
-  <ContactFluidOverlay
-    color="#4DA3FF"
-    accent="#7CB8FF"
-    opacity={0.5}
-    radius={158}
-    blur={16}
-    paused={fluidPaused}
-  />
+{#snippet markerTooltip(ctx: GlobeMarkerTooltipContext)}
+  <div class="globe-marker-tooltip">
+    {ctx.marker.label}
+    <span aria-hidden="true"></span>
+  </div>
+{/snippet}
 
-  <div
-    class="contenido-unificado"
-    onfocusin={readingAreaFocusIn}
-    onfocusout={readingAreaFocusOut}
-  >
-    <div
-      role="group"
-      class="header-final contact-reading-zone"
-      onpointerenter={readingZonePointerEnter}
-      onpointerleave={readingZonePointerLeave}
-    >
-      <h3 id="contacto-titulo">{heading}</h3>
-      {#if subtitle}
-        <p>{subtitle}</p>
-      {/if}
+<section class="team-contact-section" id="contacto" aria-labelledby="contacto-titulo">
+  <div class="team-contact-copy">
+    <p class="contact-kicker">Disponibilidad profesional</p>
+    <h3 id="contacto-titulo">{resolvedHeading}</h3>
+    <p class="contact-lead">{resolvedSubtitle}</p>
+
+    <div class="fit-grid" aria-label="Resumen de encaje profesional">
+      <span>Frontend / Web Developer</span>
+      <span>Remoto · hibrido · presencial</span>
     </div>
 
-    <div class="chat-container-final" role="group">
-      {#if typebotLoadError}
-        <div class="chat-load-error" role="alert">
-          <p class="chat-load-error-title">No se ha podido cargar el asistente.</p>
-          <p class="chat-load-error-body">Prueba de nuevo o escribe por WhatsApp.</p>
-          <button type="button" class="btn-enable-chat" onclick={retryTypebot}>
-            Reintentar
-          </button>
-        </div>
-      {:else}
-        <typebot-standard
-          class="typebot-frame typebot-standard-embed"
-          style="width: 100%; height: 380px;"
-          aria-label={iframeTitle}
-        ></typebot-standard>
-      {/if}
+    <div class="contact-actions">
+      <a href={whatsappHref} target="_blank" rel="noopener noreferrer" class="primary-action">
+        WhatsApp
+      </a>
+      <button type="button" class="secondary-action" onclick={openFormModal}>Contacto</button>
     </div>
+  </div>
 
-    <div class="botones-final">
-      <div
-        role="group"
-        class="contact-reading-zone contact-cta-mobile-intro-wrap"
-        onpointerenter={readingZonePointerEnter}
-        onpointerleave={readingZonePointerLeave}
-      >
-        <p class="contact-cta-mobile-intro">{$t('contactCta.mobileIntro')}</p>
-      </div>
-      <div class="cta-stack">
-        <div
-          role="group"
-          class="contact-reading-zone"
-          onpointerenter={readingZonePointerEnter}
-          onpointerleave={readingZonePointerLeave}
-        >
-          <p class="texto-whatsapp-final texto-cta-lead-desktop">{whatsappLead}</p>
-        </div>
-        <a
-          href={whatsappHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn-whatsapp-final"
-        >
-          <span class="btn-cta-label-long">{whatsappButtonLabel}</span>
-          <span class="btn-cta-label-short">{$t('contactCta.whatsappShort')}</span>
-          <span aria-hidden="true" class="btn-cta-arrow">→</span>
-        </a>
-      </div>
-      <div class="cta-stack">
-        <div
-          role="group"
-          class="contact-reading-zone"
-          onpointerenter={readingZonePointerEnter}
-          onpointerleave={readingZonePointerLeave}
-        >
-          <p class="texto-whatsapp-final texto-cta-lead-desktop">{formLead}</p>
-        </div>
-        <button
-          type="button"
-          class="btn-form-final"
-          onclick={openFormModal}
-        >
-          <span class="btn-cta-label-long">{formButtonLabel}</span>
-          <span class="btn-cta-label-short">{$t('contactCta.formShort')}</span>
-          <span aria-hidden="true" class="btn-cta-arrow">→</span>
-        </button>
-      </div>
-    </div>
+  <div class="globe-panel" aria-label="Mapa de disponibilidad profesional">
+    <Globe
+      class="portfolio-globe"
+      markers={markers}
+      {markerTooltip}
+      radius={1.9}
+      focusOn={alcoyLocation}
+      pointCount={25000}
+      pointSize={0.042}
+      landPointColor="#4da3ff"
+      autoRotate={true}
+      lockedPolarAngle={false}
+      fresnelConfig={{ color: '#07101d', rimColor: '#4da3ff', rimPower: 5.2, rimIntensity: 1.65 }}
+      atmosphereConfig={{ color: '#4da3ff', scale: 1.12, power: 10, coefficient: 0.82, intensity: 1.15 }}
+    />
   </div>
 </section>
 
@@ -301,7 +172,7 @@
           <input type="email" required bind:value={form.email} maxlength="120" />
         </label>
         <label>
-          <span>Teléfono (opcional)</span>
+          <span>Telefono (opcional)</span>
           <input bind:value={form.phone} maxlength="40" />
         </label>
         <label>
@@ -310,7 +181,7 @@
         </label>
         <label class="checkline">
           <input type="checkbox" required bind:checked={form.privacyAccepted} />
-          <span>{formModalPrivacyLabel} <a href="/privacidad">Ver política</a></span>
+          <span>{formModalPrivacyLabel} <a href="/privacidad">Ver politica</a></span>
         </label>
         {#if formStatus === 'error' && formError}
           <p class="form-feedback error">{formError}</p>
@@ -330,263 +201,185 @@
 {/if}
 
 <style>
-  .seccion-final-unificada {
+  .team-contact-section {
     position: relative;
-    width: 100%;
-    max-width: min(1200px, 100%);
-    margin: 60px auto;
-    padding: 60px clamp(16px, 5vw, 48px) 50px;
-    background: #0b1220;
-    border-radius: 20px;
-    overflow: hidden;
-    text-align: center;
-    font-family: inherit;
-    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(360px, 0.78fr);
+    gap: clamp(26px, 6vw, 82px);
+    align-items: center;
+    width: min(1200px, calc(100% - 40px));
+    margin: 84px auto 72px;
+    padding: clamp(34px, 6vw, 72px) 0;
     scroll-margin-top: 96px;
     isolation: isolate;
   }
 
-  .luces-fondo-unificado {
+  .team-contact-section::before {
+    content: '';
     position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background: radial-gradient(circle at 50% 46%, rgba(77, 163, 255, 0.18) 0%, transparent 72%);
-    z-index: 1;
+    inset: 8% -9% 0 48%;
+    z-index: -1;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(0, 113, 227, 0.14), transparent 54%),
+      linear-gradient(135deg, rgba(77, 163, 255, 0.08), transparent 58%);
+    filter: blur(8px);
     pointer-events: none;
   }
 
-  .contenido-unificado {
-    position: relative;
-    z-index: 10;
+  .team-contact-copy {
+    max-width: 670px;
   }
 
-  .header-final {
-    margin-bottom: 24px;
+  .contact-kicker {
+    margin: 0 0 14px;
+    color: #0071e3;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 
-  .seccion-final-unificada h3 {
-    color: #e6eef9 !important;
-    font-size: 40px !important;
-    font-weight: 800 !important;
-    margin: 0 0 10px 0 !important;
-    letter-spacing: -1px;
-  }
-
-  .header-final p {
-    color: #c2d2e9 !important;
-    font-size: 18px !important;
-    max-width: 650px;
-    margin: 0 auto 24px auto !important;
-    line-height: 1.5;
-  }
-
-  .chat-container-final {
-    margin-bottom: 16px;
-    min-height: auto;
-    position: relative;
-  }
-
-  .typebot-frame {
-    width: 100%;
-    height: 380px;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    display: block;
-    background: transparent;
-  }
-
-  :global(.typebot-standard-embed) {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    --tb-background-color: transparent;
-    --chat-container-bg: transparent;
-    --typebot-chat-window-bg: transparent;
-    --typebot-chat-background: transparent;
-    --typebot-container-background: transparent;
-  }
-
-  :global(.typebot-standard-embed iframe) {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  .chat-load-error {
-    width: 100%;
-    min-height: 280px;
-    padding: 28px 20px;
-    border-radius: 12px;
-    background: rgba(13, 26, 46, 0.62);
-    border: 1px solid rgba(77, 163, 255, 0.28);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    box-sizing: border-box;
-  }
-
-  .chat-placeholder {
-    width: 100%;
-    min-height: 300px;
-    border-radius: 12px;
-    background:
-      linear-gradient(180deg, rgba(77, 163, 255, 0.12), rgba(77, 163, 255, 0.04)),
-      rgba(13, 26, 46, 0.34);
-    border: 1px solid rgba(77, 163, 255, 0.18);
-    display: grid;
-    align-content: center;
-    justify-items: center;
-    gap: 12px;
-  }
-
-  .chat-placeholder span {
-    display: block;
-    height: 10px;
-    border-radius: 999px;
-    background: rgba(194, 210, 233, 0.22);
-  }
-
-  .chat-placeholder span:nth-child(1) {
-    width: min(360px, 72%);
-  }
-
-  .chat-placeholder span:nth-child(2) {
-    width: min(280px, 58%);
-  }
-
-  .chat-placeholder span:nth-child(3) {
-    width: min(210px, 44%);
-  }
-
-  .chat-load-error-title {
-    margin: 0 0 10px;
-    color: #e6eef9;
-    font-size: 17px;
-    font-weight: 700;
-  }
-
-  .chat-load-error-body {
-    margin: 0 0 18px;
-    color: #bdd0ea;
-    font-size: 14px;
-    line-height: 1.55;
-    max-width: 420px;
-  }
-
-  .btn-enable-chat {
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 12px 22px;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    background: #4da3ff;
-    color: #081120;
-    transition:
-      background 0.2s ease,
-      transform 0.2s ease;
-  }
-
-  .btn-enable-chat:hover {
-    background: #69b1ff;
-    transform: translateY(-1px);
-  }
-
-  .contact-cta-mobile-intro-wrap {
-    display: none;
-  }
-
-  .contact-cta-mobile-intro {
+  .team-contact-copy h3 {
     margin: 0;
+    color: #111827;
+    font-size: clamp(2.35rem, 5vw, 4.7rem);
+    font-weight: 850;
+    line-height: 0.95;
+    letter-spacing: 0;
   }
 
-  .btn-cta-label-short {
-    display: none;
+  .contact-lead {
+    max-width: 620px;
+    margin: 24px 0 0;
+    color: #475569;
+    font-size: clamp(1.02rem, 1.5vw, 1.22rem);
+    line-height: 1.72;
   }
 
-  .btn-cta-label-long {
-    display: inline;
+  .fit-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
   }
 
-  .texto-whatsapp-final {
-    color: #c2d2e9;
-    font-size: 16px;
-    margin-bottom: 10px;
+  .fit-grid span {
+    padding: 9px 12px;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #334155;
+    font-size: 0.86rem;
+    font-weight: 700;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
   }
 
-  .botones-final {
-    margin-top: 18px;
+  .contact-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
-    align-items: start;
+    max-width: 610px;
+    margin-top: 34px;
   }
 
-  .cta-stack {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .btn-whatsapp-final {
+  .primary-action,
+  .secondary-action {
     display: inline-flex;
+    width: 100%;
+    height: 52px;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    background: #4da3ff;
-    color: #081120 !important;
-    padding: 14px 30px;
+    padding: 0 20px;
     border-radius: 8px;
+    appearance: none;
+    font-family: inherit;
+    font-size: 0.96rem;
+    font-weight: 800;
+    line-height: 1;
     text-decoration: none;
-    font-size: 16px;
-    font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-sizing: border-box;
-    max-width: 100%;
-  }
-
-  .btn-whatsapp-final:hover {
-    background: #69b1ff;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    color: #081120 !important;
-  }
-
-  .btn-form-final {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: transparent;
-    color: #e6eef9;
-    padding: 14px 30px;
-    border-radius: 8px;
-    border: 1px solid rgba(77, 163, 255, 0.42);
-    font-size: 16px;
-    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-sizing: border-box;
-    max-width: 100%;
+    transition:
+      transform 0.22s ease,
+      box-shadow 0.22s ease,
+      background 0.22s ease,
+      border-color 0.22s ease;
   }
 
-  .btn-form-final:hover {
+  .primary-action {
+    border: 1px solid #0071e3;
+    background: #0071e3;
+    color: #ffffff;
+    box-shadow: 0 18px 34px rgba(0, 113, 227, 0.18);
+  }
+
+  .secondary-action {
+    border: 1px solid rgba(15, 23, 42, 0.16);
+    background: rgba(255, 255, 255, 0.62);
+    color: #111827;
+  }
+
+  .primary-action:hover,
+  .secondary-action:hover {
     transform: translateY(-2px);
-    background: rgba(77, 163, 255, 0.14);
-    border-color: rgba(77, 163, 255, 0.75);
   }
 
-  .btn-enable-chat:focus-visible,
-  .btn-whatsapp-final:focus-visible,
-  .btn-form-final:focus-visible {
-    outline: 2px solid #4da3ff;
-    outline-offset: 2px;
+  .secondary-action:hover {
+    border-color: rgba(0, 113, 227, 0.34);
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .globe-panel {
+    position: relative;
+    display: grid;
+    min-height: clamp(390px, 40vw, 560px);
+    place-items: center;
+    overflow: visible;
+  }
+
+  :global(.portfolio-globe) {
+    position: relative;
+    width: min(100%, clamp(390px, 40vw, 560px));
+    height: clamp(390px, 40vw, 560px);
+    min-height: 0;
+  }
+
+  .globe-panel::after {
+    content: '';
+    position: absolute;
+    inset: auto 10% 4% 10%;
+    height: 34px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.12);
+    filter: blur(18px);
+  }
+
+  :global(.globe-marker-tooltip) {
+    position: relative;
+    padding: 5px 8px;
+    border-radius: 4px;
+    background: #111827;
+    color: #ffffff;
+    font-size: 0.64rem;
+    font-weight: 850;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.22);
+  }
+
+  :global(.globe-marker-tooltip span) {
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 50%;
+    width: 0;
+    height: 0;
+    transform: translateX(-50%);
+    border-top: 5px solid #111827;
+    border-right: 5px solid transparent;
+    border-left: 5px solid transparent;
   }
 
   .modal-shell {
@@ -741,86 +534,58 @@
   .btn-modal-primary:disabled {
     opacity: 0.65;
     cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
   }
 
-  :global(html.dark) .seccion-final-unificada {
-    background: #050505;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  :global(html.dark) .luces-fondo-unificado {
+  :global(html.dark) .team-contact-section::before {
     background:
-      radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.08) 0%, transparent 62%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0));
+      radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.11), transparent 52%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 58%);
   }
 
-  :global(html.dark) .seccion-final-unificada h3 {
-    color: #f8fafc !important;
-  }
-
-  :global(html.dark) .header-final p,
-  :global(html.dark) .texto-whatsapp-final {
-    color: #d4d4d8 !important;
-  }
-
-  :global(html.dark) .typebot-standard-embed {
-    --typebot-chat-window-bg: #050505;
-    --typebot-chat-background: #050505;
-    --typebot-container-background: #050505;
-  }
-
-  :global(html.dark) .chat-load-error {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.12);
-  }
-
-  :global(html.dark) .chat-placeholder {
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02)),
-      rgba(255, 255, 255, 0.02);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  :global(html.dark) .chat-load-error-title {
+  :global(html.dark) .team-contact-copy h3 {
     color: #f8fafc;
   }
 
-  :global(html.dark) .chat-load-error-body {
+  :global(html.dark) .contact-kicker {
+    color: #ffffff;
+  }
+
+  :global(html.dark) .contact-lead {
     color: #d4d4d8;
   }
 
-  :global(html.dark) .btn-enable-chat,
-  :global(html.dark) .btn-whatsapp-final {
+  :global(html.dark) .fit-grid span {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.06);
+    color: #e5e7eb;
+    box-shadow: none;
+  }
+
+  :global(html.dark .globe-marker-tooltip) {
+    background: #f8fafc;
+    color: #0a0a0a;
+  }
+
+  :global(html.dark .globe-marker-tooltip span) {
+    border-top-color: #f8fafc;
+  }
+
+  :global(html.dark) .primary-action {
+    border-color: #f5f5f5;
     background: #f5f5f5;
-    color: #050505 !important;
+    color: #050505;
+    box-shadow: 0 18px 34px rgba(255, 255, 255, 0.09);
   }
 
-  :global(html.dark) .btn-enable-chat:hover,
-  :global(html.dark) .btn-whatsapp-final:hover {
-    background: #ffffff;
-    color: #050505 !important;
-  }
-
-  :global(html.dark) .btn-form-final {
-    color: #f8fafc;
+  :global(html.dark) .secondary-action {
     border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.04);
+    color: #f8fafc;
   }
 
-  :global(html.dark) .btn-form-final:hover {
+  :global(html.dark) .secondary-action:hover {
+    border-color: rgba(255, 255, 255, 0.38);
     background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.36);
-  }
-
-  :global(html.dark) .btn-enable-chat:focus-visible,
-  :global(html.dark) .btn-whatsapp-final:focus-visible,
-  :global(html.dark) .btn-form-final:focus-visible {
-    outline-color: #f5f5f5;
-  }
-
-  :global(html.dark) .modal-shell {
-    background: rgba(0, 0, 0, 0.76);
   }
 
   :global(html.dark) .modal-card {
@@ -848,13 +613,6 @@
     background: rgba(255, 255, 255, 0.055);
     border-color: rgba(255, 255, 255, 0.14);
     color: #f8fafc;
-    outline-color: #f5f5f5;
-  }
-
-  :global(html.dark) .modal-form input:focus,
-  :global(html.dark) .modal-form textarea:focus {
-    border-color: rgba(255, 255, 255, 0.36);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
   }
 
   :global(html.dark) .checkline a {
@@ -866,104 +624,48 @@
     color: #f4f4f5;
   }
 
-  :global(html.dark) .btn-modal-ghost:hover {
-    background: rgba(255, 255, 255, 0.14);
-  }
-
   :global(html.dark) .btn-modal-primary {
     background: #f5f5f5;
     color: #050505;
     border-color: #ffffff;
   }
 
-  :global(html.dark) .btn-modal-primary:hover {
-    background: #ffffff;
+  @media (max-width: 900px) {
+    .team-contact-section {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      padding-top: 42px;
+    }
+
+    .globe-panel {
+      min-height: clamp(300px, 62vw, 390px);
+    }
+
+    :global(.portfolio-globe) {
+      width: min(100%, clamp(300px, 62vw, 390px));
+      height: clamp(300px, 62vw, 390px);
+    }
   }
 
-  @media (max-width: 768px) {
-    .seccion-final-unificada {
-      padding: 32px 16px 36px;
-      scroll-margin-top: 88px;
+  @media (max-width: 640px) {
+    .team-contact-section {
+      width: min(100% - 28px, 1200px);
+      margin-block: 56px;
     }
 
-    .header-final {
-      margin-bottom: 16px;
+    .contact-actions {
+      grid-template-columns: 1fr;
     }
 
-    .seccion-final-unificada h3 {
-      font-size: 26px !important;
-      letter-spacing: -0.5px !important;
+    .globe-panel {
+      min-height: clamp(248px, 74vw, 310px);
+      margin-inline: auto;
+      width: min(100%, 320px);
     }
 
-    .header-final p {
-      font-size: 15px !important;
-      margin-bottom: 16px !important;
-    }
-
-    .chat-container-final {
-      margin-bottom: 12px;
-    }
-
-    .typebot-frame {
-      height: min(52vh, 360px);
-    }
-
-    .chat-load-error {
-      min-height: 220px;
-      padding: 20px 16px;
-    }
-
-    .chat-placeholder {
-      min-height: 220px;
-    }
-
-    .contact-cta-mobile-intro-wrap {
-      display: block;
-      grid-column: 1 / -1;
-      margin: 0 0 10px;
-    }
-
-    .contact-cta-mobile-intro {
-      color: #b8c9e2;
-      font-size: 13px;
-      font-weight: 500;
-      line-height: 1.35;
-    }
-
-    .texto-cta-lead-desktop {
-      display: none;
-    }
-
-    .btn-cta-label-long {
-      display: none;
-    }
-
-    .btn-cta-label-short {
-      display: inline;
-    }
-
-    .btn-cta-arrow {
-      display: inline;
-    }
-
-    .botones-final {
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      align-items: stretch;
-      margin-top: 0;
-    }
-
-    .cta-stack {
-      width: 100%;
-    }
-
-    .btn-whatsapp-final,
-    .btn-form-final {
-      width: 100%;
-      padding: 11px 12px;
-      font-size: 14px;
-      font-weight: 600;
-      border-radius: 10px;
+    :global(.portfolio-globe) {
+      width: min(100%, clamp(248px, 74vw, 310px));
+      height: clamp(248px, 74vw, 310px);
     }
 
     .modal-head {
@@ -983,11 +685,6 @@
       align-items: stretch;
       gap: 10px;
       margin-top: 10px;
-    }
-
-    .btn-modal-ghost,
-    .btn-modal-primary {
-      width: 100%;
     }
   }
 </style>

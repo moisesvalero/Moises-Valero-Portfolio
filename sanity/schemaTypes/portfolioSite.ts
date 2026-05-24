@@ -369,15 +369,6 @@ export const portfolioSite = defineType({
         { name: 'heading', type: 'localeString', title: 'Título H2' },
         { name: 'subtitle', type: 'localeString', title: 'Subtítulo' },
         { name: 'typebotSrc', type: 'url', title: 'URL iframe Typebot' },
-        {
-          name: 'whatsappLead',
-          type: 'localeString',
-          title: 'Texto sobre el botón WhatsApp',
-          description: 'El número no va aquí: se gestiona en el endpoint /api/contact/whatsapp.'
-        },
-        { name: 'whatsappButtonLabel', type: 'localeString', title: 'Texto del botón WhatsApp' },
-        { name: 'formLead', type: 'localeString', title: 'Texto sobre el botón formulario' },
-        { name: 'formButtonLabel', type: 'localeString', title: 'Texto del botón formulario' },
         { name: 'formModalHeading', type: 'localeString', title: 'Título modal formulario' },
         { name: 'formModalText', type: 'localeString', title: 'Texto modal formulario' },
         { name: 'formModalSubmitLabel', type: 'localeString', title: 'Texto botón enviar formulario' },

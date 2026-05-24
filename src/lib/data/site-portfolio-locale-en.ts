@@ -57,7 +57,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
   },
   services: {
     meta: 'SKILLS',
-    title: 'What I can bring to a team.',
+    title: 'What I can bring to a team',
     items: [
       {
         icon: 'web_asset',
@@ -241,10 +241,10 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     heading: "Let's talk",
     subtitle: '',
     typebotSrc: 'https://typebot.io/asistente-mois-s-valero-sud5oya',
-    whatsappLead: 'Prefer WhatsApp? I reply quickly there.',
-    whatsappButtonLabel: 'Message on WhatsApp',
-    formLead: 'Prefer a form? Leave your details and I will email you back.',
-    formButtonLabel: 'Open form',
+    whatsappLead: '',
+    whatsappButtonLabel: 'WhatsApp',
+    formLead: '',
+    formButtonLabel: 'Contact',
     formModalHeading: 'Tell me about your project',
     formModalText: 'Leave your details and I will get back to you soon.',
     formModalSubmitLabel: 'Send request',

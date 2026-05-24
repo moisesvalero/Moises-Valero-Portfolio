@@ -469,20 +469,15 @@ function mergeContact(
   if (!o) {
     return d;
   }
-  const whatsappLeadRaw =
-    (o.whatsappLead as string | undefined) ?? (o.linkedinLead as string | undefined);
-  const whatsappButtonRaw =
-    (o.whatsappButtonLabel as string | undefined) ??
-    (o.linkedinButtonLabel as string | undefined);
   const c = enUi.contact;
   return {
     heading: pickLocalized(o.heading, locale, d.heading, c.heading),
     subtitle: pickLocalized(o.subtitle, locale, d.subtitle, c.subtitle),
     typebotSrc: asString(o.typebotSrc, d.typebotSrc),
-    whatsappLead: pickLocalized(whatsappLeadRaw, locale, d.whatsappLead, c.whatsappLead),
-    whatsappButtonLabel: pickLocalized(whatsappButtonRaw, locale, d.whatsappButtonLabel, c.whatsappButtonLabel),
-    formLead: pickLocalized(o.formLead, locale, d.formLead, c.formLead),
-    formButtonLabel: pickLocalized(o.formButtonLabel, locale, d.formButtonLabel, c.formButtonLabel),
+    whatsappLead: '',
+    whatsappButtonLabel: 'WhatsApp',
+    formLead: '',
+    formButtonLabel: locale === 'en' ? 'Contact' : 'Contacto',
     formModalHeading: pickLocalized(o.formModalHeading, locale, d.formModalHeading, c.formModalHeading),
     formModalText: pickLocalized(o.formModalText, locale, d.formModalText, c.formModalText),
     formModalSubmitLabel: pickLocalized(

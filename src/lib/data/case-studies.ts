@@ -37,17 +37,17 @@ const studies: Record<string, CaseStudy> = {
       { value: 'Mobile', label: 'First' }
     ],
     reto: {
-      title: 'Demostrar dominio real de SvelteKit sin un cliente detrás.',
+      title: 'Demostrar dominio real de SvelteKit sin un cliente detrás',
       bodyHtml:
         '<p>Necesitaba una pieza de portfolio que fuera más que una web estática: algo que mostrara arquitectura de componentes, estado, rendimiento y criterio de producto. Sin brief de cliente, el reto era imponerme un estándar alto y que la landing hablara por sí sola ante reclutadores o equipos técnicos.</p>'
     },
     hice: {
-      title: 'Una landing page de UI toolkit completa con mockups interactivos y sistema de diseño propio.',
+      title: 'Una landing page de UI toolkit completa con mockups interactivos y sistema de diseño propio',
       bodyHtml:
         '<p>Desarrollé la landing con SvelteKit y TypeScript, con secciones animadas en CSS, mockups tipo ventana de navegador y bloques reutilizables. Integré escena 3D con Spline, sistema i18n para español e inglés, y tests con Vitest donde aportaba valor al flujo. Todo pensado mobile-first y con foco en Core Web Vitals.</p>'
     },
     resultado: {
-      title: 'Del diseño a la implementación técnica: el salto al stack moderno.',
+      title: 'Del diseño a la implementación técnica: el salto al stack moderno',
       bodyHtml:
         '<p>El resultado es un sitio desplegable, mantenible y alineado con cómo trabajo hoy: stack moderno, menos dependencias innecesarias y una base clara para iterar. Sirve como demo viva del tipo de interfaces y disciplina que puedo aportar en producto o en equipo de desarrollo.</p>'
     },

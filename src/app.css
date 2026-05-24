@@ -13,12 +13,36 @@
   position: absolute;
 }
 
+.top-0 {
+  top: 0;
+}
+
+.left-1\/2 {
+  left: 50%;
+}
+
 .inset-0 {
   inset: 0;
 }
 
+.z-0 {
+  z-index: 0;
+}
+
+.block {
+  display: block;
+}
+
 .flex {
   display: flex;
+}
+
+.inline-flex {
+  display: inline-flex;
+}
+
+.flex-col {
+  flex-direction: column;
 }
 
 .items-center {
@@ -33,8 +57,16 @@
   height: 3.5rem;
 }
 
+.h-full {
+  height: 100%;
+}
+
 .w-24 {
   width: 6rem;
+}
+
+.w-full {
+  width: 100%;
 }
 
 .h-auto {
@@ -55,6 +87,40 @@
 
 .overflow-hidden {
   overflow: hidden;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.will-change-transform {
+  will-change: transform;
+}
+
+.whitespace-nowrap {
+  white-space: nowrap;
+}
+
+.-translate-x-1\/2 {
+  --tw-translate-x: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y, 0));
+}
+
+.-translate-y-8 {
+  --tw-translate-y: -2rem;
+  transform: translate(var(--tw-translate-x, 0), var(--tw-translate-y));
+}
+
+.transition-\[opacity\,filter\] {
+  transition-property: opacity, filter;
+}
+
+.duration-200 {
+  transition-duration: 200ms;
+}
+
+.ease-out {
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
 .object-contain {
