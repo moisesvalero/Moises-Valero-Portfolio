@@ -1,6 +1,5 @@
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
-import { JSDOM } from 'jsdom';
 
 export type AuditSeverity = 'critical' | 'warning' | 'info' | 'pass';
 export type AuditCategoryId = 'performance' | 'security' | 'seo' | 'accessibility' | 'quality';
@@ -365,11 +364,51 @@ function analyzeHeaders(snapshot: FetchSnapshot, requestedUrl: string): { issues
 	return { issues, passed };
 }
 
-function textOf(document: Document, selector: string, attr?: string): string {
-	const element = document.querySelector(selector);
-	if (!element) return '';
-	if (attr) return element.getAttribute(attr)?.trim() ?? '';
-	return element.textContent?.trim() ?? '';
+function decodeHtmlText(value: string): string {
+	return value
+		.replace(/<[^>]*>/g, ' ')
+		.replace(/&nbsp;/gi, ' ')
+		.replace(/&amp;/gi, '&')
+		.replace(/&quot;/gi, '"')
+		.replace(/&#39;/gi, "'")
+		.replace(/&lt;/gi, '<')
+		.replace(/&gt;/gi, '>')
+		.replace(/\s+/g, ' ')
+		.trim();
+}
+
+function getTags(html: string, tagName: string): string[] {
+	const matches = html.match(new RegExp(`<${tagName}\\b[^>]*(?:>[\\s\\S]*?<\\/${tagName}>|\\/?>)`, 'gi'));
+	return matches ?? [];
+}
+
+function getAttr(tag: string, name: string): string {
+	const escaped = name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+	const match = tag.match(new RegExp(`\\s${escaped}\\s*=\\s*(["'])(.*?)\\1`, 'i')) ?? tag.match(new RegExp(`\\s${escaped}\\s*=\\s*([^\\s>]+)`, 'i'));
+	return (match?.[2] ?? match?.[1] ?? '').trim();
+}
+
+function tagHasAttr(tag: string, name: string): boolean {
+	return new RegExp(`\\s${name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}(?:\\s*=|\\s|>|/)`, 'i').test(tag);
+}
+
+function tagText(html: string, tagName: string): string {
+	const match = html.match(new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i'));
+	return match?.[1] ? decodeHtmlText(match[1]) : '';
+}
+
+function metaContent(html: string, key: 'name' | 'property', value: string): string {
+	const tag = getTags(html, 'meta').find((item) => getAttr(item, key).toLowerCase() === value.toLowerCase());
+	return tag ? getAttr(tag, 'content') : '';
+}
+
+function canonicalHref(html: string): string {
+	const tag = getTags(html, 'link').find((item) => /\bcanonical\b/i.test(getAttr(item, 'rel')));
+	return tag ? getAttr(tag, 'href') : '';
+}
+
+function scriptBody(scriptTag: string): string {
+	return scriptTag.replace(/^<script\b[^>]*>/i, '').replace(/<\/script>$/i, '').trim();
 }
 
 function analyzeHtml(snapshot: FetchSnapshot): {
@@ -398,38 +437,36 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 		};
 	}
 
-	const dom = new JSDOM(snapshot.html, { url: snapshot.url });
-	const document = dom.window.document;
 	const base = new URL(snapshot.url);
-	const title = textOf(document, 'title');
-	const description = textOf(document, 'meta[name="description" i]', 'content');
-	const canonical = textOf(document, 'link[rel="canonical" i]', 'href');
-	const h1s = [...document.querySelectorAll('h1')];
-	const ogTitle = textOf(document, 'meta[property="og:title" i]', 'content');
-	const ogImage = textOf(document, 'meta[property="og:image" i]', 'content');
-	const jsonLd = [...document.querySelectorAll('script[type="application/ld+json" i]')];
-	const images = [...document.querySelectorAll('img')];
-	const imagesWithoutAlt = images.filter((img) => !img.hasAttribute('alt')).length;
-	const scripts = [...document.querySelectorAll('script[src]')];
-	const iframes = [...document.querySelectorAll('iframe')];
-	const anchors = [...document.querySelectorAll('a[href]')];
+	const title = tagText(snapshot.html, 'title');
+	const description = metaContent(snapshot.html, 'name', 'description');
+	const canonical = canonicalHref(snapshot.html);
+	const h1s = getTags(snapshot.html, 'h1');
+	const ogTitle = metaContent(snapshot.html, 'property', 'og:title');
+	const ogImage = metaContent(snapshot.html, 'property', 'og:image');
+	const jsonLd = getTags(snapshot.html, 'script').filter((script) => getAttr(script, 'type').toLowerCase() === 'application/ld+json');
+	const images = getTags(snapshot.html, 'img');
+	const imagesWithoutAlt = images.filter((img) => !tagHasAttr(img, 'alt')).length;
+	const scripts = getTags(snapshot.html, 'script').filter((script) => getAttr(script, 'src'));
+	const iframes = getTags(snapshot.html, 'iframe');
+	const anchors = getTags(snapshot.html, 'a').filter((anchor) => getAttr(anchor, 'href'));
 	const internalLinks = anchors.filter((anchor) => {
 		try {
-			return new URL(anchor.getAttribute('href') ?? '', base).origin === base.origin;
+			return new URL(getAttr(anchor, 'href'), base).origin === base.origin;
 		} catch {
 			return false;
 		}
 	}).length;
 	const externalScripts = scripts.filter((script) => {
 		try {
-			return new URL(script.getAttribute('src') ?? '', base).origin !== base.origin;
+			return new URL(getAttr(script, 'src'), base).origin !== base.origin;
 		} catch {
 			return false;
 		}
 	});
 	const isWordPress =
 		/wp-content|wp-includes|wp-json|wordpress/i.test(snapshot.html) ||
-		/wordpress/i.test(textOf(document, 'meta[name="generator" i]', 'content'));
+		/wordpress/i.test(metaContent(snapshot.html, 'name', 'generator'));
 
 	if (!title) {
 		issues.push(
@@ -497,7 +534,7 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 	} else {
 		for (const script of jsonLd) {
 			try {
-				JSON.parse(script.textContent ?? '{}');
+				JSON.parse(scriptBody(script));
 			} catch {
 				issues.push(
 					issue('seo.json-ld-invalid', 'seo', 'warning', 'JSON-LD invalido', 'Un JSON-LD roto puede ser ignorado por buscadores.', 'Valida el bloque JSON-LD y corrige comas, llaves o strings.')
@@ -522,9 +559,9 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 	}
 
 	const hiddenIframe = iframes.find((iframe) => {
-		const style = iframe.getAttribute('style')?.toLowerCase() ?? '';
-		const width = iframe.getAttribute('width') ?? '';
-		const height = iframe.getAttribute('height') ?? '';
+		const style = getAttr(iframe, 'style').toLowerCase();
+		const width = getAttr(iframe, 'width');
+		const height = getAttr(iframe, 'height');
 		return style.includes('display:none') || style.includes('visibility:hidden') || width === '0' || height === '0';
 	});
 	if (hiddenIframe) {
@@ -536,13 +573,13 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 				'Iframe oculto detectado',
 				'Los iframes ocultos pueden ser legitimos, pero tambien aparecen en inyecciones o tracking agresivo.',
 				'Revisa su src y elimina cualquier iframe no justificado.',
-				hiddenIframe.getAttribute('src') ?? 'iframe sin src'
+				getAttr(hiddenIframe, 'src') || 'iframe sin src'
 			)
 		);
 	}
 
 	for (const script of externalScripts) {
-		const src = script.getAttribute('src') ?? '';
+		const src = getAttr(script, 'src');
 		const parsed = new URL(src, base);
 		if (parsed.protocol !== 'https:' || SUSPICIOUS_HOST_PATTERNS.some((pattern) => pattern.test(parsed.hostname))) {
 			issues.push(
@@ -573,7 +610,7 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 	}
 
 	const brokenHrefCount = anchors.filter((anchor) => {
-		const href = anchor.getAttribute('href')?.trim() ?? '';
+		const href = getAttr(anchor, 'href');
 		return href === '' || href === '#';
 	}).length;
 	if (brokenHrefCount > 0) {
