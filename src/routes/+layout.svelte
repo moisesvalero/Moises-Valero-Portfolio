@@ -65,6 +65,9 @@
 
       const home = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#top');
       const assistant = { label: data.locale === 'en' ? 'AI Assistant' : 'Asistente IA', href: '/ia-moises' } as HeaderNavItem;
+      const blog =
+        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/blog') ??
+        ({ label: data.locale === 'en' ? 'Guides' : 'Guías', href: '/blog' } as HeaderNavItem);
       const projects =
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/proyectos') ??
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#proyectos');
@@ -73,7 +76,7 @@
         ({ label: analyzerLabel, href: '/tools/analizador-web' } as HeaderNavItem);
       const career = pick((item) => item.openCareerModal === true);
 
-      const preferred = [home, projects, assistant, analyzer, career].filter(Boolean) as HeaderNavItem[];
+      const preferred = [home, projects, blog, assistant, analyzer, career].filter(Boolean) as HeaderNavItem[];
       return preferred;
     })()
   );

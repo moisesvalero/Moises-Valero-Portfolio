@@ -34,6 +34,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
       { label: 'Services', href: '/#servicios' },
       { label: 'Stack', href: '/#stack' },
       { label: 'Projects', href: '/#proyectos' },
+      { label: 'Guides', href: '/blog' },
       { label: 'Career', href: '#', openCareerModal: true }
     ]
   },

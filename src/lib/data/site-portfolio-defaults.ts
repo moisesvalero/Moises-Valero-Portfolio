@@ -29,6 +29,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
       { label: 'Inicio', href: '/#top' },
       { label: 'Competencias', href: '/#servicios' },
       { label: 'Proyectos', href: '/proyectos' },
+      { label: 'Guías', href: '/blog' },
       { label: 'Analizador', href: '/tools/analizador-web' },
       { label: 'Trayectoria', href: '#', openCareerModal: true }
     ]
