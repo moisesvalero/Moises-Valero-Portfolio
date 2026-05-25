@@ -2,6 +2,17 @@ import { env } from '$env/dynamic/private';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import {
+	auditPublicWebsite,
+	computeDeliveryVerdict,
+	isAllowedPublicAuditUrl,
+	scoreCategoryFromIssues,
+	type AuditCategory,
+	type AuditCategoryId,
+	type AuditIssue,
+	type DeliveryVerdict,
+	type PublicWebAudit
+} from '$lib/server/web-delivery-auditor';
 
 type Severity = 'slow' | 'needs_improvement' | 'fast';
 
@@ -9,14 +20,31 @@ export type AnalyzerResponse = {
   ok: true;
   requestedUrl: string;
   strategy: string;
+  finalUrl?: string;
   performanceScore: number;
+  overallScore: number;
+  deliveryVerdict: DeliveryVerdict;
   severity: Severity;
+  categoryScores: {
+    performance: number;
+    accessibility: number;
+    bestPractices: number;
+    seo: number;
+    security: number;
+    quality: number;
+  };
   metrics: {
     fcp: string;
     lcp: string;
+    cls: string;
+    tbt: string;
     imageWeight: string;
     pageWeight: string;
   };
+  categories: AuditCategory[];
+  issues: AuditIssue[];
+  passedChecks: string[];
+  signals: PublicWebAudit['signals'];
   highlights: string[];
   cached: boolean;
 };
@@ -131,6 +159,76 @@ function highlightsFromScore(score: number): string[] {
   ];
 }
 
+function scoreFromLighthouse(value: unknown): number {
+  return typeof value === 'number' ? Math.round(value * 100) : 0;
+}
+
+function lighthouseIssue(
+  id: string,
+  category: AuditCategoryId,
+  score: number,
+  title: string,
+  fix: string
+): AuditIssue | null {
+  if (score >= 90) return null;
+  return {
+    id,
+    category,
+    severity: score < 50 ? 'critical' : 'warning',
+    title,
+    why: 'Lighthouse marca esta categoria por debajo del nivel recomendable antes de entregar.',
+    fix,
+    evidence: `${score}/100`
+  };
+}
+
+function fallbackAudit(url: string, lighthouseScores: Partial<Record<AuditCategoryId, number>>, extraIssues: AuditIssue[]): PublicWebAudit {
+  const auditUnavailable: AuditIssue = {
+    id: 'quality.remote-audit-unavailable',
+    category: 'quality',
+    severity: 'warning',
+    title: 'No se pudieron completar los checks propios',
+    why: 'PageSpeed respondio, pero el analizador no pudo leer directamente la URL para revisar cabeceras, SEO y HTML.',
+    fix: 'Reintenta el analisis y comprueba que la web sea publica, estable y no bloquee peticiones externas.'
+  };
+  const issues = [...extraIssues, auditUnavailable];
+  const categoryIds: AuditCategoryId[] = ['performance', 'security', 'seo', 'accessibility', 'quality'];
+  const labels: Record<AuditCategoryId, string> = {
+    performance: 'Rendimiento',
+    security: 'Seguridad',
+    seo: 'SEO tecnico',
+    accessibility: 'Accesibilidad',
+    quality: 'Calidad visible'
+  };
+  const categories = categoryIds.map((id) => {
+    const categoryIssues = issues.filter((item) => item.category === id);
+    return {
+      id,
+      label: labels[id],
+      score: scoreCategoryFromIssues(categoryIssues, lighthouseScores[id] ?? 100),
+      issues: categoryIssues
+    };
+  });
+  return {
+    finalUrl: url,
+    overallScore: Math.round(categories.reduce((sum, category) => sum + category.score, 0) / categories.length),
+    verdict: computeDeliveryVerdict(issues),
+    categories,
+    issues,
+    passedChecks: [],
+    signals: {
+      isHttps: url.startsWith('https://'),
+      redirectsToHttps: false,
+      hasRobotsTxt: false,
+      hasSitemap: false,
+      isWordPress: false,
+      externalScripts: 0,
+      internalLinks: 0,
+      imagesWithoutAlt: 0
+    }
+  };
+}
+
 async function loadPersistentCacheIfNeeded() {
   if (persistentCacheLoaded) return;
   persistentCacheLoaded = true;
@@ -191,7 +289,10 @@ async function fetchAnalyze(url: string, strategy: 'mobile' | 'desktop'): Promis
   const endpoint = new URL('https://www.googleapis.com/pagespeedonline/v5/runPagespeed');
   endpoint.searchParams.set('url', url);
   endpoint.searchParams.set('strategy', strategy);
-  endpoint.searchParams.set('category', 'performance');
+  endpoint.searchParams.append('category', 'performance');
+  endpoint.searchParams.append('category', 'accessibility');
+  endpoint.searchParams.append('category', 'best-practices');
+  endpoint.searchParams.append('category', 'seo');
   endpoint.searchParams.set('key', apiKey);
 
   const configuredTimeoutMs = Number(env.PAGESPEED_TIMEOUT_MS || DEFAULT_PAGESPEED_TIMEOUT_MS);
@@ -218,27 +319,100 @@ async function fetchAnalyze(url: string, strategy: 'mobile' | 'desktop'): Promis
 
     const psiData = (await response.json()) as {
       lighthouseResult?: {
-        categories?: { performance?: { score?: number } };
+        categories?: {
+          performance?: { score?: number };
+          accessibility?: { score?: number };
+          'best-practices'?: { score?: number };
+          seo?: { score?: number };
+        };
         audits?: Record<string, { numericValue?: number; details?: { items?: Array<{ resourceType?: string; label?: string; transferSize?: number }> } }>;
       };
     };
-    const performanceScoreRaw = psiData.lighthouseResult?.categories?.performance?.score;
-    const performanceScore = typeof performanceScoreRaw === 'number' ? Math.round(performanceScoreRaw * 100) : 0;
+    const performanceScore = scoreFromLighthouse(psiData.lighthouseResult?.categories?.performance?.score);
+    const accessibilityScore = scoreFromLighthouse(psiData.lighthouseResult?.categories?.accessibility?.score);
+    const bestPracticesScore = scoreFromLighthouse(psiData.lighthouseResult?.categories?.['best-practices']?.score);
+    const seoScore = scoreFromLighthouse(psiData.lighthouseResult?.categories?.seo?.score);
     const audits = psiData.lighthouseResult?.audits ?? {};
     const imageBytes = getImageBytes(audits);
+    const lighthouseScores: Partial<Record<AuditCategoryId, number>> = {
+      performance: performanceScore,
+      accessibility: accessibilityScore || undefined,
+      seo: seoScore || undefined,
+      quality: bestPracticesScore || undefined
+    };
+    const lighthouseIssues = [
+      lighthouseIssue(
+        'lighthouse.performance',
+        'performance',
+        performanceScore,
+        'Rendimiento por debajo del objetivo',
+        'Revisa LCP, peso de recursos, imagenes, cache y JavaScript que bloquee la carga.'
+      ),
+      lighthouseIssue(
+        'lighthouse.accessibility',
+        'accessibility',
+        accessibilityScore,
+        'Accesibilidad por debajo del objetivo',
+        'Corrige nombres accesibles, contraste, labels, estructura semantica y navegacion por teclado.'
+      ),
+      lighthouseIssue(
+        'lighthouse.best-practices',
+        'quality',
+        bestPracticesScore,
+        'Buenas practicas por debajo del objetivo',
+        'Revisa errores de navegador, librerias inseguras, APIs obsoletas y configuracion general.'
+      ),
+      lighthouseIssue(
+        'lighthouse.seo',
+        'seo',
+        seoScore,
+        'SEO tecnico por debajo del objetivo',
+        'Corrige indexabilidad, metadatos, enlaces, canonical y contenido interpretable por buscadores.'
+      )
+    ].filter((item): item is AuditIssue => item !== null);
+
+    const publicAudit = await auditPublicWebsite(url, {
+      timeoutMs: 18000,
+      lighthouseScores,
+      extraIssues: lighthouseIssues
+    }).catch(() => fallbackAudit(url, lighthouseScores, lighthouseIssues));
   return {
     ok: true,
     requestedUrl: url,
     strategy,
+    finalUrl: publicAudit.finalUrl,
     performanceScore,
+    overallScore: publicAudit.overallScore,
+    deliveryVerdict: publicAudit.verdict,
     severity: severityFromScore(performanceScore),
+    categoryScores: {
+      performance: performanceScore,
+      accessibility: accessibilityScore,
+      bestPractices: bestPracticesScore,
+      seo: seoScore,
+      security: publicAudit.categories.find((category) => category.id === 'security')?.score ?? 100,
+      quality: publicAudit.categories.find((category) => category.id === 'quality')?.score ?? 100
+    },
     metrics: {
       fcp: formatMetric(audits['first-contentful-paint']?.numericValue, 'seconds'),
       lcp: formatMetric(audits['largest-contentful-paint']?.numericValue, 'seconds'),
+      cls: formatMetric(audits['cumulative-layout-shift']?.numericValue),
+      tbt: formatMetric(audits['total-blocking-time']?.numericValue, 'milliseconds'),
       imageWeight: formatBytes(imageBytes),
       pageWeight: formatBytes(audits['total-byte-weight']?.numericValue)
     },
-    highlights: highlightsFromScore(performanceScore),
+    categories: publicAudit.categories,
+    issues: publicAudit.issues,
+    passedChecks: publicAudit.passedChecks,
+    signals: publicAudit.signals,
+    highlights: [
+      publicAudit.verdict === 'block'
+        ? 'Hay fallos bloqueantes: no entregues esta web sin revisar los puntos criticos.'
+        : publicAudit.verdict === 'review'
+          ? 'La web se puede trabajar, pero hay mejoras importantes antes de entregarla.'
+          : 'La web esta en buen estado para entrega segun los checks automaticos.',
+      ...highlightsFromScore(performanceScore)
+    ],
     cached: false
   };
 }
@@ -305,6 +479,9 @@ export async function enqueueAnalyzeJob(inputUrl: string, inputStrategy: unknown
   await loadPersistentCacheIfNeeded();
   const normalizedUrl = normalizeUrl(toCleanString(inputUrl));
   if (!normalizedUrl) return { ok: false as const, error: 'Introduce una URL valida.', statusCode: 400 };
+  if (!isAllowedPublicAuditUrl(normalizedUrl)) {
+    return { ok: false as const, error: 'Solo se pueden analizar URLs publicas http/https.', statusCode: 400 };
+  }
 
   const strategy = normalizeStrategy(inputStrategy);
   const now = Date.now();

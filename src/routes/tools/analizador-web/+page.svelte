@@ -6,17 +6,58 @@
 
   type AnalyzerResult = {
     requestedUrl: string;
+    finalUrl?: string;
     strategy: string;
     performanceScore: number;
+    overallScore: number;
+    deliveryVerdict: 'block' | 'review' | 'ready';
     severity: 'slow' | 'needs_improvement' | 'fast';
+    categoryScores: {
+      performance: number;
+      accessibility: number;
+      bestPractices: number;
+      seo: number;
+      security: number;
+      quality: number;
+    };
     cached?: boolean;
     metrics: {
       fcp: string;
       lcp: string;
+      cls: string;
+      tbt: string;
       imageWeight: string;
       pageWeight: string;
     };
+    categories: Array<{
+      id: 'performance' | 'security' | 'seo' | 'accessibility' | 'quality';
+      label: string;
+      score: number;
+      issues: AuditIssue[];
+    }>;
+    issues: AuditIssue[];
+    passedChecks: string[];
+    signals: {
+      isHttps: boolean;
+      redirectsToHttps: boolean;
+      hasRobotsTxt: boolean;
+      hasSitemap: boolean;
+      isWordPress: boolean;
+      externalScripts: number;
+      internalLinks: number;
+      imagesWithoutAlt: number;
+    };
     highlights: string[];
+  };
+
+  type AuditIssue = {
+    id: string;
+    category: string;
+    severity: 'critical' | 'warning' | 'info' | 'pass';
+    title: string;
+    why: string;
+    fix: string;
+    evidence?: string;
   };
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
@@ -41,6 +82,7 @@
   let elapsedSeconds = $state(0);
 
   const scoreLabel = $derived(result ? `${result.performanceScore}/100` : '--');
+  const overallLabel = $derived(result ? `${result.overallScore}/100` : '--');
   const scoreClass = $derived(
     !result ? 'score-neutral' : result.performanceScore >= 90 ? 'score-good' : result.performanceScore >= 60 ? 'score-mid' : 'score-low'
   );
@@ -57,18 +99,43 @@
           ? 'Mejorable'
           : 'Lenta'
   );
+  const verdictText = $derived(
+    !result
+      ? 'Sin analizar'
+      : result.deliveryVerdict === 'block'
+        ? 'Critico'
+        : result.deliveryVerdict === 'review'
+          ? 'Mejorar'
+          : 'Correcto'
+  );
+  const verdictClass = $derived(
+    !result
+      ? 'verdict-neutral'
+      : result.deliveryVerdict === 'block'
+        ? 'verdict-block'
+        : result.deliveryVerdict === 'review'
+          ? 'verdict-review'
+          : 'verdict-ready'
+  );
+  const priorityIssues = $derived(
+    result?.issues.filter((item) => item.severity === 'critical' || item.severity === 'warning').slice(0, 8) ?? []
+  );
+  const totalIssues = $derived(result?.issues.length ?? 0);
+  const criticalIssues = $derived(result?.issues.filter((item) => item.severity === 'critical').length ?? 0);
+  const warningIssues = $derived(result?.issues.filter((item) => item.severity === 'warning').length ?? 0);
+  const infoIssues = $derived(result?.issues.filter((item) => item.severity === 'info').length ?? 0);
   const loadingSteps = [
-    'Conectando con PageSpeed',
-    'Midiendo Core Web Vitals',
-    'Calculando peso de recursos',
-    'Preparando diagnostico'
+    'Iniciando analisis',
+    'Midiendo PageSpeed',
+    'Revisando seguridad y SEO',
+    'Preparando informe tecnico'
   ];
   const loadingMessages = [
-    { after: 0, text: 'Enviando la URL a Google PageSpeed. Esto puede tardar un poco.' },
-    { after: 8, text: 'PageSpeed esta abriendo la pagina como un movil real. Seguimos midiendo.' },
-    { after: 18, text: 'La API suele tardar mas cuando la web tiene muchos recursos o imagenes pesadas.' },
-    { after: 32, text: 'Seguimos esperando la respuesta de Google. No cierres esta ventana.' },
-    { after: 50, text: 'Esta prueba va lenta, pero sigue activa. Si termina fuera de tiempo te avisare.' }
+    { after: 0, text: 'Estamos revisando la URL con pruebas de rendimiento, SEO y seguridad visible.' },
+    { after: 8, text: 'Google PageSpeed esta midiendo rendimiento, SEO, accesibilidad y buenas practicas.' },
+    { after: 18, text: 'Ahora se revisan cabeceras, HTTPS, sitemap, robots, HTML y senales visibles.' },
+    { after: 32, text: 'El analisis puede tardar si la web pesa mucho, redirige varias veces o responde lento.' },
+    { after: 50, text: 'Seguimos trabajando. Si algun check no puede completarse, el informe lo marcara claro.' }
   ];
   const activeLoadingMessage = $derived(
     loadingMessages.findLast((message) => elapsedSeconds >= message.after)?.text ?? loadingMessages[0].text
@@ -96,16 +163,48 @@
       requestedUrl: input.requestedUrl || analyzerUrl,
       strategy: input.strategy || 'mobile',
       performanceScore: typeof input.performanceScore === 'number' ? input.performanceScore : 0,
+      overallScore: typeof input.overallScore === 'number' ? input.overallScore : typeof input.performanceScore === 'number' ? input.performanceScore : 0,
+      deliveryVerdict: input.deliveryVerdict || 'review',
       severity: input.severity || 'needs_improvement',
+      categoryScores: {
+        performance: input.categoryScores?.performance ?? input.performanceScore ?? 0,
+        accessibility: input.categoryScores?.accessibility ?? 0,
+        bestPractices: input.categoryScores?.bestPractices ?? 0,
+        seo: input.categoryScores?.seo ?? 0,
+        security: input.categoryScores?.security ?? 0,
+        quality: input.categoryScores?.quality ?? 0
+      },
       cached: input.cached === true,
       metrics: {
         fcp: input.metrics?.fcp || 'N/D',
         lcp: input.metrics?.lcp || 'N/D',
+        cls: input.metrics?.cls || 'N/D',
+        tbt: input.metrics?.tbt || 'N/D',
         imageWeight: input.metrics?.imageWeight || 'N/D',
         pageWeight: input.metrics?.pageWeight || 'N/D'
       },
+      categories: Array.isArray(input.categories) ? input.categories : [],
+      issues: Array.isArray(input.issues) ? input.issues : [],
+      passedChecks: Array.isArray(input.passedChecks) ? input.passedChecks : [],
+      signals: input.signals || {
+        isHttps: false,
+        redirectsToHttps: false,
+        hasRobotsTxt: false,
+        hasSitemap: false,
+        isWordPress: false,
+        externalScripts: 0,
+        internalLinks: 0,
+        imagesWithoutAlt: 0
+      },
       highlights: Array.isArray(input.highlights) ? input.highlights : []
     };
+  }
+
+  function severityLabel(severity: AuditIssue['severity']) {
+    if (severity === 'critical') return 'Critico';
+    if (severity === 'warning') return 'Revisar';
+    if (severity === 'info') return 'Aviso';
+    return 'Correcto';
   }
 
   async function pollAnalyzeJob(
@@ -192,13 +291,13 @@
   <title>Analizador web tecnico | Moises Valero</title>
   <meta
     name="description"
-    content="Herramienta propia para revisar rendimiento web con PageSpeed, metricas Core Web Vitals y senales tecnicas utiles para diagnostico frontend."
+    content="Herramienta propia para analizar rendimiento, seguridad visible, SEO tecnico, accesibilidad y senales sospechosas de una URL."
   />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Analizador web tecnico | Moises Valero" />
   <meta
     property="og:description"
-    content="Una herramienta propia para auditar velocidad, peso y metricas clave de una URL."
+    content="Analisis completo para encontrar fallos de rendimiento, cabeceras, SEO, accesibilidad y codigo sospechoso antes de publicar una web."
   />
   <meta property="og:url" content={canonical} />
   <meta property="og:image" content={`${baseUrl}/og-image.png`} />
@@ -208,43 +307,38 @@
 
 <main class="tool-page">
   <section class="tool-hero">
-    <div class="tool-copy">
-      <a class="back-link" href={resolve('/#proyectos')}>Portfolio</a>
-      <p class="eyebrow">Herramienta propia</p>
-      <h1>Analizador web</h1>
-      <p class="lead">
-        Una web app para medir rendimiento real, peso de recursos y senales Core Web Vitals con una lectura clara
-        para tomar decisiones tecnicas sin perderse en ruido.
-      </p>
-      <div class="tool-spec" aria-label="Ficha tecnica del analizador">
-        <div>
-          <span>Fuente</span>
-          <strong>PageSpeed API</strong>
-        </div>
-        <div>
-          <span>Estrategia</span>
-          <strong>Mobile first</strong>
-        </div>
-        <div>
-          <span>Proceso</span>
-          <strong>Jobs asincronos</strong>
-        </div>
+    <a class="back-link" href={resolve('/#proyectos')}>Portfolio</a>
+    <p class="eyebrow">Herramienta propia</p>
+    <h1>Analizador web</h1>
+    <p class="lead">
+      Analiza una URL en una sola pasada: rendimiento, seguridad visible, SEO tecnico, accesibilidad,
+      cabeceras HTTP, WordPress y senales sospechosas. Pensado para revisar tus trabajos antes de publicarlos.
+    </p>
+    <div class="tool-spec" aria-label="Ficha tecnica del analizador">
+      <div>
+        <span>Motor</span>
+        <strong>PageSpeed + checks propios</strong>
       </div>
-      <div class="measurement-strip" aria-hidden="true">
-        <span style="--w:68%"></span>
-        <span style="--w:46%"></span>
-        <span style="--w:82%"></span>
+      <div>
+        <span>Revisa</span>
+        <strong>SEO, headers y seguridad</strong>
+      </div>
+      <div>
+        <span>Salida</span>
+        <strong>Fallos y mejoras</strong>
       </div>
     </div>
+  </section>
 
+  <section class="analyzer-section" aria-label="Analizador web">
     <form class="analyzer-card" onsubmit={(event) => { event.preventDefault(); void analyzeUrl(); }}>
       <div class="card-head">
         <div>
-          <p class="card-kicker">Live audit</p>
-          <label for="analyzer-url">URL a analizar</label>
+          <p class="card-kicker">Analisis tecnico</p>
+          <label for="analyzer-url">Introduce la URL</label>
         </div>
         <span class="status-pill" class:status-pill--active={status === 'loading'}>
-          {status === 'loading' ? 'Midiendo' : status === 'success' ? 'Resultado' : 'Preparado'}
+          {status === 'loading' ? 'Analizando' : status === 'success' ? 'Informe listo' : 'Preparado'}
         </span>
       </div>
 
@@ -260,38 +354,27 @@
           {status === 'loading' ? 'Analizando' : 'Analizar'}
         </button>
       </div>
-      <p class="input-help">Puedes escribir un dominio con o sin https://.</p>
+      <p class="input-help">URLs publicas http/https. Se bloquean localhost, IPs privadas y destinos internos.</p>
 
       {#if status === 'error'}
         <p class="feedback error">{errorMessage}</p>
       {/if}
 
-      <div class="diagnostic-stage" class:loading={status === 'loading'}>
-        <div class={`score-ring ${scoreClass}`} style={scoreRingStyle}>
-          <div class="score-core">
-            <span>{scoreLabel}</span>
-            <small>{severityText}</small>
+      {#if status === 'idle' || status === 'error'}
+        <div class="preflight-panel">
+          <p>El informe revisara</p>
+          <div>
+            <span>PageSpeed</span>
+            <span>Cabeceras HTTP</span>
+            <span>HTTPS</span>
+            <span>SEO tecnico</span>
+            <span>Accesibilidad</span>
+            <span>WordPress</span>
+            <span>Scripts sospechosos</span>
+            <span>Recursos visibles</span>
           </div>
         </div>
-        <div class="metrics">
-          <div>
-            <span>FCP</span>
-            <strong>{result?.metrics.fcp || 'N/D'}</strong>
-          </div>
-          <div>
-            <span>LCP</span>
-            <strong>{result?.metrics.lcp || 'N/D'}</strong>
-          </div>
-          <div>
-            <span>Peso pagina</span>
-            <strong>{result?.metrics.pageWeight || 'N/D'}</strong>
-          </div>
-          <div>
-            <span>Imagenes</span>
-            <strong>{result?.metrics.imageWeight || 'N/D'}</strong>
-          </div>
-        </div>
-      </div>
+      {/if}
 
       {#if status === 'loading'}
         <div class="loading-panel" aria-live="polite">
@@ -312,6 +395,145 @@
           </div>
         </div>
       {/if}
+    </form>
+  </section>
+
+  {#if result}
+    <section class="report-section" aria-label="Informe del analizador web">
+      <div class="report-summary">
+        <div class={`delivery-verdict ${verdictClass}`}>
+          <div>
+            <span>Estado general</span>
+            <strong>{verdictText}</strong>
+          </div>
+          <p>{overallLabel}</p>
+        </div>
+
+        <div class="category-grid" aria-label="Puntuaciones por categoria">
+          {#each result.categories as category (category.id)}
+            <div>
+              <span>{category.label}</span>
+              <strong>{category.score}/100</strong>
+            </div>
+          {/each}
+        </div>
+
+        <div class="metrics">
+          <div>
+            <span>FCP</span>
+            <strong>{result.metrics.fcp}</strong>
+          </div>
+          <div>
+            <span>LCP</span>
+            <strong>{result.metrics.lcp}</strong>
+          </div>
+          <div>
+            <span>CLS</span>
+            <strong>{result.metrics.cls}</strong>
+          </div>
+          <div>
+            <span>TBT</span>
+            <strong>{result.metrics.tbt}</strong>
+          </div>
+          <div>
+            <span>Peso pagina</span>
+            <strong>{result.metrics.pageWeight}</strong>
+          </div>
+          <div>
+            <span>Imagenes</span>
+            <strong>{result.metrics.imageWeight}</strong>
+          </div>
+        </div>
+
+        <div class="signals-strip" aria-label="Senales tecnicas detectadas">
+          <span class:signal-ok={result.signals.isHttps}>HTTPS</span>
+          <span class:signal-ok={result.signals.hasRobotsTxt}>robots.txt</span>
+          <span class:signal-ok={result.signals.hasSitemap}>sitemap.xml</span>
+          <span class:signal-warn={result.signals.isWordPress}>WordPress</span>
+          <span>{result.signals.externalScripts} scripts externos</span>
+        </div>
+      </div>
+
+      <div class="full-report">
+          <div class="report-head">
+            <div>
+              <p class="card-kicker">Informe completo</p>
+              <h2>Revision tecnica de la URL</h2>
+            </div>
+            <div class="report-counters" aria-label="Resumen de fallos">
+              <span>{criticalIssues} criticos</span>
+              <span>{warningIssues} a revisar</span>
+              <span>{infoIssues} avisos</span>
+            </div>
+          </div>
+
+          <div class="source-grid" aria-label="Tipos de analisis incluidos">
+            <div>
+              <span>PageSpeed</span>
+              <strong>Rendimiento, SEO y accesibilidad</strong>
+            </div>
+            <div>
+              <span>MDN Observatory / SecurityHeaders</span>
+              <strong>Cabeceras, HTTPS, CSP, HSTS y cookies</strong>
+            </div>
+            <div>
+              <span>Sucuri-style visible scan</span>
+              <strong>WordPress, iframes, scripts y senales sospechosas</strong>
+            </div>
+          </div>
+
+          {#if totalIssues > 0}
+            <div class="category-report">
+              {#each result.categories as category (category.id)}
+                <section class="category-report__section">
+                  <header>
+                    <div>
+                      <span>{category.label}</span>
+                      <strong>{category.score}/100</strong>
+                    </div>
+                    <p>{category.issues.length} hallazgos</p>
+                  </header>
+
+                  {#if category.issues.length}
+                    <ul class="detailed-issue-list">
+                      {#each category.issues as item (item.id)}
+                        <li class={`detail-${item.severity}`}>
+                          <div class="detail-title">
+                            <strong>{item.title}</strong>
+                            <span>{severityLabel(item.severity)}</span>
+                          </div>
+                          <p>{item.why}</p>
+                          <div class="fix-box">
+                            <span>Como arreglarlo</span>
+                            <p>{item.fix}</p>
+                          </div>
+                          {#if item.evidence}
+                            <small>Evidencia: {item.evidence}</small>
+                          {/if}
+                        </li>
+                      {/each}
+                    </ul>
+                  {:else}
+                    <p class="category-ok">Sin fallos detectados en esta categoria.</p>
+                  {/if}
+                </section>
+              {/each}
+            </div>
+          {:else}
+            <p class="category-ok">No se han detectado fallos en los checks automaticos.</p>
+          {/if}
+
+          {#if result.passedChecks.length}
+            <div class="passed-panel">
+              <p>Checks correctos</p>
+              <ul>
+                {#each result.passedChecks as check (check)}
+                  <li>{check}</li>
+                {/each}
+              </ul>
+            </div>
+          {/if}
+        </div>
 
       {#if result?.highlights.length}
         <div class="highlights-panel">
@@ -323,17 +545,17 @@
           </ul>
         </div>
       {/if}
-    </form>
-  </section>
+    </section>
+  {/if}
 
   <section class="notes-section">
     <div>
-      <p class="eyebrow">Diagnóstico claro</p>
-      <h2>Detecta qué está frenando una web</h2>
+      <p class="eyebrow">Analisis completo</p>
+      <h2>Todo lo importante en una sola revision</h2>
     </div>
     <p>
-      Reúne las métricas que más importan en una lectura rápida: carga inicial, LCP, peso de página e imágenes.
-      Así es más fácil separar lo urgente de lo secundario y decidir el siguiente paso con criterio.
+      Reune en un unico informe lo que normalmente mirarias en PageSpeed, MDN Observatory, SecurityHeaders y
+      escaneres tipo Sucuri: velocidad, cabeceras, HTTPS, SEO, accesibilidad, WordPress y recursos sospechosos.
     </p>
   </section>
 </main>
@@ -352,14 +574,10 @@
   .tool-hero {
     position: relative;
     z-index: 1;
-    width: min(1180px, calc(100% - 32px));
-    min-height: 100svh;
+    width: min(1040px, calc(100% - 32px));
     margin: 0 auto;
-    padding: max(7rem, calc(env(safe-area-inset-top, 0px) + 6rem)) 0 4rem;
-    display: grid;
-    grid-template-columns: minmax(0, 0.92fr) minmax(380px, 1fr);
-    gap: clamp(2rem, 6vw, 5.5rem);
-    align-items: center;
+    padding: max(7rem, calc(env(safe-area-inset-top, 0px) + 6rem)) 0 2.2rem;
+    text-align: center;
   }
 
   .back-link {
@@ -389,6 +607,7 @@
 
   h1 {
     max-width: 12ch;
+    margin: 0 auto;
     font-size: clamp(2.75rem, 7vw, 5.6rem);
     line-height: 0.94;
   }
@@ -399,16 +618,16 @@
   }
 
   .lead {
-    max-width: 58ch;
-    margin: 1.25rem 0 0;
+    max-width: 68ch;
+    margin: 1.25rem auto 0;
     color: var(--text-secondary);
     font-size: clamp(1.02rem, 2vw, 1.18rem);
     line-height: 1.72;
   }
 
   .tool-spec {
-    width: min(100%, 560px);
-    margin-top: 1.8rem;
+    width: min(100%, 720px);
+    margin: 1.8rem auto 0;
     border-top: 1px solid rgba(15, 23, 42, 0.16);
     border-bottom: 1px solid rgba(15, 23, 42, 0.16);
     display: grid;
@@ -452,6 +671,14 @@
     gap: 0.42rem;
   }
 
+  .analyzer-section {
+    position: relative;
+    z-index: 1;
+    width: min(820px, calc(100% - 32px));
+    margin: 0 auto;
+    padding-bottom: 3rem;
+  }
+
   .measurement-strip span {
     width: var(--w);
     height: 3px;
@@ -477,6 +704,36 @@
       0 22px 60px rgba(15, 23, 42, 0.1),
       0 1px 0 rgba(255, 255, 255, 0.8) inset;
     backdrop-filter: blur(14px);
+  }
+
+  .preflight-panel {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 8px;
+    background: rgba(248, 250, 252, 0.84);
+  }
+
+  .preflight-panel p {
+    margin: 0 0 0.7rem;
+    color: #0f172a;
+    font-weight: 900;
+  }
+
+  .preflight-panel div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .preflight-panel span {
+    padding: 0.42rem 0.58rem;
+    border: 1px solid rgba(0, 113, 227, 0.14);
+    border-radius: 8px;
+    color: #0052b8;
+    background: rgba(0, 113, 227, 0.06);
+    font-size: 0.78rem;
+    font-weight: 850;
   }
 
   .card-head {
@@ -788,6 +1045,356 @@
     line-height: 1.62;
   }
 
+  .delivery-verdict {
+    padding: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #f8fafc;
+  }
+
+  .delivery-verdict span,
+  .category-grid span {
+    display: block;
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .delivery-verdict strong {
+    display: block;
+    margin-top: 0.2rem;
+    color: #0f172a;
+    font-size: 1.45rem;
+    line-height: 1;
+  }
+
+  .delivery-verdict p {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.25rem;
+    font-weight: 950;
+  }
+
+  .verdict-block {
+    border-color: rgba(244, 63, 94, 0.26);
+    background: rgba(244, 63, 94, 0.08);
+  }
+
+  .verdict-review {
+    border-color: rgba(245, 158, 11, 0.28);
+    background: rgba(245, 158, 11, 0.1);
+  }
+
+  .verdict-ready {
+    border-color: rgba(16, 185, 129, 0.24);
+    background: rgba(16, 185, 129, 0.1);
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .category-grid div {
+    min-height: 76px;
+    padding: 0.75rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 8px;
+    background: rgba(248, 250, 252, 0.9);
+  }
+
+  .category-grid strong {
+    display: block;
+    margin-top: 0.38rem;
+    color: #0f172a;
+    font-size: 1.05rem;
+  }
+
+  .signals-strip {
+    margin-top: 0.8rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .signals-strip span {
+    padding: 0.38rem 0.55rem;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 8px;
+    color: #475569;
+    background: #f8fafc;
+    font-size: 0.78rem;
+    font-weight: 850;
+  }
+
+  .signals-strip .signal-ok {
+    border-color: rgba(16, 185, 129, 0.24);
+    color: #047857;
+    background: rgba(16, 185, 129, 0.1);
+  }
+
+  .signals-strip .signal-warn {
+    border-color: rgba(245, 158, 11, 0.28);
+    color: #92400e;
+    background: rgba(245, 158, 11, 0.1);
+  }
+
+  .report-section {
+    position: relative;
+    z-index: 1;
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto 3.2rem;
+  }
+
+  .report-summary {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.35fr);
+    gap: 0.85rem;
+    align-items: stretch;
+    margin-bottom: 1rem;
+  }
+
+  .report-summary .metrics {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .report-summary .signals-strip {
+    grid-column: 1 / -1;
+  }
+
+  .full-report {
+    padding: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.92);
+  }
+
+  .report-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+  }
+
+  .report-head h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: clamp(1.25rem, 2vw, 1.65rem);
+    line-height: 1.12;
+  }
+
+  .report-counters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+
+  .report-counters span {
+    padding: 0.38rem 0.52rem;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 0.76rem;
+    font-weight: 850;
+  }
+
+  .source-grid {
+    margin-top: 0.9rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .source-grid div {
+    min-height: 86px;
+    padding: 0.78rem;
+    border: 1px solid rgba(0, 113, 227, 0.12);
+    border-radius: 8px;
+    background: rgba(0, 113, 227, 0.045);
+  }
+
+  .source-grid span,
+  .category-report__section header span,
+  .fix-box span {
+    display: block;
+    color: #0066e5;
+    font-size: 0.68rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .source-grid strong {
+    display: block;
+    margin-top: 0.35rem;
+    color: #0f172a;
+    font-size: 0.88rem;
+    line-height: 1.35;
+  }
+
+  .category-report {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .category-report__section {
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+  }
+
+  .category-report__section header {
+    padding: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #f8fafc;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
+  .category-report__section header strong {
+    display: block;
+    margin-top: 0.25rem;
+    color: #0f172a;
+    font-size: 1.15rem;
+  }
+
+  .category-report__section header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.82rem;
+    font-weight: 850;
+  }
+
+  .detailed-issue-list {
+    margin: 0;
+    padding: 0.85rem;
+    display: grid;
+    gap: 0.75rem;
+    list-style: none;
+  }
+
+  .detailed-issue-list li {
+    padding: 0.85rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-left: 4px solid #94a3b8;
+    border-radius: 8px;
+    background: #ffffff;
+  }
+
+  .detailed-issue-list li.detail-critical {
+    border-left-color: #f43f5e;
+    background: rgba(244, 63, 94, 0.055);
+  }
+
+  .detailed-issue-list li.detail-warning {
+    border-left-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.06);
+  }
+
+  .detailed-issue-list li.detail-info {
+    border-left-color: #0071e3;
+    background: rgba(0, 113, 227, 0.045);
+  }
+
+  .detail-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .detail-title strong {
+    color: #0f172a;
+    line-height: 1.3;
+  }
+
+  .detail-title span {
+    flex: 0 0 auto;
+    padding: 0.28rem 0.45rem;
+    border-radius: 8px;
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.86);
+    font-size: 0.7rem;
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  .detailed-issue-list p,
+  .fix-box p {
+    margin: 0;
+    color: #475569;
+    line-height: 1.5;
+  }
+
+  .detailed-issue-list > li > p {
+    margin-top: 0.45rem;
+  }
+
+  .fix-box {
+    margin-top: 0.65rem;
+    padding: 0.65rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .fix-box p {
+    margin-top: 0.25rem;
+    color: #1e293b;
+    font-weight: 750;
+  }
+
+  .detailed-issue-list small {
+    display: block;
+    margin-top: 0.55rem;
+    color: #64748b;
+    word-break: break-word;
+  }
+
+  .category-ok {
+    margin: 0;
+    padding: 0.9rem;
+    color: #047857;
+    background: rgba(16, 185, 129, 0.08);
+    font-weight: 850;
+  }
+
+  .passed-panel {
+    margin-top: 1rem;
+    padding: 0.85rem;
+    border: 1px solid rgba(16, 185, 129, 0.18);
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.08);
+  }
+
+  .passed-panel p {
+    margin: 0 0 0.55rem;
+    color: #047857;
+    font-weight: 950;
+  }
+
+  .passed-panel ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: #334155;
+    line-height: 1.55;
+  }
+
   .notes-section {
     position: relative;
     z-index: 1;
@@ -852,7 +1459,20 @@
   :global(html.dark) .metrics div,
   :global(html.dark) .score-core,
   :global(html.dark) .highlights-panel,
-  :global(html.dark) .loading-panel {
+  :global(html.dark) .loading-panel,
+  :global(html.dark) .preflight-panel,
+  :global(html.dark) .preflight-panel span,
+  :global(html.dark) .delivery-verdict,
+  :global(html.dark) .category-grid div,
+  :global(html.dark) .signals-strip span,
+  :global(html.dark) .full-report,
+  :global(html.dark) .source-grid div,
+  :global(html.dark) .category-report__section,
+  :global(html.dark) .category-report__section header,
+  :global(html.dark) .detailed-issue-list li,
+  :global(html.dark) .fix-box,
+  :global(html.dark) .passed-panel,
+  :global(html.dark) .report-counters span {
     border-color: rgba(255, 255, 255, 0.12);
     background: rgba(18, 18, 18, 0.86);
     box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
@@ -877,14 +1497,32 @@
   }
 
   :global(html.dark) .score-core span,
-  :global(html.dark) .metrics strong {
+  :global(html.dark) .metrics strong,
+  :global(html.dark) .delivery-verdict strong,
+  :global(html.dark) .delivery-verdict p,
+  :global(html.dark) .category-grid strong,
+  :global(html.dark) .preflight-panel p,
+  :global(html.dark) .report-head h2,
+  :global(html.dark) .source-grid strong,
+  :global(html.dark) .category-report__section header strong,
+  :global(html.dark) .detail-title strong,
+  :global(html.dark) .detail-title span,
+  :global(html.dark) .fix-box p {
     color: #f8fafc;
   }
 
   :global(html.dark) .score-core small,
   :global(html.dark) .metrics span,
+  :global(html.dark) .delivery-verdict span,
+  :global(html.dark) .category-grid span,
   :global(html.dark) .highlights,
-  :global(html.dark) .loading-panel__head span {
+  :global(html.dark) .loading-panel__head span,
+  :global(html.dark) .signals-strip span,
+  :global(html.dark) .report-counters span,
+  :global(html.dark) .category-report__section header p,
+  :global(html.dark) .detailed-issue-list p,
+  :global(html.dark) .detailed-issue-list small,
+  :global(html.dark) .passed-panel ul {
     color: #d4d4d8;
   }
 
@@ -899,7 +1537,8 @@
 
   @media (max-width: 940px) {
     .tool-hero,
-    .notes-section {
+    .notes-section,
+    .report-summary {
       grid-template-columns: 1fr;
     }
 
@@ -916,12 +1555,24 @@
 
     .input-row,
     .diagnostic-stage,
-    .metrics {
+    .metrics,
+    .category-grid,
+    .report-summary .metrics,
+    .source-grid {
       grid-template-columns: 1fr;
     }
 
     .card-head {
       flex-direction: column;
+    }
+
+    .report-head,
+    .detail-title {
+      flex-direction: column;
+    }
+
+    .report-counters {
+      justify-content: flex-start;
     }
 
     .score-ring {
