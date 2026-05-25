@@ -9,7 +9,12 @@
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
   const articles = $derived(data.articles ?? []);
-  const featuredArticles = $derived(
+  const categories = $derived(['Todos', ...new Set(articles.map((article) => article.categoryLabel).filter(Boolean))]);
+  let activeCategory = $state('Todos');
+  const visibleArticles = $derived(
+    activeCategory === 'Todos' ? articles : articles.filter((article) => article.categoryLabel === activeCategory)
+  );
+  const recommendedArticles = $derived(
     [...articles]
       .filter((article) => article.showOnBlog === true)
       .sort((a, b) => {
@@ -22,7 +27,7 @@
       })
       .slice(0, 3)
   );
-  const latestArticles = $derived(articles);
+  const editorialArticles = $derived(recommendedArticles.length ? recommendedArticles : articles.slice(0, 3));
   const canonical = `${baseUrl}/blog`;
   const listJsonLd = $derived(
     stringifyJsonLdForHtml({
@@ -49,17 +54,17 @@
 </script>
 
 <svelte:head>
-  <title>Blog tecnico | Moises Valero</title>
+  <title>Blog técnico | Moisés Valero</title>
   <meta
     name="description"
-    content="Articulos tecnicos de Moises Valero sobre desarrollo web, rendimiento, seguridad, SEO tecnico y arquitectura de contenido."
+    content="Artículos técnicos de Moisés Valero sobre desarrollo web, rendimiento, seguridad, SEO técnico y arquitectura de contenido."
   />
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Blog tecnico | Moises Valero" />
+  <meta property="og:title" content="Blog técnico | Moisés Valero" />
   <meta
     property="og:description"
-    content="Guias y notas practicas sobre desarrollo web, rendimiento, seguridad y SEO tecnico."
+    content="Guías y notas prácticas sobre desarrollo web, rendimiento, seguridad y SEO técnico."
   />
   <meta property="og:url" content={canonical} />
   <meta property="og:image" content={`${baseUrl}/og-image.png`} />
@@ -68,125 +73,96 @@
 </svelte:head>
 
 <main class="blog-index">
-  <section class="blog-hero">
-    <div class="blog-shell">
-      <a class="back-home" href={resolve('/#top')}>Portfolio</a>
-      <div class="hero-layout">
-        <div>
-          <p class="eyebrow">Blog</p>
-          <h1>Guías de desarrollo web</h1>
-          <p class="lead">
-            Recursos prácticos sobre desarrollo web, rendimiento, seguridad, SEO técnico e IA aplicada a proyectos reales.
-          </p>
-        </div>
-        <aside class="blog-brief" aria-label="Guía de lectura del blog">
-          <span>Guía de lectura</span>
-          <strong>Qué leer primero</strong>
-          <p>
-            Empieza por una guía recomendada o baja al archivo si buscas un tema concreto.
-          </p>
-          <div class="brief-tags" aria-label="Temas principales">
-            <span>Rendimiento</span>
-            <span>SEO técnico + IA</span>
-            <span>Seguridad</span>
-          </div>
-        </aside>
-      </div>
+  <section class="blog-hero" aria-labelledby="blog-title">
+    <div class="blog-ambient" aria-hidden="true"></div>
+    <div class="blog-shell blog-hero-shell">
+      <p class="hero-eyebrow">Blog técnico</p>
+      <h1 id="blog-title">Guías de desarrollo web</h1>
+      <p class="hero-lead">
+        Recursos prácticos sobre desarrollo web, rendimiento, seguridad, SEO técnico e IA aplicada a proyectos reales.
+      </p>
     </div>
   </section>
 
-  {#if featuredArticles.length}
-    <section class="featured-section" aria-labelledby="featured-title">
-      <div class="blog-shell">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Selección editorial</p>
-            <h2 id="featured-title">Guías recomendadas</h2>
-          </div>
-          <span>Empieza por aquí</span>
-        </div>
-
-        <div class="featured-layout">
-          <a class="featured-main" href={resolve(`/blog/${featuredArticles[0].slug}`)}>
-            <div class="featured-media">
-              <img
-                src={featuredArticles[0].coverImageSrc}
-                alt={featuredArticles[0].coverImageAlt}
-                loading="eager"
-                decoding="async"
-              />
-            </div>
-            <div class="featured-copy">
-              <span class="topline">
-                {featuredArticles[0].categoryLabel} · {formatArticleDate(featuredArticles[0].publishedAt)} · {featuredArticles[0].readingMinutes} min
-              </span>
-              <h3>{featuredArticles[0].title}</h3>
-              <p>{featuredArticles[0].excerpt}</p>
-              <span class="read-more">
-                Leer guía
-                <span class="read-more-arrow" aria-hidden="true"></span>
-              </span>
-            </div>
-          </a>
-
-          {#if featuredArticles.length > 1}
-            <div class="featured-side">
-              {#each featuredArticles.slice(1) as article (article.slug)}
-                <a class="featured-side-item" href={resolve(`/blog/${article.slug}`)}>
-                  <img src={article.coverImageSrc} alt={article.coverImageAlt} loading="lazy" decoding="async" />
-                  <div>
-                    <span class="topline">
-                      {article.categoryLabel} · {article.readingMinutes} min
-                    </span>
-                    <h3>{article.title}</h3>
-                    <p>{article.excerpt}</p>
-                  </div>
-                </a>
-              {/each}
-            </div>
-          {/if}
-        </div>
-      </div>
-    </section>
-  {/if}
-
-  <section class="article-list" aria-labelledby="blog-list-title">
+  <section class="blog-feed" aria-labelledby="feed-title">
     <div class="blog-shell">
-      <div class="section-head section-head--compact">
-        <div>
-          <p class="eyebrow">Archivo</p>
-          <h2 id="blog-list-title">Últimos artículos</h2>
-        </div>
-        <span>{latestArticles.length} artículo{latestArticles.length === 1 ? '' : 's'}</span>
+      <div class="filter-row" aria-label="Filtrar artículos por categoría">
+        {#each categories as category (category)}
+          <button
+            type="button"
+            class:active={activeCategory === category}
+            aria-pressed={activeCategory === category}
+            onclick={() => {
+              activeCategory = category;
+            }}
+          >
+            {category}
+          </button>
+        {/each}
       </div>
 
-      <div class="grid">
-        {#each latestArticles as article, idx (article.slug)}
+      <div class="feed-head">
+        <div>
+          <p class="section-kicker">Archivo</p>
+          <h2 id="feed-title">Últimos artículos</h2>
+        </div>
+        <span>{visibleArticles.length} lectura{visibleArticles.length === 1 ? '' : 's'}</span>
+      </div>
+
+      <div class="article-grid">
+        {#each visibleArticles as article, index (article.slug)}
           <a class="article-card" href={resolve(`/blog/${article.slug}`)}>
-            <div class="media">
+            <div class="article-media">
               <img
                 src={article.coverImageSrc}
                 alt={article.coverImageAlt}
-                loading={idx === 0 ? 'eager' : 'lazy'}
+                loading={index < 3 ? 'eager' : 'lazy'}
                 decoding="async"
               />
             </div>
-            <div class="card-body">
-              <span class="topline">
-                {article.categoryLabel} · {formatArticleDate(article.publishedAt)} · {article.readingMinutes} min
+            <div class="article-copy">
+              <span class="article-meta">
+                {String(index + 1).padStart(2, '0')} · {article.categoryLabel}
               </span>
               <h3>{article.title}</h3>
               <p>{article.excerpt}</p>
               <span class="read-more">
-                Leer articulo
-                <span class="read-more-arrow" aria-hidden="true"></span>
+                Leer mas
+                <span aria-hidden="true">-></span>
               </span>
             </div>
+            <footer>
+              <span>{formatArticleDate(article.publishedAt)}</span>
+              <span>{article.readingMinutes} min</span>
+            </footer>
           </a>
         {/each}
       </div>
     </div>
   </section>
+
+  {#if editorialArticles.length}
+    <section class="editorial-strip" aria-labelledby="editorial-title">
+      <div class="blog-shell">
+        <div class="feed-head">
+          <div>
+            <p class="section-kicker">Seleccion editorial</p>
+            <h2 id="editorial-title">Guías recomendadas</h2>
+          </div>
+        </div>
+
+        <div class="editorial-grid">
+          {#each editorialArticles as article (article.slug)}
+            <a href={resolve(`/blog/${article.slug}`)}>
+              <img src={article.coverImageSrc} alt={article.coverImageAlt} loading="lazy" decoding="async" />
+              <span>{article.categoryLabel}</span>
+              <strong>{article.title}</strong>
+            </a>
+          {/each}
+        </div>
+      </div>
+    </section>
+  {/if}
 </main>
 
 <style>
@@ -206,241 +182,159 @@
   }
 
   .blog-hero {
-    padding: clamp(7rem, 12vw, 9.5rem) 0 clamp(2.8rem, 6vw, 4.5rem);
-    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-    background:
-      linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px) 0 0 / 76px 76px,
-      radial-gradient(circle at 18% 18%, rgba(0, 113, 227, 0.13), transparent 34%),
-      radial-gradient(circle at 82% 12%, rgba(20, 184, 166, 0.1), transparent 32%),
-      linear-gradient(180deg, var(--bg-main) 0%, var(--bg-surface) 100%);
-  }
-
-  .hero-layout {
+    position: relative;
+    min-height: min(620px, 74svh);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
-    gap: clamp(2rem, 7vw, 5rem);
-    align-items: end;
+    place-items: center;
+    overflow: hidden;
+    padding: clamp(7rem, 12vw, 9.5rem) 0 clamp(5.2rem, 10vw, 7.4rem);
+    background:
+      radial-gradient(circle at 12% 14%, rgba(0, 113, 227, 0.24), transparent 34rem),
+      radial-gradient(circle at 84% 12%, rgba(139, 92, 246, 0.2), transparent 31rem),
+      radial-gradient(circle at 50% 84%, rgba(236, 72, 153, 0.11), transparent 32rem),
+      linear-gradient(180deg, #f8fbff 0%, var(--bg-surface) 100%);
   }
 
-  .back-home {
-    display: inline-flex;
-    margin-bottom: 1.4rem;
-    color: #0071e3;
-    font-weight: 700;
-    text-decoration: none;
+  .blog-hero::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: clamp(150px, 22vh, 260px);
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0), var(--bg-surface));
+    pointer-events: none;
   }
 
-  .eyebrow,
-  .topline {
-    margin: 0 0 0.75rem;
+  .blog-ambient {
+    position: absolute;
+    inset: -45%;
+    background:
+      radial-gradient(circle at 18% 22%, rgba(14, 165, 233, 0.23), transparent 30%),
+      radial-gradient(circle at 82% 18%, rgba(168, 85, 247, 0.19), transparent 30%),
+      radial-gradient(circle at 56% 72%, rgba(251, 191, 36, 0.1), transparent 34%);
+    filter: blur(54px);
+    opacity: 0.92;
+    animation: ambientDrift 24s ease-in-out infinite;
+  }
+
+  .blog-hero-shell {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+
+  .hero-eyebrow,
+  .section-kicker,
+  .article-meta {
     color: #0071e3;
-    font-size: 0.76rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
+    font-size: 0.72rem;
+    font-weight: 850;
+    letter-spacing: 0.14em;
+    line-height: 1.2;
     text-transform: uppercase;
+  }
+
+  .hero-eyebrow {
+    margin: 0 0 0.9rem;
+    color: #64748b;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    margin: 0;
   }
 
   h1 {
-    max-width: 11.5ch;
-    margin: 0;
-    font-size: clamp(2.45rem, 6.4vw, 5.35rem);
-    line-height: 0.98;
-    letter-spacing: 0;
+    max-width: 10ch;
+    margin: 0 auto;
+    color: #0f172a;
+    font-size: clamp(3rem, 7vw, 6.8rem);
+    font-weight: 850;
+    letter-spacing: -0.058em;
+    line-height: 0.88;
+    text-wrap: balance;
   }
 
-  .lead {
-    max-width: 68ch;
-    margin: 1.1rem 0 0;
-    color: var(--text-secondary);
-    font-size: clamp(1rem, 2vw, 1.16rem);
-    line-height: 1.7;
+  .hero-lead {
+    max-width: 620px;
+    margin: 1.15rem auto 0;
+    color: #111827;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    font-weight: 560;
+    line-height: 1.55;
+    text-wrap: pretty;
   }
 
-  .blog-brief {
-    border-left: 1px solid rgba(15, 23, 42, 0.1);
-    padding-left: clamp(1rem, 3vw, 1.35rem);
+  .blog-feed {
+    padding: clamp(1rem, 2vw, 2rem) 0 clamp(3.5rem, 8vw, 6rem);
   }
 
-  .blog-brief > span {
-    display: block;
-    color: #0071e3;
-    font-size: 0.72rem;
-    font-weight: 900;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .blog-brief strong {
-    display: block;
-    margin-top: 0.4rem;
-    color: var(--text-main);
-    font-size: clamp(1.2rem, 1.8vw, 1.48rem);
-    line-height: 1.16;
-  }
-
-  .blog-brief p {
-    max-width: 34ch;
-    margin: 0.75rem 0 0;
-    color: var(--text-secondary);
-    line-height: 1.58;
-  }
-
-  .brief-tags {
-    margin: 1rem 0 0;
+  .filter-row {
+    position: relative;
+    z-index: 2;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.45rem;
+    justify-content: center;
+    gap: 0.65rem;
+    margin: -3.1rem auto 2rem;
   }
 
-  .brief-tags span {
-    border: 1px solid rgba(15, 23, 42, 0.12);
-    border-radius: 999px;
-    padding: 0.38rem 0.62rem;
-    color: #334155;
-    background: rgba(255, 255, 255, 0.66);
-    font-size: 0.78rem;
-    font-weight: 750;
+  .filter-row button {
+    min-height: 36px;
+    padding: 0 1rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: #111827;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 720;
+    transition:
+      transform 240ms cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 240ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 240ms cubic-bezier(0.16, 1, 0.3, 1),
+      color 240ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 240ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .featured-section {
-    padding: clamp(2rem, 5vw, 4rem) 0 0;
+  .filter-row button:hover,
+  .filter-row button:focus-visible,
+  .filter-row button.active {
+    transform: translateY(-1px);
+    border-color: rgba(0, 113, 227, 0.22);
+    background: #0071e3;
+    color: #ffffff;
+    box-shadow: 0 14px 32px rgba(0, 113, 227, 0.22);
+    outline: none;
   }
 
-  .article-list {
-    padding: clamp(2.2rem, 5vw, 4rem) 0 5rem;
-  }
-
-  .section-head {
+  .feed-head {
     display: flex;
     align-items: end;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1.15rem;
+    margin-bottom: 1.25rem;
   }
 
-  .section-head h2 {
-    margin: 0;
-    font-size: clamp(1.4rem, 3vw, 2rem);
+  .feed-head h2 {
+    margin-top: 0.45rem;
+    color: #101114;
+    font-size: clamp(2rem, 4.8vw, 4.2rem);
+    font-weight: 850;
+    letter-spacing: -0.052em;
+    line-height: 0.96;
   }
 
-  .section-head > span {
-    color: var(--text-secondary);
-    font-weight: 700;
-  }
-
-  .section-head--compact {
-    padding-top: 1.3rem;
-    border-top: 1px solid rgba(15, 23, 42, 0.1);
-  }
-
-  .featured-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1.24fr) minmax(300px, 0.76fr);
-    gap: 1rem;
-  }
-
-  .featured-main,
-  .featured-side-item {
-    min-width: 0;
-    border: 1px solid rgba(15, 23, 42, 0.1);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.9);
-    color: inherit;
+  .feed-head > span {
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 760;
     text-decoration: none;
-    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
-    transition:
-      transform 0.25s ease,
-      border-color 0.25s ease,
-      box-shadow 0.25s ease,
-      background-color 0.25s ease;
   }
 
-  .featured-main:hover,
-  .featured-side-item:hover {
-    transform: translateY(-2px);
-    border-color: rgba(0, 113, 227, 0.26);
-    box-shadow: 0 24px 58px rgba(15, 23, 42, 0.1);
-  }
-
-  .featured-main {
-    display: grid;
-    grid-template-columns: minmax(0, 0.95fr) minmax(280px, 1fr);
-    overflow: hidden;
-  }
-
-  .featured-media {
-    min-height: 100%;
-    overflow: hidden;
-    background: #e9edf5;
-  }
-
-  .featured-media img,
-  .featured-side-item img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.35s ease;
-  }
-
-  .featured-main:hover .featured-media img,
-  .featured-side-item:hover img {
-    transform: scale(1.03);
-  }
-
-  .featured-copy {
-    display: flex;
-    flex-direction: column;
-    padding: clamp(1.2rem, 3vw, 1.65rem);
-  }
-
-  .featured-copy h3 {
-    margin: 0 0 0.85rem;
-    font-size: clamp(1.55rem, 3vw, 2.2rem);
-    line-height: 1.05;
-  }
-
-  .featured-copy p,
-  .featured-side-item p {
-    margin: 0;
-    color: var(--text-secondary);
-    line-height: 1.62;
-  }
-
-  .featured-side {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .featured-side-item {
-    display: grid;
-    grid-template-columns: 132px minmax(0, 1fr);
-    gap: 1rem;
-    padding: 0.75rem;
-  }
-
-  .featured-side-item img {
-    aspect-ratio: 1 / 1;
-    border-radius: 6px;
-    background: #e9edf5;
-  }
-
-  .featured-side-item h3 {
-    margin: 0 0 0.45rem;
-    font-size: 1.08rem;
-    line-height: 1.18;
-  }
-
-  .featured-side-item p {
-    display: -webkit-box;
-    overflow: hidden;
-    line-clamp: 2;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    font-size: 0.92rem;
-  }
-
-  .grid {
+  .article-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1rem;
@@ -449,189 +343,280 @@
   .article-card {
     display: flex;
     min-width: 0;
+    min-height: 100%;
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(15, 23, 42, 0.1);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.88);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.86)),
+      #ffffff;
     color: inherit;
     text-decoration: none;
-    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+    box-shadow:
+      0 20px 50px rgba(15, 23, 42, 0.08),
+      0 1px 0 rgba(255, 255, 255, 0.82) inset;
+    isolation: isolate;
+    transition:
+      transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .article-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(0, 113, 227, 0.24);
-    box-shadow: 0 24px 54px rgba(15, 23, 42, 0.1);
+  .article-card:hover,
+  .article-card:focus-visible {
+    transform: translateY(-7px);
+    border-color: rgba(0, 113, 227, 0.34);
+    box-shadow: 0 30px 78px rgba(15, 23, 42, 0.15);
+    outline: none;
   }
 
-  .media {
+  .article-media {
     aspect-ratio: 16 / 10;
     overflow: hidden;
+    margin: 0.55rem 0.55rem 0;
+    border-radius: 6px;
     background: #e9edf5;
   }
 
-  .media img {
+  .article-media img {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.35s ease;
+    transform: scale(1.01);
+    transition: transform 640ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .article-card:hover .media img {
-    transform: scale(1.03);
+  .article-card:hover .article-media img,
+  .article-card:focus-visible .article-media img {
+    transform: scale(1.06);
   }
 
-  .card-body {
+  .article-copy {
     display: flex;
     flex: 1;
     flex-direction: column;
-    padding: 1.2rem;
+    padding: 1rem 1rem 0.85rem;
   }
 
-  .card-body h3 {
-    margin: 0 0 0.75rem;
-    font-size: clamp(1.15rem, 2vw, 1.45rem);
-    line-height: 1.18;
+  .article-copy h3 {
+    margin-top: 0.52rem;
+    color: #101114;
+    font-size: clamp(1.08rem, 2vw, 1.42rem);
+    font-weight: 850;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
   }
 
-  .card-body p {
-    margin: 0;
-    color: var(--text-secondary);
-    line-height: 1.65;
+  .article-copy p {
+    display: -webkit-box;
+    margin-top: 0.62rem;
+    overflow: hidden;
+    color: #4a4f5c;
+    font-size: 0.93rem;
+    line-height: 1.55;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
   }
 
   .read-more {
-    margin-top: auto;
-    padding-top: 1rem;
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    color: #0066e5;
+    font-size: 0.88rem;
+    font-weight: 850;
+  }
+
+  .read-more span {
+    transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .article-card:hover .read-more span,
+  .article-card:focus-visible .read-more span {
+    transform: translateX(4px);
+  }
+
+  .article-card footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.78rem 1rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    color: #64748b;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 650;
+  }
+
+  .editorial-strip {
+    padding: 0 0 clamp(4rem, 8vw, 6.5rem);
+  }
+
+  .editorial-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .editorial-grid a {
+    display: grid;
+    grid-template-columns: 108px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    gap: 0.35rem 0.9rem;
+    align-items: center;
+    min-width: 0;
+    padding: 0.72rem;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.76);
+    color: inherit;
+    text-decoration: none;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
+    transition:
+      transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .editorial-grid a:hover,
+  .editorial-grid a:focus-visible {
+    transform: translateY(-3px);
+    border-color: rgba(0, 113, 227, 0.28);
+    outline: none;
+  }
+
+  .editorial-grid img {
+    grid-row: 1 / 3;
+    width: 108px;
+    aspect-ratio: 1 / 0.78;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #e9edf5;
+  }
+
+  .editorial-grid span {
     color: #0071e3;
-    font-weight: 800;
+    font-size: 0.68rem;
+    font-weight: 850;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
   }
 
-  .read-more-arrow {
-    width: 1rem;
-    height: 1rem;
-    display: inline-block;
-    position: relative;
-    transition: transform 0.24s ease;
+  .editorial-grid strong {
+    color: #101114;
+    font-size: 1rem;
+    font-weight: 820;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
   }
 
-  .read-more-arrow::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: 0.1rem;
-    width: 0.55rem;
-    height: 0.55rem;
-    border-top: 2px solid currentColor;
-    border-right: 2px solid currentColor;
-    transform: translateY(-50%) rotate(45deg);
-  }
+  @keyframes ambientDrift {
+    0%,
+    100% {
+      transform: translate3d(-2%, -1%, 0) rotate(0deg) scale(1);
+    }
 
-  .read-more-arrow::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: 0.1rem;
-    width: 0.92rem;
-    height: 2px;
-    background: currentColor;
-    transform: translateY(-50%);
-  }
-
-  .article-card:hover .read-more-arrow {
-    transform: translateX(3px);
+    50% {
+      transform: translate3d(2%, 1%, 0) rotate(8deg) scale(1.06);
+    }
   }
 
   :global(html.dark) .blog-hero {
-    border-bottom-color: rgba(255, 255, 255, 0.12);
     background:
-      radial-gradient(circle at 20% 12%, rgba(0, 113, 227, 0.16), transparent 34%),
-      radial-gradient(circle at 82% 10%, rgba(20, 184, 166, 0.1), transparent 32%),
+      radial-gradient(circle at 16% 18%, rgba(0, 113, 227, 0.18), transparent 32rem),
+      radial-gradient(circle at 82% 14%, rgba(139, 156, 255, 0.14), transparent 28rem),
       linear-gradient(180deg, #0a0a0a 0%, #0b0b0b 100%);
   }
 
-  :global(html.dark) .blog-brief {
-    border-left-color: rgba(255, 255, 255, 0.16);
+  :global(html.dark) h1,
+  :global(html.dark) .feed-head h2,
+  :global(html.dark) .article-copy h3,
+  :global(html.dark) .editorial-grid strong {
+    color: #f8fafc;
   }
 
-  :global(html.dark) .brief-tags span {
-    border-color: rgba(255, 255, 255, 0.12);
+  :global(html.dark) .hero-eyebrow,
+  :global(html.dark) .hero-lead,
+  :global(html.dark) .article-copy p,
+  :global(html.dark) .feed-head > span {
     color: #d4d4d8;
-    background: rgba(255, 255, 255, 0.06);
   }
 
-  :global(html.dark) .section-head--compact {
-    border-top-color: rgba(255, 255, 255, 0.12);
+  :global(html.dark) .filter-row button {
+    color: #f4f4f5;
   }
 
   :global(html.dark) .article-card,
-  :global(html.dark) .featured-main,
-  :global(html.dark) .featured-side-item {
+  :global(html.dark) .editorial-grid a {
     border-color: rgba(255, 255, 255, 0.12);
     background: rgba(18, 18, 18, 0.86);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
-  }
-
-  :global(html.dark) .article-card:hover,
-  :global(html.dark) .featured-main:hover,
-  :global(html.dark) .featured-side-item:hover {
-    border-color: rgba(255, 255, 255, 0.28);
-    background: rgba(24, 24, 27, 0.96);
-    box-shadow:
-      0 26px 68px rgba(0, 0, 0, 0.42),
-      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-  }
-
-  :global(html.dark) .media,
-  :global(html.dark) .featured-media,
-  :global(html.dark) .featured-side-item img {
-    background: #111111;
+    box-shadow: 0 20px 54px rgba(0, 0, 0, 0.26);
   }
 
   @media (max-width: 980px) {
-    .hero-layout,
-    .featured-layout,
-    .featured-main {
-      grid-template-columns: 1fr;
-    }
-
-    .blog-brief {
-      border-left: 0;
-      border-top: 1px solid rgba(15, 23, 42, 0.1);
-      padding: 1.1rem 0 0;
-    }
-
-    .grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .article-grid,
+    .editorial-grid {
+      grid-template-columns: 1fr 1fr;
     }
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 680px) {
     .blog-shell {
       width: min(100% - 1.25rem, 1120px);
     }
 
     .blog-hero {
+      min-height: 560px;
       padding-top: 6.5rem;
     }
 
-    .section-head {
+    h1 {
+      font-size: clamp(3rem, 16vw, 4.6rem);
+    }
+
+    .filter-row {
+      justify-content: flex-start;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      padding-bottom: 0.35rem;
+    }
+
+    .filter-row button {
+      flex: 0 0 auto;
+    }
+
+    .feed-head {
       align-items: start;
       flex-direction: column;
     }
 
-    .featured-side-item {
-      grid-template-columns: 98px minmax(0, 1fr);
+    .article-grid,
+    .editorial-grid {
+      grid-template-columns: 1fr;
     }
 
-    .grid {
-      grid-template-columns: 1fr;
+    .editorial-grid a {
+      grid-template-columns: 96px minmax(0, 1fr);
+    }
+
+    .editorial-grid img {
+      width: 96px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blog-ambient,
+    .article-card,
+    .article-media img,
+    .read-more span,
+    .editorial-grid a,
+    .filter-row button {
+      animation: none !important;
+      transition: none !important;
     }
   }
 </style>

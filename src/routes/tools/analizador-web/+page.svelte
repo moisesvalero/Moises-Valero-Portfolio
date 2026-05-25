@@ -65,13 +65,13 @@
   const pageJsonLd = stringifyJsonLdForHtml({
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'Analizador web de Moises Valero',
+    name: 'Analizador web de Moisés Valero',
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Web',
     url: canonical,
     author: {
       '@type': 'Person',
-      name: 'Moises Valero'
+      name: 'Moisés Valero'
     }
   });
 
@@ -79,17 +79,21 @@
   let status = $state<'idle' | 'loading' | 'success' | 'error'>('idle');
   let errorMessage = $state('');
   let result = $state<AnalyzerResult | null>(null);
-  let elapsedSeconds = $state(0);
+  let animatedProgress = $state(0);
+  let leadEmail = $state('');
+  let leadStatus = $state<'idle' | 'sending' | 'success' | 'error'>('idle');
+  let leadError = $state('');
+  let leadHoneypot = $state('');
 
-  const scoreLabel = $derived(result ? `${result.performanceScore}/100` : '--');
-  const overallLabel = $derived(result ? `${result.overallScore}/100` : '--');
+  const animatedOverallScore = $derived(result ? Math.round(result.overallScore * animatedProgress) : 0);
+  const scoreLabel = $derived(`${animatedOverallScore}%`);
   const scoreClass = $derived(
-    !result ? 'score-neutral' : result.performanceScore >= 90 ? 'score-good' : result.performanceScore >= 60 ? 'score-mid' : 'score-low'
+    !result ? 'score-neutral' : result.overallScore >= 90 ? 'score-good' : result.overallScore >= 60 ? 'score-mid' : 'score-low'
   );
   const scoreTone = $derived(
-    !result ? '#94a3b8' : result.performanceScore >= 90 ? '#10b981' : result.performanceScore >= 60 ? '#f59e0b' : '#f43f5e'
+    !result ? '#94a3b8' : result.overallScore >= 90 ? '#10b981' : result.overallScore >= 60 ? '#f59e0b' : '#f43f5e'
   );
-  const scoreRingStyle = $derived(`--score:${result ? result.performanceScore : 0};--score-tone:${scoreTone}`);
+  const scoreRingStyle = $derived(`--score:${animatedOverallScore};--score-tone:${scoreTone}`);
   const severityText = $derived(
     !result
       ? 'Sin analizar'
@@ -108,15 +112,6 @@
           ? 'Mejorar'
           : 'Correcto'
   );
-  const verdictClass = $derived(
-    !result
-      ? 'verdict-neutral'
-      : result.deliveryVerdict === 'block'
-        ? 'verdict-block'
-        : result.deliveryVerdict === 'review'
-          ? 'verdict-review'
-          : 'verdict-ready'
-  );
   const priorityIssues = $derived(
     result?.issues.filter((item) => item.severity === 'critical' || item.severity === 'warning').slice(0, 8) ?? []
   );
@@ -124,38 +119,76 @@
   const criticalIssues = $derived(result?.issues.filter((item) => item.severity === 'critical').length ?? 0);
   const warningIssues = $derived(result?.issues.filter((item) => item.severity === 'warning').length ?? 0);
   const infoIssues = $derived(result?.issues.filter((item) => item.severity === 'info').length ?? 0);
-  const loadingSteps = [
-    'Iniciando analisis',
-    'Midiendo PageSpeed',
-    'Revisando seguridad y SEO',
-    'Preparando informe tecnico'
-  ];
-  const loadingMessages = [
-    { after: 0, text: 'Estamos revisando la URL con pruebas de rendimiento, SEO y seguridad visible.' },
-    { after: 8, text: 'Google PageSpeed esta midiendo rendimiento, SEO, accesibilidad y buenas practicas.' },
-    { after: 18, text: 'Ahora se revisan cabeceras, HTTPS, sitemap, robots, HTML y senales visibles.' },
-    { after: 32, text: 'El analisis puede tardar si la web pesa mucho, redirige varias veces o responde lento.' },
-    { after: 50, text: 'Seguimos trabajando. Si algun check no puede completarse, el informe lo marcara claro.' }
-  ];
-  const activeLoadingMessage = $derived(
-    loadingMessages.findLast((message) => elapsedSeconds >= message.after)?.text ?? loadingMessages[0].text
+  const heroCards = $derived(
+    result
+      ? [
+          {
+            label: 'Rendimiento',
+            score: Math.round((result.categoryScores.performance || result.performanceScore) * animatedProgress),
+            checks: [`FCP: ${result.metrics.fcp}`, `LCP: ${result.metrics.lcp}`, `Peso: ${result.metrics.pageWeight}`]
+          },
+          {
+            label: 'SEO',
+            score: Math.round(result.categoryScores.seo * animatedProgress),
+            checks: [
+              result.signals.hasRobotsTxt ? 'robots.txt detectado' : 'robots.txt pendiente',
+              result.signals.hasSitemap ? 'sitemap.xml detectado' : 'sitemap.xml pendiente',
+              `${result.signals.internalLinks} enlaces internos`
+            ]
+          },
+          {
+            label: 'Seguridad',
+            score: Math.round(result.categoryScores.security * animatedProgress),
+            checks: [
+              result.signals.isHttps ? 'HTTPS correcto' : 'HTTPS pendiente',
+              result.signals.redirectsToHttps ? 'Redirige a HTTPS' : 'Sin redirección HTTPS',
+              `${criticalIssues} críticos`
+            ]
+          },
+          {
+            label: 'Accesibilidad',
+            score: Math.round(result.categoryScores.accessibility * animatedProgress),
+            checks: [`${result.signals.imagesWithoutAlt} imágenes sin alt`, `${warningIssues} avisos`, `${infoIssues} notas`]
+          }
+        ]
+      : []
   );
-  const loadingProgress = $derived(Math.min(94, Math.round(12 + elapsedSeconds * 1.65)));
-  const loadingProgressStyle = $derived(`--loading-progress:${loadingProgress}%`);
+  const heroSuggestions = $derived(
+    result ? (priorityIssues.length ? priorityIssues : result.issues).slice(0, 3) : []
+  );
+
+  function scoreToneClass(score: number) {
+    if (score >= 90) return 'score-good';
+    if (score >= 60) return 'score-mid';
+    return 'score-low';
+  }
+
+  function cardRingStyle(score: number) {
+    const tone = score >= 90 ? '#22c55e' : score >= 60 ? '#f2b015' : '#f43f5e';
+    return `--score:${score};--score-tone:${tone}`;
+  }
 
   $effect(() => {
-    if (status !== 'loading') {
-      elapsedSeconds = 0;
+    if (!result) {
+      animatedProgress = 0;
       return;
     }
 
-    const startedAt = Date.now();
-    elapsedSeconds = 0;
-    const timer = window.setInterval(() => {
-      elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
-    }, 1000);
+    let frame = 0;
+    const duration = 1400;
+    const start = performance.now();
 
-    return () => window.clearInterval(timer);
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - start) / duration);
+      animatedProgress = 1 - Math.pow(1 - progress, 3);
+      if (progress < 1) {
+        frame = requestAnimationFrame(tick);
+      }
+    };
+
+    frame = requestAnimationFrame(tick);
+
+    return () => cancelAnimationFrame(frame);
   });
 
   function normalizeResult(input: Partial<AnalyzerResult>): AnalyzerResult {
@@ -227,18 +260,18 @@
       } | null;
 
       if (!response.ok || !data?.ok) {
-        return { ok: false, error: data?.error || 'No se pudo completar el analisis.' };
+        return { ok: false, error: data?.error || 'No se pudo completar el análisis.' };
       }
       if (data.status === 'completed' && data.result) {
         return { ok: true, result: data.result };
       }
       if (data.status === 'error') {
-        return { ok: false, error: data.error || 'El analisis termino con error.' };
+        return { ok: false, error: data.error || 'El análisis terminó con error.' };
       }
       intervalMs = Math.max(700, Math.min(5000, data.pollAfterMs ?? intervalMs));
     }
 
-    return { ok: false, error: 'El analisis esta tardando demasiado. Prueba de nuevo en unos minutos.' };
+    return { ok: false, error: 'El análisis está tardando demasiado. Prueba de nuevo en unos minutos.' };
   }
 
   async function analyzeUrl() {
@@ -246,6 +279,8 @@
     status = 'loading';
     errorMessage = '';
     result = null;
+    leadStatus = 'idle';
+    leadError = '';
 
     const response = await fetch('/api/pagespeed/analyze', {
       method: 'POST',
@@ -285,19 +320,61 @@
     result = normalizeResult(data.status === 'completed' && data.result ? data.result : data);
     status = 'success';
   }
+
+  function resetAnalyzer() {
+    status = 'idle';
+    errorMessage = '';
+    result = null;
+    animatedProgress = 0;
+    leadEmail = '';
+    leadStatus = 'idle';
+    leadError = '';
+    leadHoneypot = '';
+  }
+
+  async function submitLeadForm() {
+    if (!result || leadStatus === 'sending') return;
+    leadStatus = 'sending';
+    leadError = '';
+
+    const response = await fetch('/api/pagespeed/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: leadEmail,
+        url: result.requestedUrl,
+        score: result.performanceScore,
+        severity: result.severity,
+        metrics: result.metrics,
+        highlights: result.highlights,
+        website: leadHoneypot
+      })
+    });
+
+    const data = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+    if (!response.ok || !data?.ok) {
+      leadStatus = 'error';
+      leadError = data?.error || 'No se pudo enviar el informe por email.';
+      return;
+    }
+
+    leadStatus = 'success';
+    leadEmail = '';
+    leadHoneypot = '';
+  }
 </script>
 
 <svelte:head>
-  <title>Analizador web tecnico | Moises Valero</title>
+  <title>Analizador web técnico | Moisés Valero</title>
   <meta
     name="description"
-    content="Herramienta propia para analizar rendimiento, seguridad visible, SEO tecnico, accesibilidad y senales sospechosas de una URL."
+    content="Herramienta propia para analizar rendimiento, seguridad visible, SEO técnico, accesibilidad y señales sospechosas de una URL."
   />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Analizador web tecnico | Moises Valero" />
+  <meta property="og:title" content="Analizador web técnico | Moisés Valero" />
   <meta
     property="og:description"
-    content="Analisis completo para encontrar fallos de rendimiento, cabeceras, SEO, accesibilidad y codigo sospechoso antes de publicar una web."
+    content="Análisis completo para encontrar fallos de rendimiento, cabeceras, SEO, accesibilidad y código sospechoso antes de publicar una web."
   />
   <meta property="og:url" content={canonical} />
   <meta property="og:image" content={`${baseUrl}/og-image.png`} />
@@ -311,163 +388,176 @@
     <p class="eyebrow">Herramienta propia</p>
     <h1>Analizador web</h1>
     <p class="lead">
-      Analiza una URL en una sola pasada: rendimiento, seguridad visible, SEO tecnico, accesibilidad,
-      cabeceras HTTP, WordPress y senales sospechosas. Pensado para revisar tus trabajos antes de publicarlos.
+      Analiza una URL en una sola pasada: rendimiento, seguridad visible, SEO técnico, accesibilidad,
+      cabeceras HTTP, WordPress y señales sospechosas. Pensado para revisar tus trabajos antes de publicarlos.
     </p>
-    <div class="tool-spec" aria-label="Ficha tecnica del analizador">
-      <div>
-        <span>Motor</span>
-        <strong>PageSpeed + checks propios</strong>
-      </div>
-      <div>
-        <span>Revisa</span>
-        <strong>SEO, headers y seguridad</strong>
-      </div>
-      <div>
-        <span>Salida</span>
-        <strong>Fallos y mejoras</strong>
-      </div>
-    </div>
   </section>
 
-  <section class="analyzer-section" aria-label="Analizador web">
-    <form class="analyzer-card" onsubmit={(event) => { event.preventDefault(); void analyzeUrl(); }}>
-      <div class="card-head">
-        <div>
-          <p class="card-kicker">Analisis tecnico</p>
-          <label for="analyzer-url">Introduce la URL</label>
-        </div>
-        <span class="status-pill" class:status-pill--active={status === 'loading'}>
-          {status === 'loading' ? 'Analizando' : status === 'success' ? 'Informe listo' : 'Preparado'}
-        </span>
-      </div>
-
-      <div class="input-row">
-        <input
-          id="analyzer-url"
-          bind:value={analyzerUrl}
-          placeholder="https://ejemplo.com"
-          autocomplete="url"
-          required
-        />
-        <button type="submit" disabled={status === 'loading'}>
-          {status === 'loading' ? 'Analizando' : 'Analizar'}
-        </button>
-      </div>
-      <p class="input-help">URLs publicas http/https. Se bloquean localhost, IPs privadas y destinos internos.</p>
-
-      {#if status === 'error'}
-        <p class="feedback error">{errorMessage}</p>
-      {/if}
-
-      {#if status === 'idle' || status === 'error'}
-        <div class="preflight-panel">
-          <p>El informe revisara</p>
+  {#if status === 'idle' || status === 'error'}
+    <section class="analyzer-section" aria-label="Analizador web">
+      <form class="analyzer-card" onsubmit={(event) => { event.preventDefault(); void analyzeUrl(); }}>
+        <div class="card-head">
           <div>
-            <span>PageSpeed</span>
-            <span>Cabeceras HTTP</span>
-            <span>HTTPS</span>
-            <span>SEO tecnico</span>
-            <span>Accesibilidad</span>
-            <span>WordPress</span>
-            <span>Scripts sospechosos</span>
-            <span>Recursos visibles</span>
+            <p class="card-kicker">Análisis técnico</p>
+            <label for="analyzer-url">Introduce la URL</label>
           </div>
+          <span class="status-pill">Preparado</span>
         </div>
-      {/if}
 
-      {#if status === 'loading'}
-        <div class="loading-panel" aria-live="polite">
-          <div class="loading-panel__head">
-            <div>
-              <p>Analisis en curso</p>
-              <strong>{activeLoadingMessage}</strong>
-            </div>
-            <span>{elapsedSeconds}s</span>
-          </div>
-          <div class="loading-bar" style={loadingProgressStyle} aria-hidden="true">
-            <span></span>
-          </div>
-          <div class="loading-steps" aria-label="Progreso del analisis">
-            {#each loadingSteps as step, index (step)}
-              <span class:step-active={index <= Math.min(3, Math.floor(elapsedSeconds / 10))} style={`--delay:${index * 120}ms`}>{step}</span>
-            {/each}
-          </div>
+        <div class="input-row">
+          <input
+            id="analyzer-url"
+            bind:value={analyzerUrl}
+            placeholder="https://ejemplo.com"
+            autocomplete="url"
+            required
+          />
+          <button type="submit">Analizar</button>
         </div>
-      {/if}
-    </form>
-  </section>
+        {#if status === 'error'}
+          <p class="feedback error">{errorMessage}</p>
+        {/if}
+
+        {#if status === 'idle' || status === 'error'}
+          <div class="preflight-panel">
+            <p>El informe revisará</p>
+            <div>
+              <span>PageSpeed</span>
+              <span>Cabeceras HTTP</span>
+              <span>HTTPS</span>
+              <span>SEO técnico</span>
+              <span>Accesibilidad</span>
+              <span>WordPress</span>
+              <span>Scripts sospechosos</span>
+              <span>Recursos visibles</span>
+            </div>
+          </div>
+        {/if}
+
+      </form>
+    </section>
+  {/if}
+
+  {#if status === 'loading'}
+    <section class="analysis-loading" aria-label="Análisis en curso" aria-live="polite">
+      <div class="loading-orbit" aria-hidden="true">
+        <span></span>
+        <i></i>
+      </div>
+      <div class="loading-copy">
+        <p class="card-kicker">Análisis en curso</p>
+        <h2>Revisando la URL</h2>
+        <p>
+          Estoy midiendo rendimiento, cabeceras, SEO técnico, accesibilidad y señales visibles antes de montar el
+          informe.
+        </p>
+      </div>
+      <div class="analysis-progress" aria-hidden="true">
+        <span></span>
+      </div>
+      <div class="analysis-steps">
+        <span>PageSpeed</span>
+        <span>Cabeceras HTTP</span>
+        <span>SEO técnico</span>
+        <span>Accesibilidad</span>
+      </div>
+    </section>
+  {:else if result}
+    <section class={`hero-results ${scoreClass}`} aria-label="Resultado del analizador" aria-live="polite">
+      <div class="global-score">
+        <div class="global-score-ring" style={scoreRingStyle} aria-label={`Puntuación global: ${scoreLabel}`}>
+          <span>{scoreLabel}</span>
+        </div>
+        <strong>Puntuación Global</strong>
+        <p>{verdictText} - {severityText}</p>
+      </div>
+
+      <div class="hero-metric-grid">
+        {#each heroCards as card (card.label)}
+          <article class={`metric-card ${scoreToneClass(card.score)}`}>
+            <h2>{card.label}</h2>
+            <div class="metric-card-body">
+              <div class="mini-ring" style={cardRingStyle(card.score)} aria-label={`${card.label}: ${card.score}%`}>
+                <span>{card.score}%</span>
+              </div>
+              <ul>
+                {#each card.checks as check (check)}
+                  <li>
+                    <span
+                      aria-hidden="true"
+                      class:marker-good={card.score >= 90}
+                      class:marker-warn={card.score >= 60 && card.score < 90}
+                      class:marker-low={card.score < 60}
+                    ></span>
+                    {check}
+                  </li>
+                {/each}
+              </ul>
+            </div>
+          </article>
+        {/each}
+      </div>
+
+      <div class="hero-suggestions">
+        <h2>Sugerencias de Mejora</h2>
+        <div>
+          {#each heroSuggestions as suggestion (suggestion.id)}
+            <article>
+              <strong>{suggestion.title}</strong>
+              <p>{suggestion.fix}</p>
+            </article>
+          {/each}
+        </div>
+      </div>
+
+      <form class="lead-panel" onsubmit={(event) => { event.preventDefault(); void submitLeadForm(); }}>
+        <div>
+          <h2>Enviar informe por email</h2>
+          <p>Te envío el resumen con la URL, puntuación, métricas y mejoras principales.</p>
+        </div>
+        <input
+          bind:value={leadEmail}
+          type="email"
+          placeholder="tu@email.com"
+          autocomplete="email"
+          required
+          disabled={leadStatus === 'sending' || leadStatus === 'success'}
+        />
+        <input class="lead-hp" bind:value={leadHoneypot} type="text" tabindex="-1" autocomplete="off" />
+        <button type="submit" disabled={leadStatus === 'sending' || leadStatus === 'success'}>
+          {leadStatus === 'sending' ? 'Enviando' : leadStatus === 'success' ? 'Enviado' : 'Enviar informe'}
+        </button>
+        {#if leadStatus === 'error'}
+          <p class="feedback error">{leadError}</p>
+        {:else if leadStatus === 'success'}
+          <p class="feedback success">Informe enviado correctamente.</p>
+        {/if}
+      </form>
+
+      <button class="reset-button" type="button" onclick={resetAnalyzer}>Analizar otra URL</button>
+    </section>
+  {/if}
 
   {#if result}
     <section class="report-section" aria-label="Informe del analizador web">
-      <div class="report-summary">
-        <div class={`delivery-verdict ${verdictClass}`}>
-          <div>
-            <span>Estado general</span>
-            <strong>{verdictText}</strong>
-          </div>
-          <p>{overallLabel}</p>
-        </div>
-
-        <div class="category-grid" aria-label="Puntuaciones por categoria">
-          {#each result.categories as category (category.id)}
-            <div>
-              <span>{category.label}</span>
-              <strong>{category.score}/100</strong>
-            </div>
-          {/each}
-        </div>
-
-        <div class="metrics">
-          <div>
-            <span>FCP</span>
-            <strong>{result.metrics.fcp}</strong>
-          </div>
-          <div>
-            <span>LCP</span>
-            <strong>{result.metrics.lcp}</strong>
-          </div>
-          <div>
-            <span>CLS</span>
-            <strong>{result.metrics.cls}</strong>
-          </div>
-          <div>
-            <span>TBT</span>
-            <strong>{result.metrics.tbt}</strong>
-          </div>
-          <div>
-            <span>Peso pagina</span>
-            <strong>{result.metrics.pageWeight}</strong>
-          </div>
-          <div>
-            <span>Imagenes</span>
-            <strong>{result.metrics.imageWeight}</strong>
-          </div>
-        </div>
-
-        <div class="signals-strip" aria-label="Senales tecnicas detectadas">
-          <span class:signal-ok={result.signals.isHttps}>HTTPS</span>
-          <span class:signal-ok={result.signals.hasRobotsTxt}>robots.txt</span>
-          <span class:signal-ok={result.signals.hasSitemap}>sitemap.xml</span>
-          <span class:signal-warn={result.signals.isWordPress}>WordPress</span>
-          <span>{result.signals.externalScripts} scripts externos</span>
-        </div>
-      </div>
-
-      <div class="full-report">
+      <details class="full-report">
+        <summary>
+          <span>Informe completo</span>
+          <strong>Ver revisión técnica detallada</strong>
+        </summary>
           <div class="report-head">
             <div>
               <p class="card-kicker">Informe completo</p>
-              <h2>Revision tecnica de la URL</h2>
+              <h2>Revisión técnica de la URL</h2>
             </div>
             <div class="report-counters" aria-label="Resumen de fallos">
-              <span>{criticalIssues} criticos</span>
+              <span>{criticalIssues} críticos</span>
               <span>{warningIssues} a revisar</span>
               <span>{infoIssues} avisos</span>
             </div>
           </div>
 
-          <div class="source-grid" aria-label="Tipos de analisis incluidos">
+          <div class="source-grid" aria-label="Tipos de análisis incluidos">
             <div>
               <span>PageSpeed</span>
               <strong>Rendimiento, SEO y accesibilidad</strong>
@@ -478,7 +568,7 @@
             </div>
             <div>
               <span>Sucuri-style visible scan</span>
-              <strong>WordPress, iframes, scripts y senales sospechosas</strong>
+              <strong>WordPress, iframes, scripts y señales sospechosas</strong>
             </div>
           </div>
 
@@ -514,13 +604,13 @@
                       {/each}
                     </ul>
                   {:else}
-                    <p class="category-ok">Sin fallos detectados en esta categoria.</p>
+                    <p class="category-ok">Sin fallos detectados en esta categoría.</p>
                   {/if}
                 </section>
               {/each}
             </div>
           {:else}
-            <p class="category-ok">No se han detectado fallos en los checks automaticos.</p>
+            <p class="category-ok">No se han detectado fallos en los checks automáticos.</p>
           {/if}
 
           {#if result.passedChecks.length}
@@ -533,11 +623,11 @@
               </ul>
             </div>
           {/if}
-        </div>
+      </details>
 
       {#if result?.highlights.length}
         <div class="highlights-panel">
-          <p>Lectura rapida</p>
+          <p>Lectura rápida</p>
           <ul class="highlights">
             {#each result.highlights as item (item)}
               <li>{item}</li>
@@ -548,16 +638,6 @@
     </section>
   {/if}
 
-  <section class="notes-section">
-    <div>
-      <p class="eyebrow">Analisis completo</p>
-      <h2>Todo lo importante en una sola revision</h2>
-    </div>
-    <p>
-      Reune en un unico informe lo que normalmente mirarias en PageSpeed, MDN Observatory, SecurityHeaders y
-      escaneres tipo Sucuri: velocidad, cabeceras, HTTPS, SEO, accesibilidad, WordPress y recursos sospechosos.
-    </p>
-  </section>
 </main>
 
 <style>
@@ -566,17 +646,19 @@
     min-height: 100vh;
     color: var(--text-main);
     background:
-      linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px) 0 0 / 72px 72px,
-      linear-gradient(180deg, var(--bg-main) 0%, var(--bg-surface) 58%, var(--bg-main) 100%);
+      radial-gradient(circle at 16% 10%, rgba(0, 113, 227, 0.12), transparent 28rem),
+      radial-gradient(circle at 86% 8%, rgba(139, 92, 246, 0.1), transparent 28rem),
+      linear-gradient(90deg, rgba(15, 23, 42, 0.055) 1px, transparent 1px) 0 0 / 76px 76px,
+      linear-gradient(180deg, #fbfdff 0%, var(--bg-surface) 60%, var(--bg-main) 100%);
     font-family: var(--font-sans);
   }
 
   .tool-hero {
     position: relative;
     z-index: 1;
-    width: min(1040px, calc(100% - 32px));
+    width: min(980px, calc(100% - 32px));
     margin: 0 auto;
-    padding: max(7rem, calc(env(safe-area-inset-top, 0px) + 6rem)) 0 2.2rem;
+    padding: max(6.4rem, calc(env(safe-area-inset-top, 0px) + 5.4rem)) 0 1.2rem;
     text-align: center;
   }
 
@@ -608,8 +690,10 @@
   h1 {
     max-width: 12ch;
     margin: 0 auto;
-    font-size: clamp(2.75rem, 7vw, 5.6rem);
-    line-height: 0.94;
+    font-size: clamp(3rem, 6.8vw, 5.8rem);
+    font-weight: 900;
+    letter-spacing: -0.058em;
+    line-height: 0.9;
   }
 
   h2 {
@@ -618,90 +702,411 @@
   }
 
   .lead {
-    max-width: 68ch;
-    margin: 1.25rem auto 0;
-    color: var(--text-secondary);
+    max-width: 720px;
+    margin: 1rem auto 0;
+    color: #1f2937;
     font-size: clamp(1.02rem, 2vw, 1.18rem);
-    line-height: 1.72;
+    font-weight: 520;
+    line-height: 1.68;
   }
 
-  .tool-spec {
-    width: min(100%, 720px);
-    margin: 1.8rem auto 0;
-    border-top: 1px solid rgba(15, 23, 42, 0.16);
-    border-bottom: 1px solid rgba(15, 23, 42, 0.16);
+  .analysis-loading {
+    position: relative;
+    z-index: 1;
+    width: min(760px, calc(100% - 32px));
+    margin: clamp(1.3rem, 3vw, 2rem) auto 2.5rem;
+    padding: clamp(1.2rem, 3vw, 1.8rem);
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 8px;
+    background:
+      linear-gradient(90deg, rgba(0, 113, 227, 0.08), transparent 36%, rgba(16, 185, 129, 0.08)),
+      rgba(255, 255, 255, 0.94);
+    box-shadow:
+      0 24px 70px rgba(15, 23, 42, 0.11),
+      0 1px 0 rgba(255, 255, 255, 0.82) inset;
+  }
+
+  .analysis-loading::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 0 34%, rgba(255, 255, 255, 0.72) 46%, transparent 58% 100%);
+    animation: analysisSweep 2.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .loading-orbit {
+    position: relative;
+    width: 128px;
+    aspect-ratio: 1;
+    margin: 0 auto 1rem;
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at center, rgba(255, 255, 255, 0.98) 0 58%, transparent 59%),
+      conic-gradient(from 40deg, #0071e3 0 24%, rgba(0, 113, 227, 0.14) 24% 52%, #10b981 52% 76%, rgba(16, 185, 129, 0.16) 76% 100%);
+    box-shadow: 0 18px 52px rgba(0, 113, 227, 0.18);
+    animation: orbitSpin 1.65s linear infinite;
+  }
+
+  .loading-orbit span {
+    position: absolute;
+    inset: 50%;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 999px;
+    background: #0071e3;
+    box-shadow: 0 0 0 8px rgba(0, 113, 227, 0.12);
+    transform: translate(48px, -48px);
+  }
+
+  .loading-orbit i {
+    position: absolute;
+    inset: 34px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.96);
+  }
+
+  .loading-copy {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+
+  .loading-copy h2 {
+    margin: 0;
+    color: #101114;
+    font-size: clamp(1.65rem, 3vw, 2.35rem);
+    font-weight: 950;
+    letter-spacing: -0.055em;
+    line-height: 1;
+  }
+
+  .loading-copy p:last-child {
+    max-width: 58ch;
+    margin: 0.75rem auto 0;
+    color: #475569;
+    font-weight: 620;
+    line-height: 1.58;
+  }
+
+  .analysis-progress {
+    position: relative;
+    z-index: 1;
+    height: 8px;
+    margin-top: 1.2rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.2);
+  }
+
+  .analysis-progress span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 38%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #0071e3, #10b981);
+    animation: progressDrift 1.7s ease-in-out infinite;
+  }
+
+  .analysis-steps {
+    position: relative;
+    z-index: 1;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-top: 1rem;
   }
 
-  .tool-spec div {
-    padding: 0.92rem 1rem 0.92rem 0;
-    border-right: 1px solid rgba(15, 23, 42, 0.12);
+  .analysis-steps span {
+    min-height: 42px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(0, 113, 227, 0.12);
+    border-radius: 8px;
+    color: #0052b8;
+    background: rgba(0, 113, 227, 0.06);
+    font-size: 0.78rem;
+    font-weight: 900;
+    animation: stepPulse 1.6s ease-in-out infinite;
   }
 
-  .tool-spec div:last-child {
-    border-right: 0;
-    padding-left: 1rem;
+  .analysis-steps span:nth-child(2) {
+    animation-delay: 0.18s;
   }
 
-  .tool-spec div:nth-child(2) {
-    padding-left: 1rem;
+  .analysis-steps span:nth-child(3) {
+    animation-delay: 0.36s;
   }
 
-  .tool-spec span {
-    display: block;
-    margin-bottom: 0.25rem;
-    color: var(--text-secondary);
-    font-size: 0.72rem;
+  .analysis-steps span:nth-child(4) {
+    animation-delay: 0.54s;
+  }
+
+  .hero-results {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 940px);
+    margin: clamp(1.4rem, 3vw, 2.3rem) auto 0;
+    text-align: left;
+  }
+
+  .global-score {
+    display: grid;
+    justify-items: center;
+    gap: 0.62rem;
+    text-align: center;
+  }
+
+  .global-score-ring,
+  .mini-ring {
+    --score: 0;
+    --score-tone: #94a3b8;
+    display: grid;
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at center, rgba(255, 255, 255, 0.98) 0 58%, transparent 59%),
+      conic-gradient(var(--score-tone) calc(var(--score) * 1%), rgba(148, 163, 184, 0.2) 0);
+  }
+
+  .global-score-ring {
+    width: clamp(160px, 18vw, 210px);
+    box-shadow:
+      0 0 0 1px rgba(34, 197, 94, 0.16),
+      0 22px 72px color-mix(in srgb, var(--score-tone) 25%, transparent);
+  }
+
+  .global-score-ring span {
+    color: var(--score-tone);
+    font-size: clamp(2.55rem, 5vw, 4.45rem);
+    font-weight: 950;
+    letter-spacing: -0.065em;
+    line-height: 1;
+  }
+
+  .global-score strong {
+    color: #101114;
+    font-size: clamp(1.2rem, 2vw, 1.48rem);
+    font-weight: 950;
+    letter-spacing: -0.035em;
+  }
+
+  .global-score p {
+    margin: -0.3rem 0 0;
+    color: #64748b;
+    font-size: 0.88rem;
     font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
 
-  .tool-spec strong {
-    display: block;
-    color: var(--text-main);
-    font-size: 0.94rem;
+  .hero-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin-top: clamp(1.25rem, 3vw, 1.8rem);
   }
 
-  .measurement-strip {
-    width: min(100%, 460px);
-    margin-top: 1.3rem;
+  .metric-card,
+  .hero-suggestions article {
+    border: 1px solid rgba(15, 23, 42, 0.11);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow:
+      0 16px 36px rgba(15, 23, 42, 0.08),
+      0 1px 0 rgba(255, 255, 255, 0.86) inset;
+  }
+
+  .metric-card {
+    padding: 0.95rem 1rem;
+  }
+
+  .metric-card h2,
+  .hero-suggestions h2 {
+    margin: 0;
+    color: #101114;
+    font-size: clamp(1.15rem, 2vw, 1.55rem);
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  .metric-card-body {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 0.8rem;
+    align-items: center;
+    margin-top: 0.75rem;
+  }
+
+  .mini-ring {
+    width: 88px;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.1);
+  }
+
+  .mini-ring span {
+    color: #101114;
+    font-size: 1.28rem;
+    font-weight: 950;
+    letter-spacing: -0.04em;
+  }
+
+  .metric-card ul {
     display: grid;
     gap: 0.42rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .metric-card li {
+    display: flex;
+    gap: 0.42rem;
+    align-items: flex-start;
+    color: #1f2937;
+    font-size: 0.84rem;
+    font-weight: 720;
+    line-height: 1.3;
+  }
+
+  .metric-card li span {
+    display: grid;
+    flex: 0 0 auto;
+    width: 1rem;
+    height: 1rem;
+    place-items: center;
+    border-radius: 999px;
+    background: #22c55e;
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  .metric-card li span.marker-warn {
+    background: #f2b015;
+  }
+
+  .metric-card li span.marker-low {
+    background: #f43f5e;
+  }
+
+  .metric-card.score-mid li span {
+    background: #f2b015;
+  }
+
+  .metric-card.score-low li span {
+    background: #f43f5e;
+  }
+
+  .hero-suggestions {
+    margin-top: clamp(1.3rem, 3vw, 2rem);
+  }
+
+  .hero-suggestions > div {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin-top: 0.8rem;
+  }
+
+  .hero-suggestions article {
+    min-height: 112px;
+    padding: 0.95rem;
+  }
+
+  .hero-suggestions strong {
+    display: block;
+    color: #101114;
+    font-size: 1rem;
+    font-weight: 920;
+    letter-spacing: -0.025em;
+    line-height: 1.12;
+  }
+
+  .hero-suggestions p {
+    margin: 0.58rem 0 0;
+    color: #475569;
+    font-size: 0.88rem;
+    line-height: 1.46;
+  }
+
+  .lead-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.48fr) auto;
+    gap: 0.7rem;
+    align-items: end;
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(0, 113, 227, 0.14);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+  }
+
+  .lead-panel h2 {
+    margin: 0;
+    color: #101114;
+    font-size: 1.15rem;
+    font-weight: 950;
+    letter-spacing: -0.035em;
+  }
+
+  .lead-panel p {
+    margin: 0.3rem 0 0;
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.42;
+  }
+
+  .lead-panel input {
+    min-height: 44px;
+  }
+
+  .lead-panel button,
+  .reset-button {
+    min-height: 44px;
+  }
+
+  .lead-panel .feedback {
+    grid-column: 1 / -1;
+  }
+
+  .lead-hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .reset-button {
+    display: flex;
+    width: fit-content;
+    margin: 0.8rem auto 0;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: rgba(255, 255, 255, 0.82);
+    color: #101114;
+    box-shadow: none;
   }
 
   .analyzer-section {
     position: relative;
     z-index: 1;
-    width: min(820px, calc(100% - 32px));
+    width: min(760px, calc(100% - 32px));
     margin: 0 auto;
-    padding-bottom: 3rem;
-  }
-
-  .measurement-strip span {
-    width: var(--w);
-    height: 3px;
-    background: #111318;
-    opacity: 0.82;
-  }
-
-  .measurement-strip span:nth-child(2) {
-    opacity: 0.42;
-  }
-
-  .measurement-strip span:nth-child(3) {
-    opacity: 0.18;
+    padding: 1.2rem 0 2.2rem;
   }
 
   .analyzer-card {
     position: relative;
     padding: clamp(1.1rem, 3vw, 1.8rem);
     border: 1px solid rgba(15, 23, 42, 0.14);
-    border-radius: 10px;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.94);
     box-shadow:
-      0 22px 60px rgba(15, 23, 42, 0.1),
+      0 24px 70px rgba(15, 23, 42, 0.11),
       0 1px 0 rgba(255, 255, 255, 0.8) inset;
     backdrop-filter: blur(14px);
   }
@@ -752,9 +1157,10 @@
   .analyzer-card label {
     display: block;
     color: var(--text-main);
-    font-size: clamp(1.35rem, 2vw, 1.7rem);
+    font-size: clamp(1.42rem, 2vw, 1.86rem);
     font-weight: 900;
-    line-height: 1.05;
+    letter-spacing: -0.035em;
+    line-height: 1.02;
   }
 
   .status-pill {
@@ -777,12 +1183,6 @@
     height: 0.48rem;
     border-radius: 999px;
     background: #94a3b8;
-  }
-
-  .status-pill--active::before {
-    background: #0071e3;
-    box-shadow: 0 0 0 0 rgba(0, 113, 227, 0.32);
-    animation: statusPulse 1.2s ease-out infinite;
   }
 
   .input-row {
@@ -835,6 +1235,20 @@
     transform: none;
   }
 
+  .reset-button {
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: rgba(255, 255, 255, 0.82);
+    color: #101114;
+    box-shadow: none;
+  }
+
+  .reset-button:hover,
+  .reset-button:focus-visible {
+    background: #ffffff;
+    color: #0066e5;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+  }
+
   .input-help,
   .feedback {
     margin: 0.65rem 0 0;
@@ -847,181 +1261,9 @@
     font-weight: 800;
   }
 
-  .diagnostic-stage {
-    margin-top: 1.35rem;
-    display: grid;
-    grid-template-columns: 168px minmax(0, 1fr);
-    gap: 1rem;
-    align-items: stretch;
-  }
-
-  .diagnostic-stage.loading {
-    opacity: 0.82;
-  }
-
-  .score-ring {
-    --score: 0;
-    --score-tone: #94a3b8;
-    min-height: 168px;
-    border-radius: 10px;
-    display: grid;
-    place-items: center;
-    background:
-      radial-gradient(circle at center, rgba(255, 255, 255, 0.98) 0 55%, transparent 56%),
-      conic-gradient(var(--score-tone) calc(var(--score) * 1%), rgba(148, 163, 184, 0.22) 0);
-    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
-  }
-
-  .score-core {
-    width: 112px;
-    height: 112px;
-    border-radius: 8px;
-    display: grid;
-    place-items: center;
-    align-content: center;
-    gap: 0.1rem;
-    background: #ffffff;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-  }
-
-  .score-core span {
-    color: #0f172a;
-    font-size: 1.9rem;
-    font-weight: 950;
-    line-height: 1;
-  }
-
-  .score-core small {
-    color: #475569;
+  .feedback.success {
+    color: #047857;
     font-weight: 850;
-  }
-
-  .metrics {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.65rem;
-  }
-
-  .metrics div {
-    min-height: 78px;
-    padding: 0.85rem;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 8px;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.9));
-  }
-
-  .metrics span {
-    display: block;
-    color: #64748b;
-    font-size: 0.72rem;
-    font-weight: 850;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .metrics strong {
-    display: block;
-    margin-top: 0.42rem;
-    color: #0f172a;
-    font-size: 1.12rem;
-  }
-
-  .loading-panel {
-    margin-top: 1rem;
-    padding: 1rem;
-    border: 1px solid rgba(0, 113, 227, 0.14);
-    border-radius: 8px;
-    background:
-      linear-gradient(180deg, rgba(0, 113, 227, 0.06), rgba(255, 255, 255, 0.84));
-  }
-
-  .loading-panel__head {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    align-items: flex-start;
-  }
-
-  .loading-panel__head p {
-    margin: 0 0 0.2rem;
-    color: #0066e5;
-    font-size: 0.72rem;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .loading-panel__head strong {
-    display: block;
-    color: #0f172a;
-    font-size: 0.95rem;
-    line-height: 1.45;
-  }
-
-  .loading-panel__head span {
-    flex: 0 0 auto;
-    color: #475569;
-    font-size: 0.82rem;
-    font-weight: 900;
-  }
-
-  .loading-bar {
-    position: relative;
-    height: 8px;
-    margin-top: 0.9rem;
-    overflow: hidden;
-    border-radius: 999px;
-    background: rgba(148, 163, 184, 0.22);
-  }
-
-  .loading-bar span {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: var(--loading-progress);
-    min-width: 18%;
-    border-radius: inherit;
-    background: linear-gradient(90deg, #0066e5, #11a37f);
-    transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .loading-bar span::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
-    animation: loadingSweep 1.4s ease-in-out infinite;
-  }
-
-  .loading-steps {
-    margin-top: 0.9rem;
-    display: grid;
-    gap: 0.45rem;
-  }
-
-  .loading-steps span {
-    position: relative;
-    padding-left: 1.25rem;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    animation: stepGlow 1.2s ease-in-out infinite alternate;
-    animation-delay: var(--delay);
-  }
-
-  .loading-steps span.step-active {
-    color: #0f172a;
-    font-weight: 800;
-  }
-
-  .loading-steps span::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0.55em;
-    width: 0.42rem;
-    height: 0.42rem;
-    border-radius: 999px;
-    background: #0071e3;
   }
 
   .highlights-panel {
@@ -1045,136 +1287,72 @@
     line-height: 1.62;
   }
 
-  .delivery-verdict {
-    padding: 1rem;
-    border: 1px solid rgba(15, 23, 42, 0.1);
+  .report-section {
+    position: relative;
+    z-index: 1;
+    width: min(980px, calc(100% - 32px));
+    margin: 0 auto 2.6rem;
+  }
+
+  .full-report {
+    padding: clamp(1rem, 2vw, 1.25rem);
+    border: 1px solid rgba(15, 23, 42, 0.12);
     border-radius: 8px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 20px 52px rgba(15, 23, 42, 0.08);
+  }
+
+  .full-report > summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    background: #f8fafc;
+    cursor: pointer;
+    list-style: none;
   }
 
-  .delivery-verdict span,
-  .category-grid span {
-    display: block;
-    color: #64748b;
+  .full-report > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .full-report > summary span {
+    color: #0071e3;
     font-size: 0.72rem;
     font-weight: 900;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
-  .delivery-verdict strong {
-    display: block;
-    margin-top: 0.2rem;
-    color: #0f172a;
-    font-size: 1.45rem;
-    line-height: 1;
-  }
-
-  .delivery-verdict p {
-    margin: 0;
-    color: #0f172a;
-    font-size: 1.25rem;
+  .full-report > summary strong {
+    color: #101114;
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
     font-weight: 950;
+    letter-spacing: -0.035em;
   }
 
-  .verdict-block {
-    border-color: rgba(244, 63, 94, 0.26);
-    background: rgba(244, 63, 94, 0.08);
-  }
-
-  .verdict-review {
-    border-color: rgba(245, 158, 11, 0.28);
-    background: rgba(245, 158, 11, 0.1);
-  }
-
-  .verdict-ready {
-    border-color: rgba(16, 185, 129, 0.24);
-    background: rgba(16, 185, 129, 0.1);
-  }
-
-  .category-grid {
+  .full-report > summary::after {
+    content: "+";
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 0.55rem;
-  }
-
-  .category-grid div {
-    min-height: 76px;
-    padding: 0.75rem;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 8px;
-    background: rgba(248, 250, 252, 0.9);
-  }
-
-  .category-grid strong {
-    display: block;
-    margin-top: 0.38rem;
-    color: #0f172a;
-    font-size: 1.05rem;
-  }
-
-  .signals-strip {
-    margin-top: 0.8rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-  }
-
-  .signals-strip span {
-    padding: 0.38rem 0.55rem;
-    border: 1px solid rgba(15, 23, 42, 0.1);
-    border-radius: 8px;
-    color: #475569;
-    background: #f8fafc;
-    font-size: 0.78rem;
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 999px;
+    color: #101114;
+    background: #ffffff;
+    font-size: 1.1rem;
     font-weight: 850;
   }
 
-  .signals-strip .signal-ok {
-    border-color: rgba(16, 185, 129, 0.24);
-    color: #047857;
-    background: rgba(16, 185, 129, 0.1);
-  }
-
-  .signals-strip .signal-warn {
-    border-color: rgba(245, 158, 11, 0.28);
-    color: #92400e;
-    background: rgba(245, 158, 11, 0.1);
-  }
-
-  .report-section {
-    position: relative;
-    z-index: 1;
-    width: min(1180px, calc(100% - 32px));
-    margin: 0 auto 3.2rem;
-  }
-
-  .report-summary {
-    display: grid;
-    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.35fr);
-    gap: 0.85rem;
-    align-items: stretch;
+  .full-report[open] > summary {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.1);
     margin-bottom: 1rem;
   }
 
-  .report-summary .metrics {
-    grid-column: 1 / -1;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
-  .report-summary .signals-strip {
-    grid-column: 1 / -1;
-  }
-
-  .full-report {
-    padding: 1rem;
-    border: 1px solid rgba(15, 23, 42, 0.12);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.92);
+  .full-report[open] > summary::after {
+    content: "-";
   }
 
   .report-head {
@@ -1395,76 +1573,121 @@
     line-height: 1.55;
   }
 
-  .notes-section {
-    position: relative;
-    z-index: 1;
-    width: min(980px, calc(100% - 32px));
-    margin: 0 auto 4rem;
-    padding: clamp(1.2rem, 3vw, 2rem);
-    display: grid;
-    grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1fr);
-    gap: 2rem;
-    border-top: 1px solid rgba(15, 23, 42, 0.12);
-  }
-
-  .notes-section p:last-child {
-    margin: 0;
-    color: var(--text-secondary);
-    line-height: 1.78;
-  }
-
-  @keyframes statusPulse {
-    to {
-      box-shadow: 0 0 0 8px rgba(0, 113, 227, 0);
-    }
-  }
-
-  @keyframes stepGlow {
+  @keyframes analysisSweep {
     from {
-      opacity: 0.52;
+      transform: translateX(-120%);
     }
     to {
+      transform: translateX(120%);
+    }
+  }
+
+  @keyframes orbitSpin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes progressDrift {
+    0% {
+      transform: translateX(-40%);
+    }
+    50% {
+      transform: translateX(140%);
+    }
+    100% {
+      transform: translateX(-40%);
+    }
+  }
+
+  @keyframes stepPulse {
+    0%,
+    100% {
+      opacity: 0.58;
+      transform: translateY(0);
+    }
+    50% {
       opacity: 1;
-    }
-  }
-
-  @keyframes loadingSweep {
-    from {
-      transform: translateX(-100%);
-    }
-    to {
-      transform: translateX(100%);
+      transform: translateY(-2px);
     }
   }
 
   :global(html.dark) .tool-page {
     background:
-      linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 72px 72px,
+      radial-gradient(circle at 16% 10%, rgba(0, 113, 227, 0.12), transparent 28rem),
+      radial-gradient(circle at 86% 8%, rgba(139, 156, 255, 0.1), transparent 28rem),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 76px 76px,
       linear-gradient(180deg, #0a0a0a 0%, #0b0b0b 52%, #0a0a0a 100%);
   }
 
-  :global(html.dark) .tool-spec {
-    border-color: rgba(255, 255, 255, 0.16);
+  :global(html.dark) .lead {
+    color: #d4d4d8;
   }
 
-  :global(html.dark) .tool-spec div {
+  :global(html.dark) .global-score-ring,
+  :global(html.dark) .mini-ring {
+    background:
+      radial-gradient(circle at center, rgba(18, 18, 18, 0.98) 0 58%, transparent 59%),
+      conic-gradient(var(--score-tone) calc(var(--score) * 1%), rgba(255, 255, 255, 0.12) 0);
+  }
+
+  :global(html.dark) .global-score strong,
+  :global(html.dark) .metric-card h2,
+  :global(html.dark) .hero-suggestions h2,
+  :global(html.dark) .lead-panel h2,
+  :global(html.dark) .full-report > summary strong,
+  :global(html.dark) .hero-suggestions strong,
+  :global(html.dark) .mini-ring span {
+    color: #f8fafc;
+  }
+
+  :global(html.dark) .global-score p,
+  :global(html.dark) .metric-card li,
+  :global(html.dark) .lead-panel p,
+  :global(html.dark) .hero-suggestions p,
+  :global(html.dark) .loading-copy p:last-child {
+    color: #d4d4d8;
+  }
+
+  :global(html.dark) .analysis-loading {
     border-color: rgba(255, 255, 255, 0.12);
+    background:
+      linear-gradient(90deg, rgba(0, 113, 227, 0.12), transparent 36%, rgba(16, 185, 129, 0.1)),
+      rgba(18, 18, 18, 0.86);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
   }
 
-  :global(html.dark) .measurement-strip span {
-    background: #f8fafc;
+  :global(html.dark) .analysis-loading::before {
+    background: linear-gradient(110deg, transparent 0 34%, rgba(255, 255, 255, 0.1) 46%, transparent 58% 100%);
+  }
+
+  :global(html.dark) .loading-orbit {
+    background:
+      radial-gradient(circle at center, rgba(18, 18, 18, 0.98) 0 58%, transparent 59%),
+      conic-gradient(from 40deg, #60a5fa 0 24%, rgba(96, 165, 250, 0.16) 24% 52%, #34d399 52% 76%, rgba(52, 211, 153, 0.16) 76% 100%);
+  }
+
+  :global(html.dark) .loading-orbit i {
+    background: rgba(18, 18, 18, 0.96);
+  }
+
+  :global(html.dark) .loading-copy h2 {
+    color: #f8fafc;
+  }
+
+  :global(html.dark) .analysis-steps span {
+    border-color: rgba(96, 165, 250, 0.18);
+    color: #bfdbfe;
+    background: rgba(96, 165, 250, 0.08);
   }
 
   :global(html.dark) .analyzer-card,
-  :global(html.dark) .metrics div,
-  :global(html.dark) .score-core,
+  :global(html.dark) .metric-card,
+  :global(html.dark) .hero-suggestions article,
+  :global(html.dark) .lead-panel,
   :global(html.dark) .highlights-panel,
-  :global(html.dark) .loading-panel,
   :global(html.dark) .preflight-panel,
   :global(html.dark) .preflight-panel span,
-  :global(html.dark) .delivery-verdict,
-  :global(html.dark) .category-grid div,
-  :global(html.dark) .signals-strip span,
   :global(html.dark) .full-report,
   :global(html.dark) .source-grid div,
   :global(html.dark) .category-report__section,
@@ -1476,6 +1699,13 @@
     border-color: rgba(255, 255, 255, 0.12);
     background: rgba(18, 18, 18, 0.86);
     box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+  }
+
+  :global(html.dark) .reset-button,
+  :global(html.dark) .full-report > summary::after {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.07);
+    color: #f8fafc;
   }
 
   :global(html.dark) input {
@@ -1490,17 +1720,6 @@
     color: #d4d4d8;
   }
 
-  :global(html.dark) .score-ring {
-    background:
-      radial-gradient(circle at center, rgba(18, 18, 18, 0.98) 0 55%, transparent 56%),
-      conic-gradient(var(--score-tone) calc(var(--score) * 1%), rgba(255, 255, 255, 0.12) 0);
-  }
-
-  :global(html.dark) .score-core span,
-  :global(html.dark) .metrics strong,
-  :global(html.dark) .delivery-verdict strong,
-  :global(html.dark) .delivery-verdict p,
-  :global(html.dark) .category-grid strong,
   :global(html.dark) .preflight-panel p,
   :global(html.dark) .report-head h2,
   :global(html.dark) .source-grid strong,
@@ -1511,13 +1730,7 @@
     color: #f8fafc;
   }
 
-  :global(html.dark) .score-core small,
-  :global(html.dark) .metrics span,
-  :global(html.dark) .delivery-verdict span,
-  :global(html.dark) .category-grid span,
   :global(html.dark) .highlights,
-  :global(html.dark) .loading-panel__head span,
-  :global(html.dark) .signals-strip span,
   :global(html.dark) .report-counters span,
   :global(html.dark) .category-report__section header p,
   :global(html.dark) .detailed-issue-list p,
@@ -1526,19 +1739,18 @@
     color: #d4d4d8;
   }
 
-  :global(html.dark) .loading-panel__head strong,
-  :global(html.dark) .loading-steps span.step-active {
-    color: #f8fafc;
-  }
-
-  :global(html.dark) .notes-section {
-    border-top-color: rgba(255, 255, 255, 0.12);
-  }
-
   @media (max-width: 940px) {
-    .tool-hero,
-    .notes-section,
-    .report-summary {
+    .tool-hero {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-metric-grid,
+    .hero-suggestions > div,
+    .analysis-steps {
+      grid-template-columns: 1fr;
+    }
+
+    .lead-panel {
       grid-template-columns: 1fr;
     }
 
@@ -1553,11 +1765,15 @@
       padding-top: max(6.5rem, calc(env(safe-area-inset-top, 0px) + 5.5rem));
     }
 
+    .metric-card-body {
+      grid-template-columns: 82px minmax(0, 1fr);
+    }
+
+    .mini-ring {
+      width: 78px;
+    }
+
     .input-row,
-    .diagnostic-stage,
-    .metrics,
-    .category-grid,
-    .report-summary .metrics,
     .source-grid {
       grid-template-columns: 1fr;
     }
@@ -1575,8 +1791,5 @@
       justify-content: flex-start;
     }
 
-    .score-ring {
-      min-height: 148px;
-    }
   }
 </style>

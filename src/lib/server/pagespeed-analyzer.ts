@@ -140,22 +140,22 @@ function severityFromScore(score: number): Severity {
 function highlightsFromScore(score: number): string[] {
   if (score < 50) {
     return [
-      'Tu web carga lenta en movil y puede perder clientes antes de ver el contenido.',
-      'Optimizar imagenes, scripts y cache mejoraria velocidad y posicionamiento local.',
-      'Podemos prepararla para que convierta mejor en Alcoy y alrededores.'
+      'La página carga lenta en móvil y puede hacer que parte de los usuarios abandone antes de ver el contenido.',
+      'Optimizar imágenes, scripts y caché mejoraría velocidad y estabilidad.',
+      'Conviene revisar LCP, peso total y recursos bloqueantes antes de publicar cambios.'
     ];
   }
   if (score < 90) {
     return [
-      'La velocidad es mejorable, sobre todo en movil.',
-      'Con ajustes tecnicos se puede reducir el tiempo de carga y mejorar experiencia.',
-      'Una optimizacion enfocada a conversion local puede marcar diferencia.'
+      'La velocidad es mejorable, sobre todo en móvil.',
+      'Con ajustes técnicos se puede reducir el tiempo de carga y mejorar la experiencia.',
+      'Prioriza recursos críticos, imágenes y JavaScript antes de tocar cambios visuales.'
     ];
   }
   return [
     'La base de rendimiento es buena.',
-    'Aun se puede trabajar conversion, mensajes y SEO local para captar mas contactos.',
-    'Podemos ayudarte a mantener esta nota y mejorar resultados de negocio.'
+    'Aún se puede afinar carga, accesibilidad y SEO técnico.',
+    'Mantén estas métricas vigiladas cuando cambien imágenes, scripts o dependencias.'
   ];
 }
 
@@ -176,7 +176,7 @@ function lighthouseIssue(
     category,
     severity: score < 50 ? 'critical' : 'warning',
     title,
-    why: 'Lighthouse marca esta categoria por debajo del nivel recomendable antes de entregar.',
+    why: 'Lighthouse marca esta categoría por debajo del nivel recomendable antes de entregar.',
     fix,
     evidence: `${score}/100`
   };
@@ -189,7 +189,7 @@ function fallbackAudit(url: string, lighthouseScores: Partial<Record<AuditCatego
     severity: 'warning',
     title: 'No se pudieron completar los checks propios',
     why: 'PageSpeed respondio, pero el analizador no pudo leer directamente la URL para revisar cabeceras, SEO y HTML.',
-    fix: 'Reintenta el analisis y comprueba que la web sea publica, estable y no bloquee peticiones externas.'
+    fix: 'Reintenta el análisis y comprueba que la web sea pública, estable y no bloquee peticiones externas.'
   };
   const issues = [...extraIssues, auditUnavailable];
   const categoryIds: AuditCategoryId[] = ['performance', 'security', 'seo', 'accessibility', 'quality'];
@@ -346,7 +346,7 @@ async function fetchAnalyze(url: string, strategy: 'mobile' | 'desktop'): Promis
         'performance',
         performanceScore,
         'Rendimiento por debajo del objetivo',
-        'Revisa LCP, peso de recursos, imagenes, cache y JavaScript que bloquee la carga.'
+        'Revisa LCP, peso de recursos, imágenes, caché y JavaScript que bloquee la carga.'
       ),
       lighthouseIssue(
         'lighthouse.accessibility',
@@ -360,7 +360,7 @@ async function fetchAnalyze(url: string, strategy: 'mobile' | 'desktop'): Promis
         'quality',
         bestPracticesScore,
         'Buenas practicas por debajo del objetivo',
-        'Revisa errores de navegador, librerias inseguras, APIs obsoletas y configuracion general.'
+        'Revisa errores de navegador, librerías inseguras, APIs obsoletas y configuración general.'
       ),
       lighthouseIssue(
         'lighthouse.seo',
@@ -407,10 +407,10 @@ async function fetchAnalyze(url: string, strategy: 'mobile' | 'desktop'): Promis
     signals: publicAudit.signals,
     highlights: [
       publicAudit.verdict === 'block'
-        ? 'Hay fallos bloqueantes: no entregues esta web sin revisar los puntos criticos.'
+        ? 'Hay fallos bloqueantes: no entregues esta web sin revisar los puntos críticos.'
         : publicAudit.verdict === 'review'
           ? 'La web se puede trabajar, pero hay mejoras importantes antes de entregarla.'
-          : 'La web esta en buen estado para entrega segun los checks automaticos.',
+          : 'La web está en buen estado para entrega según los checks automáticos.',
       ...highlightsFromScore(performanceScore)
     ],
     cached: false
@@ -462,11 +462,11 @@ async function processJob(jobId: string) {
     }
 
     if (error instanceof Error && error.name === 'AbortError') {
-      job.error = 'El analisis esta tardando demasiado. Prueba de nuevo en unos segundos.';
+      job.error = 'El análisis está tardando demasiado. Prueba de nuevo en unos segundos.';
     } else if (error instanceof Error && error.message === 'PAGESPEED_API_KEY_MISSING') {
       job.error = 'Falta configurar PAGESPEED_API_KEY en el servidor.';
     } else {
-      job.error = 'No se pudo completar el analisis en este momento.';
+      job.error = 'No se pudo completar el análisis en este momento.';
     }
     job.status = 'error';
     job.updatedAt = Date.now();
@@ -480,7 +480,7 @@ export async function enqueueAnalyzeJob(inputUrl: string, inputStrategy: unknown
   const normalizedUrl = normalizeUrl(toCleanString(inputUrl));
   if (!normalizedUrl) return { ok: false as const, error: 'Introduce una URL valida.', statusCode: 400 };
   if (!isAllowedPublicAuditUrl(normalizedUrl)) {
-    return { ok: false as const, error: 'Solo se pueden analizar URLs publicas http/https.', statusCode: 400 };
+    return { ok: false as const, error: 'Solo se pueden analizar URLs públicas http/https.', statusCode: 400 };
   }
 
   const strategy = normalizeStrategy(inputStrategy);
@@ -511,6 +511,19 @@ export async function enqueueAnalyzeJob(inputUrl: string, inputStrategy: unknown
   };
   jobs.set(id, job);
   latestJobByCacheKey.set(cacheKey, id);
+
+  if (env.VERCEL) {
+    await processJob(id);
+    const completedJob = jobs.get(id);
+    if (completedJob?.status === 'completed' && completedJob.result) {
+      return { ok: true as const, status: 'completed' as const, result: completedJob.result };
+    }
+    return {
+      ok: false as const,
+      error: completedJob?.error || 'No se pudo completar el análisis en este momento.',
+      statusCode: 502
+    };
+  }
 
   jobQueue = jobQueue.then(async () => {
     await processJob(id);

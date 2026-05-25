@@ -1,6 +1,5 @@
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
-import { JSDOM } from 'jsdom';
 
 export type AuditSeverity = 'critical' | 'warning' | 'info' | 'pass';
 export type AuditCategoryId = 'performance' | 'security' | 'seo' | 'accessibility' | 'quality';
@@ -231,7 +230,7 @@ function analyzeHeaders(snapshot: FetchSnapshot, requestedUrl: string): { issues
 				'critical',
 				'La URL final no usa HTTPS',
 				'Los formularios, cookies y datos del usuario quedan expuestos o generan avisos de navegador.',
-				'Activa SSL y fuerza redireccion permanente de HTTP a HTTPS.',
+				'Activa SSL y fuerza redirección permanente de HTTP a HTTPS.',
 				snapshot.url
 			)
 		);
@@ -246,8 +245,8 @@ function analyzeHeaders(snapshot: FetchSnapshot, requestedUrl: string): { issues
 				'security',
 				'critical',
 				'HTTP no redirige a HTTPS',
-				'Un visitante puede entrar por una version no segura.',
-				'Configura una redireccion 301 desde HTTP a HTTPS en hosting, CDN o servidor.'
+				'Un visitante puede entrar por una versión no segura.',
+				'Configura una redirección 301 desde HTTP a HTTPS en hosting, CDN o servidor.'
 			)
 		);
 	}
@@ -260,11 +259,11 @@ function analyzeHeaders(snapshot: FetchSnapshot, requestedUrl: string): { issues
 				'warning',
 				'Falta Strict-Transport-Security',
 				'HSTS ayuda a que el navegador recuerde que el sitio debe cargar siempre por HTTPS.',
-				'Anade Strict-Transport-Security con max-age alto cuando HTTPS este bien configurado.'
+				'Añade Strict-Transport-Security con max-age alto cuando HTTPS esté bien configurado.'
 			)
 		);
 	} else {
-		passed.push('HSTS esta presente.');
+		passed.push('HSTS está presente.');
 	}
 
 	if (!csp) {
@@ -290,7 +289,7 @@ function analyzeHeaders(snapshot: FetchSnapshot, requestedUrl: string): { issues
 			)
 		);
 	} else {
-		passed.push('CSP esta presente.');
+		passed.push('CSP está presente.');
 	}
 
 	if (!frameOptions && !hasSecureDirective(csp, 'frame-ancestors')) {
@@ -300,7 +299,7 @@ function analyzeHeaders(snapshot: FetchSnapshot, requestedUrl: string): { issues
 				'security',
 				'warning',
 				'Falta proteccion contra clickjacking',
-				'Sin X-Frame-Options o frame-ancestors, otras webs podrian embeber la pagina.',
+				'Sin X-Frame-Options o frame-ancestors, otras webs podrían embeber la página.',
 				'Usa frame-ancestors en CSP o X-Frame-Options: SAMEORIGIN.'
 			)
 		);
@@ -314,7 +313,7 @@ function analyzeHeaders(snapshot: FetchSnapshot, requestedUrl: string): { issues
 				'warning',
 				'Falta X-Content-Type-Options: nosniff',
 				'Evita que el navegador interprete archivos con un tipo distinto al declarado.',
-				'Anade X-Content-Type-Options: nosniff.'
+				'Añade X-Content-Type-Options: nosniff.'
 			)
 		);
 	}
@@ -365,11 +364,51 @@ function analyzeHeaders(snapshot: FetchSnapshot, requestedUrl: string): { issues
 	return { issues, passed };
 }
 
-function textOf(document: Document, selector: string, attr?: string): string {
-	const element = document.querySelector(selector);
-	if (!element) return '';
-	if (attr) return element.getAttribute(attr)?.trim() ?? '';
-	return element.textContent?.trim() ?? '';
+function decodeHtmlText(value: string): string {
+	return value
+		.replace(/<[^>]*>/g, ' ')
+		.replace(/&nbsp;/gi, ' ')
+		.replace(/&amp;/gi, '&')
+		.replace(/&quot;/gi, '"')
+		.replace(/&#39;/gi, "'")
+		.replace(/&lt;/gi, '<')
+		.replace(/&gt;/gi, '>')
+		.replace(/\s+/g, ' ')
+		.trim();
+}
+
+function getTags(html: string, tagName: string): string[] {
+	const matches = html.match(new RegExp(`<${tagName}\\b[^>]*(?:>[\\s\\S]*?<\\/${tagName}>|\\/?>)`, 'gi'));
+	return matches ?? [];
+}
+
+function getAttr(tag: string, name: string): string {
+	const escaped = name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+	const match = tag.match(new RegExp(`\\s${escaped}\\s*=\\s*(["'])(.*?)\\1`, 'i')) ?? tag.match(new RegExp(`\\s${escaped}\\s*=\\s*([^\\s>]+)`, 'i'));
+	return (match?.[2] ?? match?.[1] ?? '').trim();
+}
+
+function tagHasAttr(tag: string, name: string): boolean {
+	return new RegExp(`\\s${name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}(?:\\s*=|\\s|>|/)`, 'i').test(tag);
+}
+
+function tagText(html: string, tagName: string): string {
+	const match = html.match(new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i'));
+	return match?.[1] ? decodeHtmlText(match[1]) : '';
+}
+
+function metaContent(html: string, key: 'name' | 'property', value: string): string {
+	const tag = getTags(html, 'meta').find((item) => getAttr(item, key).toLowerCase() === value.toLowerCase());
+	return tag ? getAttr(tag, 'content') : '';
+}
+
+function canonicalHref(html: string): string {
+	const tag = getTags(html, 'link').find((item) => /\bcanonical\b/i.test(getAttr(item, 'rel')));
+	return tag ? getAttr(tag, 'href') : '';
+}
+
+function scriptBody(scriptTag: string): string {
+	return scriptTag.replace(/^<script\b[^>]*>/i, '').replace(/<\/script>$/i, '').trim();
 }
 
 function analyzeHtml(snapshot: FetchSnapshot): {
@@ -387,7 +426,7 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 				'critical',
 				'No se pudo leer HTML',
 				'Sin HTML no se puede auditar SEO, accesibilidad ni recursos visibles.',
-				'Comprueba que la URL devuelve una pagina HTML publica.',
+				'Comprueba que la URL devuelve una página HTML pública.',
 				`HTTP ${snapshot.status}`
 			)
 		);
@@ -398,42 +437,40 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 		};
 	}
 
-	const dom = new JSDOM(snapshot.html, { url: snapshot.url });
-	const document = dom.window.document;
 	const base = new URL(snapshot.url);
-	const title = textOf(document, 'title');
-	const description = textOf(document, 'meta[name="description" i]', 'content');
-	const canonical = textOf(document, 'link[rel="canonical" i]', 'href');
-	const h1s = [...document.querySelectorAll('h1')];
-	const ogTitle = textOf(document, 'meta[property="og:title" i]', 'content');
-	const ogImage = textOf(document, 'meta[property="og:image" i]', 'content');
-	const jsonLd = [...document.querySelectorAll('script[type="application/ld+json" i]')];
-	const images = [...document.querySelectorAll('img')];
-	const imagesWithoutAlt = images.filter((img) => !img.hasAttribute('alt')).length;
-	const scripts = [...document.querySelectorAll('script[src]')];
-	const iframes = [...document.querySelectorAll('iframe')];
-	const anchors = [...document.querySelectorAll('a[href]')];
+	const title = tagText(snapshot.html, 'title');
+	const description = metaContent(snapshot.html, 'name', 'description');
+	const canonical = canonicalHref(snapshot.html);
+	const h1s = getTags(snapshot.html, 'h1');
+	const ogTitle = metaContent(snapshot.html, 'property', 'og:title');
+	const ogImage = metaContent(snapshot.html, 'property', 'og:image');
+	const jsonLd = getTags(snapshot.html, 'script').filter((script) => getAttr(script, 'type').toLowerCase() === 'application/ld+json');
+	const images = getTags(snapshot.html, 'img');
+	const imagesWithoutAlt = images.filter((img) => !tagHasAttr(img, 'alt')).length;
+	const scripts = getTags(snapshot.html, 'script').filter((script) => getAttr(script, 'src'));
+	const iframes = getTags(snapshot.html, 'iframe');
+	const anchors = getTags(snapshot.html, 'a').filter((anchor) => getAttr(anchor, 'href'));
 	const internalLinks = anchors.filter((anchor) => {
 		try {
-			return new URL(anchor.getAttribute('href') ?? '', base).origin === base.origin;
+			return new URL(getAttr(anchor, 'href'), base).origin === base.origin;
 		} catch {
 			return false;
 		}
 	}).length;
 	const externalScripts = scripts.filter((script) => {
 		try {
-			return new URL(script.getAttribute('src') ?? '', base).origin !== base.origin;
+			return new URL(getAttr(script, 'src'), base).origin !== base.origin;
 		} catch {
 			return false;
 		}
 	});
 	const isWordPress =
 		/wp-content|wp-includes|wp-json|wordpress/i.test(snapshot.html) ||
-		/wordpress/i.test(textOf(document, 'meta[name="generator" i]', 'content'));
+		/wordpress/i.test(metaContent(snapshot.html, 'name', 'generator'));
 
 	if (!title) {
 		issues.push(
-			issue('seo.title', 'seo', 'critical', 'Falta title', 'El title es una senal basica para SEO y para la pestana del navegador.', 'Anade un title unico y descriptivo.')
+			issue('seo.title', 'seo', 'critical', 'Falta title', 'El title es una señal básica para SEO y para la pestaña del navegador.', 'Añade un title único y descriptivo.')
 		);
 	} else if (title.length < 20 || title.length > 70) {
 		issues.push(
@@ -453,13 +490,13 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 
 	if (!description) {
 		issues.push(
-			issue('seo.description', 'seo', 'warning', 'Falta meta description', 'Ayuda a controlar el resumen que puede verse en buscadores.', 'Anade una descripcion clara de la pagina.')
+			issue('seo.description', 'seo', 'warning', 'Falta meta description', 'Ayuda a controlar el resumen que puede verse en buscadores.', 'Añade una descripción clara de la página.')
 		);
 	}
 
 	if (!canonical) {
 		issues.push(
-			issue('seo.canonical', 'seo', 'warning', 'Falta canonical', 'El canonical reduce duplicados y ayuda a consolidar senales SEO.', 'Anade link rel="canonical" con la URL final preferida.')
+			issue('seo.canonical', 'seo', 'warning', 'Falta canonical', 'El canonical reduce duplicados y ayuda a consolidar señales SEO.', 'Añade link rel="canonical" con la URL final preferida.')
 		);
 	}
 
@@ -470,8 +507,8 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 				'seo',
 				h1s.length === 0 ? 'critical' : 'warning',
 				h1s.length === 0 ? 'Falta H1' : 'Hay mas de un H1',
-				'El H1 ayuda a entender el tema principal de la pagina.',
-				'Usa un unico H1 descriptivo por pagina.',
+				'El H1 ayuda a entender el tema principal de la página.',
+				'Usa un único H1 descriptivo por página.',
 				`${h1s.length} H1`
 			)
 		);
@@ -485,22 +522,22 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 				'info',
 				'Open Graph incompleto',
 				'Las vistas previas al compartir pueden verse pobres o incorrectas.',
-				'Anade al menos og:title, og:description y og:image.'
+				'Añade al menos og:title, og:description y og:image.'
 			)
 		);
 	}
 
 	if (!jsonLd.length) {
 		issues.push(
-			issue('seo.json-ld', 'seo', 'info', 'No hay JSON-LD', 'Los datos estructurados ayudan a explicar la pagina a buscadores.', 'Anade JSON-LD cuando tenga sentido: Organization, WebSite, Service, Article, Product o FAQ.')
+			issue('seo.json-ld', 'seo', 'info', 'No hay JSON-LD', 'Los datos estructurados ayudan a explicar la página a buscadores.', 'Añade JSON-LD cuando tenga sentido: Organization, WebSite, Service, Article, Product o FAQ.')
 		);
 	} else {
 		for (const script of jsonLd) {
 			try {
-				JSON.parse(script.textContent ?? '{}');
+				JSON.parse(scriptBody(script));
 			} catch {
 				issues.push(
-					issue('seo.json-ld-invalid', 'seo', 'warning', 'JSON-LD invalido', 'Un JSON-LD roto puede ser ignorado por buscadores.', 'Valida el bloque JSON-LD y corrige comas, llaves o strings.')
+					issue('seo.json-ld-invalid', 'seo', 'warning', 'JSON-LD inválido', 'Un JSON-LD roto puede ser ignorado por buscadores.', 'Valida el bloque JSON-LD y corrige comas, llaves o strings.')
 				);
 				break;
 			}
@@ -513,18 +550,18 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 				'accessibility.image-alt',
 				'accessibility',
 				'warning',
-				'Hay imagenes sin alt',
+				'Hay imágenes sin alt',
 				'Los lectores de pantalla y buscadores pierden contexto.',
-				'Anade alt descriptivo o alt vacio en imagenes puramente decorativas.',
-				`${imagesWithoutAlt} imagenes`
+				'Añade alt descriptivo o alt vacío en imágenes puramente decorativas.',
+				`${imagesWithoutAlt} imágenes`
 			)
 		);
 	}
 
 	const hiddenIframe = iframes.find((iframe) => {
-		const style = iframe.getAttribute('style')?.toLowerCase() ?? '';
-		const width = iframe.getAttribute('width') ?? '';
-		const height = iframe.getAttribute('height') ?? '';
+		const style = getAttr(iframe, 'style').toLowerCase();
+		const width = getAttr(iframe, 'width');
+		const height = getAttr(iframe, 'height');
 		return style.includes('display:none') || style.includes('visibility:hidden') || width === '0' || height === '0';
 	});
 	if (hiddenIframe) {
@@ -534,15 +571,15 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 				'quality',
 				'warning',
 				'Iframe oculto detectado',
-				'Los iframes ocultos pueden ser legitimos, pero tambien aparecen en inyecciones o tracking agresivo.',
+				'Los iframes ocultos pueden ser legítimos, pero también aparecen en inyecciones o tracking agresivo.',
 				'Revisa su src y elimina cualquier iframe no justificado.',
-				hiddenIframe.getAttribute('src') ?? 'iframe sin src'
+				getAttr(hiddenIframe, 'src') || 'iframe sin src'
 			)
 		);
 	}
 
 	for (const script of externalScripts) {
-		const src = script.getAttribute('src') ?? '';
+		const src = getAttr(script, 'src');
 		const parsed = new URL(src, base);
 		if (parsed.protocol !== 'https:' || SUSPICIOUS_HOST_PATTERNS.some((pattern) => pattern.test(parsed.hostname))) {
 			issues.push(
@@ -566,14 +603,14 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 				'security',
 				'warning',
 				'Posible mixed content',
-				'Recursos HTTP dentro de una pagina HTTPS pueden bloquearse o degradar seguridad.',
+				'Recursos HTTP dentro de una página HTTPS pueden bloquearse o degradar seguridad.',
 				'Cambia recursos http:// por https:// o alojalos localmente.'
 			)
 		);
 	}
 
 	const brokenHrefCount = anchors.filter((anchor) => {
-		const href = anchor.getAttribute('href')?.trim() ?? '';
+		const href = getAttr(anchor, 'href');
 		return href === '' || href === '#';
 	}).length;
 	if (brokenHrefCount > 0) {
@@ -616,7 +653,7 @@ async function analyzeSideFiles(origin: string, isHttps: boolean): Promise<{
 	const passed: string[] = [];
 	if (!robots.ok || !/user-agent\s*:/i.test(robots.text)) {
 		issues.push(
-			issue('seo.robots', 'seo', 'info', 'robots.txt no encontrado o invalido', 'robots.txt ayuda a orientar el rastreo de buscadores.', 'Publica un robots.txt basico que apunte al sitemap.')
+			issue('seo.robots', 'seo', 'info', 'robots.txt no encontrado o inválido', 'robots.txt ayuda a orientar el rastreo de buscadores.', 'Publica un robots.txt básico que apunte al sitemap.')
 		);
 	} else {
 		passed.push('robots.txt disponible.');
@@ -624,7 +661,7 @@ async function analyzeSideFiles(origin: string, isHttps: boolean): Promise<{
 
 	if (!sitemap.ok || !/<urlset|<sitemapindex/i.test(sitemap.text)) {
 		issues.push(
-			issue('seo.sitemap', 'seo', 'warning', 'sitemap.xml no encontrado', 'El sitemap facilita descubrir paginas importantes.', 'Genera y publica /sitemap.xml con las URLs indexables.')
+			issue('seo.sitemap', 'seo', 'warning', 'sitemap.xml no encontrado', 'El sitemap facilita descubrir páginas importantes.', 'Genera y publica /sitemap.xml con las URLs indexables.')
 		);
 	} else {
 		passed.push('sitemap.xml disponible.');
@@ -649,8 +686,8 @@ async function analyzeWordPress(origin: string, isWordPress: boolean): Promise<A
 			'quality',
 			'info',
 			'WordPress detectado',
-			'Conviene revisar version, plugins, cache, seguridad y actualizaciones antes de entregar.',
-			'Comprueba que core, tema y plugins esten actualizados y que no haya informacion innecesaria expuesta.'
+			'Conviene revisar versión, plugins, caché, seguridad y actualizaciones antes de entregar.',
+			'Comprueba que core, tema y plugins estén actualizados y que no haya información innecesaria expuesta.'
 		)
 	];
 	if (wpJson.ok) {
@@ -659,9 +696,9 @@ async function analyzeWordPress(origin: string, isWordPress: boolean): Promise<A
 				'security.wp-json',
 				'security',
 				'info',
-				'wp-json esta accesible',
-				'Es normal en WordPress, pero puede exponer usuarios, plugins o endpoints segun configuracion.',
-				'Revisa que no exponga informacion sensible y limita endpoints si el proyecto no los necesita.'
+				'wp-json está accesible',
+				'Es normal en WordPress, pero puede exponer usuarios, plugins o endpoints según configuración.',
+				'Revisa que no exponga información sensible y limita endpoints si el proyecto no los necesita.'
 			)
 		);
 	}
@@ -673,7 +710,7 @@ async function analyzeWordPress(origin: string, isWordPress: boolean): Promise<A
 				'warning',
 				'xmlrpc.php responde',
 				'XML-RPC puede ampliar superficie de ataque si no se usa.',
-				'Desactivalo o restringelo si no es necesario para Jetpack, apps moviles u otras integraciones.'
+				'Desactívalo o restríngelo si no es necesario para Jetpack, apps móviles u otras integraciones.'
 			)
 		);
 	}
