@@ -512,6 +512,19 @@ export async function enqueueAnalyzeJob(inputUrl: string, inputStrategy: unknown
   jobs.set(id, job);
   latestJobByCacheKey.set(cacheKey, id);
 
+  if (env.VERCEL) {
+    await processJob(id);
+    const completedJob = jobs.get(id);
+    if (completedJob?.status === 'completed' && completedJob.result) {
+      return { ok: true as const, status: 'completed' as const, result: completedJob.result };
+    }
+    return {
+      ok: false as const,
+      error: completedJob?.error || 'No se pudo completar el analisis en este momento.',
+      statusCode: 502
+    };
+  }
+
   jobQueue = jobQueue.then(async () => {
     await processJob(id);
   });
