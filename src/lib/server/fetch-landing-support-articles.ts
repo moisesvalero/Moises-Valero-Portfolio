@@ -1,4 +1,3 @@
-import { landingSupportArticleFallbacks } from '$lib/data/landing-support-articles';
 import type { LandingSupportArticle } from '$lib/types/landing-support-article';
 import { getSanityProjectConfig, getSanityServerClient } from './sanity/get-server-client';
 import { imageUrl } from './sanity/image-builder';
@@ -53,12 +52,6 @@ function mapRow(
     coverImageSrc: imageFromAsset || asString(row.coverImageSrc, '/og-image.png'),
     coverImageAlt: asString(row.coverImageAlt, title),
     bodyHtml: asString(row.bodyHtml, ''),
-    ctaTitle: asString(row.ctaTitle, 'Quieres mejorar tu web en Alcoy?'),
-    ctaText: asString(row.ctaText, 'Te ayudo a mejorar velocidad, seguridad y conversion en tu web local.'),
-    ctaPrimaryLabel: asString(row.ctaPrimaryLabel, 'Pedir una revision'),
-    ctaPrimaryHref: asString(row.ctaPrimaryHref, '/api/contact/whatsapp'),
-    ctaSecondaryLabel: asString(row.ctaSecondaryLabel, 'Volver a la web'),
-    ctaSecondaryHref: asString(row.ctaSecondaryHref, '/diseno-web-alcoy'),
     seoTitle: asString(row.seoTitle, title),
     seoDescription: asString(row.seoDescription, excerpt),
     showOnBlog: asBoolean(row.showOnBlog, false),
@@ -70,8 +63,7 @@ export async function fetchLandingSupportArticles(limit?: number): Promise<Landi
   const client = getSanityServerClient();
   const cfg = getSanityProjectConfig();
   if (!client) {
-    const fallback = landingSupportArticleFallbacks;
-    return typeof limit === 'number' ? fallback.slice(0, limit) : fallback;
+    return [];
   }
 
   try {
@@ -79,29 +71,12 @@ export async function fetchLandingSupportArticles(limit?: number): Promise<Landi
     const mapped = (rows ?? [])
       .map((row: LandingSupportArticleListRow) => mapRow(row, cfg ?? undefined))
       .filter(Boolean) as LandingSupportArticle[];
-    const fallback = landingSupportArticleFallbacks;
-
-    if (mapped.length >= 3) {
-      return typeof limit === 'number' ? mapped.slice(0, limit) : mapped;
-    }
-
-    const mergedBySlug = new Map<string, LandingSupportArticle>();
-    for (const article of mapped) {
-      mergedBySlug.set(article.slug, article);
-    }
-    for (const article of fallback) {
-      if (!mergedBySlug.has(article.slug)) {
-        mergedBySlug.set(article.slug, article);
-      }
-    }
-
-    const merged = [...mergedBySlug.values()].sort(
+    const sorted = mapped.sort(
       (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
     );
-    return typeof limit === 'number' ? merged.slice(0, limit) : merged;
+    return typeof limit === 'number' ? sorted.slice(0, limit) : sorted;
   } catch (error) {
-    console.warn('[landing-support-articles] Sanity unavailable, using local defaults.', error);
-    const fallback = landingSupportArticleFallbacks;
-    return typeof limit === 'number' ? fallback.slice(0, limit) : fallback;
+    console.warn('[blog-articles] Sanity unavailable.', error);
+    return [];
   }
 }

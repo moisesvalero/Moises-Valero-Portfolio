@@ -39,13 +39,12 @@
     return item.openCareerModal ? 'career-modal' : `href:${normalizeNavHref(item.href)}`;
   }
 
-  function shouldForceDocumentNavigation(href: string): boolean {
-    return /^\/diseno-web(?:\/|$)/i.test(href.trim()) || /^\/diseno-web-alcoy(?:\/|$)/i.test(href.trim());
+  function shouldForceDocumentNavigation(_href: string): boolean {
+    return false;
   }
 
   const headerNavItems = $derived(
-    (() => {
-      const guideLabel = data.locale === 'en' ? 'Guides' : 'Guías';
+    (() => {
       const analyzerLabel = data.locale === 'en' ? 'Web analyzer' : 'Analizador web';
 
       const source = site.header.navItems
@@ -55,14 +54,6 @@
           }
           const normalizedHref = normalizeNavHref(item.href);
           if (normalizedHref === '#sobre' || normalizedHref === '#stack') {
-            return null;
-          }
-          if (
-            normalizedHref === '/diseno-web' ||
-            normalizedHref === '/diseno-web-alcoy' ||
-            normalizedHref === '/diseno-web/articulos' ||
-            normalizedHref === '/diseno-web-alcoy/articulos'
-          ) {
             return null;
           }
           return item;
@@ -79,13 +70,10 @@
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#proyectos');
       const analyzer =
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/tools/analizador-web') ??
-        ({ label: analyzerLabel, href: '/tools/analizador-web' } as HeaderNavItem);
-      const guides =
-        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/blog') ??
-        ({ label: guideLabel, href: '/blog' } as HeaderNavItem);
+        ({ label: analyzerLabel, href: '/tools/analizador-web' } as HeaderNavItem);
       const career = pick((item) => item.openCareerModal === true);
 
-      const preferred = [home, projects, assistant, analyzer, guides, career].filter(Boolean) as HeaderNavItem[];
+      const preferred = [home, projects, assistant, analyzer, career].filter(Boolean) as HeaderNavItem[];
       return preferred;
     })()
   );

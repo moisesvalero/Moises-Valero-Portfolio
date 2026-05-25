@@ -22,8 +22,5 @@ export async function buildArticleMarkdown(slug: string, _locale: SiteLocale): P
 		lines.push('');
 		lines.push(stripHtml(article.bodyHtml));
 	}
-	lines.push('');
-	lines.push('## Contacto');
-	lines.push(`- ${article.ctaPrimaryLabel}: ${baseUrl}${article.ctaPrimaryHref}`);
 	return lines.join('\n');
 }

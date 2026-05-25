@@ -35,7 +35,6 @@ const escapeXml = (/** @type {string} */ value) =>
 export const GET = async () => {
 	const baseUrl = normalizeBaseUrl(env.PUBLIC_SITE_URL);
 	const now = new Date().toISOString();
-
 	const articles = await fetchLandingSupportArticles().catch(() => []);
 
 	/** @type {{ loc: string; lastmod: string; changefreq: string; priority: number }[]} */
@@ -48,7 +47,6 @@ export const GET = async () => {
 		};
 	});
 
-	// Artículos del CMS bajo el blog canónico.
 	for (const article of articles) {
 		entries.push({
 			loc: `${baseUrl}/blog/${article.slug}`,

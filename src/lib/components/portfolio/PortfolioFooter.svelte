@@ -54,7 +54,6 @@
   </div>
 
   <nav class="footer-legal" aria-label="Enlaces del sitio">
-    <a href={resolvePath('/blog')}>Guías</a>
     <span class="footer-dot" aria-hidden="true">·</span>
     <a href={resolvePath('/tools/analizador-web')}>Analizador web</a>
     <span class="footer-dot" aria-hidden="true">·</span>

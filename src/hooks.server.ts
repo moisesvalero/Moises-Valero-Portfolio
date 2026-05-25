@@ -17,11 +17,6 @@ import {
 } from '$lib/aeo';
 import { PORTFOLIO_LOCALE_COOKIE, resolveSiteLocale, type SiteLocale } from '$lib/i18n/site-locale';
 
-const PRIMARY_CANONICAL_HOST = 'moisesvalero.es';
-const SEO_LANDING_PATH_RE = /^\/diseno-web(?:-alcoy)?(?:\/|$)/;
-const PRODUCTION_ROBOTS = 'index, follow';
-const NON_PRODUCTION_ROBOTS = 'noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate';
-
 /** Locale para SSR: cookie del selector → Accept-Language → fallback es. */
 function resolveRequestLocale(event: Parameters<Handle>[0]['event']): SiteLocale {
 	const cookieValue = event.cookies.get(PORTFOLIO_LOCALE_COOKIE);
@@ -36,7 +31,7 @@ function resolveRequestLocale(event: Parameters<Handle>[0]['event']): SiteLocale
 
 /**
  * CSP ajustada a recursos reales del sitio: Spline, Sanity CDN, GA4 con inline gtag,
- * Tailwind CDN (landing Alcoy), Typebot (jsdelivr + *.typebot.io), Iconify.
+ * Typebot (jsdelivr + *.typebot.io), Iconify.
  * En desarrollo no se envía CSP para no interferir con Vite/HMR.
  */
 function productionContentSecurityPolicy(): string {
@@ -45,9 +40,8 @@ function productionContentSecurityPolicy(): string {
 		"base-uri 'self'",
 		"form-action 'self'",
 		"object-src 'none'",
-		// `unsafe-eval`: requerido por el JIT de https://cdn.tailwindcss.com en /diseno-web-alcoy
-		`script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net`,
-		`style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com`,
+		`script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://cdn.jsdelivr.net`,
+		`style-src 'self' 'unsafe-inline'`,
 		// Imágenes desde Sanity CDN o URL absoluta en documentos (case studies, CMS)
 		`img-src 'self' data: blob: https:`,
 		`font-src 'self' data:`,
@@ -64,12 +58,18 @@ const PERMISSIONS_POLICY =
 	'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()';
 
 /** Refuerza UTF-8 en HTML para evitar interpretaciones erróneas del juego de caracteres. */
+const LEGACY_COMMERCIAL_PATH_RE = /^\/diseno-web(?:-alcoy)?(?:\.md|\/|$)/;
+
 export const handle: Handle = async ({ event, resolve }) => {
 	const pathname = normalizePathname(event.url.pathname);
 	const accept = event.request.headers.get('accept') ?? '';
 	const userAgent = event.request.headers.get('user-agent') ?? '';
 	const mdHtmlPath = htmlPathFromMdUrl(pathname);
 	const htmlPath = canonicalHtmlPath(mdHtmlPath ?? pathname);
+
+	if (LEGACY_COMMERCIAL_PATH_RE.test(pathname)) {
+		return Response.redirect(new URL('/proyectos', event.url), 301);
+	}
 
 	if (!shouldSkipAeo(pathname)) {
 		const wantsMarkdown = mdHtmlPath !== null || prefersMarkdown(accept) || isAiBot(userAgent);
@@ -113,14 +113,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 		response.headers.set('content-type', 'text/html; charset=utf-8');
 	}
 	if (type?.startsWith('text/html') && response.status >= 200 && response.status < 300) {
-		const isSeoLandingPath = SEO_LANDING_PATH_RE.test(event.url.pathname);
-		const isProductionHost =
-			event.url.hostname === PRIMARY_CANONICAL_HOST ||
-			event.url.hostname === `www.${PRIMARY_CANONICAL_HOST}`;
-		if (isSeoLandingPath) {
-			response.headers.set('X-Robots-Tag', isProductionHost ? PRODUCTION_ROBOTS : NON_PRODUCTION_ROBOTS);
-		}
-
 		const resolvedHtmlPath = canonicalHtmlPath(normalizePathname(event.url.pathname));
 		if (!shouldSkipAeo(pathname) && hasMarkdownTwin(resolvedHtmlPath)) {
 			appendHtmlAeoHeaders(response.headers, markdownTwinPath(resolvedHtmlPath));

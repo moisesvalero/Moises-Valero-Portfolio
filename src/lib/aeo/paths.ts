@@ -5,7 +5,7 @@ export function normalizePathname(pathname: string): string {
 	return trimmed.replace(/\/+$/, '') || '/';
 }
 
-/** Ruta HTML → URL twin Markdown (`/` → `/index.md`). */
+/** Ruta HTML -> URL twin Markdown (`/` -> `/index.md`). */
 export function markdownTwinPath(htmlPath: string): string {
 	const norm = normalizePathname(htmlPath);
 	if (norm === '/') return '/index.md';
@@ -20,21 +20,11 @@ export function htmlPathFromMdUrl(pathname: string): string | null {
 	return norm.slice(0, -3);
 }
 
-/**
- * Misma canónica que `+layout.server.ts`: artículos y slugs bajo `/diseno-web/`
- * apuntan a `/diseno-web-alcoy/…`.
- */
 export function canonicalHtmlPath(pathname: string): string {
-	const norm = normalizePathname(pathname);
-	if (norm === '/diseno-web/articulos' || norm === '/diseno-web-alcoy/articulos') return '/blog';
-	const dup = /^\/diseno-web(?:-alcoy)?\/([^/]+)$/.exec(norm);
-	if (dup && dup[1] !== 'articulos') {
-		return `/blog/${dup[1]}`;
-	}
-	return norm;
+	return normalizePathname(pathname);
 }
 
-/** Rutas que no deben pasar por negociación AEO. */
+/** Rutas que no deben pasar por negociacion AEO. */
 export function shouldSkipAeo(pathname: string): boolean {
 	const norm = normalizePathname(pathname);
 	if (norm.startsWith('/api/')) return true;

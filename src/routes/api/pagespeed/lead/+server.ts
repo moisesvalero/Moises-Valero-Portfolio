@@ -341,7 +341,7 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
         lcp: lcp || undefined,
         imageWeight: imageWeight || undefined,
         pageWeight: pageWeight || undefined,
-        source: 'landing-diseno-web-alcoy',
+        source: 'tools-analizador-web',
         createdAt: new Date().toISOString()
       });
     } catch (error) {

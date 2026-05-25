@@ -8,12 +8,6 @@ export type LandingSupportArticle = {
   coverImageSrc: string;
   coverImageAlt: string;
   bodyHtml: string;
-  ctaTitle: string;
-  ctaText: string;
-  ctaPrimaryLabel: string;
-  ctaPrimaryHref: string;
-  ctaSecondaryLabel: string;
-  ctaSecondaryHref: string;
   seoTitle: string;
   seoDescription: string;
   showOnBlog?: boolean;

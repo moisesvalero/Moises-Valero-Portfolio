@@ -15,29 +15,15 @@ export const load: LayoutServerLoad = async ({ cookies, depends, url }) => {
   const locale = resolveSiteLocale(cookies.get(PORTFOLIO_LOCALE_COOKIE));
   const site = await fetchSitePortfolio(locale);
   const hideSiteChrome =
-    url.pathname === '/diseno-web-alcoy' ||
-    url.pathname.startsWith('/diseno-web-alcoy/') ||
-    url.pathname === '/diseno-web' ||
-    url.pathname.startsWith('/diseno-web/') ||
     url.pathname === '/tracker-fiestas-2026' ||
     url.pathname.startsWith('/tracker-fiestas-2026/');
   const isProductionHost =
     url.hostname === PRIMARY_CANONICAL_HOST || url.hostname === `www.${PRIMARY_CANONICAL_HOST}`;
   const normalizedPath = url.pathname === '/' ? '/' : url.pathname.replace(/\/$/, '');
   const hideLocaleToggle =
-    normalizedPath === '/blog' ||
-    normalizedPath.startsWith('/blog/') ||
     normalizedPath === '/tools/analizador-web';
   const canonicalOrigin = isProductionHost ? PRIMARY_CANONICAL_ORIGIN : url.origin;
-  let canonicalPath = normalizedPath;
-  if (canonicalPath === '/diseno-web/articulos' || canonicalPath === '/diseno-web-alcoy/articulos') {
-    canonicalPath = '/blog';
-  } else {
-    const dup = /^\/diseno-web(?:-alcoy)?\/([^/]+)$/.exec(canonicalPath);
-    if (dup && dup[1] !== 'articulos') {
-      canonicalPath = `/blog/${dup[1]}`;
-    }
-  }
+  const canonicalPath = normalizedPath;
   const canonicalUrl = `${canonicalOrigin}${canonicalPath}`;
   const noIndex = !isProductionHost;
   const htmlPath = canonicalHtmlPath(normalizedPath);

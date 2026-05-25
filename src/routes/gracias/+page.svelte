@@ -33,23 +33,23 @@
         </a>
       {:else}
         <a
-          href="/diseno-web-alcoy#contact"
+          href="/#contacto"
           class="inline-flex items-center justify-center rounded-xl bg-[#006c49] px-5 py-3 font-semibold text-white no-underline hover:opacity-95"
         >
           Volver al contacto
         </a>
       {/if}
       <a
-        href="/diseno-web-alcoy"
+        href="/"
         class="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-800 no-underline hover:bg-slate-100"
       >
-        Volver a la landing
+        Volver al inicio
       </a>
     </div>
 
     <div class="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-4">
       <p class="text-sm text-slate-700">
-        <strong>Siguiente paso:</strong> te hacemos una propuesta clara y sin tecnicismos, enfocada a captar mas clientes en Alcoy.
+        <strong>Siguiente paso:</strong> te respondemos con una propuesta clara y sin tecnicismos.
       </p>
       <p class="mt-1 text-xs text-slate-500">Origen: {data.origen} · Canal: {data.canal}</p>
     </div>

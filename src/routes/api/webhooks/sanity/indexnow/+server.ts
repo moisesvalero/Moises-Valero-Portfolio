@@ -68,7 +68,7 @@ export const POST: RequestHandler = async ({ request }) => {
   }
 
   const type = typeof body._type === 'string' ? body._type : '';
-  if (type !== 'landingSupportArticle') {
+  if (type !== 'caseStudy' && type !== 'portfolioSite') {
     return json({
       ok: true,
       skipped: true,
@@ -86,18 +86,10 @@ export const POST: RequestHandler = async ({ request }) => {
   }
 
   const slug = resolveSlug(body.slug);
-  if (!slug) {
-    return json({ ok: false, error: 'Payload sin slug válido.' }, { status: 400 });
-  }
-
   const baseUrl = resolveBaseUrl();
-  const articleCanonical = `${baseUrl}/blog/${slug}`;
-  const urls = [
-    articleCanonical,
-    `${baseUrl}/blog`,
-    `${baseUrl}/diseno-web`,
-    `${baseUrl}/diseno-web-alcoy`
-  ];
+  const urls = type === 'caseStudy' && slug
+    ? [`${baseUrl}/proyectos/${slug}`, `${baseUrl}/proyectos`]
+    : [`${baseUrl}/`];
 
   const result = await submitToIndexNow(urls);
   if (!result.ok) {
@@ -115,7 +107,6 @@ export const POST: RequestHandler = async ({ request }) => {
 
   return json({
     ok: true,
-    submitted: result.submitted,
-    article: articleCanonical
+    submitted: result.submitted
   });
 };

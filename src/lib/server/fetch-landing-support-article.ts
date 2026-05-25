@@ -1,4 +1,3 @@
-import { getLandingSupportArticleFallback } from '$lib/data/landing-support-articles';
 import type { LandingSupportArticle } from '$lib/types/landing-support-article';
 import { getSanityProjectConfig, getSanityServerClient } from './sanity/get-server-client';
 import { imageUrl } from './sanity/image-builder';
@@ -45,15 +44,6 @@ function mapRow(
     coverImageSrc: imageFromAsset || asString(row.coverImageSrc, '/og-image.png'),
     coverImageAlt: asString(row.coverImageAlt, title),
     bodyHtml,
-    ctaTitle: asString(row.ctaTitle, 'Quieres mejorar tu web en Alcoy?'),
-    ctaText: asString(
-      row.ctaText,
-      'Te ayudo a mejorar velocidad, seguridad y conversion en tu web local.'
-    ),
-    ctaPrimaryLabel: asString(row.ctaPrimaryLabel, 'Pedir una revision'),
-    ctaPrimaryHref: asString(row.ctaPrimaryHref, '/api/contact/whatsapp'),
-    ctaSecondaryLabel: asString(row.ctaSecondaryLabel, 'Volver a la web'),
-    ctaSecondaryHref: asString(row.ctaSecondaryHref, '/diseno-web-alcoy'),
     seoTitle: asString(row.seoTitle, title),
     seoDescription: asString(row.seoDescription, excerpt)
   };
@@ -68,7 +58,7 @@ export async function fetchLandingSupportArticle(slug: string): Promise<LandingS
   const client = getSanityServerClient();
   const cfg = getSanityProjectConfig();
   if (!client) {
-    return getLandingSupportArticleFallback(safeSlug);
+    return undefined;
   }
 
   try {
@@ -76,12 +66,12 @@ export async function fetchLandingSupportArticle(slug: string): Promise<LandingS
       slug: safeSlug
     });
     if (!row) {
-      return getLandingSupportArticleFallback(safeSlug);
+      return undefined;
     }
 
-    return mapRow(row, cfg ?? undefined) ?? getLandingSupportArticleFallback(safeSlug);
+    return mapRow(row, cfg ?? undefined);
   } catch (error) {
-    console.warn(`[landing-support-article] Sanity unavailable for slug "${safeSlug}".`, error);
-    return getLandingSupportArticleFallback(safeSlug);
+    console.warn(`[blog-article] Sanity unavailable for slug "${safeSlug}".`, error);
+    return undefined;
   }
 }

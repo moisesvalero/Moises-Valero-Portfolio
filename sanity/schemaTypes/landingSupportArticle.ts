@@ -13,8 +13,7 @@ export const landingSupportArticle = defineType({
     { name: 'editorial', title: 'Editorial', default: true },
     { name: 'content', title: 'Contenido' },
     { name: 'featured', title: 'Destacados' },
-    { name: 'seo', title: 'SEO' },
-    { name: 'cta', title: 'CTA' }
+    { name: 'seo', title: 'SEO' }
   ],
   fields: [
     defineField({
@@ -110,49 +109,6 @@ export const landingSupportArticle = defineType({
       description: 'Usa HTML simple (<h2>, <p>, <ul>, <strong>).',
       validation: (rule) => rule.required().min(300),
       group: 'content'
-    }),
-    defineField({
-      name: 'ctaTitle',
-      type: 'string',
-      title: 'Titulo CTA final',
-      initialValue: 'Quieres mejorar tu web en Alcoy?',
-      group: 'cta'
-    }),
-    defineField({
-      name: 'ctaText',
-      type: 'text',
-      rows: 2,
-      title: 'Texto CTA final',
-      initialValue: 'Te ayudo a acelerar tu web, reforzar seguridad y mejorar conversion local.',
-      group: 'cta'
-    }),
-    defineField({
-      name: 'ctaPrimaryLabel',
-      type: 'string',
-      title: 'Texto boton principal',
-      initialValue: 'Pedir una revision',
-      group: 'cta'
-    }),
-    defineField({
-      name: 'ctaPrimaryHref',
-      type: 'string',
-      title: 'URL boton principal',
-      initialValue: '/api/contact/whatsapp',
-      group: 'cta'
-    }),
-    defineField({
-      name: 'ctaSecondaryLabel',
-      type: 'string',
-      title: 'Texto boton secundario',
-      initialValue: 'Volver a la web',
-      group: 'cta'
-    }),
-    defineField({
-      name: 'ctaSecondaryHref',
-      type: 'string',
-      title: 'URL boton secundario',
-      initialValue: '/diseno-web-alcoy',
-      group: 'cta'
     }),
     defineField({
       name: 'seoTitle',

@@ -18,7 +18,7 @@ export const analyzerLead = defineType({
     defineField({ name: 'lcp', type: 'string', title: 'LCP' }),
     defineField({ name: 'imageWeight', type: 'string', title: 'Peso total de imagenes' }),
     defineField({ name: 'pageWeight', type: 'string', title: 'Peso total de la pagina' }),
-    defineField({ name: 'source', type: 'string', title: 'Origen', initialValue: 'landing-diseno-web-alcoy' }),
+    defineField({ name: 'source', type: 'string', title: 'Origen', initialValue: 'tools-analizador-web' }),
     defineField({ name: 'createdAt', type: 'datetime', title: 'Fecha de captura' })
   ],
   preview: {

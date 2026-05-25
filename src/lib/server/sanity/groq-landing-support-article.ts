@@ -12,12 +12,6 @@ export const landingSupportArticleBySlugQuery = `*[
   coverImageSrc,
   coverImageAlt,
   bodyHtml,
-  ctaTitle,
-  ctaText,
-  ctaPrimaryLabel,
-  ctaPrimaryHref,
-  ctaSecondaryLabel,
-  ctaSecondaryHref,
   seoTitle,
   seoDescription
 }`;

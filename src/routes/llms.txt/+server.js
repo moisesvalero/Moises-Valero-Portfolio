@@ -27,7 +27,6 @@ export const GET = () => {
 
 	const portfolio = pages.filter((p) => p.group === 'portfolio');
 	const support = pages.filter((p) => p.group === 'support');
-	const landing = pages.filter((p) => p.group === 'landing');
 	const projects = pages.filter((p) => p.group === 'project');
 	const legal = pages.filter((p) => p.group === 'legal');
 
@@ -42,11 +41,9 @@ export const GET = () => {
 ## Portfolio
 ${portfolio.map(line).join('\n')}
 
-## Guías técnicas
+## Blog técnico
 ${support.map(line).join('\n')}
 
-## Landings comerciales secundarias
-${landing.map(line).join('\n')}
 
 ## Proyectos / casos de estudio
 ${projects.map(line).join('\n')}
@@ -61,8 +58,6 @@ ${legal.map(line).join('\n')}
 
 ## Canonicalización
 - Portfolio principal: ${baseUrl}/
-- Guías técnicas: ${baseUrl}/blog y ${baseUrl}/blog/{slug}.
-- Landings comerciales secundarias: ${baseUrl}/diseno-web y ${baseUrl}/diseno-web-alcoy.
 
 ## Contacto
 - Web: ${baseUrl}/

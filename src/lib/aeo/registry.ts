@@ -2,18 +2,15 @@ import type { SiteLocale } from '$lib/i18n/site-locale';
 import { pagesWithTwins } from '$lib/site-pages';
 import { buildArticulosMarkdown } from './builders/articulos';
 import { buildArticleMarkdown } from './builders/article';
-import { buildDisenoWebAlcoyMarkdown, buildDisenoWebMarkdown } from './builders/landing';
 import { buildHomeMarkdown } from './builders/home';
 import { buildProjectMarkdown } from './builders/project';
 import { buildSitePageMarkdownByPath } from './builders/site-page';
-import { canonicalHtmlPath, normalizePathname } from './paths';
+import { canonicalHtmlPath } from './paths';
 
 export type MarkdownBuilder = (locale: SiteLocale) => string | Promise<string>;
 
 const STATIC_BUILDERS: Record<string, MarkdownBuilder> = {
 	'/': (locale) => buildHomeMarkdown(locale),
-	'/diseno-web': (locale) => buildDisenoWebMarkdown(locale),
-	'/diseno-web-alcoy': (locale) => buildDisenoWebAlcoyMarkdown(locale),
 	'/blog': (locale) => buildArticulosMarkdown(locale),
 	'/proyectos/vshield': (locale) => buildProjectMarkdown('/proyectos/vshield', locale),
 	'/proyectos/ember-iron': (locale) => buildProjectMarkdown('/proyectos/ember-iron', locale),
@@ -33,7 +30,7 @@ function articleSlugFromPath(path: string): string | null {
 	return slug;
 }
 
-/** Rutas HTML con twin registrado (estáticas de site-pages + patrón artículos CMS). */
+/** Rutas HTML con twin registrado. */
 export function hasMarkdownTwin(htmlPath: string): boolean {
 	const path = canonicalHtmlPath(htmlPath);
 	if (STATIC_BUILDERS[path]) return true;

@@ -10,45 +10,23 @@ export const deskStructure: StructureResolver = (S) =>
     .title('Contenido del sitio')
     .items([
       S.listItem()
-        .title('🏠 Web principal')
+        .title('Web principal')
         .id('sitePortfolioSingleton')
         .child(
           S.document()
             .schemaType('sitePortfolio')
             .documentId('portfolioSite')
-            .title('🏠 Web principal')
+            .title('Web principal')
         ),
       S.listItem()
-        .title('📍 Landing - Diseño web en Alcoy')
-        .id('landingDisenoWebAlcoySingleton')
-        .child(
-          S.document()
-            .schemaType('landingDisenoWebAlcoy')
-            .documentId('landingDisenoWebAlcoy')
-            .title('📍 Landing - Diseño web en Alcoy')
-        ),
-      S.listItem()
-        .title('🌍 Landing - Diseño web (nacional)')
-        .id('landingDisenoWebSingleton')
-        .child(
-          S.document()
-            .schemaType('landingDisenoWebAlcoy')
-            .documentId('landingDisenoWeb')
-            .title('🌍 Landing - Diseño web (nacional)')
-        ),
-      S.listItem()
-        .title('📝 Articulos SEO local (Alcoy)')
-        .id('landingSupportArticleList')
-        .child(S.documentTypeList('landingSupportArticle').title('📝 Articulos SEO local (Alcoy)')),
-      S.listItem()
-        .title('📥 Leads analizador web')
+        .title('Leads analizador web')
         .id('analyzerLeadList')
         .child(
           S.documentTypeList('analyzerLead')
-            .title('📥 Leads analizador web')
+            .title('Leads analizador web')
             .defaultOrdering([{ field: 'createdAt', direction: 'desc' }])
         ),
       S.divider(),
-      S.documentTypeListItem('caseStudy').title('🧱 Proyectos')
+      S.documentTypeListItem('caseStudy').title('Proyectos')
     ]);
 
