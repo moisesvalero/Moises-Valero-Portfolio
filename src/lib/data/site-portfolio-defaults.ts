@@ -10,12 +10,11 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     logoText: 'Moisés Valero',
     logoHref: '/',
     navItems: [
-      { label: 'Inicio', href: '/#top' },
-      { label: 'Competencias', href: '/#servicios' },
-      { label: 'Proyectos', href: '/proyectos' },
+      { label: 'Proyectos', href: '/#proyectos' },
+      { label: 'Analizador web', href: '/tools/analizador-web' },
+      { label: 'Asistente IA', href: '/ia-moises' },
       { label: 'Guías', href: '/blog' },
-      { label: 'Analizador', href: '/tools/analizador-web' },
-      { label: 'Trayectoria', href: '#', openCareerModal: true }
+      { label: 'Contacto', href: '/#contacto' }
     ]
   },
   seo: {

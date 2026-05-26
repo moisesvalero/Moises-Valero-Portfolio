@@ -74,9 +74,15 @@
       const analyzer =
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/tools/analizador-web') ??
         ({ label: analyzerLabel, href: '/tools/analizador-web' } as HeaderNavItem);
+      const contact =
+        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#contacto') ??
+        ({ label: data.locale === 'en' ? 'Contact' : 'Contacto', href: '/#contacto' } as HeaderNavItem);
+
       const career = pick((item) => item.openCareerModal === true);
 
-      const preferred = [home, projects, analyzer, assistant, blog, career].filter(Boolean) as HeaderNavItem[];
+      const preferred = [home, projects, analyzer, assistant, blog, contact, career].filter(
+        Boolean
+      ) as HeaderNavItem[];
       return preferred;
     })()
   );

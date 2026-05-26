@@ -21,6 +21,7 @@ const lt = (es = '', english = '') => ({ _type: 'localeText', es, en: english })
 
 const navItems = [
   { _key: 'nav-projects', href: '/#proyectos', label: ls('Proyectos', 'Projects') },
+  { _key: 'nav-web-analyzer', href: '/tools/analizador-web', label: ls('Analizador web', 'Web Analyzer') },
   { _key: 'nav-ai-assistant', href: '/ia-moises', label: ls('Asistente IA', 'AI Assistant') },
   { _key: 'nav-guides', href: '/blog', label: ls('Guías', 'Guides') },
   { _key: 'nav-contact', href: '/#contacto', label: ls('Contacto', 'Contact') }

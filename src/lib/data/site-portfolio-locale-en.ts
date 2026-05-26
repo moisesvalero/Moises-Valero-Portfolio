@@ -30,6 +30,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     logoHref: '/',
     navItems: [
       { label: 'Projects', href: '/#proyectos' },
+      { label: 'Web Analyzer', href: '/tools/analizador-web' },
       { label: 'AI Assistant', href: '/ia-moises' },
       { label: 'Guides', href: '/blog' },
       { label: 'Contact', href: '/#contacto' }
