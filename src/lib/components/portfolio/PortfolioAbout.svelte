@@ -55,7 +55,7 @@
 <style>
   .sobre-mi-minimal {
     max-width: 1200px;
-    margin: 74px auto 112px;
+    margin: 52px auto 112px;
     padding: 0 40px;
     font-family: inherit;
     overflow: hidden;
@@ -152,7 +152,7 @@
 
   @media (max-width: 768px) {
     .sobre-mi-minimal {
-      margin: 54px auto 72px;
+      margin: clamp(1.35rem, 4.5vh, 2.75rem) auto 72px;
       padding: 0 20px;
       scroll-margin-top: 96px;
     }

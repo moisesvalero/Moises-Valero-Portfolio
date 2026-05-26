@@ -688,18 +688,41 @@
 
   @media (max-width: 760px) {
     .career-backdrop {
-      padding: 0.75rem;
+      align-items: center;
+      padding: 0.5rem;
     }
 
     .career-panel {
+      width: min(100%, calc(100vw - 1rem));
       min-height: 0;
+      max-height: calc(100svh - 1rem);
       height: auto;
       border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .career-scroll {
+      max-height: calc(100svh - 1rem);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 1.05rem 0.95rem 0.95rem;
+    }
+
+    .career-head {
+      margin-bottom: 0.9rem;
+    }
+
+    .career-title {
+      font-size: clamp(1.85rem, 8vw, 2.35rem);
+      line-height: 0.96;
+      margin-right: 2.8rem;
     }
 
     .career-feature-stage {
       grid-template-columns: 1fr;
       min-height: 0;
+      gap: 0.85rem;
+      padding-top: 0.25rem;
     }
 
     .career-feature-list {
@@ -720,38 +743,65 @@
     }
 
     .career-feature-trigger {
-      flex: 0 0 min(82vw, 310px);
-      min-height: 102px;
-      grid-template-columns: 2.75rem minmax(0, 1fr);
-      padding: 0.25rem 0.5rem 0.65rem 0;
+      flex: 0 0 min(78vw, 290px);
+      min-height: 86px;
+      grid-template-columns: 2.35rem minmax(0, 1fr);
+      gap: 0.65rem;
+      padding: 0.55rem 0.65rem;
       scroll-snap-align: center;
     }
 
     .career-feature-node {
-      width: 2.75rem;
-      height: 2.75rem;
+      width: 2.35rem;
+      height: 2.35rem;
+    }
+
+    .career-feature-copy strong {
+      font-size: 1rem;
     }
 
     .career-feature-preview {
       position: relative;
       height: auto;
       min-height: 0;
-      grid-template-rows: 140px minmax(0, 1fr);
+      grid-template-rows: 104px minmax(0, 1fr);
     }
 
     .career-preview-art {
-      min-height: 140px;
+      min-height: 104px;
+    }
+
+    .career-preview-core {
+      font-size: 1.6rem;
+    }
+
+    .career-preview-copy {
+      padding: 0.85rem;
+    }
+
+    .career-preview-copy h4 {
+      margin-bottom: 0.55rem;
+      font-size: 1.35rem;
+    }
+
+    .career-tl-desc {
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .career-footer {
+      padding-top: 0.8rem;
     }
   }
 
   @media (max-width: 480px) {
     .career-scroll {
-      padding: 1.35rem 1.05rem 1.15rem;
+      padding: 0.95rem 0.85rem 0.85rem;
     }
 
     .career-title {
-      font-size: 1.45rem;
-      line-height: 1.02;
+      font-size: clamp(1.72rem, 8vw, 2.05rem);
+      line-height: 0.98;
       margin-right: 2.6rem;
     }
 

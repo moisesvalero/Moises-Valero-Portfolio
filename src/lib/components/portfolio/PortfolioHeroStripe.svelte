@@ -640,6 +640,10 @@
   }
 
   @media (max-width: 768px) {
+    .hero-viewport-root {
+      min-height: auto;
+    }
+
     .hero-entry {
       --hero-entry-y: 16px;
       --hero-entry-blur: 7px;
@@ -673,8 +677,9 @@
 
     .hero-stripe-pro-v2 {
       align-items: flex-start;
-      padding-top: max(6.25rem, calc(env(safe-area-inset-top, 0px) + 5.25rem));
-      padding-bottom: 72px;
+      min-height: min(90svh, 780px);
+      padding-top: max(5.35rem, calc(env(safe-area-inset-top, 0px) + 4.65rem));
+      padding-bottom: clamp(2.75rem, 7vh, 4.25rem);
     }
 
     .label-top {
@@ -687,16 +692,16 @@
     }
 
     .hero-stripe-pro-v2 h1 {
-      font-size: clamp(43px, 13.5vw, 58px) !important;
-      letter-spacing: -0.04em;
-      line-height: 0.92;
+      font-size: clamp(47px, 13.7vw, 56px) !important;
+      letter-spacing: -0.055em;
+      line-height: 0.9;
     }
 
     .sub-frase {
       display: inline-flex;
       width: min(100%, 330px);
       font-size: 13px !important;
-      margin: 0 0 28px 0 !important;
+      margin: 0 0 24px 0 !important;
       column-gap: 14px;
       row-gap: 9px;
     }
@@ -740,6 +745,17 @@
       font-size: 14.5px;
       line-height: 1.15;
       white-space: normal;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .hero-stripe-pro-v2 {
+      min-height: min(88svh, 740px);
+      padding-top: max(5.1rem, calc(env(safe-area-inset-top, 0px) + 4.45rem));
+    }
+
+    .hero-stripe-pro-v2 h1 {
+      font-size: clamp(47px, 13.9vw, 55px) !important;
     }
   }
 </style>
