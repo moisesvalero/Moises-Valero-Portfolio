@@ -80,6 +80,7 @@
   let errorMessage = $state('');
   let result = $state<AnalyzerResult | null>(null);
   let animatedProgress = $state(0);
+  let loadingProgress = $state(0);
   let leadEmail = $state('');
   let leadStatus = $state<'idle' | 'sending' | 'success' | 'error'>('idle');
   let leadError = $state('');
@@ -94,6 +95,17 @@
     !result ? '#94a3b8' : result.overallScore >= 90 ? '#10b981' : result.overallScore >= 60 ? '#f59e0b' : '#f43f5e'
   );
   const scoreRingStyle = $derived(`--score:${animatedOverallScore};--score-tone:${scoreTone}`);
+  const loadingPercent = $derived(Math.max(0, Math.min(99, Math.round(loadingProgress))));
+  const loadingRingStyle = $derived(`--loading-progress:${loadingPercent}`);
+  const loadingStageLabel = $derived(
+    loadingPercent < 28
+      ? 'Conectando con la URL'
+      : loadingPercent < 54
+        ? 'Midiendo rendimiento'
+        : loadingPercent < 78
+          ? 'Revisando cabeceras y SEO'
+          : 'Preparando informe'
+  );
   const severityText = $derived(
     !result
       ? 'Sin analizar'
@@ -191,6 +203,35 @@
     return () => cancelAnimationFrame(frame);
   });
 
+  $effect(() => {
+    if (status !== 'loading') {
+      loadingProgress = 0;
+      return;
+    }
+
+    let frame = 0;
+    const startedAt = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = now - startedAt;
+      const target = elapsed < 1800
+        ? 18 + (elapsed / 1800) * 34
+        : elapsed < 9000
+          ? 52 + ((elapsed - 1800) / 7200) * 30
+          : elapsed < 45000
+            ? 82 + ((elapsed - 9000) / 36000) * 11
+            : 94;
+
+      loadingProgress = Math.max(loadingProgress, Math.min(94, target));
+      frame = requestAnimationFrame(tick);
+    };
+
+    loadingProgress = 8;
+    frame = requestAnimationFrame(tick);
+
+    return () => cancelAnimationFrame(frame);
+  });
+
   function normalizeResult(input: Partial<AnalyzerResult>): AnalyzerResult {
     return {
       requestedUrl: input.requestedUrl || analyzerUrl,
@@ -277,6 +318,7 @@
   async function analyzeUrl() {
     if (status === 'loading') return;
     status = 'loading';
+    loadingProgress = 8;
     errorMessage = '';
     result = null;
     leadStatus = 'idle';
@@ -326,6 +368,7 @@
     errorMessage = '';
     result = null;
     animatedProgress = 0;
+    loadingProgress = 0;
     leadEmail = '';
     leadStatus = 'idle';
     leadError = '';
@@ -439,20 +482,31 @@
   {/if}
 
   {#if status === 'loading'}
-    <section class="analysis-loading" aria-label="Análisis en curso" aria-live="polite">
-      <div class="loading-orbit" aria-hidden="true">
-        <span></span>
+    <section class="analysis-loading" aria-label="Análisis en curso" aria-live="polite" style={loadingRingStyle}>
+      <div
+        class="loading-orbit"
+        role="progressbar"
+        aria-label="Progreso estimado del análisis"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow={loadingPercent}
+      >
         <i></i>
+        <strong>{loadingPercent}%</strong>
       </div>
       <div class="loading-copy">
         <p class="card-kicker">Análisis en curso</p>
         <h2>Revisando la URL</h2>
+        <p class="loading-stage">{loadingStageLabel}</p>
         <p>
           Estoy midiendo rendimiento, cabeceras, SEO técnico, accesibilidad y señales visibles antes de montar el
           informe.
         </p>
       </div>
-      <div class="analysis-progress" aria-hidden="true">
+      <div
+        class="analysis-progress"
+        aria-hidden="true"
+      >
         <span></span>
       </div>
       <div class="analysis-steps">
@@ -743,27 +797,40 @@
     border-radius: 999px;
     background:
       radial-gradient(circle at center, rgba(255, 255, 255, 0.98) 0 58%, transparent 59%),
-      conic-gradient(from 40deg, #0071e3 0 24%, rgba(0, 113, 227, 0.14) 24% 52%, #10b981 52% 76%, rgba(16, 185, 129, 0.16) 76% 100%);
+      conic-gradient(#0071e3 calc(var(--loading-progress) * 1%), rgba(0, 113, 227, 0.13) 0);
     box-shadow: 0 18px 52px rgba(0, 113, 227, 0.18);
-    animation: orbitSpin 1.65s linear infinite;
   }
 
-  .loading-orbit span {
+  .loading-orbit::after {
+    content: "";
     position: absolute;
-    inset: 50%;
-    width: 0.7rem;
-    height: 0.7rem;
+    inset: -6px;
     border-radius: 999px;
-    background: #0071e3;
-    box-shadow: 0 0 0 8px rgba(0, 113, 227, 0.12);
-    transform: translate(48px, -48px);
+    border: 1px solid rgba(0, 113, 227, 0.18);
+    border-top-color: rgba(16, 185, 129, 0.72);
+    animation: orbitSpin 1.65s linear infinite;
+    pointer-events: none;
   }
 
   .loading-orbit i {
     position: absolute;
     inset: 34px;
+    z-index: 1;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.96);
+  }
+
+  .loading-orbit strong {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    color: #0052b8;
+    font-size: 1.45rem;
+    font-weight: 950;
+    letter-spacing: -0.06em;
+    line-height: 1;
   }
 
   .loading-copy {
@@ -789,6 +856,21 @@
     line-height: 1.58;
   }
 
+  .loading-stage {
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
+    margin: 0.75rem auto 0;
+    padding: 0 0.72rem;
+    border: 1px solid rgba(0, 113, 227, 0.16);
+    border-radius: 6px;
+    background: rgba(0, 113, 227, 0.06);
+    color: #0052b8;
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+  }
+
   .analysis-progress {
     position: relative;
     z-index: 1;
@@ -802,10 +884,10 @@
   .analysis-progress span {
     position: absolute;
     inset: 0 auto 0 0;
-    width: 38%;
+    width: calc(var(--loading-progress) * 1%);
     border-radius: inherit;
     background: linear-gradient(90deg, #0071e3, #10b981);
-    animation: progressDrift 1.7s ease-in-out infinite;
+    transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .analysis-steps {
@@ -1674,15 +1756,30 @@
   :global(html.dark) .loading-orbit {
     background:
       radial-gradient(circle at center, rgba(18, 18, 18, 0.98) 0 58%, transparent 59%),
-      conic-gradient(from 40deg, #60a5fa 0 24%, rgba(96, 165, 250, 0.16) 24% 52%, #34d399 52% 76%, rgba(52, 211, 153, 0.16) 76% 100%);
+      conic-gradient(#4da3ff calc(var(--loading-progress) * 1%), rgba(77, 163, 255, 0.14) 0);
+  }
+
+  :global(html.dark) .loading-orbit::after {
+    border-color: rgba(77, 163, 255, 0.2);
+    border-top-color: rgba(52, 211, 153, 0.72);
   }
 
   :global(html.dark) .loading-orbit i {
     background: rgba(18, 18, 18, 0.96);
   }
 
+  :global(html.dark) .loading-orbit strong {
+    color: #eaf4ff;
+  }
+
   :global(html.dark) .loading-copy h2 {
     color: #f8fafc;
+  }
+
+  :global(html.dark) .loading-stage {
+    border-color: rgba(77, 163, 255, 0.26);
+    background: rgba(77, 163, 255, 0.1);
+    color: #bfdbfe;
   }
 
   :global(html.dark) .analysis-steps span {
