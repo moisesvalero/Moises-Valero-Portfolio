@@ -296,11 +296,11 @@
   .secondary-action {
     display: inline-flex;
     width: 100%;
-    height: 52px;
+    height: var(--portfolio-action-height);
     align-items: center;
     justify-content: center;
     padding: 0 20px;
-    border-radius: 8px;
+    border-radius: var(--portfolio-action-radius);
     appearance: none;
     font-family: inherit;
     font-size: 0.96rem;
@@ -318,16 +318,16 @@
   }
 
   .primary-action {
-    border: 1px solid #0071e3;
-    background: #0071e3;
-    color: #ffffff;
-    box-shadow: 0 18px 34px rgba(0, 113, 227, 0.18);
+    border: 1px solid var(--portfolio-action-primary-border);
+    background: var(--portfolio-action-primary-bg);
+    color: var(--portfolio-action-primary-text);
+    box-shadow: var(--portfolio-action-primary-shadow);
   }
 
   .secondary-action {
-    border: 1px solid rgba(15, 23, 42, 0.16);
-    background: rgba(255, 255, 255, 0.62);
-    color: #111827;
+    border: 1px solid var(--portfolio-action-secondary-border);
+    background: var(--portfolio-action-secondary-bg);
+    color: var(--portfolio-action-secondary-text);
   }
 
   .primary-action:hover,
@@ -336,8 +336,13 @@
   }
 
   .secondary-action:hover {
-    border-color: rgba(0, 113, 227, 0.34);
-    background: rgba(255, 255, 255, 0.9);
+    border-color: var(--portfolio-action-secondary-border-hover);
+    background: var(--portfolio-action-secondary-bg-hover);
+  }
+
+  .primary-action:hover {
+    border-color: var(--portfolio-action-primary-bg-hover);
+    background: var(--portfolio-action-primary-bg-hover);
   }
 
   .globe-panel {
@@ -522,23 +527,25 @@
 
   .btn-modal-ghost,
   .btn-modal-primary {
-    border-radius: 10px;
-    padding: 10px 14px;
+    min-height: 44px;
+    border-radius: var(--portfolio-action-radius);
+    padding: 0 16px;
     font-size: 14px;
-    font-weight: 700;
-    border: 0;
+    font-weight: 760;
+    border: 1px solid transparent;
     cursor: pointer;
   }
 
   .btn-modal-ghost {
-    background: #f1f2f5;
-    color: #2e2f34;
+    background: var(--portfolio-action-secondary-bg);
+    border-color: var(--portfolio-action-secondary-border);
+    color: var(--portfolio-action-secondary-text);
   }
 
   .btn-modal-primary {
-    background: #ffffff;
-    color: #111111;
-    border: 1px solid #1f1f1f;
+    background: var(--portfolio-action-primary-bg);
+    color: var(--portfolio-action-primary-text);
+    border-color: var(--portfolio-action-primary-border);
   }
 
   .btn-modal-primary:disabled {
@@ -584,22 +591,9 @@
     border-top-color: #f8fafc;
   }
 
-  :global(html.dark) .primary-action {
-    border-color: #f5f5f5;
-    background: #f5f5f5;
-    color: #050505;
-    box-shadow: 0 18px 34px rgba(255, 255, 255, 0.09);
-  }
-
-  :global(html.dark) .secondary-action {
-    border-color: rgba(255, 255, 255, 0.18);
-    background: rgba(255, 255, 255, 0.04);
-    color: #f8fafc;
-  }
-
   :global(html.dark) .secondary-action:hover {
-    border-color: rgba(255, 255, 255, 0.38);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--portfolio-action-secondary-border-hover);
+    background: var(--portfolio-action-secondary-bg-hover);
   }
 
   :global(html.dark) .modal-card {
@@ -631,17 +625,6 @@
 
   :global(html.dark) .checkline a {
     color: #ffffff;
-  }
-
-  :global(html.dark) .btn-modal-ghost {
-    background: rgba(255, 255, 255, 0.08);
-    color: #f4f4f5;
-  }
-
-  :global(html.dark) .btn-modal-primary {
-    background: #f5f5f5;
-    color: #050505;
-    border-color: #ffffff;
   }
 
   @media (max-width: 900px) {

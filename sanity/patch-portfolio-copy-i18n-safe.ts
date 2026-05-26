@@ -110,7 +110,7 @@ async function main() {
       },
 
       'hero.cvHref': site.hero.cvHref,
-      'hero.label': ls(site.hero.label, en.hero.label),
+      'hero.label': ls('PORTFOLIO – MOISÉS VALERO', 'PORTFOLIO — MOISÉS VALERO'),
       'hero.title': ls(site.hero.title, en.hero.title),
       'hero.subtitle': ls('SvelteKit · APIs · IA aplicada · WordPress', 'SvelteKit · APIs · applied AI · WordPress'),
       'hero.bio': lt(site.hero.bio, en.hero.bio),

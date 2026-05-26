@@ -199,7 +199,7 @@
   }
 
   .meta-stack {
-    color: #86868b;
+    color: #0071e3;
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 1.5px;
@@ -306,6 +306,10 @@
 
   :global(html.dark) .carousel-stage::before {
     background: linear-gradient(90deg, var(--bg-surface), rgba(10, 10, 10, 0));
+  }
+
+  :global(html.dark) .meta-stack {
+    color: #4da3ff;
   }
 
   :global(html.dark) .carousel-stage::after {

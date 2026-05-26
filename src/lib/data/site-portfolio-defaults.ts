@@ -30,7 +30,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
   },
   hero: {
     cvHref: '/api/cv',
-    label: 'PORTFOLIO – MOISÉS VALERO · Alcoy / Alicante',
+    label: 'PORTFOLIO – MOISÉS VALERO',
     title: 'Desarrollador Web',
     subtitle: 'SvelteKit | WordPress | Sistemas & SEO',
     bio: 'Desarrollo webs y web apps con SvelteKit, APIs, IA aplicada y WordPress. Busco incorporarme a un equipo y aportar rendimiento, integraciones y criterio técnico.',

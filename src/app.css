@@ -154,6 +154,18 @@
   --bg-soft: #f9fafb;
   /* Superficie unificada: misma base que el hero para evitar el corte hero -> siguiente seccion */
   --bg-surface: #f8fafc;
+  --portfolio-action-radius: 8px;
+  --portfolio-action-height: 52px;
+  --portfolio-action-primary-bg: #0071e3;
+  --portfolio-action-primary-bg-hover: #005fcf;
+  --portfolio-action-primary-text: #f8fbff;
+  --portfolio-action-primary-border: #0071e3;
+  --portfolio-action-primary-shadow: 0 18px 34px rgba(0, 113, 227, 0.2);
+  --portfolio-action-secondary-bg: rgba(255, 255, 255, 0.58);
+  --portfolio-action-secondary-bg-hover: rgba(255, 255, 255, 0.88);
+  --portfolio-action-secondary-text: #0f172a;
+  --portfolio-action-secondary-border: rgba(15, 23, 42, 0.16);
+  --portfolio-action-secondary-border-hover: rgba(0, 113, 227, 0.36);
 
   /* Motion & sombras “premium” */
   --shadow-soft-lg: 0 22px 55px rgba(15, 23, 42, 0.14);
@@ -171,6 +183,16 @@ html.dark {
   --bg-main: #0a0a0a;
   --bg-soft: #111111;
   --bg-surface: #0a0a0a;
+  --portfolio-action-primary-bg: #4da3ff;
+  --portfolio-action-primary-bg-hover: #7dbdff;
+  --portfolio-action-primary-text: #06111f;
+  --portfolio-action-primary-border: #4da3ff;
+  --portfolio-action-primary-shadow: 0 18px 38px rgba(77, 163, 255, 0.16);
+  --portfolio-action-secondary-bg: rgba(255, 255, 255, 0.055);
+  --portfolio-action-secondary-bg-hover: rgba(77, 163, 255, 0.12);
+  --portfolio-action-secondary-text: #eaf4ff;
+  --portfolio-action-secondary-border: rgba(77, 163, 255, 0.36);
+  --portfolio-action-secondary-border-hover: rgba(77, 163, 255, 0.6);
   --shadow-soft-lg: 0 24px 70px rgba(0, 0, 0, 0.46);
   --shadow-soft-md: 0 18px 44px rgba(0, 0, 0, 0.36);
   --ring-soft: 0 0 0 1px rgba(148, 163, 184, 0.18);
@@ -261,10 +283,6 @@ html.in-iframe body,
 html.in-iframe * {
   scrollbar-width: none;
   -ms-overflow-style: none;
-}
-
-html.dark :where(.hero-stripe-pro-v2) {
-  background: #0a0a0a !important;
 }
 
 html.dark :where(.hero-bottom-fade) {

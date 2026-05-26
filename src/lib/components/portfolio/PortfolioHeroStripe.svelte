@@ -15,7 +15,7 @@
 
   let {
     cvHref = '/#contacto',
-    label = 'PORTFOLIO – MOISÉS VALERO · Alcoy / Alicante',
+    label = 'PORTFOLIO – MOISÉS VALERO',
     title = 'Desarrollador Web',
     subtitle = 'SvelteKit | WordPress | Sistemas & SEO',
     bio = 'Desarrollo webs y web apps con SvelteKit, APIs, IA aplicada y WordPress. Busco incorporarme a un equipo y aportar rendimiento, integraciones y criterio técnico.',
@@ -394,19 +394,22 @@
 
   .btn-apple-blue {
     appearance: none;
-    background: #0066e5;
-    border: 1px solid transparent;
-    color: #ffffff !important;
+    min-height: var(--portfolio-action-height);
+    background: var(--portfolio-action-primary-bg);
+    border: 1px solid var(--portfolio-action-primary-border);
+    color: var(--portfolio-action-primary-text) !important;
     cursor: pointer;
     font-family: inherit;
-    padding: 14px 28px;
-    border-radius: 8px;
+    padding: 0 28px;
+    border-radius: var(--portfolio-action-radius);
     text-decoration: none;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 760;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
+    box-shadow: var(--portfolio-action-primary-shadow);
     transition:
       transform 0.32s cubic-bezier(0.23, 1, 0.32, 1),
       background 0.32s cubic-bezier(0.23, 1, 0.32, 1),
@@ -416,22 +419,24 @@
   }
 
   .btn-apple-blue:hover {
-    background: #0052b8;
-    transform: translateY(-3px);
-    box-shadow: 0 12px 28px rgba(0, 102, 229, 0.35);
-    color: #ffffff !important;
+    background: var(--portfolio-action-primary-bg-hover);
+    border-color: var(--portfolio-action-primary-bg-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--portfolio-action-primary-shadow);
+    color: var(--portfolio-action-primary-text) !important;
   }
 
   .btn-ghost-slim {
-    background: transparent;
-    color: #0f172a !important;
-    padding: 13px 26px;
-    border-radius: 8px;
+    min-height: var(--portfolio-action-height);
+    background: var(--portfolio-action-secondary-bg);
+    color: var(--portfolio-action-secondary-text) !important;
+    padding: 0 26px;
+    border-radius: var(--portfolio-action-radius);
     text-decoration: none;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 760;
     font-family: inherit;
-    border: 1.5px solid #e2e8f0;
+    border: 1px solid var(--portfolio-action-secondary-border);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -445,44 +450,34 @@
   }
 
   .btn-ghost-slim:hover {
-    background: rgba(15, 23, 42, 0.04);
-    border-color: #cbd5e1;
-    transform: translateY(-3px);
-    color: #0f172a !important;
+    background: var(--portfolio-action-secondary-bg-hover);
+    border-color: var(--portfolio-action-secondary-border-hover);
+    transform: translateY(-2px);
+    color: var(--portfolio-action-secondary-text) !important;
   }
 
   :global(html.dark) .btn-apple-blue {
-    background: linear-gradient(135deg, #ffffff 0%, #f5f7ff 52%, #e7fbff 100%) !important;
-    color: #0a0a0a !important;
-    border: 1px solid rgba(255, 255, 255, 0.78) !important;
+    background: var(--portfolio-action-primary-bg) !important;
+    color: var(--portfolio-action-primary-text) !important;
+    border-color: var(--portfolio-action-primary-border) !important;
     text-shadow: none !important;
-    box-shadow:
-      0 16px 38px rgba(0, 0, 0, 0.34),
-      0 0 24px rgba(167, 243, 255, 0.14),
-      0 0 0 1px rgba(0, 0, 0, 0.06) inset !important;
+    box-shadow: var(--portfolio-action-primary-shadow) !important;
   }
 
   :global(html.dark) .btn-apple-blue:hover {
-    background: linear-gradient(135deg, #ffffff 0%, #f7f8ff 48%, #ecfbff 100%) !important;
-    color: #000000 !important;
+    background: var(--portfolio-action-primary-bg-hover) !important;
+    color: var(--portfolio-action-primary-text) !important;
     transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.9) !important;
-    box-shadow:
-      0 18px 40px rgba(0, 0, 0, 0.34),
-      0 0 22px rgba(167, 243, 255, 0.18),
-      0 0 0 1px rgba(0, 0, 0, 0.07) inset !important;
+    border-color: var(--portfolio-action-primary-bg-hover) !important;
+    box-shadow: var(--portfolio-action-primary-shadow) !important;
   }
 
   :global(html.dark) .btn-ghost-slim {
-    background: rgba(10, 10, 10, 0.68) !important;
-    color: #f4f4f5 !important;
-    border-color: rgba(167, 243, 255, 0.24) !important;
+    background: var(--portfolio-action-secondary-bg) !important;
+    color: var(--portfolio-action-secondary-text) !important;
+    border-color: var(--portfolio-action-secondary-border) !important;
     text-shadow: none !important;
-    box-shadow:
-      0 14px 34px rgba(0, 0, 0, 0.28),
-      0 0 22px rgba(139, 156, 255, 0.09),
-      0 1px 0 rgba(255, 255, 255, 0.08) inset !important;
-    backdrop-filter: blur(18px) saturate(140%);
+    box-shadow: none !important;
   }
 
   :global(html.dark) .sub-frase {
@@ -534,10 +529,10 @@
   :global(html.dark) .hero-stripe-pro-v2,
   :global(html[data-theme='dark']) .hero-stripe-pro-v2 {
     background:
-      radial-gradient(circle at 50% 18%, rgba(77, 163, 255, 0.34), transparent 30rem),
-      radial-gradient(circle at 18% 72%, rgba(0, 113, 227, 0.2), transparent 26rem),
-      radial-gradient(circle at 86% 64%, rgba(167, 243, 255, 0.12), transparent 24rem),
-      linear-gradient(180deg, #101a2c 0%, #09111f 58%, #070a10 100%);
+      radial-gradient(circle at 48% 16%, rgba(77, 163, 255, 0.24), transparent 31rem),
+      radial-gradient(circle at 18% 72%, rgba(0, 113, 227, 0.15), transparent 28rem),
+      radial-gradient(circle at 86% 64%, rgba(167, 243, 255, 0.09), transparent 24rem),
+      linear-gradient(180deg, #101827 0%, #0a1322 58%, #080c14 100%);
   }
 
   :global(html.dark) .hero-stripe-pro-v2::before,
@@ -556,8 +551,8 @@
     opacity: 1;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 92% 68% at 50% 44%, transparent 36%, rgba(0, 0, 0, 0.28) 100%),
-      linear-gradient(180deg, rgba(10, 10, 10, 0) 62%, rgba(10, 10, 10, 0.32) 100%);
+      radial-gradient(ellipse 92% 68% at 50% 44%, transparent 38%, rgba(3, 8, 16, 0.2) 100%),
+      linear-gradient(180deg, rgba(8, 12, 20, 0) 64%, rgba(8, 12, 20, 0.24) 100%);
   }
 
   :global(html.dark) .btn-ghost-slim:hover {

@@ -1,16 +1,15 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import type { SiteLocale } from '$lib/i18n/site-locale';
   import type { SiteCareerModal } from '$lib/types/site-portfolio';
   import { getCareerModalCopy } from './career-modal-copy';
 
   let {
     open = $bindable(false),
-    pdfHref = '/imagenes/MOISES-VALERO-CV.pdf',
     locale = 'es' as SiteLocale,
     career = undefined as SiteCareerModal | undefined
   }: {
     open?: boolean;
-    pdfHref?: string;
     locale?: SiteLocale;
     career?: SiteCareerModal;
   } = $props();
@@ -26,32 +25,21 @@
           profileHtml: career.profileHtml,
           expTitle: career.expTitle,
           timeline: career.timeline,
-          stackTitle: career.stackTitle,
-          pdfHide: career.pdfHide,
-          pdfShow: career.pdfShow,
-          pdfIframeTitle: career.pdfIframeTitle,
-          pdfHintBefore: career.pdfHintBefore,
-          pdfHintLink: career.pdfHintLink
+          stackTitle: career.stackTitle
         }
       : {})
   });
-  const effectivePdfHref = $derived(career?.pdfHref || pdfHref);
-  // El iframe se carga siempre desde nuestro proxy mismo origen (`/api/cv`) para evitar el
-  // bloqueo por CSP (`frame-src`) y por `Content-Disposition: attachment` que Sanity CDN
-  // aplica a los PDFs. El enlace "abrir en pestaña nueva" mantiene la URL original.
-  const pdfIframeSrc = '/api/cv';
+  const cvButtonLabel = $derived(locale === 'en' ? 'View CV' : 'Ver CV');
   let panelEl = $state<HTMLDivElement | undefined>();
   let previouslyFocused = $state<HTMLElement | null>(null);
 
   const narrative = $derived(
     locale === 'en'
       ? {
-          eyebrow: 'Non-linear route',
-          pdfIntro: 'The complete CV stays available, but the modal keeps the story readable first.'
+          eyebrow: 'Non-linear route'
         }
       : {
-          eyebrow: 'Recorrido no lineal',
-          pdfIntro: 'El CV completo queda disponible, pero la historia se entiende antes.'
+          eyebrow: 'Recorrido no lineal'
         }
   );
 
@@ -66,11 +54,8 @@
       ? '2025 – 2026'
       : range;
   }
-  let showPdf = $state(false);
-
   function close() {
     open = false;
-    showPdf = false;
   }
 
   function focusableElements(): HTMLElement[] {
@@ -237,34 +222,15 @@
           {/if}
         </section>
 
-        <footer class="career-footer career-reveal" aria-labelledby="career-cv-title">
-          <div class="career-story-heading">
-            <h3 id="career-cv-title" class="career-h3">CV</h3>
-            <p>{narrative.pdfIntro}</p>
-          </div>
-          <button
-            type="button"
+        <footer class="career-footer career-reveal" aria-label="CV">
+          <a
             class="career-pdf-toggle"
-            onclick={() => (showPdf = !showPdf)}
-            aria-expanded={showPdf}
+            href={resolve('/api/cv')}
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            {showPdf ? c.pdfHide : c.pdfShow}
-          </button>
-
-          {#if showPdf}
-            <div class="career-pdf-wrap">
-              <iframe
-                class="career-pdf-frame"
-                src={pdfIframeSrc}
-                title={c.pdfIframeTitle}
-              ></iframe>
-              <p class="career-pdf-hint">
-                {c.pdfHintBefore}<a href={effectivePdfHref} target="_blank" rel="noopener noreferrer"
-                  >{c.pdfHintLink}</a
-                >.
-              </p>
-            </div>
-          {/if}
+            {cvButtonLabel}
+          </a>
         </footer>
       </div>
     </div>
@@ -277,9 +243,10 @@
     inset: 0;
     z-index: 20000;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding: 1.25rem;
+    overflow-y: auto;
     background: rgba(11, 18, 32, 0.56);
     backdrop-filter: blur(14px) saturate(112%);
     -webkit-backdrop-filter: blur(14px) saturate(112%);
@@ -290,7 +257,9 @@
   .career-panel {
     position: relative;
     width: min(100%, 1040px);
-    height: min(88vh, 760px);
+    min-height: min(88vh, 760px);
+    height: auto;
+    margin-block: auto;
     background:
       radial-gradient(circle at 16% 8%, rgba(0, 113, 227, 0.12), transparent 22rem),
       radial-gradient(circle at 88% 0%, rgba(167, 243, 255, 0.18), transparent 24rem),
@@ -334,11 +303,10 @@
   }
 
   .career-scroll {
-    overflow-x: hidden;
-    overflow-y: auto;
-    height: 100%;
+    overflow: visible;
+    height: auto;
+    min-height: 100%;
     padding: clamp(1.35rem, 2.6vw, 2.15rem);
-    -webkit-overflow-scrolling: touch;
   }
 
   .career-head {
@@ -392,11 +360,12 @@
   }
 
   .career-feature-stage {
+    --career-preview-height: clamp(455px, 56vh, 505px);
     display: grid;
     grid-template-columns: minmax(280px, 0.72fr) minmax(420px, 1fr);
     align-items: stretch;
     gap: clamp(1rem, 2.8vw, 1.6rem);
-    min-height: 455px;
+    min-height: var(--career-preview-height);
     padding-top: clamp(0.5rem, 1.8vh, 1rem);
   }
 
@@ -495,7 +464,8 @@
     position: sticky;
     top: 0;
     align-self: start;
-    min-height: 455px;
+    height: var(--career-preview-height);
+    min-height: var(--career-preview-height);
     display: grid;
     grid-template-rows: 210px minmax(0, 1fr);
     overflow: hidden;
@@ -563,15 +533,6 @@
     line-height: 1;
   }
 
-  .career-h3 {
-    margin: 0 0 0.65rem;
-    font-size: 0.74rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #86868b;
-  }
-
   .career-tl-range {
     display: block;
     font-size: 0.78rem;
@@ -604,55 +565,38 @@
 
   .career-footer {
     margin-top: 0;
-    padding-top: clamp(2.5rem, 7vh, 4.5rem);
+    padding-top: clamp(1rem, 3vh, 1.75rem);
     border-top: 0;
   }
 
   .career-pdf-toggle {
     display: inline-flex;
     align-items: center;
-    min-height: 42px;
-    padding: 0.72rem 0.9rem;
-    border: 1px solid #0f172a;
-    border-radius: 6px;
-    background: #0f172a;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--portfolio-action-primary-border);
+    border-radius: var(--portfolio-action-radius);
+    background: var(--portfolio-action-primary-bg);
     font-family: inherit;
     font-size: 0.8125rem;
-    font-weight: 500;
-    color: #f8fafc;
+    font-weight: 760;
+    color: var(--portfolio-action-primary-text);
     cursor: pointer;
     text-decoration: none;
+    box-shadow: var(--portfolio-action-primary-shadow);
+    transition:
+      transform 0.22s ease,
+      background 0.22s ease,
+      border-color 0.22s ease,
+      box-shadow 0.22s ease;
   }
 
   .career-pdf-toggle:hover {
-    background: #005fd6;
-    border-color: #005fd6;
-    color: #ffffff;
-  }
-
-  .career-pdf-wrap {
-    margin-top: 1rem;
-  }
-
-  .career-pdf-frame {
-    width: 100%;
-    height: min(48vh, 420px);
-    border: 1px solid #e8e8ed;
-    border-radius: 10px;
-    background: #f5f5f7;
-  }
-
-  .career-pdf-hint {
-    margin: 0.5rem 0 0;
-    font-size: 0.75rem;
-    color: #86868b;
-    line-height: 1.4;
-  }
-
-  .career-pdf-hint a {
-    color: #0071e3;
-    text-decoration: underline;
-    text-underline-offset: 2px;
+    background: var(--portfolio-action-primary-bg-hover);
+    border-color: var(--portfolio-action-primary-bg-hover);
+    color: var(--portfolio-action-primary-text);
+    transform: translateY(-2px);
   }
 
   :global(html.dark) .career-backdrop {
@@ -689,19 +633,7 @@
     color: #4da3ff;
   }
 
-  :global(html.dark) .career-h3,
-  :global(html.dark) .career-pdf-hint {
-    color: #a1a1aa;
-  }
-
-  :global(html.dark) .career-pdf-toggle {
-    background: #f8fafc;
-    border-color: #f8fafc;
-    color: #0a0a0a;
-  }
-
-  :global(html.dark) .career-footer,
-  :global(html.dark) .career-pdf-frame {
+  :global(html.dark) .career-footer {
     border-color: rgba(255, 255, 255, 0.14);
   }
 
@@ -744,11 +676,6 @@
     color: #4da3ff;
   }
 
-  :global(html.dark) .career-pdf-toggle,
-  :global(html.dark) .career-pdf-hint a {
-    color: #f5f5f5;
-  }
-
   :global(html.dark) .career-tl-desc,
   :global(html.dark) :global(.career-p) {
     color: #d4d4d8;
@@ -759,17 +686,14 @@
     color: #ffffff;
   }
 
-  :global(html.dark) .career-pdf-frame {
-    background: #111111;
-  }
-
   @media (max-width: 760px) {
     .career-backdrop {
       padding: 0.75rem;
     }
 
     .career-panel {
-      height: min(92vh, 860px);
+      min-height: 0;
+      height: auto;
       border-radius: 8px;
     }
 
@@ -810,6 +734,7 @@
 
     .career-feature-preview {
       position: relative;
+      height: auto;
       min-height: 0;
       grid-template-rows: 140px minmax(0, 1fr);
     }
