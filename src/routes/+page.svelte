@@ -120,7 +120,7 @@
 </svelte:head>
 
 <PortfolioHeroStripe {...site.hero} />
-<div use:reveal={{ stage: 'title', immediate: true }}>
+<div class="home-about-reveal" use:reveal={{ stage: 'title' }}>
   <PortfolioAbout {...site.about} />
 </div>
 <div use:reveal={{ stage: 'content', delay: 110 }}>
@@ -133,3 +133,13 @@
 <div use:reveal={{ stage: 'content', delay: 110 }}>
   <PortfolioContactCta {...site.contact} />
 </div>
+
+<style>
+  @media (max-width: 768px) {
+    .home-about-reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
