@@ -63,9 +63,6 @@
       const pick = (predicate: (item: HeaderNavItem) => boolean): HeaderNavItem | undefined =>
         source.find(predicate);
 
-      const home =
-        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#top') ??
-        ({ label: data.locale === 'en' ? 'Home' : 'Inicio', href: '/#top' } as HeaderNavItem);
       const assistant = { label: data.locale === 'en' ? 'AI Assistant' : 'Asistente IA', href: '/ia-moises' } as HeaderNavItem;
       const blog =
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/blog') ??
@@ -82,7 +79,7 @@
 
       const career = pick((item) => item.openCareerModal === true);
 
-      const preferred = [home, projects, assistant, analyzer, contact, blog, career].filter(
+      const preferred = [projects, contact, assistant, analyzer, blog, career].filter(
         Boolean
       ) as HeaderNavItem[];
       return preferred;
@@ -92,7 +89,7 @@
   const floatingMenuGroups = $derived(
     [
       {
-        title: data.locale === 'en' ? 'Main' : 'Principal',
+        title: 'Portfolio',
         variant: 'default',
         items: headerNavItems.slice(0, 2)
       },
@@ -106,7 +103,11 @@
         variant: 'default',
         items: headerNavItems.slice(4)
       }
-    ].filter((group) => group.items.length > 0)
+    ]
+      .map((group, index) =>
+        index === 2 ? { ...group, title: data.locale === 'en' ? 'Resources' : 'Recursos' } : group
+      )
+      .filter((group) => group.items.length > 0)
   );
 
   $effect(() => {
