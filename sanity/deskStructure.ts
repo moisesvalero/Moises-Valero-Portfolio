@@ -3,6 +3,7 @@ import type { StructureResolver } from 'sanity/structure';
 /**
  * Estructura estilo "CPT + ACF":
  * - Sitio (singleton) con id fijo `portfolioSite`
+ * - Guías (landing support articles) como lista editorial
  * - Proyectos (case studies) como lista normal
  */
 export const deskStructure: StructureResolver = (S) =>
@@ -27,6 +28,7 @@ export const deskStructure: StructureResolver = (S) =>
             .defaultOrdering([{ field: 'createdAt', direction: 'desc' }])
         ),
       S.divider(),
+      S.documentTypeListItem('landingSupportArticle').title('Guías / Artículos'),
       S.documentTypeListItem('caseStudy').title('Proyectos')
     ]);
 
