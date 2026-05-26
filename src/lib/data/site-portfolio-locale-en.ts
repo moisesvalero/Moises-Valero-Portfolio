@@ -29,13 +29,10 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     logoText: 'Moisés Valero',
     logoHref: '/',
     navItems: [
-      { label: 'Home', href: '/#top' },
-      { label: 'About me', href: '/#sobre' },
-      { label: 'Services', href: '/#servicios' },
-      { label: 'Stack', href: '/#stack' },
       { label: 'Projects', href: '/#proyectos' },
+      { label: 'AI Assistant', href: '/ia-moises' },
       { label: 'Guides', href: '/blog' },
-      { label: 'Career', href: '#', openCareerModal: true }
+      { label: 'Contact', href: '/#contacto' }
     ]
   },
   hero: {
@@ -237,17 +234,17 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     ]
   },
   contact: {
-    heading: "Let's talk",
+    heading: 'Available to join a technical team',
     subtitle: '',
-    formModalHeading: 'Tell me about your project',
-    formModalText: 'Leave your details and I will get back to you soon.',
-    formModalSubmitLabel: 'Send request',
+    formModalHeading: 'Contact',
+    formModalText: 'Leave your details and I will reply with availability, CV and next steps.',
+    formModalSubmitLabel: 'Send message',
     formModalPrivacyLabel: 'I have read and accept the privacy policy.',
     formModalSuccessMessage: 'Message sent. I will reply soon.'
   },
   footer: {
     copyrightTemplate:
-      'High-Performance Web Development | Systems & SEO Alcoy(Alicante) | Available for remote and on-site projects. Moisés Valero © {{year}} | Specialist in SvelteKit, WordPress and Sanity CMS.',
+      'Moisés Valero © {{year}} | Web developer focused on product, performance and integrations | SvelteKit, WordPress, Sanity CMS and technical SEO.',
     githubHref: 'https://github.com/moisesvalero',
     linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
     maltHref: 'https://www.malt.es/profile/moisesvalerosanchez',
