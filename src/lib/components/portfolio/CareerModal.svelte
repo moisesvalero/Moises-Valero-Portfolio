@@ -36,10 +36,10 @@
   const narrative = $derived(
     locale === 'en'
       ? {
-          eyebrow: 'Non-linear route'
+          eyebrow: 'Professional experience'
         }
       : {
-          eyebrow: 'Recorrido no lineal'
+          eyebrow: 'Experiencia profesional'
         }
   );
 
