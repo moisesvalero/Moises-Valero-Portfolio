@@ -641,7 +641,7 @@
 
   @media (max-width: 768px) {
     .hero-viewport-root {
-      min-height: auto;
+      min-height: 100svh;
     }
 
     .hero-entry {
@@ -676,10 +676,11 @@
     }
 
     .hero-stripe-pro-v2 {
-      align-items: flex-start;
-      min-height: min(90svh, 780px);
-      padding-top: max(5.35rem, calc(env(safe-area-inset-top, 0px) + 4.65rem));
-      padding-bottom: clamp(2.75rem, 7vh, 4.25rem);
+      align-items: center;
+      justify-content: center;
+      min-height: 100svh;
+      padding-top: max(5.5rem, calc(env(safe-area-inset-top, 0px) + 4.75rem));
+      padding-bottom: max(3.5rem, env(safe-area-inset-bottom, 0px));
     }
 
     .label-top {
@@ -750,8 +751,8 @@
 
   @media (max-width: 420px) {
     .hero-stripe-pro-v2 {
-      min-height: min(88svh, 740px);
-      padding-top: max(5.1rem, calc(env(safe-area-inset-top, 0px) + 4.45rem));
+      min-height: 100svh;
+      padding-top: max(5.25rem, calc(env(safe-area-inset-top, 0px) + 4.55rem));
     }
 
     .hero-stripe-pro-v2 h1 {
