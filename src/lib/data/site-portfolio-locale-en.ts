@@ -29,11 +29,12 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
     logoText: 'Moisés Valero',
     logoHref: '/',
     navItems: [
+      { label: 'Home', href: '/#top' },
       { label: 'Projects', href: '/#proyectos' },
-      { label: 'Web Analyzer', href: '/tools/analizador-web' },
       { label: 'AI Assistant', href: '/ia-moises' },
-      { label: 'Guides', href: '/blog' },
-      { label: 'Contact', href: '/#contacto' }
+      { label: 'Web Analyzer', href: '/tools/analizador-web' },
+      { label: 'Contact', href: '/#contacto' },
+      { label: 'Guides', href: '/blog' }
     ]
   },
   hero: {

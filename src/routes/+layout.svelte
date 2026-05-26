@@ -63,7 +63,9 @@
       const pick = (predicate: (item: HeaderNavItem) => boolean): HeaderNavItem | undefined =>
         source.find(predicate);
 
-      const home = pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#top');
+      const home =
+        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#top') ??
+        ({ label: data.locale === 'en' ? 'Home' : 'Inicio', href: '/#top' } as HeaderNavItem);
       const assistant = { label: data.locale === 'en' ? 'AI Assistant' : 'Asistente IA', href: '/ia-moises' } as HeaderNavItem;
       const blog =
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/blog') ??
@@ -80,7 +82,7 @@
 
       const career = pick((item) => item.openCareerModal === true);
 
-      const preferred = [home, projects, analyzer, assistant, blog, contact, career].filter(
+      const preferred = [home, projects, assistant, analyzer, contact, blog, career].filter(
         Boolean
       ) as HeaderNavItem[];
       return preferred;
