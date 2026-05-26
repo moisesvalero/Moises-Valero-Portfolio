@@ -133,13 +133,3 @@
 <div use:reveal={{ stage: 'content', delay: 110 }}>
   <PortfolioContactCta {...site.contact} />
 </div>
-
-<style>
-  @media (max-width: 768px) {
-    .home-about-reveal {
-      opacity: 1;
-      transform: none;
-      transition: none;
-    }
-  }
-</style>
