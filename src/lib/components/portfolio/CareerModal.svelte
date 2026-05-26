@@ -46,7 +46,6 @@
   const timelineItems = $derived(c.timeline ?? []);
   let currentIndex = $state(0);
   let carouselRef = $state<HTMLDivElement | undefined>();
-  const collapseDelay = 5200;
   const activeTimelineItem = $derived(timelineItems[currentIndex] ?? timelineItems[0]);
 
   function careerRange(range: string): string {
@@ -117,6 +116,7 @@
       currentIndex = 0;
       previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       document.body.style.overflow = 'hidden';
+      document.body.classList.add('career-modal-open');
       let observer: IntersectionObserver | undefined;
       requestAnimationFrame(() => {
         panelEl?.focus();
@@ -137,18 +137,12 @@
       return () => {
         observer?.disconnect();
         document.body.style.overflow = '';
+        document.body.classList.remove('career-modal-open');
         previouslyFocused?.focus();
       };
     }
     document.body.style.overflow = '';
-  });
-
-  $effect(() => {
-    if (!open || timelineItems.length <= 1) return;
-    const timer = window.setInterval(() => {
-      currentIndex = (currentIndex + 1) % timelineItems.length;
-    }, collapseDelay);
-    return () => window.clearInterval(timer);
+    document.body.classList.remove('career-modal-open');
   });
 
   $effect(() => {
@@ -193,7 +187,6 @@
                 class:is-active={currentIndex === index}
                 onclick={() => selectTimelineItem(index)}
                 aria-pressed={currentIndex === index}
-                style={`--progress-duration: ${currentIndex === index ? `${collapseDelay}ms` : '0ms'}`}
               >
                 <span class="career-feature-node" aria-hidden="true">
                   {String(index + 1).padStart(2, '0')}
@@ -245,7 +238,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 1.25rem;
+    padding: clamp(0.75rem, 2vw, 1.25rem);
     overflow-y: auto;
     background: rgba(11, 18, 32, 0.56);
     backdrop-filter: blur(14px) saturate(112%);
@@ -256,8 +249,9 @@
 
   .career-panel {
     position: relative;
-    width: min(100%, 1040px);
-    min-height: min(88vh, 760px);
+    width: min(100%, 920px);
+    min-height: 0;
+    max-height: calc(100svh - 2.5rem);
     height: auto;
     margin-block: auto;
     background:
@@ -303,10 +297,10 @@
   }
 
   .career-scroll {
-    overflow: visible;
+    overflow-y: auto;
     height: auto;
-    min-height: 100%;
-    padding: clamp(1.35rem, 2.6vw, 2.15rem);
+    max-height: calc(100svh - 2.5rem);
+    padding: clamp(1.15rem, 2.2vw, 1.75rem);
   }
 
   .career-head {
@@ -327,7 +321,7 @@
   .career-title {
     margin: 0 2.25rem 0 0;
     color: #0f172a;
-    font-size: clamp(2.1rem, 4.6vw, 4.15rem);
+    font-size: clamp(2rem, 4.1vw, 3.65rem);
     font-weight: 900;
     letter-spacing: -0.058em;
     line-height: 0.88;
@@ -360,13 +354,13 @@
   }
 
   .career-feature-stage {
-    --career-preview-height: clamp(455px, 56vh, 505px);
+    --career-preview-height: clamp(360px, 46vh, 430px);
     display: grid;
-    grid-template-columns: minmax(280px, 0.72fr) minmax(420px, 1fr);
+    grid-template-columns: minmax(260px, 0.66fr) minmax(380px, 1fr);
     align-items: stretch;
     gap: clamp(1rem, 2.8vw, 1.6rem);
     min-height: var(--career-preview-height);
-    padding-top: clamp(0.5rem, 1.8vh, 1rem);
+    padding-top: clamp(0.35rem, 1.4vh, 0.8rem);
   }
 
   .career-feature-list {
@@ -464,10 +458,10 @@
     position: sticky;
     top: 0;
     align-self: start;
-    height: var(--career-preview-height);
+    height: auto;
     min-height: var(--career-preview-height);
     display: grid;
-    grid-template-rows: 210px minmax(0, 1fr);
+    grid-template-rows: 170px minmax(0, 1fr);
     overflow: hidden;
     border: 1px solid rgba(15, 23, 42, 0.12);
     border-radius: 8px;
@@ -481,7 +475,7 @@
 
   .career-preview-art {
     position: relative;
-    min-height: 210px;
+    min-height: 170px;
     overflow: hidden;
     background:
       radial-gradient(circle at 22% 28%, rgba(77, 163, 255, 0.28), transparent 16rem),
@@ -565,7 +559,7 @@
 
   .career-footer {
     margin-top: 0;
-    padding-top: clamp(1rem, 3vh, 1.75rem);
+    padding-top: clamp(0.75rem, 2vh, 1.1rem);
     border-top: 0;
   }
 
@@ -686,121 +680,185 @@
     color: #ffffff;
   }
 
-  @media (max-width: 760px) {
-    .career-backdrop {
-      align-items: center;
-      padding: 0.5rem;
-    }
-
+  @media (max-width: 900px) {
     .career-panel {
-      width: min(100%, calc(100vw - 1rem));
-      min-height: 0;
-      max-height: calc(100svh - 1rem);
-      height: auto;
-      border-radius: 8px;
-      overflow: hidden;
+      width: min(100%, calc(100vw - 2rem));
+      max-height: calc(100svh - 2rem);
     }
 
     .career-scroll {
-      max-height: calc(100svh - 1rem);
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding: 1.05rem 0.95rem 0.95rem;
-    }
-
-    .career-head {
-      margin-bottom: 0.9rem;
+      max-height: calc(100svh - 2rem);
+      padding: 1.15rem;
     }
 
     .career-title {
-      font-size: clamp(1.85rem, 8vw, 2.35rem);
-      line-height: 0.96;
+      font-size: clamp(2rem, 5.5vw, 2.75rem);
+      line-height: 0.92;
+    }
+
+    .career-feature-stage {
+      --career-preview-height: clamp(350px, 43vh, 410px);
+      grid-template-columns: minmax(160px, 0.72fr) minmax(0, 1fr);
+      gap: 1rem;
+    }
+
+    .career-feature-trigger {
+      min-height: 74px;
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+      gap: 0.7rem;
+      padding: 0.62rem;
+    }
+
+    .career-feature-node {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    .career-feature-copy strong {
+      font-size: 0.92rem;
+    }
+
+    .career-feature-preview {
+      grid-template-rows: 140px minmax(0, 1fr);
+    }
+
+    .career-preview-art {
+      min-height: 140px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .career-backdrop {
+      align-items: center;
+      padding: 0.7rem;
+    }
+
+    .career-panel {
+      width: min(100%, calc(100vw - 1.4rem));
+      max-height: calc(100svh - 1.4rem);
+      border-radius: 8px;
+    }
+
+    .career-scroll {
+      max-height: calc(100svh - 1.4rem);
+      -webkit-overflow-scrolling: touch;
+      padding: 1rem 0.85rem 0.85rem;
+    }
+
+    .career-head {
+      margin-bottom: 0.75rem;
+    }
+
+    .career-title {
+      font-size: clamp(1.65rem, 7.2vw, 1.95rem);
+      line-height: 0.95;
       margin-right: 2.8rem;
     }
 
     .career-feature-stage {
       grid-template-columns: 1fr;
       min-height: 0;
-      gap: 0.85rem;
-      padding-top: 0.25rem;
+      gap: 0.65rem;
+      padding-top: 0;
     }
 
     .career-feature-list {
-      flex-direction: row;
-      overflow-x: auto;
-      gap: 0.75rem;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      overflow: visible;
+      gap: 0.45rem;
       width: 100%;
-      box-sizing: border-box;
-      padding: 0 0.65rem 0.35rem;
+      padding: 0;
       margin-inline: 0;
-      scroll-snap-type: x mandatory;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    .career-feature-list::-webkit-scrollbar {
-      display: none;
     }
 
     .career-feature-trigger {
-      flex: 0 0 min(78vw, 290px);
-      min-height: 86px;
-      grid-template-columns: 2.35rem minmax(0, 1fr);
-      gap: 0.65rem;
-      padding: 0.55rem 0.65rem;
-      scroll-snap-align: center;
+      display: flex;
+      flex-direction: column;
+      min-height: 70px;
+      gap: 0.35rem;
+      padding: 0.48rem;
+      transform: none;
+    }
+
+    .career-feature-trigger:hover,
+    .career-feature-trigger:focus-visible,
+    .career-feature-trigger.is-active {
+      transform: none;
     }
 
     .career-feature-node {
-      width: 2.35rem;
-      height: 2.35rem;
+      width: 1.9rem;
+      height: 1.9rem;
+      font-size: 0.62rem;
+    }
+
+    .career-feature-copy {
+      padding-top: 0;
+    }
+
+    .career-tl-range {
+      font-size: 0.58rem;
+      letter-spacing: 0.01em;
     }
 
     .career-feature-copy strong {
-      font-size: 1rem;
+      font-size: 0.68rem;
+      line-height: 1.08;
     }
 
     .career-feature-preview {
       position: relative;
       height: auto;
       min-height: 0;
-      grid-template-rows: 104px minmax(0, 1fr);
+      grid-template-rows: 72px minmax(0, 1fr);
     }
 
     .career-preview-art {
-      min-height: 104px;
+      min-height: 72px;
     }
 
     .career-preview-core {
-      font-size: 1.6rem;
+      min-width: 3.3rem;
+      min-height: 2.6rem;
+      font-size: 1.25rem;
     }
 
     .career-preview-copy {
-      padding: 0.85rem;
+      padding: 0.72rem;
     }
 
     .career-preview-copy h4 {
-      margin-bottom: 0.55rem;
-      font-size: 1.35rem;
+      margin-bottom: 0.4rem;
+      font-size: 1.08rem;
     }
 
     .career-tl-desc {
-      font-size: 0.88rem;
-      line-height: 1.5;
+      font-size: 0.79rem;
+      line-height: 1.42;
+    }
+
+    .career-tl-desc :global(p) {
+      margin-bottom: 0.45rem;
     }
 
     .career-footer {
-      padding-top: 0.8rem;
+      padding-top: 0.65rem;
+    }
+
+    .career-pdf-toggle {
+      min-height: 38px;
+      padding-inline: 12px;
     }
   }
 
   @media (max-width: 480px) {
     .career-scroll {
-      padding: 0.95rem 0.85rem 0.85rem;
+      padding: 0.95rem 0.7rem 0.75rem;
     }
 
     .career-title {
-      font-size: clamp(1.72rem, 8vw, 2.05rem);
+      font-size: clamp(1.55rem, 7.3vw, 1.86rem);
       line-height: 0.98;
       margin-right: 2.6rem;
     }
