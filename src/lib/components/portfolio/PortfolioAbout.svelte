@@ -10,25 +10,9 @@
     aboutHtml?: string;
   }
 
-  const defaultAboutHtml = `<p>
-    Soy <strong>Moisés Valero</strong>. Tras años en el sector industrial, regresé al desarrollo tecnológico
-    con una visión clara: construir páginas web, aplicaciones y soluciones digitales eficientes,
-    resolutivas y orientadas al usuario. Cuento con un
-    <strong>Certificado de Profesionalidad de Nivel 3</strong> y un enfoque basado en la práctica real.
-  </p>
-  <p>
-    Me especializo en metodologías de <strong>AI-Driven Development</strong> y
-    <strong>Spec-Driven Development (SDD)</strong> para diseñar arquitecturas de software y conectar
-    soluciones con total autonomía. Mi stack principal está enfocado en <strong>SvelteKit</strong>,
-    <strong>Supabase</strong>, <strong>Tailwind CSS</strong> y APIs de IA
-    (<strong>Gemini</strong>, <strong>OpenAI</strong>, <strong>Anthropic</strong>, <strong>Fal.ai</strong>),
-    además de la gestión y mantenimiento de <strong>WordPress</strong>.
-  </p>
-  <p>
-    Estoy en <strong>Alcoy (Alicante)</strong> y busco incorporarme a equipos de desarrollo
-    (remoto, híbrido o presencial). Si buscas madurez, capacidad de resolución y dominio de las
-    herramientas del futuro, hablemos.
-  </p>`;
+  const defaultAboutHtml = `<p>Soy <strong>Moisés Valero</strong>. Tras años en el sector industrial, regresé al desarrollo tecnológico con una visión clara: construir páginas web, aplicaciones y soluciones digitales eficientes, resolutivas y orientadas al usuario.</p>
+  <p>Me especializo en metodologías de <strong>AI-Driven Development</strong> y <strong>Spec-Driven Development (SDD)</strong> para diseñar arquitecturas de software y conectar soluciones con total autonomía. Mi stack principal está enfocado en <strong>SvelteKit</strong>, <strong>Supabase</strong>, <strong>Tailwind CSS</strong> y APIs de IA (<strong>Gemini</strong>, <strong>OpenAI</strong>, <strong>Anthropic</strong>, <strong>Fal.ai</strong>), además de la gestión y mantenimiento de <strong>WordPress</strong>.</p>
+  <p>Estoy en <strong>Alcoy (Alicante)</strong> y busco incorporarme a equipos de desarrollo (remoto, híbrido o presencial). Si buscas madurez, capacidad de resolución y dominio de las herramientas del futuro, hablemos.</p>`;
 
   let {
     imageSrc = '/imagenes/Moises-Valero-Sanchez.png',
@@ -71,7 +55,7 @@
 <style>
   .sobre-mi-minimal {
     max-width: 1200px;
-    margin: 80px auto;
+    margin: 74px auto 112px;
     padding: 0 40px;
     font-family: inherit;
     overflow: hidden;
@@ -81,7 +65,7 @@
   .sobre-mi-flex {
     display: flex;
     align-items: center;
-    gap: 60px;
+    gap: clamp(58px, 7vw, 92px);
     min-width: 0;
   }
 
@@ -93,9 +77,12 @@
   }
 
   .foto-wrapper {
+    position: relative;
     width: 300px;
     height: 350px;
     overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
     transition: transform 0.5s ease-out;
   }
 
@@ -104,7 +91,7 @@
     height: 100%;
     object-fit: cover;
     border-radius: 0;
-    border: 1px solid #e2e8f0;
+    border: 0;
   }
 
   .col-texto {
@@ -113,7 +100,7 @@
   }
 
   .meta-sobre {
-    color: #86868b;
+    color: #0071e3;
     font-size: 12.5px;
     font-weight: 700;
     letter-spacing: 1.5px;
@@ -138,7 +125,12 @@
 
   .texto-contenido :global(strong) {
     color: #1d1d1f;
-    font-weight: 600;
+    font-weight: 760;
+  }
+
+  :global(html.dark) .foto-wrapper {
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.34);
   }
 
   @media (max-width: 992px) {
@@ -160,7 +152,7 @@
 
   @media (max-width: 768px) {
     .sobre-mi-minimal {
-      margin: 48px auto;
+      margin: 54px auto 72px;
       padding: 0 20px;
       scroll-margin-top: 96px;
     }

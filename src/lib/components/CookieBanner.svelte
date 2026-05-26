@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import { onMount, onDestroy } from 'svelte';
   import { t } from '$lib/i18n/index.js';
   import {
@@ -49,9 +50,9 @@
       <p class="cookie-title">{$t('cookieBanner.title')}</p>
       <p class="cookie-text">{$t('cookieBanner.body')}</p>
       <p class="cookie-links">
-        <a href="/cookies">{$t('cookieBanner.policyLink')}</a>
+        <a href={resolve('/cookies')}>{$t('cookieBanner.policyLink')}</a>
         ·
-        <a href="/privacidad">{$t('cookieBanner.privacyLink')}</a>
+        <a href={resolve('/privacidad')}>{$t('cookieBanner.privacyLink')}</a>
       </p>
       <div class="cookie-actions">
         <button type="button" class="btn ghost" onclick={onEssential}>
@@ -137,7 +138,7 @@
     font-size: 13px;
     font-weight: 600;
     padding: 10px 16px;
-    border-radius: 999px;
+    border-radius: 8px;
     cursor: pointer;
     border: none;
     transition:

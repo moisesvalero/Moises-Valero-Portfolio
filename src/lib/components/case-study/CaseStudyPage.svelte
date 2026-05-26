@@ -148,14 +148,18 @@
     --borde: #e8e8ed;
 
     font-family: var(--font-sans);
-    background: var(--fondo);
+    background:
+      linear-gradient(180deg, rgba(232, 240, 249, 0.5), transparent 24rem),
+      var(--fondo);
     color: var(--principal);
     width: 100%;
     -webkit-font-smoothing: antialiased;
   }
 
   .hero {
-    background: var(--fondo-suave);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(0, 113, 227, 0.1), transparent 32rem),
+      var(--fondo-suave);
     padding: 100px 48px 80px;
   }
 
@@ -176,9 +180,9 @@
 
   .hero h1 {
     font-size: clamp(40px, 6vw, 72px);
-    font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -2px;
+    font-weight: 850;
+    line-height: 0.98;
+    letter-spacing: -0.052em;
     margin-bottom: 20px;
     border: none;
   }
@@ -201,7 +205,7 @@
     background: #fff;
     font-size: 13px;
     padding: 6px 14px;
-    border-radius: 100px;
+    border-radius: 6px;
     border: 1px solid var(--borde);
   }
 
@@ -221,7 +225,7 @@
     max-width: 1000px;
     height: 550px;
     background: #fff;
-    border-radius: 16px;
+    border-radius: 8px;
     border: 1px solid rgba(0, 0, 0, 0.08);
     overflow: hidden;
     position: relative;
@@ -386,7 +390,7 @@
     max-width: 500px;
     height: 380px;
     background: #fff;
-    border-radius: 14px;
+    border-radius: 8px;
     border: 1px solid rgba(0, 0, 0, 0.06);
     overflow: hidden;
     position: relative;
@@ -454,7 +458,7 @@
     font-size: 15px;
     font-weight: 600;
     padding: 16px 32px;
-    border-radius: 100px;
+    border-radius: 8px;
     text-decoration: none;
     transition: all 0.2s;
   }
@@ -498,6 +502,12 @@
   :global(html.dark) .mockup-grid-container,
   :global(html.dark) .stack-section {
     background: var(--fondo-suave);
+  }
+
+  :global(html.dark) .hero {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(77, 163, 255, 0.14), transparent 32rem),
+      var(--fondo-suave);
   }
 
   :global(html.dark) .tag,

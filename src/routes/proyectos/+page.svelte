@@ -54,9 +54,10 @@
       <div class="archive-grid">
         {#each projects as project (project.href)}
           {@const image = projectImage(project.imageSrc)}
+          {@const cardHref = hrefFor(project.href)}
           <a
             class="archive-card"
-            href={hrefFor(project.href)}
+            href={cardHref}
             target={project.external ? '_blank' : undefined}
             rel={project.external ? 'noopener noreferrer' : undefined}
             aria-label={`${project.linkLabel}: ${project.title}`}
@@ -108,12 +109,9 @@
 <style>
   .projects-page {
     background:
-      radial-gradient(circle at 18% 8%, rgba(0, 113, 227, 0.12), transparent 28%),
-      radial-gradient(circle at 82% 2%, rgba(20, 184, 166, 0.11), transparent 28%),
-      linear-gradient(rgba(15, 23, 42, 0.055) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(15, 23, 42, 0.055) 1px, transparent 1px),
-      #f8fafc;
-    background-size: auto, auto, 76px 76px, 76px 76px, auto;
+      radial-gradient(circle at 50% 0%, rgba(0, 113, 227, 0.1), transparent 32rem),
+      linear-gradient(180deg, rgba(232, 240, 249, 0.96), rgba(242, 246, 251, 0.9) 42%, #f8fafc 100%),
+      #e9f0f8;
     color: #111827;
     min-height: 100vh;
   }
@@ -166,29 +164,30 @@
   }
 
   .hero-meta {
-    border-left: 1px solid rgba(15, 23, 42, 0.18);
+    border-left: 1px solid rgba(15, 23, 42, 0.14);
     padding-left: 28px;
   }
 
   .hero-meta span {
     display: block;
     color: #111827;
-    font-size: clamp(44px, 6vw, 72px);
-    font-weight: 860;
-    line-height: 0.9;
-    letter-spacing: -0.05em;
+    font-size: clamp(30px, 4vw, 46px);
+    font-weight: 840;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
   }
 
   .hero-meta p {
-    margin-top: 12px;
+    max-width: 18ch;
+    margin-top: 10px;
     color: #5b6676;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 680;
+    line-height: 1.35;
   }
 
   .projects-archive {
-    border-top: 1px solid rgba(15, 23, 42, 0.1);
-    padding: clamp(34px, 6vw, 64px) 0 clamp(74px, 10vw, 128px);
+    padding: clamp(28px, 5vw, 56px) 0 clamp(74px, 10vw, 128px);
   }
 
   .archive-grid {
@@ -299,7 +298,7 @@
     min-height: 25px;
     padding: 6px 10px;
     border: 1px solid rgba(0, 113, 227, 0.16);
-    border-radius: 999px;
+    border-radius: 6px;
     background: rgba(0, 113, 227, 0.06);
     color: #155ea8;
     font-size: 11px;
@@ -349,6 +348,52 @@
     .archive-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+  }
+
+  :global(html.dark) .projects-page {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(77, 163, 255, 0.14), transparent 32rem),
+      linear-gradient(180deg, rgba(12, 18, 30, 0.98), rgba(7, 12, 21, 0.94) 42%, #0a0a0a 100%),
+      #0c1220;
+    color: #f8fafc;
+  }
+
+  :global(html.dark) h1,
+  :global(html.dark) h2,
+  :global(html.dark) .hero-meta span,
+  :global(html.dark) .project-cta {
+    color: #f8fafc;
+  }
+
+  :global(html.dark) .hero-copy,
+  :global(html.dark) .hero-meta p,
+  :global(html.dark) .empty-state {
+    color: #d4d4d8;
+  }
+
+  :global(html.dark) .hero-meta {
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  :global(html.dark) .archive-card {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(18, 18, 18, 0.86);
+    box-shadow: 0 20px 54px rgba(0, 0, 0, 0.26);
+  }
+
+  :global(html.dark) .card-media {
+    background: #101827;
+  }
+
+  :global(html.dark) .card-copy p,
+  :global(html.dark) .card-topline time {
+    color: #d4d4d8;
+  }
+
+  :global(html.dark) .tag-list li {
+    border-color: rgba(77, 163, 255, 0.24);
+    background: rgba(77, 163, 255, 0.08);
+    color: #a7d5ff;
   }
 
   @media (max-width: 640px) {

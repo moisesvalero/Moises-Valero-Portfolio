@@ -67,6 +67,83 @@ function resolveHeroCvHref(cvHref: string, ctaPrimaryLabel: string, defaultCvHre
   return href || defaultCvHref;
 }
 
+function replaceCmsText(value: string, replacements: Record<string, string>): string {
+  const normalized = value.trim().toLowerCase();
+  return replacements[normalized] ?? value;
+}
+
+function normalizeHeroCtaLabel(value: string, locale: SiteLocale): string {
+  if (locale === 'en') return value;
+  return replaceCmsText(value, {
+    '¿hablamos?': 'Ver CV',
+    'hablemos': 'Ver CV'
+  });
+}
+
+function normalizeHeroBio(value: string, locale: SiteLocale): string {
+  if (locale === 'en') return value;
+  return replaceCmsText(value, {
+    'construyo productos web modernos con arquitectura sólida y alto rendimiento':
+      'Desarrollo webs y web apps con SvelteKit, APIs, IA aplicada y WordPress. Busco incorporarme a un equipo y aportar rendimiento, integraciones y criterio técnico.',
+    'desarrollo sitios web y web apps rápidas, robustas y mantenibles, con foco en rendimiento, ia e integraciones reales. busco incorporarme a un equipo donde aportar criterio técnico, aprendizaje rápido y valor desde el primer día.':
+      'Desarrollo webs y web apps con SvelteKit, APIs, IA aplicada y WordPress. Busco incorporarme a un equipo y aportar rendimiento, integraciones y criterio técnico.',
+    'diseño y desarrollo interfaces web con criterio de producto: sveltekit, wordpress, rendimiento e integraciones reales para estudios y equipos digitales.':
+      'Desarrollo webs y web apps con SvelteKit, APIs, IA aplicada y WordPress. Busco incorporarme a un equipo y aportar rendimiento, integraciones y criterio técnico.',
+    'diseño y desarrollo interfaces web con criterio de producto: sveltekit, wordpress, ia aplicada, rendimiento e integraciones reales para estudios y equipos digitales.':
+      'Desarrollo webs y web apps con SvelteKit, APIs, IA aplicada y WordPress. Busco incorporarme a un equipo y aportar rendimiento, integraciones y criterio técnico.',
+    'desarrollador web con sveltekit, wordpress e ia aplicada. busco incorporarme a un equipo y aportar frontend, rendimiento e integraciones reales.':
+      'Desarrollo webs y web apps con SvelteKit, APIs, IA aplicada y WordPress. Busco incorporarme a un equipo y aportar rendimiento, integraciones y criterio técnico.'
+  });
+}
+
+function normalizeContactHeading(value: string, locale: SiteLocale): string {
+  if (locale === 'en') return value;
+  return replaceCmsText(value, {
+    '¿hablamos?': 'Listo para aportar en un equipo técnico',
+    'hablemos': 'Listo para aportar en un equipo técnico'
+  });
+}
+
+function normalizeContactModalTitle(value: string, locale: SiteLocale): string {
+  if (locale === 'en') return value;
+  return replaceCmsText(value, {
+    'cuéntame tu proyecto': 'Hablemos de una oportunidad',
+    'cuentame tu proyecto': 'Hablemos de una oportunidad'
+  });
+}
+
+function normalizeContactSubmitLabel(value: string, locale: SiteLocale): string {
+  if (locale === 'en') return value;
+  return replaceCmsText(value, {
+    'enviar solicitud': 'Enviar mensaje'
+  });
+}
+
+function normalizeContactModalText(value: string, locale: SiteLocale): string {
+  if (locale === 'en') return value;
+  return replaceCmsText(value, {
+    'déjame tus datos y te responderé lo antes posible.':
+      'Déjame tus datos y te responderé con disponibilidad, CV y próximos pasos.',
+    'dejame tus datos y te respondere lo antes posible.':
+      'Déjame tus datos y te responderé con disponibilidad, CV y próximos pasos.'
+  });
+}
+
+function normalizeAboutHtml(value: string, locale: SiteLocale): string {
+  if (locale === 'en') return value;
+  const staleAiDisclaimer = new RegExp(
+    ['Trabajo con especificaciones claras', 'revisi[oó]n humana y apoyo de IA cuando acelera sin bajar el nivel\\.'].join(
+      ',\\s*'
+    )
+  );
+  return value
+    .replace(
+      staleAiDisclaimer,
+      'Me especializo en metodologías de <strong>AI-Driven Development</strong> y <strong>Spec-Driven Development (SDD)</strong> para diseñar arquitecturas de software y conectar soluciones con total autonomía. Mi stack principal está enfocado en <strong>SvelteKit</strong>, <strong>Supabase</strong>, <strong>Tailwind CSS</strong> y APIs de IA (<strong>Gemini</strong>, <strong>OpenAI</strong>, <strong>Anthropic</strong>, <strong>Fal.ai</strong>), además de la gestión y mantenimiento de <strong>WordPress</strong>.'
+    )
+    .replace('herramientas actuales, podemos encajar.', 'herramientas del futuro, hablemos.');
+}
+
 function pickNavLabel(
   raw: unknown,
   locale: SiteLocale,
@@ -186,18 +263,16 @@ function mergeHero(
   if (!o) {
     return d;
   }
-  const ctaPrimaryLabel = pickLocalized(
-    o.ctaPrimaryLabel,
-    locale,
-    d.ctaPrimaryLabel ?? 'Ver CV',
-    enUi.hero.ctaPrimaryLabel
+  const ctaPrimaryLabel = normalizeHeroCtaLabel(
+    pickLocalized(o.ctaPrimaryLabel, locale, d.ctaPrimaryLabel ?? 'Ver CV', enUi.hero.ctaPrimaryLabel),
+    locale
   );
   return {
     cvHref: resolveHeroCvHref(asString(o.cvHref, d.cvHref), ctaPrimaryLabel, d.cvHref),
     label: pickLocalized(o.label, locale, d.label, enUi.hero.label),
     title: pickLocalized(o.title, locale, d.title, enUi.hero.title),
     subtitle: pickLocalized(o.subtitle, locale, d.subtitle, enUi.hero.subtitle),
-    bio: pickLocalized(o.bio, locale, d.bio, enUi.hero.bio),
+    bio: normalizeHeroBio(pickLocalized(o.bio, locale, d.bio, enUi.hero.bio), locale),
     ctaPrimaryLabel,
     careerCtaLabel: pickLocalized(
       o.careerCtaLabel,
@@ -223,7 +298,10 @@ function mergeAbout(
     imageAlt: pickLocalized(o.imageAlt, ctx.locale, d.imageAlt, enUi.about.imageAlt),
     meta: pickLocalized(o.meta, ctx.locale, d.meta, enUi.about.meta),
     title: pickLocalized(o.title, ctx.locale, d.title, enUi.about.title),
-    aboutHtml: pickLocalized(o.aboutHtml, ctx.locale, d.aboutHtml, enUi.about.aboutHtml)
+    aboutHtml: normalizeAboutHtml(
+      pickLocalized(o.aboutHtml, ctx.locale, d.aboutHtml, enUi.about.aboutHtml),
+      ctx.locale
+    )
   };
 }
 
@@ -363,15 +441,19 @@ function mergeContact(
   }
   const c = enUi.contact;
   return {
-    heading: pickLocalized(o.heading, locale, d.heading, c.heading),
+    heading: normalizeContactHeading(pickLocalized(o.heading, locale, d.heading, c.heading), locale),
     subtitle: pickLocalized(o.subtitle, locale, d.subtitle, c.subtitle),
-    formModalHeading: pickLocalized(o.formModalHeading, locale, d.formModalHeading, c.formModalHeading),
-    formModalText: pickLocalized(o.formModalText, locale, d.formModalText, c.formModalText),
-    formModalSubmitLabel: pickLocalized(
-      o.formModalSubmitLabel,
-      locale,
-      d.formModalSubmitLabel,
-      c.formModalSubmitLabel
+    formModalHeading: normalizeContactModalTitle(
+      pickLocalized(o.formModalHeading, locale, d.formModalHeading, c.formModalHeading),
+      locale
+    ),
+    formModalText: normalizeContactModalText(
+      pickLocalized(o.formModalText, locale, d.formModalText, c.formModalText),
+      locale
+    ),
+    formModalSubmitLabel: normalizeContactSubmitLabel(
+      pickLocalized(o.formModalSubmitLabel, locale, d.formModalSubmitLabel, c.formModalSubmitLabel),
+      locale
     ),
     formModalPrivacyLabel: pickLocalized(
       o.formModalPrivacyLabel,

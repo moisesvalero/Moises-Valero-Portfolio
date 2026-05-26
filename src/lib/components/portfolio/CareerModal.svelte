@@ -40,84 +40,32 @@
   // bloqueo por CSP (`frame-src`) y por `Content-Disposition: attachment` que Sanity CDN
   // aplica a los PDFs. El enlace "abrir en pestaña nueva" mantiene la URL original.
   const pdfIframeSrc = '/api/cv';
-  type StackIcon = {
-    src?: string;
-    devicon?: string;
-    iconify?: string;
-    alt?: string;
-    title: string;
-  };
+  let panelEl = $state<HTMLDivElement | undefined>();
+  let previouslyFocused = $state<HTMLElement | null>(null);
 
-  type StackGroup = {
-    title: string;
-    icons: StackIcon[];
-  };
+  const narrative = $derived(
+    locale === 'en'
+      ? {
+          eyebrow: 'Non-linear route',
+          pdfIntro: 'The complete CV stays available, but the modal keeps the story readable first.'
+        }
+      : {
+          eyebrow: 'Recorrido no lineal',
+          pdfIntro: 'El CV completo queda disponible, pero la historia se entiende antes.'
+        }
+  );
 
-  const stackGroups: StackGroup[] = [
-    {
-      title: 'Lenguajes y Core',
-      icons: [
-        { devicon: 'typescript/typescript-original.svg', alt: 'TypeScript', title: 'TypeScript' },
-        { devicon: 'javascript/javascript-original.svg', alt: 'JavaScript', title: 'JavaScript (ES6+)' },
-        { devicon: 'html5/html5-original.svg', alt: 'HTML5', title: 'HTML5' },
-        { devicon: 'css3/css3-original.svg', alt: 'CSS3', title: 'CSS3' }
-      ]
-    },
-    {
-      title: 'Frameworks y Librerías',
-      icons: [
-        { devicon: 'svelte/svelte-original.svg', alt: 'SvelteKit', title: 'SvelteKit / Svelte 5' },
-        { devicon: 'tailwindcss/tailwindcss-original.svg', alt: 'Tailwind CSS', title: 'Tailwind CSS' },
-        { devicon: 'vitejs/vitejs-original.svg', alt: 'Vite', title: 'Vite' },
-        { iconify: 'logos:pwa', alt: 'PWA', title: 'Progressive Web Apps' }
-      ]
-    },
-    {
-      title: 'Backend e Infraestructura',
-      icons: [
-        { devicon: 'supabase/supabase-original.svg', alt: 'Supabase', title: 'Supabase (PostgreSQL)' },
-        { devicon: 'vercel/vercel-original.svg', alt: 'Vercel', title: 'Vercel' },
-        { devicon: 'cloudflare/cloudflare-original.svg', alt: 'Cloudflare', title: 'Cloudflare' },
-        { devicon: 'github/github-original.svg', alt: 'GitHub', title: 'GitHub' }
-      ]
-    },
-    {
-      title: 'Integraciones y APIs',
-      icons: [
-        { iconify: 'logos:stripe', alt: 'Stripe', title: 'Stripe API' },
-        { src: '/imagenes/claude-ai-icon.svg', alt: 'Claude', title: 'Claude API' },
-        { iconify: 'logos:openai-icon', alt: 'OpenAI', title: 'OpenAI API' },
-        { iconify: 'logos:google-gemini', alt: 'Gemini', title: 'Gemini API' }
-      ]
-    },
-    {
-      title: 'CMS y Low-Code',
-      icons: [
-        { devicon: 'wordpress/wordpress-plain.svg', alt: 'WordPress', title: 'WordPress' },
-        { src: '/imagenes/kadence.svg', alt: 'Kadence', title: 'Kadence' },
-        { src: '/imagenes/elementor.svg', alt: 'Elementor', title: 'Elementor' },
-        { devicon: 'sanity/sanity-original.svg', alt: 'Sanity', title: 'Sanity.io' }
-      ]
-    },
-    {
-      title: 'Entorno de Desarrollo e IA',
-      icons: [
-        { src: '/imagenes/cursor.svg', alt: 'Cursor', title: 'Cursor' },
-        { src: '/imagenes/codex-color.svg', alt: 'OpenAI Codex', title: 'OpenAI Codex' },
-        { src: '/imagenes/opencode.svg', alt: 'OpenCode', title: 'OpenCode' },
-        { src: '/imagenes/antigravity.svg', alt: 'Antigravity', title: 'Google Antigravity' }
-      ]
-    }
-  ];
+  const timelineItems = $derived(c.timeline ?? []);
+  let currentIndex = $state(0);
+  let carouselRef = $state<HTMLDivElement | undefined>();
+  const collapseDelay = 5200;
+  const activeTimelineItem = $derived(timelineItems[currentIndex] ?? timelineItems[0]);
 
-  function iconifySvgUrl(name: string): string {
-    return `https://api.iconify.design/${encodeURIComponent(name)}.svg`;
+  function careerRange(range: string): string {
+    return /2025/i.test(range) && /presente|actualidad|present|current/i.test(range)
+      ? '2025 – 2026'
+      : range;
   }
-
-  function deviconSvgUrl(path: string): string {
-    return `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${path}`;
-  }
-
   let showPdf = $state(false);
 
   function close() {
@@ -125,103 +73,175 @@
     showPdf = false;
   }
 
+  function focusableElements(): HTMLElement[] {
+    if (!panelEl) return [];
+    return Array.from(
+      panelEl.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.hasAttribute('disabled') && el.getAttribute('aria-hidden') !== 'true');
+  }
+
+  function onDialogKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      close();
+      return;
+    }
+
+    if (e.key !== 'Tab') return;
+    const focusable = focusableElements();
+    if (focusable.length === 0) {
+      e.preventDefault();
+      panelEl?.focus();
+      return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const current = document.activeElement;
+
+    if (e.shiftKey && current === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && current === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
   function onBackdropMouseDown(e: MouseEvent) {
     if (e.target === e.currentTarget) close();
   }
 
+  function selectTimelineItem(index: number) {
+    currentIndex = index;
+  }
+
+  function scrollTimelineItemIntoView(index: number) {
+    const cards = carouselRef?.querySelectorAll<HTMLElement>('.career-feature-trigger');
+    const card = cards?.[index];
+    if (!carouselRef || !card) return;
+    const cardRect = card.getBoundingClientRect();
+    const carouselRect = carouselRef.getBoundingClientRect();
+    const offset = cardRect.left - carouselRect.left - (carouselRect.width - cardRect.width) / 2;
+    carouselRef.scrollTo({ left: carouselRef.scrollLeft + offset, behavior: 'smooth' });
+  }
+
   $effect(() => {
     if (open) {
+      currentIndex = 0;
+      previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       document.body.style.overflow = 'hidden';
-      const onKey = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') close();
-      };
-      window.addEventListener('keydown', onKey);
+      let observer: IntersectionObserver | undefined;
+      requestAnimationFrame(() => {
+        panelEl?.focus();
+        const root = panelEl?.querySelector('.career-scroll');
+        const items = panelEl?.querySelectorAll<HTMLElement>('.career-reveal');
+        if (root && items?.length) {
+          observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) entry.target.classList.add('career-reveal--visible');
+              });
+            },
+            { root, threshold: 0.22 }
+          );
+          items.forEach((item) => observer?.observe(item));
+        }
+      });
       return () => {
-        window.removeEventListener('keydown', onKey);
+        observer?.disconnect();
         document.body.style.overflow = '';
+        previouslyFocused?.focus();
       };
     }
     document.body.style.overflow = '';
   });
+
+  $effect(() => {
+    if (!open || timelineItems.length <= 1) return;
+    const timer = window.setInterval(() => {
+      currentIndex = (currentIndex + 1) % timelineItems.length;
+    }, collapseDelay);
+    return () => window.clearInterval(timer);
+  });
+
+  $effect(() => {
+    if (!open) return;
+    scrollTimelineItemIntoView(currentIndex);
+  });
 </script>
 
 {#if open}
-  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div
     class="career-backdrop"
     role="presentation"
     onmousedown={onBackdropMouseDown}
   >
     <div
+      bind:this={panelEl}
       class="career-panel"
       role="dialog"
       aria-modal="true"
       aria-labelledby="career-modal-title"
       tabindex="-1"
       onmousedown={(e) => e.stopPropagation()}
+      onkeydown={onDialogKeydown}
     >
       <button type="button" class="career-close" onclick={close} aria-label={c.closeAria}>
         <span aria-hidden="true">×</span>
       </button>
 
       <div class="career-scroll">
-        <h2 id="career-modal-title" class="career-title">{c.title}</h2>
+        <header class="career-head">
+          <span class="career-eyebrow">{narrative.eyebrow}</span>
+          <h2 id="career-modal-title" class="career-title">{c.title}</h2>
+        </header>
 
-        <section class="career-block" aria-labelledby="career-perfil">
-          <h3 id="career-perfil" class="career-h3">{c.profileTitle}</h3>
-          <!-- svelte-ignore hydration_html_changed -->
-          {@html c.profileHtml}
-        </section>
-
-        <section class="career-block" aria-labelledby="career-exp">
-          <h3 id="career-exp" class="career-h3">{c.expTitle}</h3>
-          <ol class="career-timeline">
-            {#each c.timeline as item (item.range + item.role)}
-              <li
-                class="career-tl-item"
-                class:career-tl-item--span={item.span}
+        <section class="career-feature-stage career-reveal career-reveal--visible" aria-labelledby="career-exp">
+          <h3 id="career-exp" class="sr-only">{c.expTitle}</h3>
+          <div bind:this={carouselRef} class="career-feature-list" aria-label={c.expTitle}>
+            {#each timelineItems as item, index (item.range + item.role)}
+              <button
+                type="button"
+                class="career-feature-trigger"
+                class:is-active={currentIndex === index}
+                onclick={() => selectTimelineItem(index)}
+                aria-pressed={currentIndex === index}
+                style={`--progress-duration: ${currentIndex === index ? `${collapseDelay}ms` : '0ms'}`}
               >
-                <span class="career-tl-range">{item.range}</span>
-                <span class="career-tl-role">{item.role}</span>
-                <p class="career-tl-desc">
-                  <!-- svelte-ignore hydration_html_changed -->
-                  {@html item.descHtml}
-                </p>
-              </li>
-            {/each}
-          </ol>
-        </section>
-
-        <section class="career-block" aria-labelledby="career-stack">
-          <h3 id="career-stack" class="career-h3">{c.stackTitle}</h3>
-          <div class="career-stack-groups">
-            {#each stackGroups as group (group.title)}
-              <section class="career-stack-group" aria-label={group.title}>
-                <p class="career-stack-group-title">{group.title}</p>
-                <ul class="career-stack-icons">
-                  {#each group.icons as icon (icon.title)}
-                    <li class="career-stack-icon-item">
-                      <span class="career-stack-icon-mark">
-                        <img
-                          src={icon.devicon ? deviconSvgUrl(icon.devicon) : icon.iconify ? iconifySvgUrl(icon.iconify) : icon.src}
-                          alt={icon.title}
-                          title={icon.title}
-                          width="16"
-                          height="16"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      </span>
-                      <span class="career-stack-icon-text">{icon.title}</span>
-                    </li>
-                  {/each}
-                </ul>
-              </section>
+                <span class="career-feature-node" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span class="career-feature-copy">
+                  <span class="career-tl-range">{careerRange(item.range)}</span>
+                  <strong>{item.role}</strong>
+                </span>
+              </button>
             {/each}
           </div>
+
+          {#if activeTimelineItem}
+            <article class="career-feature-preview" aria-live="polite">
+              <div class="career-preview-art" aria-hidden="true">
+                <span class="career-preview-core">{String(currentIndex + 1).padStart(2, '0')}</span>
+              </div>
+              <div class="career-preview-copy">
+                <span class="career-tl-range">{careerRange(activeTimelineItem.range)}</span>
+                <h4>{activeTimelineItem.role}</h4>
+                <div class="career-tl-desc">
+                  {@html activeTimelineItem.descHtml}
+                </div>
+              </div>
+            </article>
+          {/if}
         </section>
 
-        <footer class="career-footer">
+        <footer class="career-footer career-reveal" aria-labelledby="career-cv-title">
+          <div class="career-story-heading">
+            <h3 id="career-cv-title" class="career-h3">CV</h3>
+            <p>{narrative.pdfIntro}</p>
+          </div>
           <button
             type="button"
             class="career-pdf-toggle"
@@ -260,26 +280,30 @@
     align-items: center;
     justify-content: center;
     padding: 1.25rem;
-    background: rgba(29, 29, 31, 0.45);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background: rgba(11, 18, 32, 0.56);
+    backdrop-filter: blur(14px) saturate(112%);
+    -webkit-backdrop-filter: blur(14px) saturate(112%);
     box-sizing: border-box;
     font-family: var(--font-sans);
   }
 
   .career-panel {
     position: relative;
-    width: min(100%, 560px);
-    max-height: min(90vh, 880px);
-    background: #fff;
-    border-radius: 16px;
-    border: 1px solid #e8e8ed;
+    width: min(100%, 1040px);
+    height: min(88vh, 760px);
+    background:
+      radial-gradient(circle at 16% 8%, rgba(0, 113, 227, 0.12), transparent 22rem),
+      radial-gradient(circle at 88% 0%, rgba(167, 243, 255, 0.18), transparent 24rem),
+      linear-gradient(180deg, #f8fafc 0%, #eef4fb 100%);
+    border-radius: 8px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
     box-shadow:
-      0 24px 80px rgba(29, 29, 31, 0.12),
+      0 42px 130px rgba(15, 23, 42, 0.28),
       0 1px 0 rgba(255, 255, 255, 0.9) inset;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    outline: none;
   }
 
   .career-close {
@@ -290,8 +314,8 @@
     width: 40px;
     height: 40px;
     border: none;
-    border-radius: 999px;
-    background: rgba(0, 0, 0, 0.04);
+    border-radius: 6px;
+    background: rgba(15, 23, 42, 0.045);
     color: #1d1d1f;
     font-size: 1.5rem;
     line-height: 1;
@@ -310,22 +334,233 @@
   }
 
   .career-scroll {
+    overflow-x: hidden;
     overflow-y: auto;
-    padding: 2.25rem 1.75rem 1.75rem;
+    height: 100%;
+    padding: clamp(1.35rem, 2.6vw, 2.15rem);
     -webkit-overflow-scrolling: touch;
   }
 
-  .career-title {
-    margin: 0 2.25rem 1.5rem 0;
-    font-size: 1.3rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.25;
-    color: #1d1d1f;
+  .career-head {
+    max-width: 780px;
+    margin-bottom: clamp(1.1rem, 3vh, 1.75rem);
   }
 
-  .career-block {
-    margin-bottom: 1.75rem;
+  .career-eyebrow {
+    display: block;
+    margin-bottom: 0.45rem;
+    color: #0071e3;
+    font-size: 0.72rem;
+    font-weight: 760;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .career-title {
+    margin: 0 2.25rem 0 0;
+    color: #0f172a;
+    font-size: clamp(2.1rem, 4.6vw, 4.15rem);
+    font-weight: 900;
+    letter-spacing: -0.058em;
+    line-height: 0.88;
+    text-wrap: balance;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .career-reveal {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+    transition:
+      opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .career-reveal--visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .career-feature-stage {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.72fr) minmax(420px, 1fr);
+    align-items: stretch;
+    gap: clamp(1rem, 2.8vw, 1.6rem);
+    min-height: 455px;
+    padding-top: clamp(0.5rem, 1.8vh, 1rem);
+  }
+
+  .career-feature-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    min-width: 0;
+  }
+
+  .career-feature-trigger {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3.15rem minmax(0, 1fr);
+    gap: 0.9rem;
+    width: 100%;
+    min-height: 88px;
+    padding: 0.78rem 0.82rem;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.58);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.05);
+    transition:
+      transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .career-feature-trigger:hover,
+  .career-feature-trigger:focus-visible,
+  .career-feature-trigger.is-active {
+    transform: translateX(4px);
+    border-color: rgba(0, 113, 227, 0.28);
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 20px 48px rgba(15, 23, 42, 0.1);
+    outline: none;
+  }
+
+  .career-feature-node {
+    position: relative;
+    z-index: 1;
+    width: 3.15rem;
+    height: 3.15rem;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    border-radius: 6px;
+    background: #0f172a;
+    color: #f8fafc;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 850;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
+    transition:
+      transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 360ms cubic-bezier(0.22, 1, 0.36, 1),
+      background 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .career-feature-trigger.is-active .career-feature-node {
+    transform: translateY(-2px);
+    border-color: rgba(0, 113, 227, 0.48);
+    background: #0066e5;
+  }
+
+  .career-feature-copy {
+    min-width: 0;
+    padding-top: 0.15rem;
+  }
+
+  .career-feature-copy strong {
+    display: block;
+    color: #0f172a;
+    font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    transition:
+      color 260ms ease,
+      transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .career-feature-trigger.is-active .career-feature-copy strong {
+    color: #0052b8;
+    transform: translateX(0.16rem);
+  }
+
+  .career-feature-preview {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    min-height: 455px;
+    display: grid;
+    grid-template-rows: 210px minmax(0, 1fr);
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 8px;
+    background:
+      radial-gradient(circle at 18% 0%, rgba(0, 113, 227, 0.08), transparent 18rem),
+      #ffffff;
+    box-shadow:
+      0 24px 70px rgba(15, 23, 42, 0.08),
+      0 1px 0 rgba(255, 255, 255, 0.86) inset;
+  }
+
+  .career-preview-art {
+    position: relative;
+    min-height: 210px;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 22% 28%, rgba(77, 163, 255, 0.28), transparent 16rem),
+      radial-gradient(circle at 82% 18%, rgba(167, 243, 255, 0.12), transparent 14rem),
+      linear-gradient(180deg, #101827 0%, #0b1220 100%);
+  }
+
+  .career-preview-art::before,
+  .career-preview-art::after {
+    content: none;
+    display: none;
+  }
+
+  .career-preview-art::after {
+    top: 4.7rem;
+  }
+
+  .career-preview-core {
+    position: absolute;
+    left: clamp(1.1rem, 4vw, 2.2rem);
+    top: clamp(1.15rem, 3vw, 1.7rem);
+    width: auto;
+    height: auto;
+    display: grid;
+    min-width: 5.5rem;
+    min-height: 4.6rem;
+    place-items: center;
+    border: 1px solid rgba(248, 250, 252, 0.2);
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #0052b8;
+    font-family: var(--font-mono);
+    font-size: clamp(1.65rem, 4vw, 2.5rem);
+    font-weight: 900;
+    letter-spacing: -0.08em;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.26);
+  }
+
+  .career-preview-copy {
+    padding: clamp(1rem, 2.5vw, 1.35rem);
+  }
+
+  .career-preview-copy h4 {
+    margin: 0.18rem 0 0.85rem;
+    color: #0f172a;
+    font-size: clamp(1.45rem, 2.8vw, 2.1rem);
+    font-weight: 820;
+    letter-spacing: -0.045em;
+    line-height: 1;
   }
 
   .career-h3 {
@@ -337,31 +572,6 @@
     color: #86868b;
   }
 
-  .career-timeline {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-left: 2px solid #e8e8ed;
-    padding-left: 1.25rem;
-  }
-
-  .career-tl-item {
-    position: relative;
-    padding-bottom: 1.35rem;
-  }
-
-  .career-tl-item::before {
-    content: '';
-    position: absolute;
-    left: calc(-1.25rem - 5px);
-    top: 0.35rem;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #0071e3;
-    box-shadow: 0 0 0 3px #fff;
-  }
-
   .career-tl-range {
     display: block;
     font-size: 0.78rem;
@@ -371,110 +581,53 @@
     margin-bottom: 0.2rem;
   }
 
-  .career-tl-role {
-    display: block;
-    font-size: 0.97rem;
-    font-weight: 600;
-    color: #1d1d1f;
-    margin-bottom: 0.35rem;
-  }
-
   .career-tl-desc {
     margin: 0;
-    font-size: 0.91rem;
-    line-height: 1.58;
+    font-size: 0.95rem;
+    line-height: 1.62;
     color: #6e6e73;
   }
 
-  .career-stack-groups {
-    display: grid;
-    gap: 0.75rem;
+  .career-tl-desc :global(p) {
+    margin: 0 0 0.7rem;
   }
 
-  .career-stack-group {
-    padding: 0.65rem 0.75rem 0.75rem;
-    background: #f8fafc;
-    border: 1px solid #e8edf3;
-    border-radius: 10px;
+  .career-tl-desc :global(p:last-child) {
+    margin-bottom: 0;
   }
 
-  .career-stack-group-title {
-    margin: 0 0 0.45rem;
-    font-size: 0.74rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #64748b;
-  }
-
-  .career-stack-icons {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.45rem 0.6rem;
-  }
-
-  .career-stack-icon-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.38rem;
-    min-width: 0;
-  }
-
-  .career-stack-icon-mark {
-    width: 20px;
-    height: 20px;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    background: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-  }
-
-  .career-stack-icon-mark img {
-    width: 14px;
-    height: 14px;
-    object-fit: contain;
-    display: block;
-  }
-
-  .career-stack-icon-text {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #1d1d1f;
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .career-tl-desc :global(strong),
+  .career-tl-desc :global(b) {
+    color: #334155;
+    font-weight: 820;
   }
 
   .career-footer {
-    margin-top: 0.5rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid #e8e8ed;
+    margin-top: 0;
+    padding-top: clamp(2.5rem, 7vh, 4.5rem);
+    border-top: 0;
   }
 
   .career-pdf-toggle {
     display: inline-flex;
     align-items: center;
-    padding: 0;
-    border: none;
-    background: none;
+    min-height: 42px;
+    padding: 0.72rem 0.9rem;
+    border: 1px solid #0f172a;
+    border-radius: 6px;
+    background: #0f172a;
     font-family: inherit;
     font-size: 0.8125rem;
     font-weight: 500;
-    color: #0071e3;
+    color: #f8fafc;
     cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    text-decoration: none;
   }
 
   .career-pdf-toggle:hover {
-    color: #0077ed;
+    background: #005fd6;
+    border-color: #005fd6;
+    color: #ffffff;
   }
 
   .career-pdf-wrap {
@@ -483,7 +636,7 @@
 
   .career-pdf-frame {
     width: 100%;
-    height: min(52vh, 420px);
+    height: min(48vh, 420px);
     border: 1px solid #e8e8ed;
     border-radius: 10px;
     background: #f5f5f7;
@@ -507,8 +660,11 @@
   }
 
   :global(html.dark) .career-panel {
-    background: #0a0a0a;
-    border-color: rgba(255, 255, 255, 0.12);
+    background:
+      radial-gradient(circle at 18% 7%, rgba(77, 163, 255, 0.18), transparent 22rem),
+      radial-gradient(circle at 92% 0%, rgba(0, 113, 227, 0.1), transparent 24rem),
+      linear-gradient(180deg, #101827 0%, #090d14 100%);
+    border-color: rgba(125, 183, 255, 0.22);
     box-shadow: 0 30px 90px rgba(0, 0, 0, 0.58);
     color: #e5e7eb;
   }
@@ -523,29 +679,71 @@
   }
 
   :global(html.dark) .career-title,
-  :global(html.dark) .career-tl-role,
-  :global(html.dark) .career-stack-icon-text {
+  :global(html.dark) .career-feature-copy strong,
+  :global(html.dark) .career-preview-copy h4 {
     color: #f8fafc;
   }
 
+  :global(html.dark) .career-eyebrow,
+  :global(html.dark) .career-tl-range {
+    color: #4da3ff;
+  }
+
   :global(html.dark) .career-h3,
-  :global(html.dark) .career-stack-group-title,
   :global(html.dark) .career-pdf-hint {
     color: #a1a1aa;
   }
 
-  :global(html.dark) .career-timeline,
+  :global(html.dark) .career-pdf-toggle {
+    background: #f8fafc;
+    border-color: #f8fafc;
+    color: #0a0a0a;
+  }
+
   :global(html.dark) .career-footer,
   :global(html.dark) .career-pdf-frame {
     border-color: rgba(255, 255, 255, 0.14);
   }
 
-  :global(html.dark) .career-tl-item::before {
-    background: #f5f5f5;
-    box-shadow: 0 0 0 3px #0a0a0a;
+  :global(html.dark) .career-feature-preview,
+  :global(html.dark) .career-feature-node {
+    border-color: rgba(255, 255, 255, 0.1);
   }
 
-  :global(html.dark) .career-tl-range,
+  :global(html.dark) .career-feature-trigger {
+    border-color: rgba(148, 163, 184, 0.22);
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
+  }
+
+  :global(html.dark) .career-feature-trigger:hover,
+  :global(html.dark) .career-feature-trigger:focus-visible,
+  :global(html.dark) .career-feature-trigger.is-active {
+    border-color: rgba(125, 183, 255, 0.48);
+    background: rgba(77, 163, 255, 0.12);
+    box-shadow: 0 22px 56px rgba(0, 0, 0, 0.28);
+  }
+
+  :global(html.dark) .career-feature-node {
+    background: #f8fafc;
+    color: #0a0a0a;
+  }
+
+  :global(html.dark) .career-feature-preview {
+    background:
+      radial-gradient(circle at 18% 0%, rgba(77, 163, 255, 0.14), transparent 18rem),
+      #0e141f;
+  }
+
+  :global(html.dark) .career-feature-trigger.is-active .career-feature-node {
+    background: rgba(77, 163, 255, 0.18);
+    border-color: rgba(77, 163, 255, 0.52);
+  }
+
+  :global(html.dark) .career-feature-trigger.is-active .career-feature-copy strong {
+    color: #4da3ff;
+  }
+
   :global(html.dark) .career-pdf-toggle,
   :global(html.dark) .career-pdf-hint a {
     color: #f5f5f5;
@@ -556,31 +754,85 @@
     color: #d4d4d8;
   }
 
+  :global(html.dark) .career-tl-desc :global(strong),
   :global(html.dark) :global(.career-p strong) {
     color: #ffffff;
-  }
-
-  :global(html.dark) .career-stack-group {
-    background: rgba(255, 255, 255, 0.045);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  :global(html.dark) .career-stack-icon-mark {
-    background: #f7f7f8;
-    border-color: rgba(255, 255, 255, 0.22);
   }
 
   :global(html.dark) .career-pdf-frame {
     background: #111111;
   }
 
+  @media (max-width: 760px) {
+    .career-backdrop {
+      padding: 0.75rem;
+    }
+
+    .career-panel {
+      height: min(92vh, 860px);
+      border-radius: 8px;
+    }
+
+    .career-feature-stage {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+
+    .career-feature-list {
+      flex-direction: row;
+      overflow-x: auto;
+      gap: 0.75rem;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0 0.65rem 0.35rem;
+      margin-inline: 0;
+      scroll-snap-type: x mandatory;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .career-feature-list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .career-feature-trigger {
+      flex: 0 0 min(82vw, 310px);
+      min-height: 102px;
+      grid-template-columns: 2.75rem minmax(0, 1fr);
+      padding: 0.25rem 0.5rem 0.65rem 0;
+      scroll-snap-align: center;
+    }
+
+    .career-feature-node {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
+    .career-feature-preview {
+      position: relative;
+      min-height: 0;
+      grid-template-rows: 140px minmax(0, 1fr);
+    }
+
+    .career-preview-art {
+      min-height: 140px;
+    }
+  }
+
   @media (max-width: 480px) {
     .career-scroll {
-      padding: 2rem 1.15rem 1.25rem;
+      padding: 1.35rem 1.05rem 1.15rem;
     }
 
     .career-title {
-      font-size: 1.1rem;
+      font-size: 1.45rem;
+      line-height: 1.02;
+      margin-right: 2.6rem;
+    }
+
+    .career-close {
+      top: 0.65rem;
+      right: 0.65rem;
     }
   }
 </style>

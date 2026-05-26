@@ -189,10 +189,9 @@
     overflow: hidden;
     padding: clamp(7rem, 12vw, 9.5rem) 0 clamp(5.2rem, 10vw, 7.4rem);
     background:
-      radial-gradient(circle at 12% 14%, rgba(0, 113, 227, 0.24), transparent 34rem),
-      radial-gradient(circle at 84% 12%, rgba(139, 92, 246, 0.2), transparent 31rem),
-      radial-gradient(circle at 50% 84%, rgba(236, 72, 153, 0.11), transparent 32rem),
-      linear-gradient(180deg, #f8fbff 0%, var(--bg-surface) 100%);
+      radial-gradient(circle at 50% 18%, rgba(0, 113, 227, 0.12), transparent 32rem),
+      linear-gradient(180deg, rgba(232, 240, 249, 0.96), rgba(242, 246, 251, 0.9) 58%, var(--bg-surface) 100%),
+      #e9f0f8;
   }
 
   .blog-hero::after {
@@ -206,14 +205,11 @@
 
   .blog-ambient {
     position: absolute;
-    inset: -45%;
-    background:
-      radial-gradient(circle at 18% 22%, rgba(14, 165, 233, 0.23), transparent 30%),
-      radial-gradient(circle at 82% 18%, rgba(168, 85, 247, 0.19), transparent 30%),
-      radial-gradient(circle at 56% 72%, rgba(251, 191, 36, 0.1), transparent 34%);
-    filter: blur(54px);
-    opacity: 0.92;
-    animation: ambientDrift 24s ease-in-out infinite;
+    inset: 10% 12% auto;
+    height: clamp(220px, 34vh, 390px);
+    background: radial-gradient(circle, rgba(0, 113, 227, 0.12), transparent 68%);
+    opacity: 0.72;
+    filter: blur(18px);
   }
 
   .blog-hero-shell {
@@ -235,7 +231,7 @@
 
   .hero-eyebrow {
     margin: 0 0 0.9rem;
-    color: #64748b;
+    color: #0071e3;
   }
 
   h1,
@@ -305,7 +301,7 @@
     transform: translateY(-1px);
     border-color: rgba(0, 113, 227, 0.22);
     background: #0071e3;
-    color: #ffffff;
+    color: #f8fafc;
     box-shadow: 0 14px 32px rgba(0, 113, 227, 0.22);
     outline: none;
   }
@@ -527,9 +523,13 @@
 
   :global(html.dark) .blog-hero {
     background:
-      radial-gradient(circle at 16% 18%, rgba(0, 113, 227, 0.18), transparent 32rem),
-      radial-gradient(circle at 82% 14%, rgba(139, 156, 255, 0.14), transparent 28rem),
-      linear-gradient(180deg, #0a0a0a 0%, #0b0b0b 100%);
+      radial-gradient(circle at 50% 18%, rgba(77, 163, 255, 0.16), transparent 32rem),
+      linear-gradient(180deg, rgba(12, 18, 30, 0.98), rgba(7, 12, 21, 0.94) 58%, #0a0a0a 100%),
+      #0c1220;
+  }
+
+  :global(html.dark) .blog-ambient {
+    background: radial-gradient(circle, rgba(77, 163, 255, 0.18), transparent 68%);
   }
 
   :global(html.dark) h1,

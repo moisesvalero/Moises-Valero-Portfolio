@@ -76,7 +76,7 @@
         ({ label: analyzerLabel, href: '/tools/analizador-web' } as HeaderNavItem);
       const career = pick((item) => item.openCareerModal === true);
 
-      const preferred = [home, projects, blog, assistant, analyzer, career].filter(Boolean) as HeaderNavItem[];
+      const preferred = [home, projects, analyzer, assistant, blog, career].filter(Boolean) as HeaderNavItem[];
       return preferred;
     })()
   );

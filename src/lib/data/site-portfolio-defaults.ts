@@ -1,24 +1,8 @@
 import type { SitePortfolioContent } from '$lib/types/site-portfolio';
 
-const aboutHtml = `<p>
-  Soy <strong>Moisés Valero</strong>. Tras años en el sector industrial, regresé al desarrollo tecnológico
-  con una visión clara: construir páginas web, aplicaciones y soluciones digitales eficientes,
-  resolutivas y orientadas al usuario. Cuento con un
-  <strong>Certificado de Profesionalidad de Nivel 3</strong> y un enfoque basado en la práctica real.
-</p>
-<p>
-  Me especializo en metodologías de <strong>AI-Driven Development</strong> y
-  <strong>Spec-Driven Development (SDD)</strong> para diseñar arquitecturas de software y conectar
-  soluciones con total autonomía. Mi stack principal está enfocado en <strong>SvelteKit</strong>,
-  <strong>Supabase</strong>, <strong>Tailwind CSS</strong> y APIs de IA
-  (<strong>Gemini</strong>, <strong>OpenAI</strong>, <strong>Anthropic</strong>, <strong>Fal.ai</strong>),
-  además de la gestión y mantenimiento de <strong>WordPress</strong>.
-</p>
-<p>
-  Estoy en <strong>Alcoy (Alicante)</strong> y busco incorporarme a equipos de desarrollo
-  (remoto, híbrido o presencial). Si buscas madurez, capacidad de resolución y dominio de las
-  herramientas del futuro, hablemos.
-</p>`;
+const aboutHtml = `<p>Soy <strong>Moisés Valero</strong>. Tras años en el sector industrial, regresé al desarrollo tecnológico con una visión clara: construir páginas web, aplicaciones y soluciones digitales eficientes, resolutivas y orientadas al usuario.</p>
+<p>Me especializo en metodologías de <strong>AI-Driven Development</strong> y <strong>Spec-Driven Development (SDD)</strong> para diseñar arquitecturas de software y conectar soluciones con total autonomía. Mi stack principal está enfocado en <strong>SvelteKit</strong>, <strong>Supabase</strong>, <strong>Tailwind CSS</strong> y APIs de IA (<strong>Gemini</strong>, <strong>OpenAI</strong>, <strong>Anthropic</strong>, <strong>Fal.ai</strong>), además de la gestión y mantenimiento de <strong>WordPress</strong>.</p>
+<p>Estoy en <strong>Alcoy (Alicante)</strong> y busco incorporarme a equipos de desarrollo (remoto, híbrido o presencial). Si buscas madurez, capacidad de resolución y dominio de las herramientas del futuro, hablemos.</p>`;
 
 /** Valores actuales del portfolio; Sanity los sustituye al publicar `sitePortfolio`. */
 export const sitePortfolioDefaults: SitePortfolioContent = {
@@ -49,7 +33,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     label: 'PORTFOLIO – MOISÉS VALERO · Alcoy / Alicante',
     title: 'Desarrollador Web',
     subtitle: 'SvelteKit | WordPress | Sistemas & SEO',
-    bio: 'Desarrollo sitios web y web apps rápidas, robustas y mantenibles, con foco en rendimiento, IA e integraciones reales. Busco incorporarme a un equipo donde aportar criterio técnico, aprendizaje rápido y valor desde el primer día.',
+    bio: 'Desarrollo webs y web apps con SvelteKit, APIs, IA aplicada y WordPress. Busco incorporarme a un equipo y aportar rendimiento, integraciones y criterio técnico.',
     ctaPrimaryLabel: 'Ver CV',
     careerCtaLabel: 'Ver Trayectoria'
   },
@@ -248,11 +232,11 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     ]
   },
   contact: {
-    heading: '¿Hablamos?',
+    heading: 'Listo para aportar en un equipo técnico',
     subtitle: '',
-    formModalHeading: 'Cuéntame tu proyecto',
-    formModalText: 'Déjame tus datos y te responderé lo antes posible.',
-    formModalSubmitLabel: 'Enviar solicitud',
+    formModalHeading: 'Hablemos de una oportunidad',
+    formModalText: 'Déjame tus datos y te responderé con disponibilidad, CV y próximos pasos.',
+    formModalSubmitLabel: 'Enviar mensaje',
     formModalPrivacyLabel: 'He leído y acepto la política de privacidad.',
     formModalSuccessMessage: 'Mensaje enviado. Te responderé en breve.'
   },

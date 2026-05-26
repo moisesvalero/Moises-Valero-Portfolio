@@ -329,7 +329,7 @@
   }
 
   .meta-proyectos {
-    color: #6f7480;
+    color: #0071e3;
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.16em;
@@ -365,27 +365,28 @@
     display: inline-flex;
     align-items: center;
     gap: 9px;
-    min-height: 42px;
-    padding: 0 16px;
+    min-height: 0;
+    padding: 0 0 7px;
     color: #101114;
     text-decoration: none;
     font-size: 13px;
     font-weight: 760;
-    border: 1px solid rgba(16, 17, 20, 0.14);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.72);
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    border: 0;
+    border-bottom: 1px solid rgba(16, 17, 20, 0.24);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
     transition:
       transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
       border-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
-      background-color 260ms cubic-bezier(0.16, 1, 0.3, 1);
+      color 260ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .proyectos-archive-link:hover,
   .proyectos-archive-link:focus-visible {
     transform: translateY(-2px);
-    border-color: rgba(0, 113, 227, 0.38);
-    background: #ffffff;
+    border-color: rgba(0, 113, 227, 0.62);
+    color: #005fd6;
   }
 
   .proyectos-archive-link span {
@@ -412,12 +413,8 @@
     border: 1px solid rgba(15, 23, 42, 0.12);
     border-radius: 8px;
     overflow: hidden;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92)),
-      #ffffff;
-    box-shadow:
-      0 22px 60px rgba(15, 23, 42, 0.08),
-      0 1px 0 rgba(255, 255, 255, 0.86) inset;
+    background: #ffffff;
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
     isolation: isolate;
     transition:
       transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -426,7 +423,7 @@
   }
 
   .project-card::before {
-    content: "";
+    content: none;
     position: absolute;
     inset: 0;
     z-index: 1;
@@ -443,11 +440,9 @@
 
   .project-card:hover,
   .project-card:focus-visible {
-    transform: translateY(-8px);
+    transform: translateY(-4px);
     border-color: rgba(0, 113, 227, 0.34);
-    box-shadow:
-      0 32px 90px rgba(15, 23, 42, 0.16),
-      0 0 0 1px rgba(0, 113, 227, 0.1) inset;
+    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.09);
     outline: none;
   }
 
@@ -472,7 +467,7 @@
   .project-standard-media {
     position: relative;
     overflow: hidden;
-    background: #eef2f7;
+    background: #f5f8fc;
   }
 
   .project-hero-media img,
@@ -488,9 +483,7 @@
 
   .project-hero-media {
     min-height: 360px;
-    background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(232, 238, 247, 0.78)),
-      #eef2f7;
+    background: #f5f8fc;
   }
 
   .project-hero-media img {
@@ -525,9 +518,7 @@
     flex-direction: column;
     justify-content: center;
     padding: clamp(24px, 3vw, 38px);
-    background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.9)),
-      #ffffff;
+    background: #ffffff;
   }
 
   .project-kicker-row {
@@ -604,22 +595,33 @@
   .project-value-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 0;
     margin-top: 18px;
+    padding-top: 13px;
+    border-top: 1px solid rgba(15, 23, 42, 0.1);
   }
 
   .project-value-tags span {
     display: inline-flex;
     align-items: center;
-    min-height: 28px;
-    padding: 0 10px;
-    border: 1px solid rgba(0, 113, 227, 0.16);
-    border-radius: 999px;
-    background: rgba(0, 113, 227, 0.06);
-    color: #155ea8;
-    font-size: 12px;
-    font-weight: 720;
-    line-height: 1;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #475569;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 760;
+    letter-spacing: 0.06em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .project-value-tags span:not(:last-child)::after {
+    content: "/";
+    margin: 0 9px;
+    color: rgba(71, 85, 105, 0.42);
   }
 
   .project-cta {
@@ -657,9 +659,7 @@
   .project-thumb {
     aspect-ratio: 16 / 9;
     min-height: 0;
-    background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(232, 238, 247, 0.72)),
-      #eef2f7;
+    background: #f5f8fc;
   }
 
   .project-card-spotlight .project-thumb img {
@@ -724,10 +724,10 @@
 
   .project-card-standard .project-value-tags span,
   .project-card-spotlight .project-value-tags span {
-    min-height: 24px;
+    min-height: 0;
     font-size: 11px;
-    color: #2d5d91;
-    background: rgba(0, 113, 227, 0.045);
+    color: #475569;
+    background: transparent;
   }
 
   @media (max-width: 1100px) {
@@ -821,19 +821,15 @@
   }
 
   :global(html.dark) .project-card {
-    background:
-      linear-gradient(180deg, rgba(18, 18, 18, 0.96), rgba(11, 11, 11, 0.92)),
-      #111111;
+    background: #111111;
     border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 24px 72px rgba(0, 0, 0, 0.28);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
   :global(html.dark) .project-card:hover,
   :global(html.dark) .project-card:focus-visible {
     border-color: rgba(255, 255, 255, 0.28);
-    box-shadow:
-      0 34px 90px rgba(0, 0, 0, 0.48),
-      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.38);
   }
 
   :global(html.dark) .proyectos-header h2,
@@ -861,9 +857,17 @@
   }
 
   :global(html.dark) .project-value-tags span {
-    border-color: rgba(255, 255, 255, 0.13);
-    background: rgba(255, 255, 255, 0.07);
-    color: #e5e7eb;
+    border-color: transparent;
+    background: transparent;
+    color: #d4d4d8;
+  }
+
+  :global(html.dark) .project-value-tags {
+    border-top-color: rgba(255, 255, 255, 0.12);
+  }
+
+  :global(html.dark) .project-value-tags span:not(:last-child)::after {
+    color: rgba(212, 212, 216, 0.38);
   }
 
   :global(html.dark) .proyectos-archive-link {

@@ -278,7 +278,7 @@ html.dark :where(.hero-bottom-fade) {
 }
 
 html.dark :where(.label-top, .meta-servicios, .meta-stack, .meta-garantias, .meta-proyectos) {
-  color: #a1a1aa !important;
+  color: #4da3ff !important;
 }
 
 html.dark :where(.hero-stripe-pro-v2 h1, .servicios-heading h2, .stack-header h2, .garantias-header h2, .proyectos-header h2) {
@@ -290,7 +290,7 @@ html.dark :where(.col-texto h2) {
 }
 
 html.dark :where(.meta-sobre) {
-  color: #94a3b8 !important;
+  color: #4da3ff !important;
 }
 
 html.dark :where(.texto-bio, .texto-contenido p, .servicios-summary, .garantia-item p, .proyecto-info p) {
@@ -497,7 +497,7 @@ html.dark .meta-stack,
 html.dark .meta-garantias,
 html.dark .meta-proyectos,
 html.dark .label-top {
-  color: #a1a1aa !important;
+  color: #4da3ff !important;
 }
 
 html.dark .service-cta-link {

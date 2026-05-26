@@ -145,13 +145,6 @@
     </button>
 
     <div class="article-layout">
-      <aside class="article-aside" aria-label="Datos del articulo">
-        <span>Categoría</span>
-        <strong>{article.categoryLabel}</strong>
-        <span>Lectura</span>
-        <strong>{article.readingMinutes} min</strong>
-      </aside>
-
       <div class="content prose" use:articleImageLightbox>{@html article.bodyHtml}</div>
     </div>
   </div>
@@ -240,7 +233,7 @@
   }
 
   .article-shell {
-    width: min(920px, calc(100% - 2rem));
+    width: min(1080px, calc(100% - 2rem));
     margin: 0 auto;
   }
 
@@ -249,9 +242,9 @@
     overflow: hidden;
     padding: clamp(6.5rem, 10vw, 8rem) 0 clamp(3.8rem, 6vw, 5.2rem);
     background:
-      radial-gradient(circle at 13% 13%, rgba(244, 114, 182, 0.18), transparent 28rem),
-      radial-gradient(circle at 84% 12%, rgba(14, 165, 233, 0.2), transparent 30rem),
-      linear-gradient(180deg, #fbfdff 0%, var(--bg-surface) 100%);
+      radial-gradient(circle at 50% 18%, rgba(0, 113, 227, 0.12), transparent 32rem),
+      linear-gradient(180deg, rgba(232, 240, 249, 0.96), rgba(242, 246, 251, 0.9) 58%, var(--bg-surface) 100%),
+      #e9f0f8;
   }
 
   .article-hero::after {
@@ -265,13 +258,11 @@
 
   .article-ambient {
     position: absolute;
-    inset: -40%;
-    background:
-      radial-gradient(circle at 22% 24%, rgba(244, 114, 182, 0.18), transparent 30%),
-      radial-gradient(circle at 78% 20%, rgba(14, 165, 233, 0.2), transparent 30%),
-      radial-gradient(circle at 52% 86%, rgba(251, 191, 36, 0.08), transparent 34%);
-    filter: blur(54px);
-    animation: ambientDrift 24s ease-in-out infinite;
+    inset: 10% 12% auto;
+    height: clamp(220px, 34vh, 390px);
+    background: radial-gradient(circle, rgba(0, 113, 227, 0.12), transparent 68%);
+    opacity: 0.72;
+    filter: blur(18px);
   }
 
   .article-hero-shell {
@@ -324,7 +315,7 @@
   }
 
   .lead {
-    max-width: 720px;
+    max-width: 780px;
     margin: 1.05rem auto 0;
     color: #1f2937;
     font-size: clamp(1rem, 1.8vw, 1.18rem);
@@ -365,42 +356,18 @@
   }
 
   .article-layout {
-    display: grid;
-    grid-template-columns: 150px minmax(0, 1fr);
-    gap: clamp(1.3rem, 4vw, 2.4rem);
-    align-items: start;
+    display: block;
     margin-top: clamp(1.4rem, 3vw, 2rem);
-  }
-
-  .article-aside {
-    position: sticky;
-    top: 6.5rem;
-    display: grid;
-    gap: 0.35rem;
-    padding-top: 0.3rem;
-  }
-
-  .article-aside span {
-    margin-top: 0.75rem;
-    color: #0071e3;
-    font-size: 0.68rem;
-    font-weight: 850;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .article-aside strong {
-    color: #111827;
-    font-size: 0.92rem;
-    line-height: 1.25;
   }
 
   .content {
     min-width: 0;
+    width: min(100%, 940px);
+    margin: 0 auto;
     border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.88);
-    padding: clamp(1.2rem, 3vw, 2rem);
+    padding: clamp(1.35rem, 3.2vw, 2.35rem);
     box-shadow: 0 20px 56px rgba(15, 23, 42, 0.07);
   }
 
@@ -429,7 +396,7 @@
   .prose :global(p),
   .prose :global(li) {
     color: #303541;
-    font-size: clamp(1rem, 1.2vw, 1.06rem);
+    font-size: clamp(1.02rem, 1.2vw, 1.1rem);
     line-height: 1.78;
   }
 
@@ -460,8 +427,10 @@
 
   .prose :global(blockquote) {
     margin: 1.7rem 0;
-    padding: 0.2rem 0 0.2rem 1rem;
-    border-left: 4px solid #0071e3;
+    padding: 1rem;
+    border: 1px solid rgba(0, 113, 227, 0.22);
+    border-radius: 8px;
+    background: rgba(0, 113, 227, 0.055);
     color: #155ea8;
     font-size: clamp(1.3rem, 3vw, 2rem);
     font-weight: 850;
@@ -687,7 +656,7 @@
     height: 2.25rem;
     place-items: center;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 999px;
+    border-radius: 8px;
     background: rgba(8, 10, 16, 0.72);
     color: #fff;
     font-size: 1rem;
@@ -708,16 +677,19 @@
 
   :global(html.dark) .article-hero {
     background:
-      radial-gradient(circle at 16% 12%, rgba(244, 114, 182, 0.11), transparent 26rem),
-      radial-gradient(circle at 82% 10%, rgba(0, 113, 227, 0.15), transparent 30rem),
-      linear-gradient(180deg, #0a0a0a 0%, #0b0b0b 100%);
+      radial-gradient(circle at 50% 18%, rgba(77, 163, 255, 0.16), transparent 32rem),
+      linear-gradient(180deg, rgba(12, 18, 30, 0.98), rgba(7, 12, 21, 0.94) 58%, #0a0a0a 100%),
+      #0c1220;
+  }
+
+  :global(html.dark) .article-ambient {
+    background: radial-gradient(circle, rgba(77, 163, 255, 0.18), transparent 68%);
   }
 
   :global(html.dark) h1,
   :global(html.dark) .related-head h2,
   :global(html.dark) .prose :global(h2),
   :global(html.dark) .prose :global(h3),
-  :global(html.dark) .article-aside strong,
   :global(html.dark) .related-grid h3,
   :global(html.dark) .share-card strong {
     color: #f8fafc;
@@ -748,24 +720,6 @@
   }
 
   @media (max-width: 820px) {
-    .article-layout {
-      grid-template-columns: 1fr;
-    }
-
-    .article-aside {
-      position: static;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem 0.9rem;
-      align-items: center;
-      padding: 0.75rem 0 0;
-    }
-
-    .article-aside span,
-    .article-aside strong {
-      margin: 0;
-    }
-
     .related-grid {
       grid-template-columns: 1fr;
     }
@@ -773,7 +727,7 @@
 
   @media (max-width: 620px) {
     .article-shell {
-      width: min(100% - 1.25rem, 920px);
+      width: min(100% - 1.25rem, 1080px);
     }
 
     .article-hero {

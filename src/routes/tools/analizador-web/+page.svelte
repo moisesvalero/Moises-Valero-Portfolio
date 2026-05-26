@@ -646,10 +646,9 @@
     min-height: 100vh;
     color: var(--text-main);
     background:
-      radial-gradient(circle at 16% 10%, rgba(0, 113, 227, 0.12), transparent 28rem),
-      radial-gradient(circle at 86% 8%, rgba(139, 92, 246, 0.1), transparent 28rem),
-      linear-gradient(90deg, rgba(15, 23, 42, 0.055) 1px, transparent 1px) 0 0 / 76px 76px,
-      linear-gradient(180deg, #fbfdff 0%, var(--bg-surface) 60%, var(--bg-main) 100%);
+      radial-gradient(circle at 50% 0%, rgba(0, 113, 227, 0.1), transparent 32rem),
+      linear-gradient(180deg, rgba(232, 240, 249, 0.96), rgba(242, 246, 251, 0.9) 42%, var(--bg-main) 100%),
+      #e9f0f8;
     font-family: var(--font-sans);
   }
 
@@ -975,7 +974,7 @@
     width: 1rem;
     height: 1rem;
     place-items: center;
-    border-radius: 999px;
+    border-radius: 4px;
     background: #22c55e;
     color: #ffffff;
     font-size: 0.68rem;
@@ -1126,19 +1125,32 @@
   }
 
   .preflight-panel div {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.56rem 1rem;
   }
 
   .preflight-panel span {
-    padding: 0.42rem 0.58rem;
-    border: 1px solid rgba(0, 113, 227, 0.14);
-    border-radius: 8px;
-    color: #0052b8;
-    background: rgba(0, 113, 227, 0.06);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.48rem;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: #1f2937;
+    background: transparent;
     font-size: 0.78rem;
     font-weight: 850;
+  }
+
+  .preflight-panel span::before {
+    content: "";
+    width: 0.46rem;
+    height: 0.46rem;
+    flex: 0 0 auto;
+    border-radius: 2px;
+    background: #0071e3;
   }
 
   .card-head {
@@ -1181,7 +1193,7 @@
     content: "";
     width: 0.48rem;
     height: 0.48rem;
-    border-radius: 999px;
+    border-radius: 3px;
     background: #94a3b8;
   }
 
@@ -1338,7 +1350,7 @@
     height: 2rem;
     place-items: center;
     border: 1px solid rgba(15, 23, 42, 0.12);
-    border-radius: 999px;
+    border-radius: 4px;
     color: #101114;
     background: #ffffff;
     font-size: 1.1rem;
@@ -1469,24 +1481,23 @@
 
   .detailed-issue-list li {
     padding: 0.85rem;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    border-left: 4px solid #94a3b8;
+    border: 1px solid rgba(15, 23, 42, 0.1);
     border-radius: 8px;
     background: #ffffff;
   }
 
   .detailed-issue-list li.detail-critical {
-    border-left-color: #f43f5e;
+    border-color: rgba(244, 63, 94, 0.28);
     background: rgba(244, 63, 94, 0.055);
   }
 
   .detailed-issue-list li.detail-warning {
-    border-left-color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.28);
     background: rgba(245, 158, 11, 0.06);
   }
 
   .detailed-issue-list li.detail-info {
-    border-left-color: #0071e3;
+    border-color: rgba(0, 113, 227, 0.24);
     background: rgba(0, 113, 227, 0.045);
   }
 
@@ -1614,10 +1625,9 @@
 
   :global(html.dark) .tool-page {
     background:
-      radial-gradient(circle at 16% 10%, rgba(0, 113, 227, 0.12), transparent 28rem),
-      radial-gradient(circle at 86% 8%, rgba(139, 156, 255, 0.1), transparent 28rem),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 76px 76px,
-      linear-gradient(180deg, #0a0a0a 0%, #0b0b0b 52%, #0a0a0a 100%);
+      radial-gradient(circle at 50% 0%, rgba(77, 163, 255, 0.14), transparent 32rem),
+      linear-gradient(180deg, rgba(12, 18, 30, 0.98), rgba(7, 12, 21, 0.94) 52%, #0a0a0a 100%),
+      #0c1220;
   }
 
   :global(html.dark) .lead {
@@ -1687,7 +1697,6 @@
   :global(html.dark) .lead-panel,
   :global(html.dark) .highlights-panel,
   :global(html.dark) .preflight-panel,
-  :global(html.dark) .preflight-panel span,
   :global(html.dark) .full-report,
   :global(html.dark) .source-grid div,
   :global(html.dark) .category-report__section,
@@ -1718,6 +1727,14 @@
     border-color: rgba(255, 255, 255, 0.14);
     background: rgba(255, 255, 255, 0.06);
     color: #d4d4d8;
+  }
+
+  :global(html.dark) .preflight-panel span {
+    color: #d4d4d8;
+  }
+
+  :global(html.dark) .preflight-panel span::before {
+    background: #4da3ff;
   }
 
   :global(html.dark) .preflight-panel p,
@@ -1774,7 +1791,8 @@
     }
 
     .input-row,
-    .source-grid {
+    .source-grid,
+    .preflight-panel div {
       grid-template-columns: 1fr;
     }
 

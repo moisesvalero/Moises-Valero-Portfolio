@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import { Globe, type GlobeMarker, type GlobeMarkerTooltipContext } from '$lib/motion-core';
 
   interface Props {
@@ -13,7 +14,7 @@
 
   let {
     heading = 'Listo para aportar en un equipo tecnico',
-    subtitle = 'Busco incorporarme a una agencia, estudio digital o empresa tecnologica donde pueda sumar en frontend, producto web, rendimiento, integraciones e IA aplicada.',
+    subtitle = 'Busco incorporarme a un equipo donde pueda sumar en webs, web apps, rendimiento, integraciones e IA aplicada.',
     formModalHeading = 'Hablemos de una oportunidad',
     formModalText = 'Dejame tus datos y te respondere lo antes posible.',
     formModalSubmitLabel = 'Enviar mensaje',
@@ -27,7 +28,7 @@
   const resolvedSubtitle = $derived(
     subtitle.trim().length > 0
       ? subtitle
-      : 'Busco incorporarme a una agencia, estudio digital o empresa tecnologica donde pueda sumar en frontend, producto web, rendimiento, integraciones e IA aplicada.'
+      : 'Busco incorporarme a un equipo donde pueda sumar en webs, web apps, rendimiento, integraciones e IA aplicada.'
   );
 
   const whatsappHref = '/api/contact/whatsapp';
@@ -118,15 +119,15 @@
     <p class="contact-lead">{resolvedSubtitle}</p>
 
     <div class="fit-grid" aria-label="Resumen de encaje profesional">
-      <span>Frontend / Web Developer</span>
+      <span>Desarrollador web</span>
       <span>Remoto · hibrido · presencial</span>
     </div>
 
     <div class="contact-actions">
-      <a href={whatsappHref} target="_blank" rel="noopener noreferrer" class="primary-action">
+      <button type="button" class="primary-action" onclick={openFormModal}>Contacto</button>
+      <a href={resolve(whatsappHref)} target="_blank" rel="noopener noreferrer" class="secondary-action">
         WhatsApp
       </a>
-      <button type="button" class="secondary-action" onclick={openFormModal}>Contacto</button>
     </div>
   </div>
 
@@ -181,7 +182,7 @@
         </label>
         <label class="checkline">
           <input type="checkbox" required bind:checked={form.privacyAccepted} />
-          <span>{formModalPrivacyLabel} <a href="/privacidad">Ver politica</a></span>
+          <span>{formModalPrivacyLabel} <a href={resolve('/privacidad')}>Ver politica</a></span>
         </label>
         {#if formStatus === 'error' && formError}
           <p class="form-feedback error">{formError}</p>
@@ -257,21 +258,30 @@
   }
 
   .fit-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
     margin-top: 28px;
+    border-block: 1px solid rgba(15, 23, 42, 0.12);
   }
 
   .fit-grid span {
-    padding: 9px 12px;
-    border: 1px solid rgba(15, 23, 42, 0.1);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.72);
+    padding: 13px 18px 13px 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     color: #334155;
-    font-size: 0.86rem;
-    font-weight: 700;
-    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 760;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    box-shadow: none;
+  }
+
+  .fit-grid span + span {
+    padding-left: 18px;
+    border-left: 1px solid rgba(15, 23, 42, 0.12);
   }
 
   .contact-actions {
@@ -350,7 +360,7 @@
     position: absolute;
     inset: auto 10% 4% 10%;
     height: 34px;
-    border-radius: 999px;
+    border-radius: 50%;
     background: rgba(15, 23, 42, 0.12);
     filter: blur(18px);
   }
@@ -547,16 +557,20 @@
   }
 
   :global(html.dark) .contact-kicker {
-    color: #ffffff;
+    color: #4da3ff;
   }
 
   :global(html.dark) .contact-lead {
     color: #d4d4d8;
   }
 
+  :global(html.dark) .fit-grid {
+    border-block-color: rgba(255, 255, 255, 0.14);
+  }
+
   :global(html.dark) .fit-grid span {
-    border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.14);
+    background: transparent;
     color: #e5e7eb;
     box-shadow: none;
   }
@@ -655,6 +669,24 @@
 
     .contact-actions {
       grid-template-columns: 1fr;
+    }
+
+    .fit-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .fit-grid span {
+      padding: 12px 0;
+    }
+
+    .fit-grid span + span {
+      padding-left: 0;
+      border-left: 0;
+      border-top: 1px solid rgba(15, 23, 42, 0.12);
+    }
+
+    :global(html.dark) .fit-grid span + span {
+      border-top-color: rgba(255, 255, 255, 0.14);
     }
 
     .globe-panel {

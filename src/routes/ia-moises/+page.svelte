@@ -34,9 +34,13 @@
 
 <style>
   .assistant-page {
-    width: min(1180px, calc(100% - 36px));
+    width: 100%;
     margin: 0 auto;
-    padding: 160px 0 80px;
+    padding: 150px 0 80px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(0, 113, 227, 0.1), transparent 32rem),
+      linear-gradient(180deg, rgba(232, 240, 249, 0.96), rgba(242, 246, 251, 0.9) 38%, var(--bg-main) 100%),
+      #e9f0f8;
   }
 
   .assistant-hero {
@@ -44,7 +48,8 @@
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 28px;
     align-items: end;
-    margin-bottom: 34px;
+    width: min(1180px, calc(100% - 36px));
+    margin: 0 auto 34px;
   }
 
   .assistant-copy {
@@ -66,7 +71,7 @@
     font-size: clamp(3rem, 7vw, 7.4rem);
     font-weight: 900;
     line-height: 0.88;
-    letter-spacing: 0;
+    letter-spacing: -0.058em;
   }
 
   .assistant-copy p:last-child {
@@ -88,19 +93,20 @@
   .assistant-proof span {
     padding: 9px 12px;
     border: 1px solid rgba(15, 23, 42, 0.1);
-    border-radius: 999px;
+    border-radius: 6px;
     background: rgba(255, 255, 255, 0.68);
     color: #334155;
+    font-family: var(--font-mono);
     font-size: 0.82rem;
     font-weight: 800;
   }
 
   .assistant-chat-shell {
+    width: min(1180px, calc(100% - 36px));
+    margin: 0 auto;
     overflow: hidden;
     border-radius: 8px;
-    background:
-      radial-gradient(circle at 50% 0%, rgba(0, 113, 227, 0.1), transparent 42%),
-      #081120;
+    background: #081120;
     box-shadow: 0 30px 90px rgba(15, 23, 42, 0.16);
   }
 
@@ -113,7 +119,7 @@
   }
 
   :global(html.dark) .assistant-kicker {
-    color: #ffffff;
+    color: #4da3ff;
   }
 
   :global(html.dark) .assistant-proof span {
@@ -123,16 +129,25 @@
   }
 
   :global(html.dark) .assistant-chat-shell {
-    background:
-      radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 42%),
-      #050505;
+    background: #050505;
     box-shadow: 0 30px 90px rgba(0, 0, 0, 0.48);
+  }
+
+  :global(html.dark) .assistant-page {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(77, 163, 255, 0.14), transparent 32rem),
+      linear-gradient(180deg, rgba(12, 18, 30, 0.98), rgba(7, 12, 21, 0.94) 38%, #0a0a0a 100%),
+      #0c1220;
   }
 
   @media (max-width: 760px) {
     .assistant-page {
-      width: min(100% - 28px, 1180px);
       padding-top: 118px;
+    }
+
+    .assistant-hero,
+    .assistant-chat-shell {
+      width: min(100% - 28px, 1180px);
     }
 
     .assistant-hero {

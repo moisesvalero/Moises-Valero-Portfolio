@@ -58,6 +58,8 @@
     <a href={resolvePath('/tools/analizador-web')}>Analizador web</a>
     <span class="footer-dot" aria-hidden="true">·</span>
     <a href={resolvePath('/ia-moises')}>Asistente IA</a>
+    <span class="footer-dot" aria-hidden="true">·</span>
+    <a href={resolvePath('/blog')}>Guías</a>
   </nav>
 
   <div class="footer-icons">
