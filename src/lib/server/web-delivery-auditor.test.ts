@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
 	computeDeliveryVerdict,
+	detectWordPress,
 	isAllowedPublicAuditUrl,
 	scoreCategoryFromIssues,
 	type AuditIssue
@@ -35,4 +36,35 @@ test('scores a category by penalizing critical, warning and info issues', () => 
 	] as AuditIssue[];
 
 	assert.equal(scoreCategoryFromIssues(issues), 54);
+});
+
+test('does not detect WordPress from plain copy mentions', () => {
+	assert.equal(
+		detectWordPress(`
+			<html>
+				<head><title>SvelteKit portfolio</title></head>
+				<body>
+					<p>Trabajo con SvelteKit, Supabase, APIs de IA y WordPress.</p>
+					<img src="/imagenes/wordpress-logo.svg" alt="WordPress" />
+				</body>
+			</html>
+		`),
+		false
+	);
+});
+
+test('detects WordPress from strong platform signals', () => {
+	assert.equal(
+		detectWordPress(`
+			<html>
+				<head>
+					<meta name="generator" content="WordPress 6.5" />
+					<link rel="stylesheet" href="/wp-content/themes/theme/style.css" />
+				</head>
+			</html>
+		`),
+		true
+	);
+	assert.equal(detectWordPress('<script src="https://example.com/wp-includes/js/jquery/jquery.min.js"></script>'), true);
+	assert.equal(detectWordPress('<a href="/wp-admin/">Entrar</a>'), true);
 });

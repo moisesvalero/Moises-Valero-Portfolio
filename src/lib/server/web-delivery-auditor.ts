@@ -411,6 +411,22 @@ function scriptBody(scriptTag: string): string {
 	return scriptTag.replace(/^<script\b[^>]*>/i, '').replace(/<\/script>$/i, '').trim();
 }
 
+export function detectWordPress(html: string): boolean {
+	const generator = metaContent(html, 'name', 'generator');
+	if (/wordpress/i.test(generator)) return true;
+
+	const assetTags = [...getTags(html, 'link'), ...getTags(html, 'script'), ...getTags(html, 'img')];
+	const hasWordPressAsset = assetTags.some((tag) => {
+		const url = getAttr(tag, 'href') || getAttr(tag, 'src');
+		return /\/wp-(?:content|includes)\//i.test(url) || /\/wp-json(?:\/|\?|$)/i.test(url);
+	});
+
+	if (hasWordPressAsset) return true;
+
+	const anchors = getTags(html, 'a');
+	return anchors.some((tag) => /\/wp-(?:admin|login\.php|json)(?:\/|\?|$)/i.test(getAttr(tag, 'href')));
+}
+
 function analyzeHtml(snapshot: FetchSnapshot): {
 	issues: AuditIssue[];
 	passed: string[];
@@ -464,9 +480,7 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 			return false;
 		}
 	});
-	const isWordPress =
-		/wp-content|wp-includes|wp-json|wordpress/i.test(snapshot.html) ||
-		/wordpress/i.test(metaContent(snapshot.html, 'name', 'generator'));
+	const isWordPress = detectWordPress(snapshot.html);
 
 	if (!title) {
 		issues.push(
