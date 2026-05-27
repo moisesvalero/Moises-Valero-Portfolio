@@ -7,5 +7,5 @@
  * usar `<svelte:element this="script" type="application/ld+json">` o el componente compartido.
  */
 export function stringifyJsonLdForHtml(value: unknown): string {
-  return JSON.stringify(value).replace(/</g, '\\u003c');
+	return JSON.stringify(value).replace(/</g, '\\u003c');
 }

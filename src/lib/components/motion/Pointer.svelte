@@ -1,29 +1,29 @@
 <script lang="ts">
-  let { class: className = '' }: { class?: string } = $props();
+	let { class: className = '' }: { class?: string } = $props();
 </script>
 
 <svg
-  class={`pointer-svg ${className}`}
-  stroke="currentColor"
-  fill="currentColor"
-  stroke-width="1"
-  stroke-linecap="round"
-  stroke-linejoin="round"
-  viewBox="0 0 16 16"
-  height="1em"
-  width="1em"
-  xmlns="http://www.w3.org/2000/svg"
-  aria-hidden="true"
+	class={`pointer-svg ${className}`}
+	stroke="currentColor"
+	fill="currentColor"
+	stroke-width="1"
+	stroke-linecap="round"
+	stroke-linejoin="round"
+	viewBox="0 0 16 16"
+	height="1em"
+	width="1em"
+	xmlns="http://www.w3.org/2000/svg"
+	aria-hidden="true"
 >
-  <path
-    d="M14.082 2.182a.5.5 0 0 1 .103.557L8.528 15.467a.5.5 0 0 1-.917-.007L5.57 10.694.803 8.652a.5.5 0 0 1-.006-.916l12.728-5.657a.5.5 0 0 1 .556.103z"
-  />
+	<path
+		d="M14.082 2.182a.5.5 0 0 1 .103.557L8.528 15.467a.5.5 0 0 1-.917-.007L5.57 10.694.803 8.652a.5.5 0 0 1-.006-.916l12.728-5.657a.5.5 0 0 1 .556.103z"
+	/>
 </svg>
 
 <style>
-  .pointer-svg {
-    display: block;
-    width: 1.25rem;
-    height: 1.25rem;
-  }
+	.pointer-svg {
+		display: block;
+		width: 1.25rem;
+		height: 1.25rem;
+	}
 </style>

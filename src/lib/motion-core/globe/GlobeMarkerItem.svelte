@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Snippet } from "svelte";
-	import type { GlobeMarker, GlobeMarkerTooltipContext } from "./types";
+	import type { Snippet } from 'svelte';
+	import type { GlobeMarker, GlobeMarkerTooltipContext } from './types';
 
 	interface Props {
 		/**
@@ -29,8 +29,7 @@
 		tooltip?: Snippet<[GlobeMarkerTooltipContext]>;
 	}
 
-	let { marker, index, screenX, screenY, visibility, tooltip }: Props =
-		$props();
+	let { marker, index, screenX, screenY, visibility, tooltip }: Props = $props();
 
 	const MAX_TOOLTIP_BLUR = 8;
 
@@ -38,7 +37,7 @@
 	let tooltipContext = $derived<GlobeMarkerTooltipContext>({
 		marker,
 		index,
-		visibility,
+		visibility
 	});
 </script>
 

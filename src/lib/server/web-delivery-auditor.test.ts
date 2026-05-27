@@ -66,7 +66,12 @@ test('detects WordPress from strong platform signals', () => {
 		`),
 		true
 	);
-	assert.equal(detectWordPress('<script src="https://example.com/wp-includes/js/jquery/jquery.min.js"></script>'), true);
+	assert.equal(
+		detectWordPress(
+			'<script src="https://example.com/wp-includes/js/jquery/jquery.min.js"></script>'
+		),
+		true
+	);
 	assert.equal(detectWordPress('<a href="/wp-admin/">Entrar</a>'), true);
 });
 

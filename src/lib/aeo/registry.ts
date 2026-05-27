@@ -38,7 +38,10 @@ export function hasMarkdownTwin(htmlPath: string): boolean {
 	return articleSlugFromPath(path) !== null;
 }
 
-export async function getPageMarkdown(htmlPath: string, locale: SiteLocale): Promise<string | null> {
+export async function getPageMarkdown(
+	htmlPath: string,
+	locale: SiteLocale
+): Promise<string | null> {
 	const path = canonicalHtmlPath(htmlPath);
 	const staticBuilder = STATIC_BUILDERS[path];
 	if (staticBuilder) {

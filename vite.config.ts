@@ -29,6 +29,13 @@ export default defineConfig(({ mode }) => {
 					'esm-env/development': esmEnvDevFalse
 				}
 			},
+			build: {
+				rollupOptions: {
+					checks: {
+						pluginTimings: false
+					}
+				}
+			},
 			ssr: {
 				external: ['@sparticuz/chromium', 'playwright-core'],
 				resolve: {

@@ -1,5 +1,11 @@
 <script lang="ts">
-  let { class: className = '' }: { class?: string } = $props();
+	let { class: className = '' }: { class?: string } = $props();
 </script>
 
-<img class={className} src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg" alt="Vite" loading="lazy" decoding="async" />
+<img
+	class={className}
+	src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg"
+	alt="Vite"
+	loading="lazy"
+	decoding="async"
+/>

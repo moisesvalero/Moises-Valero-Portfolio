@@ -9,6 +9,19 @@
 		<link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
 		<meta name="theme-color" content="#1d1d1f">
+		<script>
+			(() => {
+				try {
+					const stored = localStorage.getItem('mv-theme');
+					const theme = stored === 'light' || stored === 'dark'
+						? stored
+						: (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+					document.documentElement.classList.toggle('dark', theme === 'dark');
+					document.documentElement.dataset.theme = theme;
+					document.documentElement.style.colorScheme = theme;
+				} catch {}
+			})();
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

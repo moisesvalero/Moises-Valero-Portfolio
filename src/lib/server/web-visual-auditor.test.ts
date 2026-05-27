@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { contrastRatio, isPrivateOrLocalResource, isSmallTapTarget, visualAuditUnavailableSignals } from './web-visual-auditor.ts';
+import {
+	contrastRatio,
+	isPrivateOrLocalResource,
+	isSmallTapTarget,
+	visualAuditUnavailableSignals
+} from './web-visual-auditor.ts';
 
 test('computes WCAG contrast ratio extremes', () => {
 	assert.equal(Math.round(contrastRatio([0, 0, 0], [255, 255, 255])), 21);

@@ -43,13 +43,7 @@ export function buildSitePageMarkdown(
 	const baseUrl = getAeoBaseUrl();
 	const title = pageTitle(page, locale);
 	const description = pageDescription(page, locale);
-	const lines: string[] = [
-		`# ${title}`,
-		'',
-		`URL: ${baseUrl}${page.path}`,
-		'',
-		description
-	];
+	const lines: string[] = [`# ${title}`, '', `URL: ${baseUrl}${page.path}`, '', description];
 	if (extraSections?.length) {
 		for (const section of extraSections) {
 			lines.push('');

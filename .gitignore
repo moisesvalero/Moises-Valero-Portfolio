@@ -11,6 +11,7 @@ tmp
 /build
 
 # Generated app/runtime files
+.cache/
 .sanity/runtime
 .superpowers/
 

@@ -1,22 +1,12 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import {
-		Camera,
-		Mesh,
-		Program,
-		Renderer,
-		Texture,
-		Transform,
-		Triangle,
-		Vec2,
-		Vec3,
-	} from "ogl";
-	import { gsap } from "gsap";
-	import type { Snippet } from "svelte";
-	import landTextureUrl from "../assets/land-texture.png";
-	import { type ColorRepresentation, toLinearRgb } from "../helpers/color";
-	import type { GlobeMarker, GlobeMarkerTooltipContext } from "./types";
-	import GlobeMarkerItem from "./GlobeMarkerItem.svelte";
+	import { onMount } from 'svelte';
+	import { Camera, Mesh, Program, Renderer, Texture, Transform, Triangle, Vec2, Vec3 } from 'ogl';
+	import { gsap } from 'gsap';
+	import type { Snippet } from 'svelte';
+	import landTextureUrl from '../assets/land-texture.png';
+	import { type ColorRepresentation, toLinearRgb } from '../helpers/color';
+	import type { GlobeMarker, GlobeMarkerTooltipContext } from './types';
+	import GlobeMarkerItem from './GlobeMarkerItem.svelte';
 
 	interface FresnelConfig {
 		/**
@@ -160,18 +150,18 @@
 	const MAX_SHADER_MARKER_SIZE = 0.06;
 
 	const defaultFresnelConfig: Required<FresnelConfig> = {
-		color: "#17181A",
-		rimColor: "#FF6900",
+		color: '#17181A',
+		rimColor: '#FF6900',
 		rimPower: 6,
-		rimIntensity: 1.5,
+		rimIntensity: 1.5
 	};
 
 	const defaultAtmosphereConfig: Required<AtmosphereConfig> = {
-		color: "#FF6900",
+		color: '#FF6900',
 		scale: 1.1,
 		power: 12.0,
 		coefficient: 0.9,
-		intensity: 1.1,
+		intensity: 1.1
 	};
 
 	let {
@@ -180,12 +170,12 @@
 		atmosphereConfig = {},
 		pointCount = 15000,
 		pointSize = 0.05,
-		landPointColor = "#f77114",
+		landPointColor = '#f77114',
 		autoRotate = true,
 		lockedPolarAngle = true,
 		markers = [],
 		markerTooltip,
-		focusOn = null,
+		focusOn = null
 	}: Props = $props();
 
 	let canvas = $state<HTMLCanvasElement>();
@@ -193,23 +183,18 @@
 
 	const resolvedFresnelConfig = $derived({
 		...defaultFresnelConfig,
-		...fresnelConfig,
+		...fresnelConfig
 	});
 	const resolvedAtmosphereConfig = $derived({
 		...defaultAtmosphereConfig,
-		...atmosphereConfig,
+		...atmosphereConfig
 	});
 
-	let updateUniforms = $state<((state: UniformUpdaterState) => void) | null>(
-		null,
-	);
-	let syncFocusTarget = $state<
-		((target: [number, number] | null) => void) | null
-	>(null);
+	let updateUniforms = $state<((state: UniformUpdaterState) => void) | null>(null);
+	let syncFocusTarget = $state<((target: [number, number] | null) => void) | null>(null);
 	let focusTween: gsap.core.Tween | null = null;
 
-	const clamp = (value: number, min: number, max: number) =>
-		Math.min(max, Math.max(min, value));
+	const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 	const clampTheta = (value: number, lockPolar: boolean) =>
 		lockPolar ? LOCKED_THETA : clamp(value, MIN_THETA, MAX_THETA);
@@ -223,8 +208,7 @@
 	};
 
 	const toScale = (nextRadius: number) => Math.max(0.001, nextRadius / 2);
-	const toPointRadius = (nextPointSize: number) =>
-		Math.max(0.001, nextPointSize * 0.16);
+	const toPointRadius = (nextPointSize: number) => Math.max(0.001, nextPointSize * 0.16);
 
 	function normalizeAngle(value: number): number {
 		const wrapped = (((value + PI) % (2 * PI)) + 2 * PI) % (2 * PI);
@@ -259,17 +243,11 @@
 
 		return {
 			phi: Math.atan2(-nx, nz),
-			theta: Math.asin(clamp(ny, -1, 1)),
+			theta: Math.asin(clamp(ny, -1, 1))
 		};
 	}
 
-	function applyRotation(
-		x: number,
-		y: number,
-		z: number,
-		phi: number,
-		theta: number,
-	) {
+	function applyRotation(x: number, y: number, z: number, phi: number, theta: number) {
 		const cx = Math.cos(theta);
 		const cy = Math.cos(phi);
 		const sx = Math.sin(theta);
@@ -278,21 +256,13 @@
 		return {
 			rx: cy * x + sy * z,
 			ry: sy * sx * x + cx * y - cy * sx * z,
-			rz: -sy * cx * x + sx * y + cy * cx * z,
+			rz: -sy * cx * x + sx * y + cy * cx * z
 		};
 	}
 
-	function cubicBezierAt(
-		t: number,
-		p0: number,
-		p1: number,
-		p2: number,
-		p3: number,
-	): number {
+	function cubicBezierAt(t: number, p0: number, p1: number, p2: number, p3: number): number {
 		const u = 1 - t;
-		return (
-			u * u * u * p0 + 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t * p3
-		);
+		return u * u * u * p0 + 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t * p3;
 	}
 
 	function cubicBezierDerivativeAt(
@@ -300,12 +270,10 @@
 		p0: number,
 		p1: number,
 		p2: number,
-		p3: number,
+		p3: number
 	): number {
 		const u = 1 - t;
-		return (
-			3 * u * u * (p1 - p0) + 6 * u * t * (p2 - p1) + 3 * t * t * (p3 - p2)
-		);
+		return 3 * u * u * (p1 - p0) + 6 * u * t * (p2 - p1) + 3 * t * t * (p3 - p2);
 	}
 
 	function dynamicEase(value: number): number {
@@ -328,7 +296,7 @@
 			pointSize,
 			landPointColor,
 			fresnelConfig: resolvedFresnelConfig,
-			atmosphereConfig: resolvedAtmosphereConfig,
+			atmosphereConfig: resolvedAtmosphereConfig
 		});
 	});
 
@@ -345,13 +313,13 @@
 			canvas: targetCanvas,
 			alpha: true,
 			antialias: true,
-			dpr: typeof window !== "undefined" ? window.devicePixelRatio : 1,
+			dpr: typeof window !== 'undefined' ? window.devicePixelRatio : 1
 		});
 		const gl = renderer.gl;
 		gl.clearColor(0, 0, 0, 0);
 
-		targetCanvas.style.width = "100%";
-		targetCanvas.style.height = "100%";
+		targetCanvas.style.width = '100%';
+		targetCanvas.style.height = '100%';
 
 		const camera = new Camera(gl);
 		camera.position.z = 1;
@@ -371,7 +339,7 @@
 			magFilter: gl.NEAREST,
 			generateMipmaps: false,
 			wrapS: gl.REPEAT,
-			wrapT: gl.REPEAT,
+			wrapT: gl.REPEAT
 		});
 
 		const uniforms = {
@@ -393,7 +361,7 @@
 			uLandTexture: { value: landTexture },
 			uMarkerCount: { value: 0 },
 			uMarkerData: { value: markerData },
-			uMarkerColor: { value: markerColorData },
+			uMarkerColor: { value: markerColorData }
 		};
 
 		const vertexShader = `
@@ -669,7 +637,7 @@
 			uniforms,
 			transparent: true,
 			depthTest: false,
-			depthWrite: false,
+			depthWrite: false
 		});
 
 		const atmosphereProgram = new Program(gl, {
@@ -678,21 +646,21 @@
 			uniforms,
 			transparent: true,
 			depthTest: false,
-			depthWrite: false,
+			depthWrite: false
 		});
 		atmosphereProgram.setBlendFunc(gl.SRC_ALPHA, gl.ONE);
 
 		const globeMesh = new Mesh(gl, {
 			geometry,
 			program: globeProgram,
-			frustumCulled: false,
+			frustumCulled: false
 		});
 		globeMesh.setParent(globeScene);
 
 		const atmosphereMesh = new Mesh(gl, {
 			geometry,
 			program: atmosphereProgram,
-			frustumCulled: false,
+			frustumCulled: false
 		});
 		atmosphereMesh.setParent(atmosphereScene);
 
@@ -701,7 +669,7 @@
 		const setColor = (
 			target: Vec3,
 			value: ColorRepresentation,
-			fallback: [number, number, number],
+			fallback: [number, number, number]
 		) => {
 			const [r, g, b] = toLinearRgb(value, fallback);
 			target.set(r, g, b);
@@ -716,46 +684,19 @@
 			setColor(uniforms.uBaseColor.value, state.fresnelConfig.color, [
 				17 / 255,
 				17 / 255,
-				19 / 255,
+				19 / 255
 			]);
-			setColor(uniforms.uRimColor.value, state.fresnelConfig.rimColor, [
-				1,
-				105 / 255,
-				0,
-			]);
+			setColor(uniforms.uRimColor.value, state.fresnelConfig.rimColor, [1, 105 / 255, 0]);
 			uniforms.uRimPower.value = Math.max(0.0001, state.fresnelConfig.rimPower);
-			uniforms.uRimIntensity.value = Math.max(
-				0,
-				state.fresnelConfig.rimIntensity,
-			);
+			uniforms.uRimIntensity.value = Math.max(0, state.fresnelConfig.rimIntensity);
 
-			setColor(uniforms.uAtmosphereColor.value, state.atmosphereConfig.color, [
-				1,
-				105 / 255,
-				0,
-			]);
-			uniforms.uAtmosphereScale.value = Math.max(
-				1,
-				state.atmosphereConfig.scale,
-			);
-			uniforms.uAtmospherePower.value = Math.max(
-				0.0001,
-				state.atmosphereConfig.power,
-			);
-			uniforms.uAtmosphereCoefficient.value = Math.max(
-				0,
-				state.atmosphereConfig.coefficient,
-			);
-			uniforms.uAtmosphereIntensity.value = Math.max(
-				0,
-				state.atmosphereConfig.intensity,
-			);
+			setColor(uniforms.uAtmosphereColor.value, state.atmosphereConfig.color, [1, 105 / 255, 0]);
+			uniforms.uAtmosphereScale.value = Math.max(1, state.atmosphereConfig.scale);
+			uniforms.uAtmospherePower.value = Math.max(0.0001, state.atmosphereConfig.power);
+			uniforms.uAtmosphereCoefficient.value = Math.max(0, state.atmosphereConfig.coefficient);
+			uniforms.uAtmosphereIntensity.value = Math.max(0, state.atmosphereConfig.intensity);
 
-			setColor(tempColor, state.landPointColor, [
-				247 / 255,
-				113 / 255,
-				20 / 255,
-			]);
+			setColor(tempColor, state.landPointColor, [247 / 255, 113 / 255, 20 / 255]);
 			uniforms.uLandPointColor.value.set(tempColor.x, tempColor.y, tempColor.z);
 		};
 
@@ -765,7 +706,7 @@
 			pointSize,
 			landPointColor,
 			fresnelConfig: resolvedFresnelConfig,
-			atmosphereConfig: resolvedAtmosphereConfig,
+			atmosphereConfig: resolvedAtmosphereConfig
 		});
 
 		let width = 1;
@@ -777,11 +718,7 @@
 		let targetPhi = phi;
 		let targetTheta = startTheta;
 
-		const syncMarkers = (
-			currentPhi: number,
-			currentTheta: number,
-			currentScaleValue: number,
-		) => {
+		const syncMarkers = (currentPhi: number, currentTheta: number, currentScaleValue: number) => {
 			const markerRadius = COBE_GLOBE_RADIUS;
 			const aspect = width / Math.max(1, height);
 			const markerCount = Math.min(markers.length, MAX_SHADER_MARKERS);
@@ -792,18 +729,8 @@
 			const nextMarkers: ProjectedMarker[] = [];
 			for (let index = 0; index < markers.length; index++) {
 				const marker = markers[index];
-				const pos = lonLatToCartesian(
-					marker.location[1],
-					marker.location[0],
-					markerRadius,
-				);
-				const rotated = applyRotation(
-					pos.x,
-					pos.y,
-					pos.z,
-					currentPhi,
-					currentTheta,
-				);
+				const pos = lonLatToCartesian(marker.location[1], marker.location[0], markerRadius);
+				const rotated = applyRotation(pos.x, pos.y, pos.z, currentPhi, currentTheta);
 
 				const ndcX = (rotated.rx / aspect) * currentScaleValue;
 				const ndcY = -rotated.ry * currentScaleValue;
@@ -811,11 +738,7 @@
 				const screenY = (ndcY + 1) * 0.5;
 
 				const frontDot = rotated.rz / markerRadius;
-				const rawVisibility = smoothstep(
-					frontDot,
-					VISIBILITY_MIN_DOT,
-					VISIBILITY_MAX_DOT,
-				);
+				const rawVisibility = smoothstep(frontDot, VISIBILITY_MIN_DOT, VISIBILITY_MAX_DOT);
 				const visibility = dynamicEase(rawVisibility);
 
 				nextMarkers.push({
@@ -823,16 +746,12 @@
 					index,
 					screenX,
 					screenY,
-					visibility,
+					visibility
 				});
 
 				if (index >= markerCount) continue;
 
-				const unitPos = lonLatToCartesian(
-					marker.location[1],
-					marker.location[0],
-					1,
-				);
+				const unitPos = lonLatToCartesian(marker.location[1], marker.location[0], 1);
 				const markerDataOffset = index * 4;
 				markerData[markerDataOffset] = unitPos.x;
 				markerData[markerDataOffset + 1] = unitPos.y;
@@ -840,10 +759,10 @@
 				markerData[markerDataOffset + 3] = clamp(
 					(marker.size ?? 0.05) * SHADER_MARKER_SIZE_SCALE,
 					MIN_SHADER_MARKER_SIZE,
-					MAX_SHADER_MARKER_SIZE,
+					MAX_SHADER_MARKER_SIZE
 				);
 
-				const [r, g, b] = toLinearRgb(marker.color ?? "#ffffff", [1, 1, 1]);
+				const [r, g, b] = toLinearRgb(marker.color ?? '#ffffff', [1, 1, 1]);
 				const markerColorOffset = index * 3;
 				markerColorData[markerColorOffset] = r;
 				markerColorData[markerColorOffset + 1] = g;
@@ -861,11 +780,7 @@
 
 			const [lat, lon] = target;
 			const nextDirection = lonLatToCartesian(lon, lat, 1);
-			const targetRotation = cartesianToRotation(
-				nextDirection.x,
-				nextDirection.y,
-				nextDirection.z,
-			);
+			const targetRotation = cartesianToRotation(nextDirection.x, nextDirection.y, nextDirection.z);
 
 			const desiredTheta = clampTheta(targetRotation.theta, lockedPolarAngle);
 			const desiredPhi = shortestAngleTarget(targetPhi, targetRotation.phi);
@@ -875,12 +790,12 @@
 				phi: desiredPhi,
 				theta: desiredTheta,
 				duration: 1.5,
-				ease: "power2.inOut",
+				ease: 'power2.inOut',
 				onUpdate: () => {
 					targetPhi = tweenState.phi;
 					targetTheta = clampTheta(tweenState.theta, lockedPolarAngle);
 				},
-				overwrite: true,
+				overwrite: true
 			});
 		};
 
@@ -910,10 +825,7 @@
 			lastPointerY = event.clientY;
 
 			targetPhi += dx * ROTATE_SENSITIVITY;
-			targetTheta = clampTheta(
-				targetTheta + dy * ROTATE_SENSITIVITY,
-				lockedPolarAngle,
-			);
+			targetTheta = clampTheta(targetTheta + dy * ROTATE_SENSITIVITY, lockedPolarAngle);
 		};
 
 		const stopDragging = (event: PointerEvent) => {
@@ -922,11 +834,11 @@
 			activePointerId = -1;
 		};
 
-		targetCanvas.addEventListener("pointerdown", onPointerDown);
-		targetCanvas.addEventListener("pointermove", onPointerMove);
-		targetCanvas.addEventListener("pointerup", stopDragging);
-		targetCanvas.addEventListener("pointercancel", stopDragging);
-		targetCanvas.addEventListener("lostpointercapture", stopDragging);
+		targetCanvas.addEventListener('pointerdown', onPointerDown);
+		targetCanvas.addEventListener('pointermove', onPointerMove);
+		targetCanvas.addEventListener('pointerup', stopDragging);
+		targetCanvas.addEventListener('pointercancel', stopDragging);
+		targetCanvas.addEventListener('lostpointercapture', stopDragging);
 
 		let disposed = false;
 		const image = new Image();
@@ -939,7 +851,7 @@
 			landTexture.needsUpdate = true;
 		};
 		image.onerror = (error) => {
-			console.warn("GlobeScene: failed to load land mask texture", error);
+			console.warn('GlobeScene: failed to load land mask texture', error);
 		};
 		image.src = landTextureUrl;
 
@@ -987,11 +899,11 @@
 			focusTween?.kill();
 			focusTween = null;
 			window.cancelAnimationFrame(raf);
-			targetCanvas.removeEventListener("pointerdown", onPointerDown);
-			targetCanvas.removeEventListener("pointermove", onPointerMove);
-			targetCanvas.removeEventListener("pointerup", stopDragging);
-			targetCanvas.removeEventListener("pointercancel", stopDragging);
-			targetCanvas.removeEventListener("lostpointercapture", stopDragging);
+			targetCanvas.removeEventListener('pointerdown', onPointerDown);
+			targetCanvas.removeEventListener('pointermove', onPointerMove);
+			targetCanvas.removeEventListener('pointerup', stopDragging);
+			targetCanvas.removeEventListener('pointercancel', stopDragging);
+			targetCanvas.removeEventListener('lostpointercapture', stopDragging);
 
 			globeMesh.setParent(null);
 			atmosphereMesh.setParent(null);

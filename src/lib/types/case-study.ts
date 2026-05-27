@@ -1,32 +1,32 @@
 /** Shape equivalente a los campos ACF del CPT `proyectos` (plantilla case study). */
 export type CaseStudyMetric = {
-  value: string;
-  label: string;
+	value: string;
+	label: string;
 };
 
 export type CaseStudySection = {
-  title: string;
-  /** HTML permitido (mismo origen que wp_kses_post en WP); solo datos tuyos en JSON. */
-  bodyHtml: string;
+	title: string;
+	/** HTML permitido (mismo origen que wp_kses_post en WP); solo datos tuyos en JSON. */
+	bodyHtml: string;
 };
 
 export type CaseStudy = {
-  slug: string;
-  title: string;
-  seoDescription?: string;
-  heroTag: string;
-  heroDescription: string;
-  tags: string[];
-  images: {
-    principal: string;
-    secondary1: string;
-    secondary2: string;
-  };
-  metrics: [CaseStudyMetric, CaseStudyMetric, CaseStudyMetric, CaseStudyMetric];
-  reto: CaseStudySection;
-  hice: CaseStudySection;
-  resultado: CaseStudySection;
-  stack: string[];
-  liveUrl: string;
-  repoUrl?: string;
+	slug: string;
+	title: string;
+	seoDescription?: string;
+	heroTag: string;
+	heroDescription: string;
+	tags: string[];
+	images: {
+		principal: string;
+		secondary1: string;
+		secondary2: string;
+	};
+	metrics: [CaseStudyMetric, CaseStudyMetric, CaseStudyMetric, CaseStudyMetric];
+	reto: CaseStudySection;
+	hice: CaseStudySection;
+	resultado: CaseStudySection;
+	stack: string[];
+	liveUrl: string;
+	repoUrl?: string;
 };

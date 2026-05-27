@@ -52,36 +52,36 @@ const manualProjectCardsQuery = `coalesce(
 }`;
 
 function dedupeProjects(projects: SiteProjectCard[]): SiteProjectCard[] {
-  const seen = new Set<string>();
-  const out: SiteProjectCard[] = [];
-  for (const project of projects) {
-    const key = project.href.replace(/\/+$/, '').toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(project);
-  }
-  return out;
+	const seen = new Set<string>();
+	const out: SiteProjectCard[] = [];
+	for (const project of projects) {
+		const key = project.href.replace(/\/+$/, '').toLowerCase();
+		if (seen.has(key)) continue;
+		seen.add(key);
+		out.push(project);
+	}
+	return out;
 }
 
 export async function fetchProjectArchive(locale: SiteLocale): Promise<SiteProjectCard[]> {
-  const client = getSanityServerClient();
-  const cfg = getSanityProjectConfig();
-  if (!client || !cfg) {
-    return sitePortfolioDefaults.projects.projects;
-  }
+	const client = getSanityServerClient();
+	const cfg = getSanityProjectConfig();
+	if (!client || !cfg) {
+		return sitePortfolioDefaults.projects.projects;
+	}
 
-  try {
-    const [caseStudyRows, manualRows] = await Promise.all([
-      client.fetch<unknown[] | null>(projectArchiveQuery),
-      client.fetch<unknown[] | null>(manualProjectCardsQuery)
-    ]);
-    const mapped = [...(caseStudyRows ?? []), ...(manualRows ?? [])]
-      .map((row) => mapProject(row, { ...cfg, locale }))
-      .filter((project): project is SiteProjectCard => Boolean(project));
+	try {
+		const [caseStudyRows, manualRows] = await Promise.all([
+			client.fetch<unknown[] | null>(projectArchiveQuery),
+			client.fetch<unknown[] | null>(manualProjectCardsQuery)
+		]);
+		const mapped = [...(caseStudyRows ?? []), ...(manualRows ?? [])]
+			.map((row) => mapProject(row, { ...cfg, locale }))
+			.filter((project): project is SiteProjectCard => Boolean(project));
 
-    return dedupeProjects(mapped.length ? mapped : sitePortfolioDefaults.projects.projects);
-  } catch (error) {
-    console.warn('[project-archive] Sanity unavailable, using portfolio defaults.', error);
-    return sitePortfolioDefaults.projects.projects;
-  }
+		return dedupeProjects(mapped.length ? mapped : sitePortfolioDefaults.projects.projects);
+	} catch (error) {
+		console.warn('[project-archive] Sanity unavailable, using portfolio defaults.', error);
+		return sitePortfolioDefaults.projects.projects;
+	}
 }

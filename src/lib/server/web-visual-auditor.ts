@@ -86,16 +86,32 @@ export function isPrivateOrLocalResource(rawUrl: string): boolean {
 				a >= 224
 			);
 		}
-		return hostname === '::1' || hostname.startsWith('fc') || hostname.startsWith('fd') || hostname.startsWith('fe80:');
+		return (
+			hostname === '::1' ||
+			hostname.startsWith('fc') ||
+			hostname.startsWith('fd') ||
+			hostname.startsWith('fe80:')
+		);
 	} catch {
 		return true;
 	}
 }
 
-function visualIssue(id: string, severity: AuditIssue['severity'], title: string, why: string, fix: string, evidence?: string): AuditIssue {
+function visualIssue(
+	id: string,
+	severity: AuditIssue['severity'],
+	title: string,
+	why: string,
+	fix: string,
+	evidence?: string
+): AuditIssue {
 	return enrichIssue({
 		id,
-		category: id.startsWith('accessibility') ? 'accessibility' : id.startsWith('privacy') ? 'privacy' : 'delivery',
+		category: id.startsWith('accessibility')
+			? 'accessibility'
+			: id.startsWith('privacy')
+				? 'privacy'
+				: 'delivery',
 		severity,
 		title,
 		why,
@@ -104,7 +120,10 @@ function visualIssue(id: string, severity: AuditIssue['severity'], title: string
 	});
 }
 
-export function contrastRatio(foreground: [number, number, number], background: [number, number, number]): number {
+export function contrastRatio(
+	foreground: [number, number, number],
+	background: [number, number, number]
+): number {
 	const luminance = ([r, g, b]: [number, number, number]) => {
 		const values = [r, g, b].map((channel) => {
 			const value = channel / 255;
@@ -142,12 +161,17 @@ function defaultUnavailable(reason: string): VisualAuditResult {
 type SparticuzChromium = typeof import('@sparticuz/chromium').default;
 
 async function importRuntimeModule<T>(specifier: string): Promise<T> {
-	const runtimeImport = new Function('specifier', 'return import(specifier)') as (specifier: string) => Promise<T>;
+	const runtimeImport = new Function('specifier', 'return import(specifier)') as (
+		specifier: string
+	) => Promise<T>;
 	return runtimeImport(specifier);
 }
 
-async function resolveExecutablePath(chromiumPackage: SparticuzChromium): Promise<string | undefined> {
-	const envPath = process.env.CHROME_EXECUTABLE_PATH || process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+async function resolveExecutablePath(
+	chromiumPackage: SparticuzChromium
+): Promise<string | undefined> {
+	const envPath =
+		process.env.CHROME_EXECUTABLE_PATH || process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
 	if (envPath && existsSync(envPath)) return envPath;
 
 	const localCandidates = [
@@ -164,7 +188,10 @@ async function resolveExecutablePath(chromiumPackage: SparticuzChromium): Promis
 	return chromiumPackage.executablePath();
 }
 
-function aggregateSignals(results: VisualViewportResult[], reason = 'Auditoria visual ejecutada con navegador real.'): VisualAuditSignals {
+function aggregateSignals(
+	results: VisualViewportResult[],
+	reason = 'Auditoria visual ejecutada con navegador real.'
+): VisualAuditSignals {
 	return {
 		visualAuditAvailable: true,
 		visualAuditReason: reason,
@@ -174,7 +201,9 @@ function aggregateSignals(results: VisualViewportResult[], reason = 'Auditoria v
 		failedRequests: Math.max(...results.map((result) => result.failedRequests), 0),
 		smallTapTargets: Math.max(...results.map((result) => result.smallTapTargets), 0),
 		lowContrastTexts: Math.max(...results.map((result) => result.lowContrastTexts), 0),
-		horizontalOverflowViewports: results.filter((result) => result.hasHorizontalOverflow).map((result) => result.label),
+		horizontalOverflowViewports: results
+			.filter((result) => result.hasHorizontalOverflow)
+			.map((result) => result.label),
 		brokenRenderedImages: Math.max(...results.map((result) => result.brokenRenderedImages), 0),
 		cookiesBeforeConsent: Math.max(...results.map((result) => result.cookiesBeforeConsent), 0),
 		viewportChecks: results.map((result) => result.label),
@@ -285,12 +314,17 @@ function issuesFromSignals(signals: VisualAuditSignals): AuditIssue[] {
 	return issues;
 }
 
-export async function auditVisualWebsite(url: string, options: { timeoutMs?: number } = {}): Promise<VisualAuditResult> {
+export async function auditVisualWebsite(
+	url: string,
+	options: { timeoutMs?: number } = {}
+): Promise<VisualAuditResult> {
 	if (process.env.DISABLE_BROWSER_AUDIT === '1') {
 		return defaultUnavailable('DISABLE_BROWSER_AUDIT=1');
 	}
 	if (process.env.VERCEL === '1' && process.env.ENABLE_BROWSER_AUDIT !== '1') {
-		return defaultUnavailable('Auditoria visual con navegador desactivada en Vercel para evitar fallos de Chromium serverless.');
+		return defaultUnavailable(
+			'Auditoria visual con navegador desactivada en Vercel para evitar fallos de Chromium serverless.'
+		);
 	}
 
 	const timeoutMs = options.timeoutMs ?? 18_000;
@@ -304,7 +338,9 @@ export async function auditVisualWebsite(url: string, options: { timeoutMs?: num
 		playwright = playwrightModule;
 		chromiumPackage = chromiumModule.default;
 	} catch (error) {
-		return defaultUnavailable(error instanceof Error ? error.message : 'No se pudieron cargar dependencias de navegador.');
+		return defaultUnavailable(
+			error instanceof Error ? error.message : 'No se pudieron cargar dependencias de navegador.'
+		);
 	}
 
 	let browser: Awaited<ReturnType<typeof playwright.chromium.launch>> | undefined;
@@ -323,10 +359,9 @@ export async function auditVisualWebsite(url: string, options: { timeoutMs?: num
 			const context = await browser.newContext({
 				ignoreHTTPSErrors: true,
 				isMobile: viewport.isMobile,
-				userAgent:
-					viewport.isMobile
-						? 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'
-						: undefined,
+				userAgent: viewport.isMobile
+					? 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'
+					: undefined,
 				viewport: { width: viewport.width, height: viewport.height }
 			});
 			const page = await context.newPage();
@@ -341,7 +376,8 @@ export async function auditVisualWebsite(url: string, options: { timeoutMs?: num
 			});
 			page.on('requestfailed', (request) => failedRequests.push(request.url()));
 			page.on('response', (response) => {
-				if (response.status() >= 400) renderedResourceErrors.push(`${response.status()} ${response.url()}`);
+				if (response.status() >= 400)
+					renderedResourceErrors.push(`${response.status()} ${response.url()}`);
 			});
 			await page.route('**/*', async (route) => {
 				const requestUrl = route.request().url();
@@ -365,7 +401,9 @@ export async function auditVisualWebsite(url: string, options: { timeoutMs?: num
 				const luminance = ([r, g, b]: [number, number, number]) => {
 					const values = [r, g, b].map((channel) => {
 						const normalized = channel / 255;
-						return normalized <= 0.03928 ? normalized / 12.92 : Math.pow((normalized + 0.055) / 1.055, 2.4);
+						return normalized <= 0.03928
+							? normalized / 12.92
+							: Math.pow((normalized + 0.055) / 1.055, 2.4);
 					});
 					return values[0] * 0.2126 + values[1] * 0.7152 + values[2] * 0.0722;
 				};
@@ -377,15 +415,27 @@ export async function auditVisualWebsite(url: string, options: { timeoutMs?: num
 				const isVisible = (element: Element) => {
 					const rect = element.getBoundingClientRect();
 					const style = window.getComputedStyle(element);
-					return rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none' && Number(style.opacity) !== 0;
+					return (
+						rect.width > 0 &&
+						rect.height > 0 &&
+						style.visibility !== 'hidden' &&
+						style.display !== 'none' &&
+						Number(style.opacity) !== 0
+					);
 				};
-				const tapTargets = [...document.querySelectorAll('a[href], button, input, select, textarea, [role="button"], [tabindex]')]
+				const tapTargets = [
+					...document.querySelectorAll(
+						'a[href], button, input, select, textarea, [role="button"], [tabindex]'
+					)
+				]
 					.filter(isVisible)
 					.filter((element) => {
 						const rect = element.getBoundingClientRect();
 						return rect.width < 44 || rect.height < 44;
 					}).length;
-				const contrastCandidates = [...document.querySelectorAll('p, a, button, label, li, h1, h2, h3, h4, h5, h6, span')]
+				const contrastCandidates = [
+					...document.querySelectorAll('p, a, button, label, li, h1, h2, h3, h4, h5, h6, span')
+				]
 					.filter(isVisible)
 					.filter((element) => (element.textContent ?? '').trim().length >= 3)
 					.slice(0, 220);
@@ -399,21 +449,29 @@ export async function auditVisualWebsite(url: string, options: { timeoutMs?: num
 						if (!/rgba\(0,\s*0,\s*0,\s*0\)|transparent/i.test(value)) bg = parseRgb(value);
 						current = current.parentElement;
 					}
-					bg ??= parseRgb(window.getComputedStyle(document.body).backgroundColor) ?? [255, 255, 255];
+					bg ??= parseRgb(window.getComputedStyle(document.body).backgroundColor) ?? [
+						255, 255, 255
+					];
 					if (!fg || !bg) return false;
 					const fontSize = Number.parseFloat(style.fontSize);
-					const threshold = fontSize >= 24 || Number.parseInt(style.fontWeight, 10) >= 700 ? 3 : 4.5;
+					const threshold =
+						fontSize >= 24 || Number.parseInt(style.fontWeight, 10) >= 700 ? 3 : 4.5;
 					return ratio(fg, bg) < threshold;
 				}).length;
-				const brokenImages = [...document.images].filter((image) => image.complete && image.naturalWidth === 0).length;
-				const visibleTextLength = (document.body.innerText || '').replace(/\s+/g, ' ').trim().length;
+				const brokenImages = [...document.images].filter(
+					(image) => image.complete && image.naturalWidth === 0
+				).length;
+				const visibleTextLength = (document.body.innerText || '')
+					.replace(/\s+/g, ' ')
+					.trim().length;
 				const bodyChildren = document.body.children.length;
 
 				return {
 					tapTargets,
 					lowContrast,
 					brokenImages,
-					hasHorizontalOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 4,
+					hasHorizontalOverflow:
+						document.documentElement.scrollWidth > document.documentElement.clientWidth + 4,
 					blankRenderDetected: visibleTextLength < 80 && bodyChildren < 3
 				};
 			});
@@ -439,12 +497,18 @@ export async function auditVisualWebsite(url: string, options: { timeoutMs?: num
 		const passed = [
 			'Auditoria visual con navegador ejecutada.',
 			...(signals.consoleErrors === 0 ? ['Sin errores JavaScript de consola.'] : []),
-			...(signals.renderedResourceErrors === 0 && signals.failedRequests === 0 ? ['Sin recursos fallidos tras render.'] : []),
-			...(signals.horizontalOverflowViewports.length === 0 ? ['Sin overflow horizontal en viewports auditados.'] : [])
+			...(signals.renderedResourceErrors === 0 && signals.failedRequests === 0
+				? ['Sin recursos fallidos tras render.']
+				: []),
+			...(signals.horizontalOverflowViewports.length === 0
+				? ['Sin overflow horizontal en viewports auditados.']
+				: [])
 		];
 		return { available: true, issues, passed, signals };
 	} catch (error) {
-		return defaultUnavailable(error instanceof Error ? error.message : 'No se pudo ejecutar Chromium.');
+		return defaultUnavailable(
+			error instanceof Error ? error.message : 'No se pudo ejecutar Chromium.'
+		);
 	} finally {
 		await browser?.close().catch(() => undefined);
 	}

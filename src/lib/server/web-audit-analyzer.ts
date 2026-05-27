@@ -69,7 +69,10 @@ const STALE_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const MAX_JOBS = 200;
 const JOB_KEEP_MS = 10 * 60 * 1000;
 
-const responseCache = new Map<string, { expiresAt: number; staleAt: number; data: AnalyzerResponse }>();
+const responseCache = new Map<
+	string,
+	{ expiresAt: number; staleAt: number; data: AnalyzerResponse }
+>();
 const inFlightRequests = new Map<string, Promise<AnalyzerResponse>>();
 const jobs = new Map<string, AnalyzeJobState>();
 const latestJobByCacheKey = new Map<string, string>();
@@ -159,7 +162,9 @@ function fallbackAudit(url: string, extraIssues: AuditIssue[]): PublicWebAudit {
 	});
 	return {
 		finalUrl: url,
-		overallScore: Math.round(categories.reduce((sum, category) => sum + category.score, 0) / categories.length),
+		overallScore: Math.round(
+			categories.reduce((sum, category) => sum + category.score, 0) / categories.length
+		),
 		verdict: computeDeliveryVerdict(issues),
 		categories,
 		issues,
@@ -193,7 +198,9 @@ async function loadPersistentCacheIfNeeded() {
 	persistentCacheLoaded = true;
 	try {
 		const raw = await readFile(persistentCachePath, 'utf8');
-		const parsed = JSON.parse(raw) as Array<[string, { expiresAt: number; staleAt: number; data: AnalyzerResponse }]>;
+		const parsed = JSON.parse(raw) as Array<
+			[string, { expiresAt: number; staleAt: number; data: AnalyzerResponse }]
+		>;
 		const now = Date.now();
 		for (const [key, entry] of parsed) {
 			if (entry?.staleAt > now) responseCache.set(key, entry);
@@ -241,7 +248,10 @@ function registerCache(cacheKey: string, data: AnalyzerResponse, now: number) {
 	void persistCacheSnapshot();
 }
 
-async function fetchAnalyze(url: string, strategy: 'mobile' | 'desktop'): Promise<AnalyzerResponse> {
+async function fetchAnalyze(
+	url: string,
+	strategy: 'mobile' | 'desktop'
+): Promise<AnalyzerResponse> {
 	const publicAudit = await auditPublicWebsite(url, { timeoutMs: 18000 }).catch(() =>
 		fallbackAudit(url, [
 			{
@@ -299,7 +309,11 @@ async function fetchAnalyze(url: string, strategy: 'mobile' | 'desktop'): Promis
 	};
 }
 
-async function runAnalyzeWithCoalescing(cacheKey: string, url: string, strategy: 'mobile' | 'desktop') {
+async function runAnalyzeWithCoalescing(
+	cacheKey: string,
+	url: string,
+	strategy: 'mobile' | 'desktop'
+) {
 	const inflight = inFlightRequests.get(cacheKey);
 	if (inflight) return inflight;
 	const promise = fetchAnalyze(url, strategy).finally(() => {
@@ -311,7 +325,10 @@ async function runAnalyzeWithCoalescing(cacheKey: string, url: string, strategy:
 
 function cleanOldJobs(now: number) {
 	for (const [id, job] of jobs) {
-		if (now - job.updatedAt > JOB_KEEP_MS && (job.status === 'completed' || job.status === 'error')) {
+		if (
+			now - job.updatedAt > JOB_KEEP_MS &&
+			(job.status === 'completed' || job.status === 'error')
+		) {
 			jobs.delete(id);
 		}
 	}
@@ -354,9 +371,14 @@ async function processJob(jobId: string) {
 export async function enqueueAnalyzeJob(inputUrl: string, inputStrategy: unknown) {
 	await loadPersistentCacheIfNeeded();
 	const normalizedUrl = normalizeUrl(toCleanString(inputUrl));
-	if (!normalizedUrl) return { ok: false as const, error: 'Introduce una URL valida.', statusCode: 400 };
+	if (!normalizedUrl)
+		return { ok: false as const, error: 'Introduce una URL valida.', statusCode: 400 };
 	if (!isAllowedPublicAuditUrl(normalizedUrl)) {
-		return { ok: false as const, error: 'Solo se pueden analizar URLs publicas http/https.', statusCode: 400 };
+		return {
+			ok: false as const,
+			error: 'Solo se pueden analizar URLs publicas http/https.',
+			statusCode: 400
+		};
 	}
 
 	const strategy = normalizeStrategy(inputStrategy);
@@ -371,7 +393,12 @@ export async function enqueueAnalyzeJob(inputUrl: string, inputStrategy: unknown
 	if (existingJobId) {
 		const existingJob = jobs.get(existingJobId);
 		if (existingJob && (existingJob.status === 'queued' || existingJob.status === 'running')) {
-			return { ok: true as const, status: 'queued' as const, jobId: existingJob.id, pollAfterMs: 1000 };
+			return {
+				ok: true as const,
+				status: 'queued' as const,
+				jobId: existingJob.id,
+				pollAfterMs: 1000
+			};
 		}
 	}
 

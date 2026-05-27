@@ -5,14 +5,14 @@
 	onMount(() => {
 		const MARCHAS = {
 			Llana: 'Llanero i President, Al Basora, Filà Llana',
-			'Judíos': 'Éxodo, Jamalajam, Als Judios',
+			Judíos: 'Éxodo, Jamalajam, Als Judios',
 			'Domingo Miques': 'El moro del Sinc',
 			Chano: 'A mons pares',
 			Verdes: 'Moros Verdes',
 			Magenta: "Marxa del Centenari, Uzul el M'Selmein, Jamalajam",
-			'Cordón': 'Cordón 95, Tarde de Abril',
+			Cordón: 'Cordón 95, Tarde de Abril',
 			Ligeros: 'Als Ligeros',
-			'Mudéjares': 'El moro del Sinc, El Kàbila, Centenari Mudéjar',
+			Mudéjares: 'El moro del Sinc, El Kàbila, Centenari Mudéjar',
 			Abencerrajes: "Uzul el M'Selmein, Tarde de Abril",
 			Marrakesch: 'Xavier el coixo',
 			Realistes: 'Al-Wazir, El President, Jamalajam',
@@ -24,8 +24,8 @@
 			Labradores: 'Pas als Maseros',
 			Guzmanes: 'Monjos guerrers, Claus i corretges, Mai Sabel',
 			Vascos: 'El conqueridor, Ix el cristià',
-			'Mozárabes': 'Mozárabes y Alfarrasí',
-			'Almogávares': 'Amogàvar i alcoià',
+			Mozárabes: 'Mozárabes y Alfarrasí',
+			Almogávares: 'Amogàvar i alcoià',
 			Navarros: "L'ambaixador cristià",
 			Tomasinas: 'Ramón Petit',
 			Muntanyesos: 'Alcoi escata i destral, Muntanya de ferro, Muntanyés i festa',
@@ -70,7 +70,10 @@
 		function getMarchas(nombre) {
 			const base = nombre
 				.replace(/\s*\(.*?\)/g, '')
-				.replace(/\s*(Capitán|Alférez|filà.*|filà del Mig|Sant Jordiet|Timbaleros.*|Embajador.*|Sargento.*|Mossèn.*)/gi, '')
+				.replace(
+					/\s*(Capitán|Alférez|filà.*|filà del Mig|Sant Jordiet|Timbaleros.*|Embajador.*|Sargento.*|Mossèn.*)/gi,
+					''
+				)
 				.trim();
 			if (!base) return null;
 			for (const k in MARCHAS) {
@@ -104,7 +107,13 @@
 				id: 'd25',
 				label: 'Sáb 25 — Entradas',
 				actos: [
-					{ hora: '05:00', nombre: 'Missa del Fester', lugar: 'Parroquia de Santa María', nota: '', bandos: null },
+					{
+						hora: '05:00',
+						nombre: 'Missa del Fester',
+						lugar: 'Parroquia de Santa María',
+						nota: '',
+						bandos: null
+					},
 					{
 						hora: '05:45',
 						nombre: 'Diana',
@@ -151,7 +160,7 @@
 						hora: '10:30',
 						nombre: 'Entrada de Cristianos',
 						lugar: 'El Partidor',
-						nota: "El Capitán llega a la Plaça sobre las 11:15h y recibe las llaves de la Villa.",
+						nota: 'El Capitán llega a la Plaça sobre las 11:15h y recibe las llaves de la Villa.',
 						bandos: {
 							crist: [
 								'Timbaleros y clarines',
@@ -182,7 +191,7 @@
 						hora: '17:00',
 						nombre: 'Entrada de Moros',
 						lugar: 'El Partidor',
-						nota: "El Capitán llega a la Plaça sobre las 17:45h.",
+						nota: 'El Capitán llega a la Plaça sobre las 17:45h.',
 						bandos: {
 							crist: null,
 							moro: [
@@ -512,14 +521,18 @@
 			['crist', 'moro'].forEach((lado) => {
 				if (b[lado]) {
 					html += '<div class="bando ' + (lado === 'crist' ? 'bc' : 'bm') + '">';
-					html += '<div class="bando-t">' + (lado === 'crist' ? 'Bando cristiano' : 'Bando moro') + '</div>';
+					html +=
+						'<div class="bando-t">' +
+						(lado === 'crist' ? 'Bando cristiano' : 'Bando moro') +
+						'</div>';
 					b[lado].forEach((f, i) => {
 						const m = showMarchas ? getMarchas(f) : null;
 						html += '<div class="fila-wrap">';
 						html += '<div class="fila">';
 						html += '<span class="fn">' + (i + 1) + '</span>';
 						html += '<span class="fila-name">' + f + '</span>';
-						if (m) html += '<button class="fila-btn" onclick="toggleMarchas(this)">marchas</button>';
+						if (m)
+							html += '<button class="fila-btn" onclick="toggleMarchas(this)">marchas</button>';
 						html += '</div>';
 						if (m) html += '<div class="fila-marchas">🎵 ' + m + '</div>';
 						html += '</div>';
@@ -579,7 +592,8 @@
 			const activo = hoy ? activoIdx(dia.actos) : -1;
 			banner.style.display = hoy && activo >= 0 ? 'block' : 'none';
 			if (hoy && activo >= 0) {
-				banner.textContent = 'En directo ahora: ' + dia.actos[activo].nombre + ' · ' + dia.actos[activo].hora + 'h';
+				banner.textContent =
+					'En directo ahora: ' + dia.actos[activo].nombre + ' · ' + dia.actos[activo].hora + 'h';
 			}
 			dia.actos.forEach((a, i) => {
 				const isOpen = i === activo || (activo === -1 && i === 0);
@@ -608,7 +622,9 @@
 					'">' +
 					(a.nota ? '<p class="nota">' + a.nota + '</p>' : '') +
 					renderBandos(a.bandos, showMarchas) +
-					(a.bandos ? '<p class="aviso">⚠️ Orden orientativo según guión oficial. Los tiempos reales pueden variar.</p>' : '') +
+					(a.bandos
+						? '<p class="aviso">⚠️ Orden orientativo según guión oficial. Los tiempos reales pueden variar.</p>'
+						: '') +
 					'</div>';
 				c.appendChild(div);
 			});
@@ -656,7 +672,10 @@
 		padding: 0;
 	}
 	:global(#mc-tracker) {
-		font-family: system-ui, -apple-system, sans-serif;
+		font-family:
+			system-ui,
+			-apple-system,
+			sans-serif;
 		font-size: 15px;
 		line-height: 1.5;
 		background: #fff;

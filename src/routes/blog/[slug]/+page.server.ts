@@ -4,14 +4,14 @@ import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
-  const [article, relatedArticles] = await Promise.all([
-    fetchLandingSupportArticle(params.slug),
-    fetchLandingSupportArticles()
-  ]);
+	const [article, relatedArticles] = await Promise.all([
+		fetchLandingSupportArticle(params.slug),
+		fetchLandingSupportArticles()
+	]);
 
-  if (!article) {
-    error(404, 'Artículo no encontrado');
-  }
+	if (!article) {
+		error(404, 'Artículo no encontrado');
+	}
 
-  return { article, relatedArticles };
+	return { article, relatedArticles };
 };

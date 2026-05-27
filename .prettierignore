@@ -1,0 +1,11 @@
+node_modules
+.svelte-kit
+.vercel
+.cache
+dist
+build
+coverage
+package-lock.json
+*.log
+*.gz
+Trace-*.json.gz

@@ -1,6 +1,10 @@
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
-import { auditVisualWebsite, visualAuditUnavailableSignals, type VisualAuditSignals } from './web-visual-auditor.ts';
+import {
+	auditVisualWebsite,
+	visualAuditUnavailableSignals,
+	type VisualAuditSignals
+} from './web-visual-auditor.ts';
 
 export type AuditSeverity = 'critical' | 'warning' | 'info' | 'pass';
 export type AuditCategoryId =
@@ -165,14 +169,17 @@ function extractUrls(value?: string): string[] {
 	return [...value.matchAll(/https?:\/\/[^\s"'<>),]+/gi)].map((match) => match[0]).slice(0, 5);
 }
 
-function inferIssueContext(issue: AuditIssue): Pick<AuditIssue, 'confidence' | 'technicalContext' | 'affectedResources' | 'repairSteps'> {
+function inferIssueContext(
+	issue: AuditIssue
+): Pick<AuditIssue, 'confidence' | 'technicalContext' | 'affectedResources' | 'repairSteps'> {
 	const urls = extractUrls(issue.evidence);
 	const affectedResources = urls.length ? urls : issue.evidence ? [issue.evidence] : [];
 
 	if (issue.id === 'security.mixed-content') {
 		return {
 			confidence: issue.evidence ? 'alta' : 'media',
-			technicalContext: 'Tipo: recurso HTTP dentro de una pagina HTTPS. Impacto: el navegador puede bloquearlo o mostrar advertencias de seguridad.',
+			technicalContext:
+				'Tipo: recurso HTTP dentro de una pagina HTTPS. Impacto: el navegador puede bloquearlo o mostrar advertencias de seguridad.',
 			affectedResources,
 			repairSteps: [
 				'Busca la URL http:// exacta en el CMS, HTML, CSS, JavaScript o configuracion del tema.',
@@ -221,7 +228,12 @@ function inferIssueContext(issue: AuditIssue): Pick<AuditIssue, 'confidence' | '
 		};
 	}
 
-	if (issue.id.includes('link') || issue.id.includes('resource') || issue.id.includes('console') || issue.id.includes('render')) {
+	if (
+		issue.id.includes('link') ||
+		issue.id.includes('resource') ||
+		issue.id.includes('console') ||
+		issue.id.includes('render')
+	) {
 		return {
 			confidence: issue.evidence ? 'alta' : 'media',
 			technicalContext: `Tipo: recurso, enlace o ejecucion en navegador. Impacto: ${issue.why}`,
@@ -234,7 +246,11 @@ function inferIssueContext(issue: AuditIssue): Pick<AuditIssue, 'confidence' | '
 		};
 	}
 
-	if (issue.id.includes('tap-target') || issue.id.includes('contrast') || issue.id.startsWith('accessibility.')) {
+	if (
+		issue.id.includes('tap-target') ||
+		issue.id.includes('contrast') ||
+		issue.id.startsWith('accessibility.')
+	) {
 		return {
 			confidence: 'media',
 			technicalContext: `Tipo: accesibilidad automatica. Impacto: ${issue.why}`,
@@ -260,8 +276,12 @@ function inferIssueContext(issue: AuditIssue): Pick<AuditIssue, 'confidence' | '
 }
 
 function buildAiPrompt(issue: AuditIssue): string {
-	const affected = issue.affectedResources?.length ? issue.affectedResources.join('\n') : 'No hay recurso exacto aislado; usa la evidencia y la URL analizada.';
-	const steps = issue.repairSteps?.length ? issue.repairSteps.map((step, index) => `${index + 1}. ${step}`).join('\n') : issue.fix;
+	const affected = issue.affectedResources?.length
+		? issue.affectedResources.join('\n')
+		: 'No hay recurso exacto aislado; usa la evidencia y la URL analizada.';
+	const steps = issue.repairSteps?.length
+		? issue.repairSteps.map((step, index) => `${index + 1}. ${step}`).join('\n')
+		: issue.fix;
 	return [
 		'Actua como auditor senior web. Quiero corregir este problema sin romper la web.',
 		`Problema: ${issue.title}`,
@@ -343,7 +363,11 @@ async function assertPublicNetworkTarget(url: URL) {
 	}
 }
 
-async function fetchWithSafeRedirects(inputUrl: string, init: RequestInit = {}, maxRedirects = 4): Promise<Response> {
+async function fetchWithSafeRedirects(
+	inputUrl: string,
+	init: RequestInit = {},
+	maxRedirects = 4
+): Promise<Response> {
 	let current = new URL(inputUrl);
 	for (let redirect = 0; redirect <= maxRedirects; redirect += 1) {
 		await assertPublicNetworkTarget(current);
@@ -351,7 +375,8 @@ async function fetchWithSafeRedirects(inputUrl: string, init: RequestInit = {}, 
 			...init,
 			redirect: 'manual',
 			headers: {
-				'user-agent': 'MoisesValeroDeliveryAuditor/1.0 (+https://moisesvalero.es/tools/analizador-web)',
+				'user-agent':
+					'MoisesValeroDeliveryAuditor/1.0 (+https://moisesvalero.es/tools/analizador-web)',
 				accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 				...(init.headers ?? {})
 			}
@@ -364,11 +389,18 @@ async function fetchWithSafeRedirects(inputUrl: string, init: RequestInit = {}, 
 	throw new Error('AUDIT_REDIRECT_LIMIT');
 }
 
-async function fetchTextIfAvailable(url: string, timeoutMs: number): Promise<{ ok: boolean; status: number; text: string }> {
+async function fetchTextIfAvailable(
+	url: string,
+	timeoutMs: number
+): Promise<{ ok: boolean; status: number; text: string }> {
 	const controller = new AbortController();
 	const timer = setTimeout(() => controller.abort(), timeoutMs);
 	try {
-		const response = await fetchWithSafeRedirects(url, { method: 'GET', signal: controller.signal }, 2);
+		const response = await fetchWithSafeRedirects(
+			url,
+			{ method: 'GET', signal: controller.signal },
+			2
+		);
 		const text = await response.text().catch(() => '');
 		return { ok: response.ok, status: response.status, text };
 	} catch {
@@ -378,15 +410,33 @@ async function fetchTextIfAvailable(url: string, timeoutMs: number): Promise<{ o
 	}
 }
 
-async function fetchResourceIfAvailable(url: string, timeoutMs: number, kind: ResourceCheck['kind']): Promise<ResourceCheck> {
+async function fetchResourceIfAvailable(
+	url: string,
+	timeoutMs: number,
+	kind: ResourceCheck['kind']
+): Promise<ResourceCheck> {
 	const controller = new AbortController();
 	const timer = setTimeout(() => controller.abort(), timeoutMs);
 	try {
-		const response = await fetchWithSafeRedirects(url, { method: 'GET', signal: controller.signal }, 2);
+		const response = await fetchWithSafeRedirects(
+			url,
+			{ method: 'GET', signal: controller.signal },
+			2
+		);
 		const contentType = response.headers.get('content-type') ?? '';
 		const contentLength = Number(response.headers.get('content-length'));
-		const bytes = Number.isFinite(contentLength) && contentLength > 0 ? contentLength : (await response.arrayBuffer().catch(() => new ArrayBuffer(0))).byteLength;
-		return { url: response.url || url, status: response.status, ok: response.ok, bytes, contentType, kind };
+		const bytes =
+			Number.isFinite(contentLength) && contentLength > 0
+				? contentLength
+				: (await response.arrayBuffer().catch(() => new ArrayBuffer(0))).byteLength;
+		return {
+			url: response.url || url,
+			status: response.status,
+			ok: response.ok,
+			bytes,
+			contentType,
+			kind
+		};
 	} catch {
 		return { url, status: 0, ok: false, bytes: 0, contentType: '', kind };
 	} finally {
@@ -399,10 +449,19 @@ async function fetchMainDocument(url: string, timeoutMs: number): Promise<FetchS
 	const timer = setTimeout(() => controller.abort(), timeoutMs);
 	const startedAt = performance.now();
 	try {
-		const response = await fetchWithSafeRedirects(url, { method: 'GET', signal: controller.signal });
+		const response = await fetchWithSafeRedirects(url, {
+			method: 'GET',
+			signal: controller.signal
+		});
 		const contentType = response.headers.get('content-type') ?? '';
 		const html = contentType.includes('text/html') ? await response.text() : '';
-		return { url: response.url || url, status: response.status, headers: response.headers, html, responseTimeMs: Math.round(performance.now() - startedAt) };
+		return {
+			url: response.url || url,
+			status: response.status,
+			headers: response.headers,
+			html,
+			responseTimeMs: Math.round(performance.now() - startedAt)
+		};
 	} finally {
 		clearTimeout(timer);
 	}
@@ -415,7 +474,10 @@ function hasSecureDirective(csp: string, directive: string): boolean {
 		.some((item) => item === directive || item.startsWith(`${directive} `));
 }
 
-function analyzeHeaders(snapshot: FetchSnapshot, requestedUrl: string): { issues: AuditIssue[]; passed: string[] } {
+function analyzeHeaders(
+	snapshot: FetchSnapshot,
+	requestedUrl: string
+): { issues: AuditIssue[]; passed: string[] } {
 	const issues: AuditIssue[] = [];
 	const passed: string[] = [];
 	const finalUrl = new URL(snapshot.url);
@@ -645,18 +707,25 @@ function decodeHtmlText(value: string): string {
 }
 
 function getTags(html: string, tagName: string): string[] {
-	const matches = html.match(new RegExp(`<${tagName}\\b[^>]*(?:>[\\s\\S]*?<\\/${tagName}>|\\/?>)`, 'gi'));
+	const matches = html.match(
+		new RegExp(`<${tagName}\\b[^>]*(?:>[\\s\\S]*?<\\/${tagName}>|\\/?>)`, 'gi')
+	);
 	return matches ?? [];
 }
 
 function getAttr(tag: string, name: string): string {
 	const escaped = name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-	const match = tag.match(new RegExp(`\\s${escaped}\\s*=\\s*(["'])(.*?)\\1`, 'i')) ?? tag.match(new RegExp(`\\s${escaped}\\s*=\\s*([^\\s>]+)`, 'i'));
+	const match =
+		tag.match(new RegExp(`\\s${escaped}\\s*=\\s*(["'])(.*?)\\1`, 'i')) ??
+		tag.match(new RegExp(`\\s${escaped}\\s*=\\s*([^\\s>]+)`, 'i'));
 	return (match?.[2] ?? match?.[1] ?? '').trim();
 }
 
 function tagHasAttr(tag: string, name: string): boolean {
-	return new RegExp(`\\s${name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}(?:\\s*=|\\s|>|/)`, 'i').test(tag);
+	return new RegExp(
+		`\\s${name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}(?:\\s*=|\\s|>|/)`,
+		'i'
+	).test(tag);
 }
 
 function tagText(html: string, tagName: string): string {
@@ -674,7 +743,9 @@ function allText(html: string): string {
 }
 
 function metaContent(html: string, key: 'name' | 'property', value: string): string {
-	const tag = getTags(html, 'meta').find((item) => getAttr(item, key).toLowerCase() === value.toLowerCase());
+	const tag = getTags(html, 'meta').find(
+		(item) => getAttr(item, key).toLowerCase() === value.toLowerCase()
+	);
 	return tag ? getAttr(tag, 'content') : '';
 }
 
@@ -684,11 +755,20 @@ function canonicalHref(html: string): string {
 }
 
 function scriptBody(scriptTag: string): string {
-	return scriptTag.replace(/^<script\b[^>]*>/i, '').replace(/<\/script>$/i, '').trim();
+	return scriptTag
+		.replace(/^<script\b[^>]*>/i, '')
+		.replace(/<\/script>$/i, '')
+		.trim();
 }
 
 function isLikelyExternalUrl(value: string, base: URL): boolean {
-	if (!value || value.startsWith('data:') || value.startsWith('blob:') || value.startsWith('mailto:') || value.startsWith('tel:')) {
+	if (
+		!value ||
+		value.startsWith('data:') ||
+		value.startsWith('blob:') ||
+		value.startsWith('mailto:') ||
+		value.startsWith('tel:')
+	) {
 		return false;
 	}
 	try {
@@ -716,7 +796,14 @@ function assetUrlFromTag(tag: string): string {
 }
 
 function sameOriginHttpUrl(value: string, base: URL): string | null {
-	if (!value || value.startsWith('#') || value.startsWith('mailto:') || value.startsWith('tel:') || value.startsWith('javascript:')) return null;
+	if (
+		!value ||
+		value.startsWith('#') ||
+		value.startsWith('mailto:') ||
+		value.startsWith('tel:') ||
+		value.startsWith('javascript:')
+	)
+		return null;
 	try {
 		const parsed = new URL(value, base);
 		if (!['http:', 'https:'].includes(parsed.protocol)) return null;
@@ -753,14 +840,17 @@ function detectTechnologies(snapshot: FetchSnapshot): string[] {
 }
 
 function detectWordPressPlugins(html: string): string[] {
-	return uniqueValues([...html.matchAll(/\/wp-content\/plugins\/([^/?"'#]+)/gi)].map((match) => match[1])).slice(0, 12);
+	return uniqueValues(
+		[...html.matchAll(/\/wp-content\/plugins\/([^/?"'#]+)/gi)].map((match) => match[1])
+	).slice(0, 12);
 }
 
 function detectWordPressVersion(html: string, sideText = ''): string {
 	const generator = metaContent(html, 'name', 'generator');
 	const generatorVersion = generator.match(/WordPress\s+([\d.]+)/i)?.[1];
 	if (generatorVersion) return generatorVersion;
-	const readmeVersion = sideText.match(/Version\s+([\d.]+)/i)?.[1] ?? sideText.match(/WordPress\s+([\d.]+)/i)?.[1];
+	const readmeVersion =
+		sideText.match(/Version\s+([\d.]+)/i)?.[1] ?? sideText.match(/WordPress\s+([\d.]+)/i)?.[1];
 	return readmeVersion ?? '';
 }
 
@@ -800,10 +890,15 @@ export function detectWordPress(html: string): boolean {
 	if (hasWordPressAsset) return true;
 
 	const anchors = getTags(html, 'a');
-	return anchors.some((tag) => /\/wp-(?:admin|login\.php|json)(?:\/|\?|$)/i.test(getAttr(tag, 'href')));
+	return anchors.some((tag) =>
+		/\/wp-(?:admin|login\.php|json)(?:\/|\?|$)/i.test(getAttr(tag, 'href'))
+	);
 }
 
-function analyzeAccessibilityBasics(snapshot: FetchSnapshot): { issues: AuditIssue[]; passed: string[] } {
+function analyzeAccessibilityBasics(snapshot: FetchSnapshot): {
+	issues: AuditIssue[];
+	passed: string[];
+} {
 	const issues: AuditIssue[] = [];
 	const passed: string[] = [];
 	const html = snapshot.html;
@@ -812,24 +907,42 @@ function analyzeAccessibilityBasics(snapshot: FetchSnapshot): { issues: AuditIss
 	const images = getTags(html, 'img');
 	const buttons = getTags(html, 'button');
 	const links = getTags(html, 'a');
-	const inputs = getTags(html, 'input').filter((input) => !['hidden', 'submit', 'button', 'reset'].includes(getAttr(input, 'type').toLowerCase()));
+	const inputs = getTags(html, 'input').filter(
+		(input) =>
+			!['hidden', 'submit', 'button', 'reset'].includes(getAttr(input, 'type').toLowerCase())
+	);
 	const labels = getTags(html, 'label');
 	const ids = [...html.matchAll(/\sid\s*=\s*(["'])(.*?)\1/gi)].map((match) => match[2]);
 	const idSet = new Set(ids);
 	const hTags = [...html.matchAll(/<h([1-6])\b[^>]*>/gi)].map((match) => Number(match[1]));
 	const imagesWithoutAlt = images.filter((img) => !tagHasAttr(img, 'alt')).length;
-	const emptyButtons = buttons.filter((button) => !decodeHtmlText(button).trim() && !getAttr(button, 'aria-label') && !getAttr(button, 'title')).length;
-	const emptyLinks = links.filter((link) => getAttr(link, 'href') && !decodeHtmlText(link).trim() && !getAttr(link, 'aria-label') && !getAttr(link, 'title')).length;
+	const emptyButtons = buttons.filter(
+		(button) =>
+			!decodeHtmlText(button).trim() && !getAttr(button, 'aria-label') && !getAttr(button, 'title')
+	).length;
+	const emptyLinks = links.filter(
+		(link) =>
+			getAttr(link, 'href') &&
+			!decodeHtmlText(link).trim() &&
+			!getAttr(link, 'aria-label') &&
+			!getAttr(link, 'title')
+	).length;
 	const duplicateIds = ids.length - idSet.size;
-	const brokenAriaRefs = [...html.matchAll(/\saria-(?:labelledby|describedby)\s*=\s*(["'])(.*?)\1/gi)]
+	const brokenAriaRefs = [
+		...html.matchAll(/\saria-(?:labelledby|describedby)\s*=\s*(["'])(.*?)\1/gi)
+	]
 		.flatMap((match) => match[2].split(/\s+/))
 		.filter((id) => id && !idSet.has(id)).length;
-	const focusableHidden = [...html.matchAll(/<([a-z0-9-]+)\b[^>]*aria-hidden\s*=\s*(["'])true\2[^>]*>[\s\S]*?<\/\1>/gi)].filter((match) =>
+	const focusableHidden = [
+		...html.matchAll(/<([a-z0-9-]+)\b[^>]*aria-hidden\s*=\s*(["'])true\2[^>]*>[\s\S]*?<\/\1>/gi)
+	].filter((match) =>
 		/<(?:a|button|input|select|textarea)\b|\stabindex\s*=\s*(["'])?0/i.test(match[0])
 	).length;
 	const dialogRoleTags = html.match(/<[^>]+\srole\s*=\s*(["'])dialog\1[^>]*>/gi) ?? [];
 	const dialogs = [...getTags(html, 'dialog'), ...dialogRoleTags];
-	const unnamedDialogs = dialogs.filter((dialog) => !getAttr(dialog, 'aria-label') && !getAttr(dialog, 'aria-labelledby')).length;
+	const unnamedDialogs = dialogs.filter(
+		(dialog) => !getAttr(dialog, 'aria-label') && !getAttr(dialog, 'aria-labelledby')
+	).length;
 	const unlabeledInputs = inputs.filter((input) => {
 		const id = getAttr(input, 'id');
 		const hasLabelFor = id && labels.some((label) => getAttr(label, 'for') === id);
@@ -838,44 +951,157 @@ function analyzeAccessibilityBasics(snapshot: FetchSnapshot): { issues: AuditIss
 	const placeholderOnlyInputs = inputs.filter((input) => {
 		const id = getAttr(input, 'id');
 		const hasLabelFor = id && labels.some((label) => getAttr(label, 'for') === id);
-		return getAttr(input, 'placeholder') && !hasLabelFor && !getAttr(input, 'aria-label') && !getAttr(input, 'aria-labelledby');
+		return (
+			getAttr(input, 'placeholder') &&
+			!hasLabelFor &&
+			!getAttr(input, 'aria-label') &&
+			!getAttr(input, 'aria-labelledby')
+		);
 	}).length;
 	const skippedHeading = hTags.some((level, index) => index > 0 && level - hTags[index - 1] > 1);
 
 	if (!lang) {
-		issues.push(issue('accessibility.lang', 'accessibility', 'warning', 'Falta atributo lang', 'Los lectores de pantalla necesitan conocer el idioma principal.', 'Anade lang="es" o el idioma correspondiente en la etiqueta html.'));
+		issues.push(
+			issue(
+				'accessibility.lang',
+				'accessibility',
+				'warning',
+				'Falta atributo lang',
+				'Los lectores de pantalla necesitan conocer el idioma principal.',
+				'Anade lang="es" o el idioma correspondiente en la etiqueta html.'
+			)
+		);
 	} else {
 		passed.push('Idioma principal declarado.');
 	}
 	if (imagesWithoutAlt > 0) {
-		issues.push(issue('accessibility.image-alt', 'accessibility', 'warning', 'Hay imagenes sin alt', 'Los lectores de pantalla y buscadores pierden contexto.', 'Anade alt descriptivo o alt vacio en imagenes decorativas.', `${imagesWithoutAlt} imagenes`));
+		issues.push(
+			issue(
+				'accessibility.image-alt',
+				'accessibility',
+				'warning',
+				'Hay imagenes sin alt',
+				'Los lectores de pantalla y buscadores pierden contexto.',
+				'Anade alt descriptivo o alt vacio en imagenes decorativas.',
+				`${imagesWithoutAlt} imagenes`
+			)
+		);
 	}
 	if (emptyButtons > 0) {
-		issues.push(issue('accessibility.button-name', 'accessibility', 'critical', 'Hay botones sin nombre accesible', 'Un usuario con lector de pantalla no sabra que accion ejecutan.', 'Anade texto visible, aria-label o aria-labelledby.', `${emptyButtons} botones`));
+		issues.push(
+			issue(
+				'accessibility.button-name',
+				'accessibility',
+				'critical',
+				'Hay botones sin nombre accesible',
+				'Un usuario con lector de pantalla no sabra que accion ejecutan.',
+				'Anade texto visible, aria-label o aria-labelledby.',
+				`${emptyButtons} botones`
+			)
+		);
 	}
 	if (emptyLinks > 0) {
-		issues.push(issue('accessibility.link-name', 'accessibility', 'critical', 'Hay enlaces sin nombre accesible', 'Un lector de pantalla anunciara enlaces sin contexto.', 'Anade texto visible, aria-label o contenido accesible.', `${emptyLinks} enlaces`));
+		issues.push(
+			issue(
+				'accessibility.link-name',
+				'accessibility',
+				'critical',
+				'Hay enlaces sin nombre accesible',
+				'Un lector de pantalla anunciara enlaces sin contexto.',
+				'Anade texto visible, aria-label o contenido accesible.',
+				`${emptyLinks} enlaces`
+			)
+		);
 	}
 	if (unlabeledInputs > 0) {
-		issues.push(issue('accessibility.input-label', 'accessibility', 'critical', 'Hay campos de formulario sin label', 'Los formularios quedan confusos para lectores de pantalla y autocompletado.', 'Asocia cada input con label, aria-label o aria-labelledby.', `${unlabeledInputs} campos`));
+		issues.push(
+			issue(
+				'accessibility.input-label',
+				'accessibility',
+				'critical',
+				'Hay campos de formulario sin label',
+				'Los formularios quedan confusos para lectores de pantalla y autocompletado.',
+				'Asocia cada input con label, aria-label o aria-labelledby.',
+				`${unlabeledInputs} campos`
+			)
+		);
 	}
 	if (placeholderOnlyInputs > 0) {
-		issues.push(issue('accessibility.placeholder-label', 'accessibility', 'warning', 'Inputs usan placeholder como etiqueta', 'El placeholder desaparece al escribir y no sustituye una etiqueta accesible.', 'Usa label visible o aria-label estable.', `${placeholderOnlyInputs} campos`));
+		issues.push(
+			issue(
+				'accessibility.placeholder-label',
+				'accessibility',
+				'warning',
+				'Inputs usan placeholder como etiqueta',
+				'El placeholder desaparece al escribir y no sustituye una etiqueta accesible.',
+				'Usa label visible o aria-label estable.',
+				`${placeholderOnlyInputs} campos`
+			)
+		);
 	}
 	if (duplicateIds > 0) {
-		issues.push(issue('accessibility.duplicate-id', 'accessibility', 'warning', 'IDs duplicados en HTML', 'IDs repetidos rompen referencias ARIA, labels y navegacion.', 'Haz que cada id sea unico.', `${duplicateIds} duplicados`));
+		issues.push(
+			issue(
+				'accessibility.duplicate-id',
+				'accessibility',
+				'warning',
+				'IDs duplicados en HTML',
+				'IDs repetidos rompen referencias ARIA, labels y navegacion.',
+				'Haz que cada id sea unico.',
+				`${duplicateIds} duplicados`
+			)
+		);
 	}
 	if (brokenAriaRefs > 0) {
-		issues.push(issue('accessibility.aria-reference', 'accessibility', 'warning', 'Referencias ARIA rotas', 'aria-labelledby o aria-describedby apuntan a IDs inexistentes.', 'Corrige los IDs referenciados o elimina referencias obsoletas.', `${brokenAriaRefs} referencias`));
+		issues.push(
+			issue(
+				'accessibility.aria-reference',
+				'accessibility',
+				'warning',
+				'Referencias ARIA rotas',
+				'aria-labelledby o aria-describedby apuntan a IDs inexistentes.',
+				'Corrige los IDs referenciados o elimina referencias obsoletas.',
+				`${brokenAriaRefs} referencias`
+			)
+		);
 	}
 	if (focusableHidden > 0) {
-		issues.push(issue('accessibility.aria-hidden-focus', 'accessibility', 'critical', 'Elemento oculto contiene foco', 'aria-hidden con enlaces o botones dentro crea trampas para teclado y lector de pantalla.', 'No ocultes contenido focusable con aria-hidden; retira foco o usa inert.', `${focusableHidden} bloques`));
+		issues.push(
+			issue(
+				'accessibility.aria-hidden-focus',
+				'accessibility',
+				'critical',
+				'Elemento oculto contiene foco',
+				'aria-hidden con enlaces o botones dentro crea trampas para teclado y lector de pantalla.',
+				'No ocultes contenido focusable con aria-hidden; retira foco o usa inert.',
+				`${focusableHidden} bloques`
+			)
+		);
 	}
 	if (unnamedDialogs > 0) {
-		issues.push(issue('accessibility.dialog-name', 'accessibility', 'warning', 'Dialogos sin nombre accesible', 'Un modal/dialog sin nombre es confuso para lectores de pantalla.', 'Anade aria-label o aria-labelledby y gestiona foco/cierre.', `${unnamedDialogs} dialogos`));
+		issues.push(
+			issue(
+				'accessibility.dialog-name',
+				'accessibility',
+				'warning',
+				'Dialogos sin nombre accesible',
+				'Un modal/dialog sin nombre es confuso para lectores de pantalla.',
+				'Anade aria-label o aria-labelledby y gestiona foco/cierre.',
+				`${unnamedDialogs} dialogos`
+			)
+		);
 	}
 	if (skippedHeading) {
-		issues.push(issue('accessibility.heading-order', 'accessibility', 'info', 'Jerarquia de headings salta niveles', 'Saltos como H2 a H4 dificultan navegar por estructura.', 'Ordena headings de forma progresiva.'));
+		issues.push(
+			issue(
+				'accessibility.heading-order',
+				'accessibility',
+				'info',
+				'Jerarquia de headings salta niveles',
+				'Saltos como H2 a H4 dificultan navegar por estructura.',
+				'Ordena headings de forma progresiva.'
+			)
+		);
 	}
 	if (!issues.length) {
 		passed.push('Accesibilidad basica automatica sin avisos prioritarios.');
@@ -883,76 +1109,237 @@ function analyzeAccessibilityBasics(snapshot: FetchSnapshot): { issues: AuditIss
 	return { issues, passed };
 }
 
-function analyzePerformanceStructure(snapshot: FetchSnapshot): { issues: AuditIssue[]; passed: string[] } {
+function analyzePerformanceStructure(snapshot: FetchSnapshot): {
+	issues: AuditIssue[];
+	passed: string[];
+} {
 	const issues: AuditIssue[] = [];
 	const passed: string[] = [];
 	const base = new URL(snapshot.url);
 	const htmlBytes = new TextEncoder().encode(snapshot.html).length;
 	const scripts = getTags(snapshot.html, 'script').filter((script) => getAttr(script, 'src'));
-	const stylesheets = getTags(snapshot.html, 'link').filter((link) => getAttr(link, 'rel').toLowerCase().includes('stylesheet'));
+	const stylesheets = getTags(snapshot.html, 'link').filter((link) =>
+		getAttr(link, 'rel').toLowerCase().includes('stylesheet')
+	);
 	const images = getTags(snapshot.html, 'img');
-	const fonts = getTags(snapshot.html, 'link').filter((link) => /font/i.test(getAttr(link, 'as')) || /font/i.test(getAttr(link, 'href')));
-	const preconnects = getTags(snapshot.html, 'link').filter((link) => /preconnect|dns-prefetch/i.test(getAttr(link, 'rel')));
-	const preloads = getTags(snapshot.html, 'link').filter((link) => /preload/i.test(getAttr(link, 'rel')));
-	const blockingScripts = scripts.filter((script) => !tagHasAttr(script, 'defer') && !tagHasAttr(script, 'async') && getAttr(script, 'type').toLowerCase() !== 'module');
-	const imagesWithoutModernHints = images.filter((img) => !getAttr(img, 'srcset') && !getAttr(img, 'sizes')).length;
+	const fonts = getTags(snapshot.html, 'link').filter(
+		(link) => /font/i.test(getAttr(link, 'as')) || /font/i.test(getAttr(link, 'href'))
+	);
+	const preconnects = getTags(snapshot.html, 'link').filter((link) =>
+		/preconnect|dns-prefetch/i.test(getAttr(link, 'rel'))
+	);
+	const preloads = getTags(snapshot.html, 'link').filter((link) =>
+		/preload/i.test(getAttr(link, 'rel'))
+	);
+	const blockingScripts = scripts.filter(
+		(script) =>
+			!tagHasAttr(script, 'defer') &&
+			!tagHasAttr(script, 'async') &&
+			getAttr(script, 'type').toLowerCase() !== 'module'
+	);
+	const imagesWithoutModernHints = images.filter(
+		(img) => !getAttr(img, 'srcset') && !getAttr(img, 'sizes')
+	).length;
 	const externalHosts = new Set(
-		[...scripts.map((tag) => getAttr(tag, 'src')), ...stylesheets.map((tag) => getAttr(tag, 'href')), ...images.map((tag) => getAttr(tag, 'src'))]
+		[
+			...scripts.map((tag) => getAttr(tag, 'src')),
+			...stylesheets.map((tag) => getAttr(tag, 'href')),
+			...images.map((tag) => getAttr(tag, 'src'))
+		]
 			.filter((url) => isLikelyExternalUrl(url, base))
 			.map((url) => uniqueHost(url, base))
 			.filter(Boolean)
 	);
-	const imagesWithoutLazy = images.filter((img) => getAttr(img, 'loading').toLowerCase() !== 'lazy' && !getAttr(img, 'fetchpriority')).length;
-	const imagesWithoutSize = images.filter((img) => !getAttr(img, 'width') || !getAttr(img, 'height')).length;
+	const imagesWithoutLazy = images.filter(
+		(img) => getAttr(img, 'loading').toLowerCase() !== 'lazy' && !getAttr(img, 'fetchpriority')
+	).length;
+	const imagesWithoutSize = images.filter(
+		(img) => !getAttr(img, 'width') || !getAttr(img, 'height')
+	).length;
 	const cacheControl = cleanHeader(snapshot.headers.get('cache-control'));
 	const encoding = cleanHeader(snapshot.headers.get('content-encoding'));
 	const cdnDetected = headerLooksLikeCdn(snapshot.headers);
 
 	if (snapshot.responseTimeMs > 2500) {
-		issues.push(issue('performance.response-time', 'performance', 'warning', 'Respuesta HTML lenta', 'Una respuesta inicial lenta hace que todo lo demas empiece tarde.', 'Revisa hosting, cache, consultas de servidor y CDN.', `${snapshot.responseTimeMs} ms`));
+		issues.push(
+			issue(
+				'performance.response-time',
+				'performance',
+				'warning',
+				'Respuesta HTML lenta',
+				'Una respuesta inicial lenta hace que todo lo demas empiece tarde.',
+				'Revisa hosting, cache, consultas de servidor y CDN.',
+				`${snapshot.responseTimeMs} ms`
+			)
+		);
 	} else {
 		passed.push(`Respuesta HTML en ${snapshot.responseTimeMs} ms.`);
 	}
 	if (htmlBytes > 250_000) {
-		issues.push(issue('performance.html-weight', 'performance', 'warning', 'HTML muy pesado', 'Un HTML grande retrasa el primer byte util y puede indicar render excesivo.', 'Reduce HTML inicial, listas enormes o contenido duplicado.', `${Math.round(htmlBytes / 1024)} KB`));
+		issues.push(
+			issue(
+				'performance.html-weight',
+				'performance',
+				'warning',
+				'HTML muy pesado',
+				'Un HTML grande retrasa el primer byte util y puede indicar render excesivo.',
+				'Reduce HTML inicial, listas enormes o contenido duplicado.',
+				`${Math.round(htmlBytes / 1024)} KB`
+			)
+		);
 	} else {
 		passed.push('Peso HTML razonable.');
 	}
 	if (scripts.length > 18) {
-		issues.push(issue('performance.script-count', 'performance', 'warning', 'Demasiados scripts', 'Muchos scripts aumentan bloqueo, errores y coste de mantenimiento.', 'Elimina scripts no usados y agrupa/carga bajo demanda.', `${scripts.length} scripts`));
+		issues.push(
+			issue(
+				'performance.script-count',
+				'performance',
+				'warning',
+				'Demasiados scripts',
+				'Muchos scripts aumentan bloqueo, errores y coste de mantenimiento.',
+				'Elimina scripts no usados y agrupa/carga bajo demanda.',
+				`${scripts.length} scripts`
+			)
+		);
 	}
 	if (stylesheets.length > 8) {
-		issues.push(issue('performance.css-count', 'performance', 'info', 'Muchas hojas CSS', 'Puede haber CSS heredado o plugins cargando estilos innecesarios.', 'Revisa estilos duplicados y carga critica.', `${stylesheets.length} CSS`));
+		issues.push(
+			issue(
+				'performance.css-count',
+				'performance',
+				'info',
+				'Muchas hojas CSS',
+				'Puede haber CSS heredado o plugins cargando estilos innecesarios.',
+				'Revisa estilos duplicados y carga critica.',
+				`${stylesheets.length} CSS`
+			)
+		);
 	}
 	if (externalHosts.size > 8) {
-		issues.push(issue('performance.third-party-hosts', 'performance', 'warning', 'Muchos dominios externos', 'Cada tercero aumenta DNS, TLS, privacidad y riesgo de fallo.', 'Conserva solo proveedores necesarios y usa preconnect si procede.', `${externalHosts.size} dominios`));
+		issues.push(
+			issue(
+				'performance.third-party-hosts',
+				'performance',
+				'warning',
+				'Muchos dominios externos',
+				'Cada tercero aumenta DNS, TLS, privacidad y riesgo de fallo.',
+				'Conserva solo proveedores necesarios y usa preconnect si procede.',
+				`${externalHosts.size} dominios`
+			)
+		);
 	}
 	if (externalHosts.size > 2 && preconnects.length === 0) {
-		issues.push(issue('performance.preconnect', 'performance', 'info', 'Sin preconnect para terceros', 'Si hay varios dominios externos, preconnect puede reducir latencia percibida.', 'Anade preconnect solo para origenes realmente criticos.'));
+		issues.push(
+			issue(
+				'performance.preconnect',
+				'performance',
+				'info',
+				'Sin preconnect para terceros',
+				'Si hay varios dominios externos, preconnect puede reducir latencia percibida.',
+				'Anade preconnect solo para origenes realmente criticos.'
+			)
+		);
 	}
 	if (!preloads.length && fonts.length) {
-		issues.push(issue('performance.preload-fonts', 'performance', 'info', 'Fuentes sin preload detectado', 'Las fuentes criticas pueden retrasar texto visible si cargan tarde.', 'Preload solo la fuente principal necesaria above-the-fold.'));
+		issues.push(
+			issue(
+				'performance.preload-fonts',
+				'performance',
+				'info',
+				'Fuentes sin preload detectado',
+				'Las fuentes criticas pueden retrasar texto visible si cargan tarde.',
+				'Preload solo la fuente principal necesaria above-the-fold.'
+			)
+		);
 	}
 	if (blockingScripts.length > 2) {
-		issues.push(issue('performance.blocking-scripts', 'performance', 'warning', 'Scripts potencialmente bloqueantes', 'Scripts sin defer/async pueden retrasar el parseo del HTML.', 'Usa defer, async o type=\"module\" si no deben bloquear render.', `${blockingScripts.length} scripts`));
+		issues.push(
+			issue(
+				'performance.blocking-scripts',
+				'performance',
+				'warning',
+				'Scripts potencialmente bloqueantes',
+				'Scripts sin defer/async pueden retrasar el parseo del HTML.',
+				'Usa defer, async o type="module" si no deben bloquear render.',
+				`${blockingScripts.length} scripts`
+			)
+		);
 	}
 	if (imagesWithoutLazy > 6) {
-		issues.push(issue('performance.lazy-images', 'performance', 'info', 'Muchas imagenes sin lazy loading', 'Las imagenes fuera de viewport pueden cargar antes de tiempo.', 'Usa loading="lazy" salvo imagenes criticas del hero.', `${imagesWithoutLazy} imagenes`));
+		issues.push(
+			issue(
+				'performance.lazy-images',
+				'performance',
+				'info',
+				'Muchas imagenes sin lazy loading',
+				'Las imagenes fuera de viewport pueden cargar antes de tiempo.',
+				'Usa loading="lazy" salvo imagenes criticas del hero.',
+				`${imagesWithoutLazy} imagenes`
+			)
+		);
 	}
 	if (imagesWithoutModernHints > 4) {
-		issues.push(issue('performance.responsive-images', 'performance', 'info', 'Imagenes sin srcset/sizes', 'Sin variantes responsive se pueden servir imagenes demasiado grandes en movil.', 'Usa srcset/sizes o un pipeline de imagenes responsive.', `${imagesWithoutModernHints} imagenes`));
+		issues.push(
+			issue(
+				'performance.responsive-images',
+				'performance',
+				'info',
+				'Imagenes sin srcset/sizes',
+				'Sin variantes responsive se pueden servir imagenes demasiado grandes en movil.',
+				'Usa srcset/sizes o un pipeline de imagenes responsive.',
+				`${imagesWithoutModernHints} imagenes`
+			)
+		);
 	}
 	if (imagesWithoutSize > 0) {
-		issues.push(issue('performance.image-dimensions', 'performance', 'info', 'Imagenes sin width/height', 'Sin dimensiones, el layout puede saltar al cargar imagenes.', 'Declara width y height o aspect-ratio estable.', `${imagesWithoutSize} imagenes`));
+		issues.push(
+			issue(
+				'performance.image-dimensions',
+				'performance',
+				'info',
+				'Imagenes sin width/height',
+				'Sin dimensiones, el layout puede saltar al cargar imagenes.',
+				'Declara width y height o aspect-ratio estable.',
+				`${imagesWithoutSize} imagenes`
+			)
+		);
 	}
 	if (!cacheControl) {
-		issues.push(issue('performance.cache-control', 'performance', 'info', 'Falta Cache-Control en HTML', 'Sin politica de cache clara puede haber cargas innecesarias o contenido obsoleto.', 'Define Cache-Control adecuado para HTML y assets.'));
+		issues.push(
+			issue(
+				'performance.cache-control',
+				'performance',
+				'info',
+				'Falta Cache-Control en HTML',
+				'Sin politica de cache clara puede haber cargas innecesarias o contenido obsoleto.',
+				'Define Cache-Control adecuado para HTML y assets.'
+			)
+		);
 	}
 	if (!encoding) {
-		issues.push(issue('performance.compression', 'performance', 'info', 'No se detecta compresion HTTP', 'Gzip/Brotli reducen transferencia de HTML/CSS/JS.', 'Activa Brotli o gzip en CDN/hosting.'));
+		issues.push(
+			issue(
+				'performance.compression',
+				'performance',
+				'info',
+				'No se detecta compresion HTTP',
+				'Gzip/Brotli reducen transferencia de HTML/CSS/JS.',
+				'Activa Brotli o gzip en CDN/hosting.'
+			)
+		);
 	}
 	if (!cdnDetected) {
-		issues.push(issue('performance.cdn', 'performance', 'info', 'No se detecta CDN/cache perimetral', 'Un CDN reduce latencia y absorbe picos si el proyecto lo necesita.', 'Valora Cloudflare, Vercel Edge, Fastly, Bunny o CDN del hosting.'));
+		issues.push(
+			issue(
+				'performance.cdn',
+				'performance',
+				'info',
+				'No se detecta CDN/cache perimetral',
+				'Un CDN reduce latencia y absorbe picos si el proyecto lo necesita.',
+				'Valora Cloudflare, Vercel Edge, Fastly, Bunny o CDN del hosting.'
+			)
+		);
 	}
 	return { issues, passed };
 }
@@ -972,53 +1359,179 @@ function analyzeSeoTechnical(snapshot: FetchSnapshot): { issues: AuditIssue[]; p
 	const ogImage = metaContent(snapshot.html, 'property', 'og:image');
 	const ogUrl = metaContent(snapshot.html, 'property', 'og:url');
 	const twitterCard = metaContent(snapshot.html, 'name', 'twitter:card');
-	const hreflangs = getTags(snapshot.html, 'link').filter((link) => getAttr(link, 'rel').toLowerCase() === 'alternate' && getAttr(link, 'hreflang'));
-	const jsonLd = getTags(snapshot.html, 'script').filter((script) => getAttr(script, 'type').toLowerCase() === 'application/ld+json');
+	const hreflangs = getTags(snapshot.html, 'link').filter(
+		(link) => getAttr(link, 'rel').toLowerCase() === 'alternate' && getAttr(link, 'hreflang')
+	);
+	const jsonLd = getTags(snapshot.html, 'script').filter(
+		(script) => getAttr(script, 'type').toLowerCase() === 'application/ld+json'
+	);
 	const xRobotsTag = cleanHeader(snapshot.headers.get('x-robots-tag')).toLowerCase();
 
 	if (!title) {
-		issues.push(issue('seo.title', 'seo', 'critical', 'Falta title', 'El title es una senal basica para SEO y para la pestana del navegador.', 'Anade un title unico y descriptivo.'));
+		issues.push(
+			issue(
+				'seo.title',
+				'seo',
+				'critical',
+				'Falta title',
+				'El title es una senal basica para SEO y para la pestana del navegador.',
+				'Anade un title unico y descriptivo.'
+			)
+		);
 	} else if (title.length < 20 || title.length > 70) {
-		issues.push(issue('seo.title-length', 'seo', 'warning', 'Title poco equilibrado', 'Un title demasiado corto o largo suele rendir peor en resultados de busqueda.', 'Ajustalo a una frase clara de unas 30-60 letras.', title));
+		issues.push(
+			issue(
+				'seo.title-length',
+				'seo',
+				'warning',
+				'Title poco equilibrado',
+				'Un title demasiado corto o largo suele rendir peor en resultados de busqueda.',
+				'Ajustalo a una frase clara de unas 30-60 letras.',
+				title
+			)
+		);
 	} else {
 		passed.push('Title presente y con longitud razonable.');
 	}
 	if (!description) {
-		issues.push(issue('seo.description', 'seo', 'warning', 'Falta meta description', 'Ayuda a controlar el resumen que puede verse en buscadores.', 'Anade una descripcion clara de la pagina.'));
+		issues.push(
+			issue(
+				'seo.description',
+				'seo',
+				'warning',
+				'Falta meta description',
+				'Ayuda a controlar el resumen que puede verse en buscadores.',
+				'Anade una descripcion clara de la pagina.'
+			)
+		);
 	} else if (description.length < 70 || description.length > 180) {
-		issues.push(issue('seo.description-length', 'seo', 'info', 'Meta description poco equilibrada', 'Una descripcion demasiado corta o larga puede perder claridad en resultados.', 'Resume la propuesta de la pagina en 120-160 caracteres.', description));
+		issues.push(
+			issue(
+				'seo.description-length',
+				'seo',
+				'info',
+				'Meta description poco equilibrada',
+				'Una descripcion demasiado corta o larga puede perder claridad en resultados.',
+				'Resume la propuesta de la pagina en 120-160 caracteres.',
+				description
+			)
+		);
 	}
 	if (!canonical) {
-		issues.push(issue('seo.canonical', 'seo', 'warning', 'Falta canonical', 'El canonical reduce duplicados y ayuda a consolidar senales SEO.', 'Anade link rel="canonical" con la URL final preferida.'));
+		issues.push(
+			issue(
+				'seo.canonical',
+				'seo',
+				'warning',
+				'Falta canonical',
+				'El canonical reduce duplicados y ayuda a consolidar senales SEO.',
+				'Anade link rel="canonical" con la URL final preferida.'
+			)
+		);
 	}
 	if (robots.includes('noindex') || xRobotsTag.includes('noindex')) {
-		issues.push(issue('seo.noindex', 'seo', 'critical', 'La pagina esta marcada como noindex', 'Google puede excluir esta URL de resultados.', 'Quita noindex si la pagina debe posicionar.', robots || xRobotsTag));
+		issues.push(
+			issue(
+				'seo.noindex',
+				'seo',
+				'critical',
+				'La pagina esta marcada como noindex',
+				'Google puede excluir esta URL de resultados.',
+				'Quita noindex si la pagina debe posicionar.',
+				robots || xRobotsTag
+			)
+		);
 	}
 	if (h1s.length !== 1) {
-		issues.push(issue('seo.h1', 'seo', h1s.length === 0 ? 'critical' : 'warning', h1s.length === 0 ? 'Falta H1' : 'Hay mas de un H1', 'El H1 ayuda a entender el tema principal de la pagina.', 'Usa un unico H1 descriptivo por pagina.', `${h1s.length} H1`));
+		issues.push(
+			issue(
+				'seo.h1',
+				'seo',
+				h1s.length === 0 ? 'critical' : 'warning',
+				h1s.length === 0 ? 'Falta H1' : 'Hay mas de un H1',
+				'El H1 ayuda a entender el tema principal de la pagina.',
+				'Usa un unico H1 descriptivo por pagina.',
+				`${h1s.length} H1`
+			)
+		);
 	}
 	if (!h2s.length && !h3s.length) {
-		issues.push(issue('seo.heading-depth', 'seo', 'info', 'Faltan H2/H3 descriptivos', 'Una pagina sin subtitulos suele ser mas dificil de escanear e interpretar.', 'Divide el contenido con H2/H3 utiles para usuarios, buscadores e IA.'));
+		issues.push(
+			issue(
+				'seo.heading-depth',
+				'seo',
+				'info',
+				'Faltan H2/H3 descriptivos',
+				'Una pagina sin subtitulos suele ser mas dificil de escanear e interpretar.',
+				'Divide el contenido con H2/H3 utiles para usuarios, buscadores e IA.'
+			)
+		);
 	}
 	if (canonical && !/^https?:\/\//i.test(canonical)) {
-		issues.push(issue('seo.canonical-relative', 'seo', 'info', 'Canonical no absoluto', 'Un canonical relativo puede interpretarse peor en algunos pipelines.', 'Usa una URL absoluta en rel=canonical.', canonical));
+		issues.push(
+			issue(
+				'seo.canonical-relative',
+				'seo',
+				'info',
+				'Canonical no absoluto',
+				'Un canonical relativo puede interpretarse peor en algunos pipelines.',
+				'Usa una URL absoluta en rel=canonical.',
+				canonical
+			)
+		);
 	}
 	if (!ogTitle || !ogDescription || !ogImage || !twitterCard || !ogUrl) {
-		issues.push(issue('seo.open-graph', 'seo', 'info', 'Metadatos sociales incompletos', 'Las vistas previas al compartir pueden verse pobres o incorrectas.', 'Anade og:title, og:description, og:image y twitter:card.'));
+		issues.push(
+			issue(
+				'seo.open-graph',
+				'seo',
+				'info',
+				'Metadatos sociales incompletos',
+				'Las vistas previas al compartir pueden verse pobres o incorrectas.',
+				'Anade og:title, og:description, og:image y twitter:card.'
+			)
+		);
 	}
 	if (!hreflangs.length) {
-		issues.push(issue('seo.hreflang', 'seo', 'info', 'No se detecta hreflang', 'Si la web tiene idiomas o mercados, hreflang evita confusiones de indexacion.', 'Anade hreflang solo si existen versiones por idioma o pais.'));
+		issues.push(
+			issue(
+				'seo.hreflang',
+				'seo',
+				'info',
+				'No se detecta hreflang',
+				'Si la web tiene idiomas o mercados, hreflang evita confusiones de indexacion.',
+				'Anade hreflang solo si existen versiones por idioma o pais.'
+			)
+		);
 	}
 	for (const script of jsonLd) {
 		try {
 			JSON.parse(scriptBody(script));
 		} catch {
-			issues.push(issue('seo.json-ld-invalid', 'seo', 'warning', 'JSON-LD invalido', 'Un JSON-LD roto puede ser ignorado por buscadores.', 'Valida el bloque JSON-LD y corrige comas, llaves o strings.'));
+			issues.push(
+				issue(
+					'seo.json-ld-invalid',
+					'seo',
+					'warning',
+					'JSON-LD invalido',
+					'Un JSON-LD roto puede ser ignorado por buscadores.',
+					'Valida el bloque JSON-LD y corrige comas, llaves o strings.'
+				)
+			);
 			break;
 		}
 	}
 	if (!jsonLd.length) {
-		issues.push(issue('seo.json-ld', 'seo', 'info', 'No hay JSON-LD', 'Los datos estructurados ayudan a explicar la pagina a buscadores.', 'Anade JSON-LD cuando tenga sentido: Organization, WebSite, Service, Article, Product o FAQ.'));
+		issues.push(
+			issue(
+				'seo.json-ld',
+				'seo',
+				'info',
+				'No hay JSON-LD',
+				'Los datos estructurados ayudan a explicar la pagina a buscadores.',
+				'Anade JSON-LD cuando tenga sentido: Organization, WebSite, Service, Article, Product o FAQ.'
+			)
+		);
 	} else {
 		passed.push('JSON-LD presente.');
 	}
@@ -1029,43 +1542,141 @@ function analyzeAiReadiness(snapshot: FetchSnapshot): { issues: AuditIssue[]; pa
 	const issues: AuditIssue[] = [];
 	const passed: string[] = [];
 	const text = allText(snapshot.html);
-	const jsonLd = getTags(snapshot.html, 'script').filter((script) => getAttr(script, 'type').toLowerCase() === 'application/ld+json');
-	const headings = [...snapshot.html.matchAll(/<h[1-3]\b[^>]*>([\s\S]*?)<\/h[1-3]>/gi)].map((match) => decodeHtmlText(match[1]));
+	const jsonLd = getTags(snapshot.html, 'script').filter(
+		(script) => getAttr(script, 'type').toLowerCase() === 'application/ld+json'
+	);
+	const headings = [...snapshot.html.matchAll(/<h[1-3]\b[^>]*>([\s\S]*?)<\/h[1-3]>/gi)].map(
+		(match) => decodeHtmlText(match[1])
+	);
 	const hasFaqText = /\b(faq|preguntas frecuentes|questions)\b/i.test(text);
 	const hasAuthor = /\b(author|autor|byline|moises|moisés)\b/i.test(snapshot.html);
 	const hasContact = /\b(contacto|contact|email|mailto:|linkedin)\b/i.test(snapshot.html);
-	const hasVisibleDate = /\b(actualizado|ultima actualizacion|última actualización|dateModified|datePublished|published|modified)\b/i.test(snapshot.html);
+	const hasVisibleDate =
+		/\b(actualizado|ultima actualizacion|última actualización|dateModified|datePublished|published|modified)\b/i.test(
+			snapshot.html
+		);
 	const scripts = getTags(snapshot.html, 'script').filter((script) => getAttr(script, 'src'));
-	const jsShellLikely = text.length < 350 && scripts.length > 3 && /<div[^>]+id\s*=\s*(["'])(?:app|root|__next|svelte)\1/i.test(snapshot.html);
+	const jsShellLikely =
+		text.length < 350 &&
+		scripts.length > 3 &&
+		/<div[^>]+id\s*=\s*(["'])(?:app|root|__next|svelte)\1/i.test(snapshot.html);
 	const schemaText = jsonLd.map(scriptBody).join(' ');
-	const hasEntitySchema = /Person|Organization|LocalBusiness|WebSite|Article|FAQPage|sameAs|mainEntity|publisher|author/i.test(schemaText);
+	const hasEntitySchema =
+		/Person|Organization|LocalBusiness|WebSite|Article|FAQPage|sameAs|mainEntity|publisher|author/i.test(
+			schemaText
+		);
 
 	if (text.length < 700) {
-		issues.push(issue('ai.thin-content', 'ai', 'warning', 'Poco contenido legible para IA', 'Los asistentes y buscadores necesitan texto suficiente para entender contexto y utilidad.', 'Anade explicaciones claras, casos, beneficios y preguntas frecuentes.', `${text.length} caracteres`));
+		issues.push(
+			issue(
+				'ai.thin-content',
+				'ai',
+				'warning',
+				'Poco contenido legible para IA',
+				'Los asistentes y buscadores necesitan texto suficiente para entender contexto y utilidad.',
+				'Anade explicaciones claras, casos, beneficios y preguntas frecuentes.',
+				`${text.length} caracteres`
+			)
+		);
 	}
 	if (headings.length < 3) {
-		issues.push(issue('ai.heading-context', 'ai', 'info', 'Pocos encabezados semanticos', 'Los encabezados ayudan a fragmentar y resumir el contenido.', 'Usa H2/H3 descriptivos orientados a intencion de busqueda.'));
+		issues.push(
+			issue(
+				'ai.heading-context',
+				'ai',
+				'info',
+				'Pocos encabezados semanticos',
+				'Los encabezados ayudan a fragmentar y resumir el contenido.',
+				'Usa H2/H3 descriptivos orientados a intencion de busqueda.'
+			)
+		);
 	}
 	if (!jsonLd.length) {
-		issues.push(issue('ai.structured-data', 'ai', 'warning', 'Sin datos estructurados para IA/buscadores', 'JSON-LD ayuda a identificar entidad, autor, servicio o articulo.', 'Incluye schema.org adecuado a la pagina.'));
+		issues.push(
+			issue(
+				'ai.structured-data',
+				'ai',
+				'warning',
+				'Sin datos estructurados para IA/buscadores',
+				'JSON-LD ayuda a identificar entidad, autor, servicio o articulo.',
+				'Incluye schema.org adecuado a la pagina.'
+			)
+		);
 	}
 	if (!hasFaqText) {
-		issues.push(issue('ai.faq', 'ai', 'info', 'No se detecta bloque de preguntas frecuentes', 'Las FAQ ayudan a cubrir dudas y respuestas citables por asistentes.', 'Anade preguntas reales si encajan con la pagina.'));
+		issues.push(
+			issue(
+				'ai.faq',
+				'ai',
+				'info',
+				'No se detecta bloque de preguntas frecuentes',
+				'Las FAQ ayudan a cubrir dudas y respuestas citables por asistentes.',
+				'Anade preguntas reales si encajan con la pagina.'
+			)
+		);
 	}
 	if (!hasAuthor) {
-		issues.push(issue('ai.author', 'ai', 'info', 'Autor o entidad poco clara', 'La atribucion refuerza confianza y contexto para buscadores e IA.', 'Incluye autor, empresa o responsable visible.'));
+		issues.push(
+			issue(
+				'ai.author',
+				'ai',
+				'info',
+				'Autor o entidad poco clara',
+				'La atribucion refuerza confianza y contexto para buscadores e IA.',
+				'Incluye autor, empresa o responsable visible.'
+			)
+		);
 	}
 	if (!hasContact) {
-		issues.push(issue('ai.contact-context', 'ai', 'info', 'Contacto poco visible', 'Los sistemas y usuarios necesitan entender quien esta detras y como contactar.', 'Incluye email, formulario, LinkedIn o datos de contacto.'));
+		issues.push(
+			issue(
+				'ai.contact-context',
+				'ai',
+				'info',
+				'Contacto poco visible',
+				'Los sistemas y usuarios necesitan entender quien esta detras y como contactar.',
+				'Incluye email, formulario, LinkedIn o datos de contacto.'
+			)
+		);
 	}
-	if (!hasVisibleDate && /article|blog|post|noticia|guia|guía/i.test(snapshot.url + snapshot.html)) {
-		issues.push(issue('ai.updated-date', 'ai', 'info', 'No se detecta fecha de actualizacion', 'En articulos y guias, la fecha ayuda a valorar vigencia y fiabilidad.', 'Incluye datePublished/dateModified en JSON-LD o una fecha visible.'));
+	if (
+		!hasVisibleDate &&
+		/article|blog|post|noticia|guia|guía/i.test(snapshot.url + snapshot.html)
+	) {
+		issues.push(
+			issue(
+				'ai.updated-date',
+				'ai',
+				'info',
+				'No se detecta fecha de actualizacion',
+				'En articulos y guias, la fecha ayuda a valorar vigencia y fiabilidad.',
+				'Incluye datePublished/dateModified en JSON-LD o una fecha visible.'
+			)
+		);
 	}
 	if (jsShellLikely) {
-		issues.push(issue('ai.js-only-shell', 'ai', 'warning', 'Contenido posiblemente dependiente de JS', 'Si el HTML inicial viene casi vacio, buscadores y asistentes pueden entender peor la pagina.', 'Sirve contenido principal renderizado en servidor o HTML inicial suficiente.'));
+		issues.push(
+			issue(
+				'ai.js-only-shell',
+				'ai',
+				'warning',
+				'Contenido posiblemente dependiente de JS',
+				'Si el HTML inicial viene casi vacio, buscadores y asistentes pueden entender peor la pagina.',
+				'Sirve contenido principal renderizado en servidor o HTML inicial suficiente.'
+			)
+		);
 	}
 	if (jsonLd.length && !hasEntitySchema) {
-		issues.push(issue('ai.schema-quality', 'ai', 'info', 'JSON-LD poco expresivo', 'Que el JSON-LD sea valido no significa que explique bien entidad, autor o contenido.', 'Incluye tipos schema.org utiles: Person, Organization, WebSite, Article, FAQPage, sameAs o mainEntity.'));
+		issues.push(
+			issue(
+				'ai.schema-quality',
+				'ai',
+				'info',
+				'JSON-LD poco expresivo',
+				'Que el JSON-LD sea valido no significa que explique bien entidad, autor o contenido.',
+				'Incluye tipos schema.org utiles: Person, Organization, WebSite, Article, FAQPage, sameAs o mainEntity.'
+			)
+		);
 	}
 	if (!issues.length) {
 		passed.push('Contenido preparado para interpretacion por buscadores e IA.');
@@ -1082,41 +1693,130 @@ function analyzePrivacyLegal(snapshot: FetchSnapshot): { issues: AuditIssue[]; p
 	const anchors = getTags(html, 'a');
 	const scripts = getTags(html, 'script').filter((script) => getAttr(script, 'src'));
 	const forms = getTags(html, 'form');
-	const hasPrivacy = /privacidad|privacy|politica de privacidad|política de privacidad/i.test(text) || anchors.some((a) => /privacidad|privacy/i.test(getAttr(a, 'href') + decodeHtmlText(a)));
-	const hasCookies = /cookies|cookie policy|politica de cookies|política de cookies/i.test(text) || anchors.some((a) => /cookies/i.test(getAttr(a, 'href') + decodeHtmlText(a)));
-	const hasLegal = /aviso legal|legal notice|terminos|términos|terms/i.test(text) || anchors.some((a) => /legal|terms|terminos|privacidad/i.test(getAttr(a, 'href')));
+	const hasPrivacy =
+		/privacidad|privacy|politica de privacidad|política de privacidad/i.test(text) ||
+		anchors.some((a) => /privacidad|privacy/i.test(getAttr(a, 'href') + decodeHtmlText(a)));
+	const hasCookies =
+		/cookies|cookie policy|politica de cookies|política de cookies/i.test(text) ||
+		anchors.some((a) => /cookies/i.test(getAttr(a, 'href') + decodeHtmlText(a)));
+	const hasLegal =
+		/aviso legal|legal notice|terminos|términos|terms/i.test(text) ||
+		anchors.some((a) => /legal|terms|terminos|privacidad/i.test(getAttr(a, 'href')));
 	const trackerHosts = scripts
 		.map((script) => uniqueHost(getAttr(script, 'src'), base))
-		.filter((host) => /google-analytics|googletagmanager|facebook|hotjar|clarity|tiktok|doubleclick|hubspot|intercom|segment|matomo/i.test(host));
-	const inlineTracking = /\b(gtag\s*\(|dataLayer|fbq\s*\(|clarity\s*\(|hj\s*\(|_paq\.push|googletagmanager|google-analytics)\b/i.test(html);
-	const hasCmp = /\b(onetrust|cookiebot|didomi|axeptio|iubenda|tarteaucitron|cookieyes|consent mode|cmp)\b/i.test(html);
-	const formsWithoutLegal = forms.filter((form) => !/privacidad|privacy|legal|consent|acepto|accept/i.test(form)).length;
-	const precheckedConsent = forms.filter((form) => /type\s*=\s*(["'])checkbox\1[^>]*checked/i.test(form) && /privacidad|privacy|legal|consent|acepto|accept/i.test(form)).length;
+		.filter((host) =>
+			/google-analytics|googletagmanager|facebook|hotjar|clarity|tiktok|doubleclick|hubspot|intercom|segment|matomo/i.test(
+				host
+			)
+		);
+	const inlineTracking =
+		/\b(gtag\s*\(|dataLayer|fbq\s*\(|clarity\s*\(|hj\s*\(|_paq\.push|googletagmanager|google-analytics)\b/i.test(
+			html
+		);
+	const hasCmp =
+		/\b(onetrust|cookiebot|didomi|axeptio|iubenda|tarteaucitron|cookieyes|consent mode|cmp)\b/i.test(
+			html
+		);
+	const formsWithoutLegal = forms.filter(
+		(form) => !/privacidad|privacy|legal|consent|acepto|accept/i.test(form)
+	).length;
+	const precheckedConsent = forms.filter(
+		(form) =>
+			/type\s*=\s*(["'])checkbox\1[^>]*checked/i.test(form) &&
+			/privacidad|privacy|legal|consent|acepto|accept/i.test(form)
+	).length;
 	const insecureForms = forms.filter((form) => {
 		const action = getAttr(form, 'action');
 		return /^http:\/\//i.test(action);
 	}).length;
 
 	if (!hasPrivacy) {
-		issues.push(issue('privacy.policy', 'privacy', 'warning', 'No se detecta politica de privacidad', 'Una web con formularios, analitica o contacto necesita explicar el tratamiento de datos.', 'Anade una politica de privacidad visible y enlazada.'));
+		issues.push(
+			issue(
+				'privacy.policy',
+				'privacy',
+				'warning',
+				'No se detecta politica de privacidad',
+				'Una web con formularios, analitica o contacto necesita explicar el tratamiento de datos.',
+				'Anade una politica de privacidad visible y enlazada.'
+			)
+		);
 	}
 	if ((trackerHosts.length || inlineTracking) && !hasCookies) {
-		issues.push(issue('privacy.cookies', 'privacy', 'warning', 'Hay tracking pero no se detecta politica de cookies', 'Scripts de medicion o marketing pueden requerir informacion y consentimiento.', 'Anade politica/gestion de cookies ajustada al uso real.', [...new Set(trackerHosts)].join(', ')));
+		issues.push(
+			issue(
+				'privacy.cookies',
+				'privacy',
+				'warning',
+				'Hay tracking pero no se detecta politica de cookies',
+				'Scripts de medicion o marketing pueden requerir informacion y consentimiento.',
+				'Anade politica/gestion de cookies ajustada al uso real.',
+				[...new Set(trackerHosts)].join(', ')
+			)
+		);
 	}
 	if ((trackerHosts.length || inlineTracking) && !hasCmp) {
-		issues.push(issue('privacy.consent-banner', 'privacy', 'info', 'Tracking sin gestor de consentimiento visible', 'Si hay analitica o marketing, puede hacer falta pedir consentimiento antes de activar cookies no necesarias.', 'Usa un CMP o carga tracking solo tras consentimiento.'));
+		issues.push(
+			issue(
+				'privacy.consent-banner',
+				'privacy',
+				'info',
+				'Tracking sin gestor de consentimiento visible',
+				'Si hay analitica o marketing, puede hacer falta pedir consentimiento antes de activar cookies no necesarias.',
+				'Usa un CMP o carga tracking solo tras consentimiento.'
+			)
+		);
 	}
 	if (!hasLegal) {
-		issues.push(issue('privacy.legal-notice', 'privacy', 'info', 'No se detecta aviso legal o terminos', 'En webs publicas suele ser una senal basica de confianza y cumplimiento.', 'Incluye aviso legal, terminos o datos del responsable si aplica.'));
+		issues.push(
+			issue(
+				'privacy.legal-notice',
+				'privacy',
+				'info',
+				'No se detecta aviso legal o terminos',
+				'En webs publicas suele ser una senal basica de confianza y cumplimiento.',
+				'Incluye aviso legal, terminos o datos del responsable si aplica.'
+			)
+		);
 	}
 	if (formsWithoutLegal > 0) {
-		issues.push(issue('privacy.form-consent', 'privacy', 'warning', 'Formularios sin referencia legal visible', 'El usuario deberia saber que pasa con sus datos antes de enviarlos.', 'Incluye texto legal, checkbox o enlace a privacidad junto al formulario.', `${formsWithoutLegal} formularios`));
+		issues.push(
+			issue(
+				'privacy.form-consent',
+				'privacy',
+				'warning',
+				'Formularios sin referencia legal visible',
+				'El usuario deberia saber que pasa con sus datos antes de enviarlos.',
+				'Incluye texto legal, checkbox o enlace a privacidad junto al formulario.',
+				`${formsWithoutLegal} formularios`
+			)
+		);
 	}
 	if (precheckedConsent > 0) {
-		issues.push(issue('privacy.prechecked-consent', 'privacy', 'warning', 'Checkbox legal premarcado', 'El consentimiento debe ser una accion clara del usuario cuando aplique.', 'No marques por defecto checks de consentimiento o marketing.', `${precheckedConsent} formularios`));
+		issues.push(
+			issue(
+				'privacy.prechecked-consent',
+				'privacy',
+				'warning',
+				'Checkbox legal premarcado',
+				'El consentimiento debe ser una accion clara del usuario cuando aplique.',
+				'No marques por defecto checks de consentimiento o marketing.',
+				`${precheckedConsent} formularios`
+			)
+		);
 	}
 	if (insecureForms > 0) {
-		issues.push(issue('privacy.insecure-form-action', 'privacy', 'critical', 'Formulario envia a HTTP', 'Los datos enviados podrian viajar sin cifrar.', 'Cambia el action del formulario a HTTPS.', `${insecureForms} formularios`));
+		issues.push(
+			issue(
+				'privacy.insecure-form-action',
+				'privacy',
+				'critical',
+				'Formulario envia a HTTP',
+				'Los datos enviados podrian viajar sin cifrar.',
+				'Cambia el action del formulario a HTTPS.',
+				`${insecureForms} formularios`
+			)
+		);
 	}
 	if (!issues.length) {
 		passed.push('Privacidad/legal basica sin avisos automaticos.');
@@ -1124,7 +1824,10 @@ function analyzePrivacyLegal(snapshot: FetchSnapshot): { issues: AuditIssue[]; p
 	return { issues, passed };
 }
 
-function analyzeDeliveryQuality(snapshot: FetchSnapshot): { issues: AuditIssue[]; passed: string[] } {
+function analyzeDeliveryQuality(snapshot: FetchSnapshot): {
+	issues: AuditIssue[];
+	passed: string[];
+} {
 	const issues: AuditIssue[] = [];
 	const passed: string[] = [];
 	const html = snapshot.html;
@@ -1138,35 +1841,106 @@ function analyzeDeliveryQuality(snapshot: FetchSnapshot): { issues: AuditIssue[]
 		const href = getAttr(anchor, 'href').trim();
 		return href === '' || href === '#' || href.toLowerCase().startsWith('javascript:void');
 	}).length;
-	const placeholderText = /\b(lorem ipsum|placeholder|coming soon|prueba|test@example|example\.com)\b/i.test(allText(html));
+	const placeholderText =
+		/\b(lorem ipsum|placeholder|coming soon|prueba|test@example|example\.com)\b/i.test(
+			allText(html)
+		);
 	const debugText = /\b(console\.log|debugger;|TODO|FIXME|localhost:|127\.0\.0\.1)\b/i.test(html);
 	const suspiciousExternal = [...links, ...getTags(html, 'script'), ...images]
 		.map((tag) => getAttr(tag, 'href') || getAttr(tag, 'src'))
 		.filter((url) => isLikelyExternalUrl(url, base))
-		.filter((url) => SUSPICIOUS_HOST_PATTERNS.some((pattern) => pattern.test(uniqueHost(url, base))));
+		.filter((url) =>
+			SUSPICIOUS_HOST_PATTERNS.some((pattern) => pattern.test(uniqueHost(url, base)))
+		);
 
 	if (snapshot.status < 200 || snapshot.status >= 400) {
-		issues.push(issue('delivery.status', 'delivery', 'critical', 'La URL no devuelve un estado correcto', 'Una pagina con error HTTP no deberia publicarse como entrega final.', 'Corrige servidor, redirecciones o ruta publicada.', `HTTP ${snapshot.status}`));
+		issues.push(
+			issue(
+				'delivery.status',
+				'delivery',
+				'critical',
+				'La URL no devuelve un estado correcto',
+				'Una pagina con error HTTP no deberia publicarse como entrega final.',
+				'Corrige servidor, redirecciones o ruta publicada.',
+				`HTTP ${snapshot.status}`
+			)
+		);
 	} else {
 		passed.push('Estado HTTP final correcto.');
 	}
 	if (!viewport) {
-		issues.push(issue('delivery.viewport', 'delivery', 'critical', 'Falta viewport responsive', 'En movil la web puede verse escalada o rota.', 'Anade meta viewport width=device-width, initial-scale=1.'));
+		issues.push(
+			issue(
+				'delivery.viewport',
+				'delivery',
+				'critical',
+				'Falta viewport responsive',
+				'En movil la web puede verse escalada o rota.',
+				'Anade meta viewport width=device-width, initial-scale=1.'
+			)
+		);
 	}
 	if (!favicon) {
-		issues.push(issue('delivery.favicon', 'delivery', 'info', 'No se detecta favicon', 'El favicon es una senal de acabado en navegador y favoritos.', 'Incluye favicon y apple-touch-icon.'));
+		issues.push(
+			issue(
+				'delivery.favicon',
+				'delivery',
+				'info',
+				'No se detecta favicon',
+				'El favicon es una senal de acabado en navegador y favoritos.',
+				'Incluye favicon y apple-touch-icon.'
+			)
+		);
 	}
 	if (brokenHrefCount > 0) {
-		issues.push(issue('delivery.empty-links', 'delivery', 'warning', 'Hay enlaces vacios o placeholder', 'Los enlaces con # o vacios suelen ser restos de desarrollo.', 'Sustituye esos enlaces por destinos reales o botones si no navegan.', `${brokenHrefCount} enlaces`));
+		issues.push(
+			issue(
+				'delivery.empty-links',
+				'delivery',
+				'warning',
+				'Hay enlaces vacios o placeholder',
+				'Los enlaces con # o vacios suelen ser restos de desarrollo.',
+				'Sustituye esos enlaces por destinos reales o botones si no navegan.',
+				`${brokenHrefCount} enlaces`
+			)
+		);
 	}
 	if (placeholderText) {
-		issues.push(issue('delivery.placeholder-copy', 'delivery', 'warning', 'Posible texto placeholder', 'Restos de plantilla o pruebas bajan confianza y sensacion de acabado.', 'Revisa textos de ejemplo, pruebas y contenido provisional.'));
+		issues.push(
+			issue(
+				'delivery.placeholder-copy',
+				'delivery',
+				'warning',
+				'Posible texto placeholder',
+				'Restos de plantilla o pruebas bajan confianza y sensacion de acabado.',
+				'Revisa textos de ejemplo, pruebas y contenido provisional.'
+			)
+		);
 	}
 	if (debugText) {
-		issues.push(issue('delivery.debug-leftovers', 'delivery', 'warning', 'Posibles restos de desarrollo', 'TODO, debug o localhost en HTML indican entrega sin limpiar.', 'Elimina trazas de desarrollo antes de publicar.'));
+		issues.push(
+			issue(
+				'delivery.debug-leftovers',
+				'delivery',
+				'warning',
+				'Posibles restos de desarrollo',
+				'TODO, debug o localhost en HTML indican entrega sin limpiar.',
+				'Elimina trazas de desarrollo antes de publicar.'
+			)
+		);
 	}
 	if (suspiciousExternal.length) {
-		issues.push(issue('quality.suspicious-domain', 'quality', 'warning', 'Dominio externo sospechoso', 'Dominios de apuestas, farmacia, cripto u otros patrones pueden indicar inyeccion o dependencia peligrosa.', 'Revisa y elimina recursos externos no justificados.', suspiciousExternal[0]));
+		issues.push(
+			issue(
+				'quality.suspicious-domain',
+				'quality',
+				'warning',
+				'Dominio externo sospechoso',
+				'Dominios de apuestas, farmacia, cripto u otros patrones pueden indicar inyeccion o dependencia peligrosa.',
+				'Revisa y elimina recursos externos no justificados.',
+				suspiciousExternal[0]
+			)
+		);
 	}
 	if (!issues.length) {
 		passed.push('Calidad de entrega sin avisos automaticos prioritarios.');
@@ -1174,33 +1948,94 @@ function analyzeDeliveryQuality(snapshot: FetchSnapshot): { issues: AuditIssue[]
 	return { issues, passed };
 }
 
-function analyzeCommercialTrust(snapshot: FetchSnapshot): { issues: AuditIssue[]; passed: string[] } {
+function analyzeCommercialTrust(snapshot: FetchSnapshot): {
+	issues: AuditIssue[];
+	passed: string[];
+} {
 	const issues: AuditIssue[] = [];
 	const passed: string[] = [];
 	const html = snapshot.html;
 	const text = allText(html).toLowerCase();
 	const anchors = getTags(html, 'a');
 	const hasContact = /contacto|contact|mailto:|tel:|whatsapp|linkedin/i.test(html + text);
-	const hasCta = /\b(contacta|contacto|solicita|reserva|comprar|empezar|hablar|llamar|ver proyecto|ver trabajos|agenda)\b/i.test(text);
-	const hasSocial = anchors.some((a) => /linkedin|github|instagram|facebook|x\.com|twitter|youtube|malt|behance|dribbble/i.test(getAttr(a, 'href')));
-	const hasProof = /\b(testimonio|reseña|review|cliente|caso de exito|portfolio|proyecto|trabajos|logos|certificado)\b/i.test(text);
-	const hasLocation = /\b(alcoy|alicante|valencia|madrid|barcelona|spain|espana|españa|remoto|hibrido|presencial)\b/i.test(text);
+	const hasCta =
+		/\b(contacta|contacto|solicita|reserva|comprar|empezar|hablar|llamar|ver proyecto|ver trabajos|agenda)\b/i.test(
+			text
+		);
+	const hasSocial = anchors.some((a) =>
+		/linkedin|github|instagram|facebook|x\.com|twitter|youtube|malt|behance|dribbble/i.test(
+			getAttr(a, 'href')
+		)
+	);
+	const hasProof =
+		/\b(testimonio|reseña|review|cliente|caso de exito|portfolio|proyecto|trabajos|logos|certificado)\b/i.test(
+			text
+		);
+	const hasLocation =
+		/\b(alcoy|alicante|valencia|madrid|barcelona|spain|espana|españa|remoto|hibrido|presencial)\b/i.test(
+			text
+		);
 	const hasEmailOrPhone = /mailto:|tel:|[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.test(html);
 
 	if (!hasContact || !hasEmailOrPhone) {
-		issues.push(issue('trust.contact', 'trust', 'warning', 'Contacto poco claro', 'Si la persona que visita la web no encuentra una via de contacto rapida, baja la confianza.', 'Incluye email, formulario, telefono, LinkedIn o una accion visible.'));
+		issues.push(
+			issue(
+				'trust.contact',
+				'trust',
+				'warning',
+				'Contacto poco claro',
+				'Si la persona que visita la web no encuentra una via de contacto rapida, baja la confianza.',
+				'Incluye email, formulario, telefono, LinkedIn o una accion visible.'
+			)
+		);
 	}
 	if (!hasCta) {
-		issues.push(issue('trust.cta', 'trust', 'info', 'No se detecta accion principal clara', 'Una web puede estar bien tecnicamente y aun asi no guiar a la persona que la visita.', 'Incluye una accion principal coherente con el objetivo de la pagina.'));
+		issues.push(
+			issue(
+				'trust.cta',
+				'trust',
+				'info',
+				'No se detecta accion principal clara',
+				'Una web puede estar bien tecnicamente y aun asi no guiar a la persona que la visita.',
+				'Incluye una accion principal coherente con el objetivo de la pagina.'
+			)
+		);
 	}
 	if (!hasSocial) {
-		issues.push(issue('trust.social-proof-links', 'trust', 'info', 'No se detectan enlaces sociales/profesionales', 'Perfiles externos pueden reforzar identidad y confianza.', 'Enlaza LinkedIn, GitHub, redes o plataformas relevantes.'));
+		issues.push(
+			issue(
+				'trust.social-proof-links',
+				'trust',
+				'info',
+				'No se detectan enlaces sociales/profesionales',
+				'Perfiles externos pueden reforzar identidad y confianza.',
+				'Enlaza LinkedIn, GitHub, redes o plataformas relevantes.'
+			)
+		);
 	}
 	if (!hasProof) {
-		issues.push(issue('trust.proof', 'trust', 'info', 'Pocas senales de prueba o trabajos', 'Casos, testimonios, proyectos o logos ayudan a creer la propuesta.', 'Muestra ejemplos reales, resultados o pruebas de experiencia.'));
+		issues.push(
+			issue(
+				'trust.proof',
+				'trust',
+				'info',
+				'Pocas senales de prueba o trabajos',
+				'Casos, testimonios, proyectos o logos ayudan a creer la propuesta.',
+				'Muestra ejemplos reales, resultados o pruebas de experiencia.'
+			)
+		);
 	}
 	if (!hasLocation) {
-		issues.push(issue('trust.location', 'trust', 'info', 'Ubicacion o ambito poco claro', 'Para servicios locales o empleo, el contexto geografico/remoto ayuda a filtrar oportunidades.', 'Indica zona, modalidad o ambito de trabajo si aplica.'));
+		issues.push(
+			issue(
+				'trust.location',
+				'trust',
+				'info',
+				'Ubicacion o ambito poco claro',
+				'Para servicios locales o empleo, el contexto geografico/remoto ayuda a filtrar oportunidades.',
+				'Indica zona, modalidad o ambito de trabajo si aplica.'
+			)
+		);
 	}
 	if (!issues.length) {
 		passed.push('Claridad y confianza basicas bien cubiertas.');
@@ -1211,7 +2046,10 @@ function analyzeCommercialTrust(snapshot: FetchSnapshot): { issues: AuditIssue[]
 function analyzeHtml(snapshot: FetchSnapshot): {
 	issues: AuditIssue[];
 	passed: string[];
-	signals: Pick<PublicWebAudit['signals'], 'isWordPress' | 'externalScripts' | 'internalLinks' | 'imagesWithoutAlt'>;
+	signals: Pick<
+		PublicWebAudit['signals'],
+		'isWordPress' | 'externalScripts' | 'internalLinks' | 'imagesWithoutAlt'
+	>;
 } {
 	const issues: AuditIssue[] = [];
 	const passed: string[] = [];
@@ -1241,7 +2079,9 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 	const h1s = getTags(snapshot.html, 'h1');
 	const ogTitle = metaContent(snapshot.html, 'property', 'og:title');
 	const ogImage = metaContent(snapshot.html, 'property', 'og:image');
-	const jsonLd = getTags(snapshot.html, 'script').filter((script) => getAttr(script, 'type').toLowerCase() === 'application/ld+json');
+	const jsonLd = getTags(snapshot.html, 'script').filter(
+		(script) => getAttr(script, 'type').toLowerCase() === 'application/ld+json'
+	);
 	const images = getTags(snapshot.html, 'img');
 	const imagesWithoutAlt = images.filter((img) => !tagHasAttr(img, 'alt')).length;
 	const scripts = getTags(snapshot.html, 'script').filter((script) => getAttr(script, 'src'));
@@ -1265,7 +2105,14 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 
 	if (!title) {
 		issues.push(
-			issue('seo.title', 'seo', 'critical', 'Falta title', 'El title es una señal básica para SEO y para la pestaña del navegador.', 'Añade un title único y descriptivo.')
+			issue(
+				'seo.title',
+				'seo',
+				'critical',
+				'Falta title',
+				'El title es una señal básica para SEO y para la pestaña del navegador.',
+				'Añade un title único y descriptivo.'
+			)
 		);
 	} else if (title.length < 20 || title.length > 70) {
 		issues.push(
@@ -1285,13 +2132,27 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 
 	if (!description) {
 		issues.push(
-			issue('seo.description', 'seo', 'warning', 'Falta meta description', 'Ayuda a controlar el resumen que puede verse en buscadores.', 'Añade una descripción clara de la página.')
+			issue(
+				'seo.description',
+				'seo',
+				'warning',
+				'Falta meta description',
+				'Ayuda a controlar el resumen que puede verse en buscadores.',
+				'Añade una descripción clara de la página.'
+			)
 		);
 	}
 
 	if (!canonical) {
 		issues.push(
-			issue('seo.canonical', 'seo', 'warning', 'Falta canonical', 'El canonical reduce duplicados y ayuda a consolidar señales SEO.', 'Añade link rel="canonical" con la URL final preferida.')
+			issue(
+				'seo.canonical',
+				'seo',
+				'warning',
+				'Falta canonical',
+				'El canonical reduce duplicados y ayuda a consolidar señales SEO.',
+				'Añade link rel="canonical" con la URL final preferida.'
+			)
 		);
 	}
 
@@ -1324,7 +2185,14 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 
 	if (!jsonLd.length) {
 		issues.push(
-			issue('seo.json-ld', 'seo', 'info', 'No hay JSON-LD', 'Los datos estructurados ayudan a explicar la página a buscadores.', 'Añade JSON-LD cuando tenga sentido: Organization, WebSite, Service, Article, Product o FAQ.')
+			issue(
+				'seo.json-ld',
+				'seo',
+				'info',
+				'No hay JSON-LD',
+				'Los datos estructurados ayudan a explicar la página a buscadores.',
+				'Añade JSON-LD cuando tenga sentido: Organization, WebSite, Service, Article, Product o FAQ.'
+			)
 		);
 	} else {
 		for (const script of jsonLd) {
@@ -1332,7 +2200,14 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 				JSON.parse(scriptBody(script));
 			} catch {
 				issues.push(
-					issue('seo.json-ld-invalid', 'seo', 'warning', 'JSON-LD inválido', 'Un JSON-LD roto puede ser ignorado por buscadores.', 'Valida el bloque JSON-LD y corrige comas, llaves o strings.')
+					issue(
+						'seo.json-ld-invalid',
+						'seo',
+						'warning',
+						'JSON-LD inválido',
+						'Un JSON-LD roto puede ser ignorado por buscadores.',
+						'Valida el bloque JSON-LD y corrige comas, llaves o strings.'
+					)
 				);
 				break;
 			}
@@ -1357,7 +2232,12 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 		const style = getAttr(iframe, 'style').toLowerCase();
 		const width = getAttr(iframe, 'width');
 		const height = getAttr(iframe, 'height');
-		return style.includes('display:none') || style.includes('visibility:hidden') || width === '0' || height === '0';
+		return (
+			style.includes('display:none') ||
+			style.includes('visibility:hidden') ||
+			width === '0' ||
+			height === '0'
+		);
 	});
 	if (hiddenIframe) {
 		issues.push(
@@ -1376,7 +2256,10 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 	for (const script of externalScripts) {
 		const src = getAttr(script, 'src');
 		const parsed = new URL(src, base);
-		if (parsed.protocol !== 'https:' || SUSPICIOUS_HOST_PATTERNS.some((pattern) => pattern.test(parsed.hostname))) {
+		if (
+			parsed.protocol !== 'https:' ||
+			SUSPICIOUS_HOST_PATTERNS.some((pattern) => pattern.test(parsed.hostname))
+		) {
 			issues.push(
 				issue(
 					'quality.suspicious-script',
@@ -1436,7 +2319,10 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 	};
 }
 
-async function analyzeSideFiles(origin: string, isHttps: boolean): Promise<{
+async function analyzeSideFiles(
+	origin: string,
+	isHttps: boolean
+): Promise<{
 	issues: AuditIssue[];
 	passed: string[];
 	hasRobotsTxt: boolean;
@@ -1455,7 +2341,14 @@ async function analyzeSideFiles(origin: string, isHttps: boolean): Promise<{
 	const passed: string[] = [];
 	if (!robots.ok || !/user-agent\s*:/i.test(robots.text)) {
 		issues.push(
-			issue('seo.robots', 'seo', 'info', 'robots.txt no encontrado o inválido', 'robots.txt ayuda a orientar el rastreo de buscadores.', 'Publica un robots.txt básico que apunte al sitemap.')
+			issue(
+				'seo.robots',
+				'seo',
+				'info',
+				'robots.txt no encontrado o inválido',
+				'robots.txt ayuda a orientar el rastreo de buscadores.',
+				'Publica un robots.txt básico que apunte al sitemap.'
+			)
 		);
 	} else {
 		passed.push('robots.txt disponible.');
@@ -1463,7 +2356,14 @@ async function analyzeSideFiles(origin: string, isHttps: boolean): Promise<{
 
 	if (!sitemap.ok || !/<urlset|<sitemapindex/i.test(sitemap.text)) {
 		issues.push(
-			issue('seo.sitemap', 'seo', 'warning', 'sitemap.xml no encontrado', 'El sitemap facilita descubrir páginas importantes.', 'Genera y publica /sitemap.xml con las URLs indexables.')
+			issue(
+				'seo.sitemap',
+				'seo',
+				'warning',
+				'sitemap.xml no encontrado',
+				'El sitemap facilita descubrir páginas importantes.',
+				'Genera y publica /sitemap.xml con las URLs indexables.'
+			)
 		);
 	} else {
 		passed.push('sitemap.xml disponible.');
@@ -1471,7 +2371,14 @@ async function analyzeSideFiles(origin: string, isHttps: boolean): Promise<{
 
 	if (!llms.ok || !llms.text.trim()) {
 		issues.push(
-			issue('ai.llms-txt', 'ai', 'info', 'llms.txt no encontrado', 'Un llms.txt ayuda a ofrecer contexto resumido a asistentes y crawlers de IA.', 'Publica /llms.txt con resumen, paginas clave y uso recomendado.')
+			issue(
+				'ai.llms-txt',
+				'ai',
+				'info',
+				'llms.txt no encontrado',
+				'Un llms.txt ayuda a ofrecer contexto resumido a asistentes y crawlers de IA.',
+				'Publica /llms.txt con resumen, paginas clave y uso recomendado.'
+			)
 		);
 	} else {
 		passed.push('llms.txt disponible.');
@@ -1479,28 +2386,63 @@ async function analyzeSideFiles(origin: string, isHttps: boolean): Promise<{
 
 	if (!llmsFull.ok || !llmsFull.text.trim()) {
 		issues.push(
-			issue('ai.llms-full', 'ai', 'info', 'llms-full.txt no encontrado', 'Una version extendida puede facilitar lectura profunda de contenido importante.', 'Publica /llms-full.txt si quieres dar mas contexto a herramientas IA.')
+			issue(
+				'ai.llms-full',
+				'ai',
+				'info',
+				'llms-full.txt no encontrado',
+				'Una version extendida puede facilitar lectura profunda de contenido importante.',
+				'Publica /llms-full.txt si quieres dar mas contexto a herramientas IA.'
+			)
 		);
 	}
 
 	if (!securityTxt.ok || !/contact\s*:/i.test(securityTxt.text)) {
 		issues.push(
-			issue('security.security-txt', 'security', 'info', 'security.txt no encontrado', 'security.txt facilita reportar vulnerabilidades de forma responsable.', 'Publica /.well-known/security.txt con Contact y politica basica.')
+			issue(
+				'security.security-txt',
+				'security',
+				'info',
+				'security.txt no encontrado',
+				'security.txt facilita reportar vulnerabilidades de forma responsable.',
+				'Publica /.well-known/security.txt con Contact y politica basica.'
+			)
 		);
 	} else {
 		passed.push('security.txt disponible.');
 	}
 
 	if (!isHttps) {
-		return { issues, passed, hasRobotsTxt: robots.ok, hasSitemap: sitemap.ok, hasLlmsTxt: llms.ok, hasSecurityTxt: securityTxt.ok };
+		return {
+			issues,
+			passed,
+			hasRobotsTxt: robots.ok,
+			hasSitemap: sitemap.ok,
+			hasLlmsTxt: llms.ok,
+			hasSecurityTxt: securityTxt.ok
+		};
 	}
 
-	return { issues, passed, hasRobotsTxt: robots.ok, hasSitemap: sitemap.ok, hasLlmsTxt: llms.ok, hasSecurityTxt: securityTxt.ok };
+	return {
+		issues,
+		passed,
+		hasRobotsTxt: robots.ok,
+		hasSitemap: sitemap.ok,
+		hasLlmsTxt: llms.ok,
+		hasSecurityTxt: securityTxt.ok
+	};
 }
 
-async function analyzeSensitivePaths(origin: string): Promise<{ issues: AuditIssue[]; passed: string[] }> {
+async function analyzeSensitivePaths(
+	origin: string
+): Promise<{ issues: AuditIssue[]; passed: string[] }> {
 	const checks = await Promise.all(
-		SENSITIVE_PATHS.map((path) => fetchResourceIfAvailable(`${origin}${path}`, 3000, 'sensitive').then((result) => ({ path, result })))
+		SENSITIVE_PATHS.map((path) =>
+			fetchResourceIfAvailable(`${origin}${path}`, 3000, 'sensitive').then((result) => ({
+				path,
+				result
+			}))
+		)
 	);
 	const exposed = checks.filter(({ result }) => result.ok && result.bytes > 20);
 	const issues: AuditIssue[] = [];
@@ -1511,7 +2453,9 @@ async function analyzeSensitivePaths(origin: string): Promise<{ issues: AuditIss
 		issues.push(
 			issue(
 				'security.sensitive-path',
-				path.includes('/admin') || path.includes('/staging') || path.includes('/test') ? 'delivery' : 'security',
+				path.includes('/admin') || path.includes('/staging') || path.includes('/test')
+					? 'delivery'
+					: 'security',
 				isHighRisk ? 'critical' : 'warning',
 				isHighRisk ? 'Ruta sensible expuesta' : 'Ruta de trabajo accesible',
 				isHighRisk
@@ -1532,11 +2476,17 @@ async function analyzeSensitivePaths(origin: string): Promise<{ issues: AuditIss
 	return { issues, passed };
 }
 
-async function analyzeHttpMethods(origin: string): Promise<{ issues: AuditIssue[]; passed: string[] }> {
+async function analyzeHttpMethods(
+	origin: string
+): Promise<{ issues: AuditIssue[]; passed: string[] }> {
 	const controller = new AbortController();
 	const timer = setTimeout(() => controller.abort(), 3000);
 	try {
-		const response = await fetchWithSafeRedirects(origin, { method: 'OPTIONS', signal: controller.signal }, 1);
+		const response = await fetchWithSafeRedirects(
+			origin,
+			{ method: 'OPTIONS', signal: controller.signal },
+			1
+		);
 		const allow = cleanHeader(response.headers.get('allow'));
 		if (/\b(TRACE|PUT|DELETE)\b/i.test(allow)) {
 			return {
@@ -1554,7 +2504,10 @@ async function analyzeHttpMethods(origin: string): Promise<{ issues: AuditIssue[
 				passed: []
 			};
 		}
-		return { issues: [], passed: allow ? [`Metodos HTTP anunciados sin metodos sensibles: ${allow}.`] : [] };
+		return {
+			issues: [],
+			passed: allow ? [`Metodos HTTP anunciados sin metodos sensibles: ${allow}.`] : []
+		};
 	} catch {
 		return { issues: [], passed: [] };
 	} finally {
@@ -1575,7 +2528,9 @@ async function analyzeResourcesAndLinks(snapshot: FetchSnapshot): Promise<{
 	const html = snapshot.html;
 	const resourceTags = [
 		...getTags(html, 'script').filter((tag) => getAttr(tag, 'src')),
-		...getTags(html, 'link').filter((tag) => /stylesheet|preload|icon/i.test(getAttr(tag, 'rel')) && getAttr(tag, 'href')),
+		...getTags(html, 'link').filter(
+			(tag) => /stylesheet|preload|icon/i.test(getAttr(tag, 'rel')) && getAttr(tag, 'href')
+		),
 		...getTags(html, 'img').filter((tag) => getAttr(tag, 'src'))
 	];
 	const resourceTargets = uniqueValues(
@@ -1590,8 +2545,7 @@ async function analyzeResourcesAndLinks(snapshot: FetchSnapshot): Promise<{
 				}
 			})
 			.filter(Boolean)
-		)
-		.slice(0, 28);
+	).slice(0, 28);
 	const resourceChecks = await Promise.all(
 		resourceTargets.map((url) => {
 			const tag = resourceTags.find((item) => {
@@ -1614,8 +2568,14 @@ async function analyzeResourcesAndLinks(snapshot: FetchSnapshot): Promise<{
 				return parsed.pathname !== base.pathname || parsed.search !== base.search;
 			})
 	).slice(0, 18);
-	const linkChecks = await Promise.all(internalLinkTargets.map((url) => fetchResourceIfAvailable(url, 3500, 'link')));
-	const notFoundCheck = await fetchResourceIfAvailable(`${base.origin}/__mv-audit-${Date.now()}-404`, 3500, 'notFound');
+	const linkChecks = await Promise.all(
+		internalLinkTargets.map((url) => fetchResourceIfAvailable(url, 3500, 'link'))
+	);
+	const notFoundCheck = await fetchResourceIfAvailable(
+		`${base.origin}/__mv-audit-${Date.now()}-404`,
+		3500,
+		'notFound'
+	);
 
 	const failedResources = resourceChecks.filter((item) => item.status >= 400 || item.status === 0);
 	const brokenLinks = linkChecks.filter((item) => item.status >= 400 || item.status === 0);
@@ -1633,7 +2593,10 @@ async function analyzeResourcesAndLinks(snapshot: FetchSnapshot): Promise<{
 				'Recursos con error',
 				'JS, CSS o imagenes que fallan generan una web rota o incompleta.',
 				'Corrige rutas, assets eliminados, permisos o dominios externos caidos.',
-				failedResources.slice(0, 3).map((item) => `${item.status || 'timeout'} ${item.url}`).join(' | ')
+				failedResources
+					.slice(0, 3)
+					.map((item) => `${item.status || 'timeout'} ${item.url}`)
+					.join(' | ')
 			)
 		);
 	} else if (resourceChecks.length) {
@@ -1649,7 +2612,10 @@ async function analyzeResourcesAndLinks(snapshot: FetchSnapshot): Promise<{
 				'Enlaces internos rotos',
 				'Los enlaces 404 perjudican rastreo, confianza y experiencia de usuario.',
 				'Actualiza o elimina enlaces internos que ya no existen.',
-				brokenLinks.slice(0, 3).map((item) => `${item.status || 'timeout'} ${item.url}`).join(' | ')
+				brokenLinks
+					.slice(0, 3)
+					.map((item) => `${item.status || 'timeout'} ${item.url}`)
+					.join(' | ')
 			)
 		);
 	}
@@ -1709,9 +2675,24 @@ async function analyzeResourcesAndLinks(snapshot: FetchSnapshot): Promise<{
 	};
 }
 
-async function analyzeWordPress(origin: string, isWordPress: boolean, html: string): Promise<AuditIssue[]> {
+async function analyzeWordPress(
+	origin: string,
+	isWordPress: boolean,
+	html: string
+): Promise<AuditIssue[]> {
 	if (!isWordPress) return [];
-	const [wpJson, wpUsers, xmlrpc, readme, license, wpLogin, wpAdmin, pluginsDir, uploadsDir, themesDir] = await Promise.all([
+	const [
+		wpJson,
+		wpUsers,
+		xmlrpc,
+		readme,
+		license,
+		wpLogin,
+		wpAdmin,
+		pluginsDir,
+		uploadsDir,
+		themesDir
+	] = await Promise.all([
 		fetchTextIfAvailable(`${origin}/wp-json/`, 8000),
 		fetchTextIfAvailable(`${origin}/wp-json/wp/v2/users`, 8000),
 		fetchTextIfAvailable(`${origin}/xmlrpc.php`, 8000),
@@ -1724,9 +2705,13 @@ async function analyzeWordPress(origin: string, isWordPress: boolean, html: stri
 		fetchTextIfAvailable(`${origin}/wp-content/themes/`, 8000)
 	]);
 	const plugins = detectWordPressPlugins(html);
-	const themes = uniqueValues([...html.matchAll(/\/wp-content\/themes\/([^/?"'#]+)/gi)].map((match) => match[1])).slice(0, 8);
+	const themes = uniqueValues(
+		[...html.matchAll(/\/wp-content\/themes\/([^/?"'#]+)/gi)].map((match) => match[1])
+	).slice(0, 8);
 	const version = detectWordPressVersion(html, readme.text);
-	const hasDirectoryListing = [pluginsDir, uploadsDir, themesDir].some((result) => result.ok && /<title>\s*Index of|Parent Directory/i.test(result.text));
+	const hasDirectoryListing = [pluginsDir, uploadsDir, themesDir].some(
+		(result) => result.ok && /<title>\s*Index of|Parent Directory/i.test(result.text)
+	);
 	const issues: AuditIssue[] = [
 		issue(
 			'quality.wordpress-detected',
@@ -1883,7 +2868,10 @@ export function scoreCategoryFromIssues(issues: AuditIssue[], baseScore = 100): 
 	return Math.max(0, Math.min(100, baseScore - penalty));
 }
 
-function buildCategories(issues: AuditIssue[], baseScores?: Partial<Record<AuditCategoryId, number>>): AuditCategory[] {
+function buildCategories(
+	issues: AuditIssue[],
+	baseScores?: Partial<Record<AuditCategoryId, number>>
+): AuditCategory[] {
 	return (Object.keys(CATEGORY_LABELS) as AuditCategoryId[]).map((id) => {
 		const categoryIssues = issues.filter((item) => item.category === id);
 		const baseScore = baseScores?.[id] ?? 100;
@@ -1937,24 +2925,32 @@ export async function auditPublicWebsite(
 		analyzeSensitivePaths(finalUrl.origin),
 		analyzeHttpMethods(finalUrl.origin),
 		analyzeResourcesAndLinks(snapshot),
-		auditVisualWebsite(finalUrl.toString(), { timeoutMs: Math.min(20_000, timeoutMs) }).catch((error) => ({
-			available: false,
-			issues: [
-				issue(
-					'delivery.visual-audit-unavailable',
-					'delivery',
-					'info',
-					'Auditoria visual no disponible',
-					'Los checks con navegador real no se han podido ejecutar en este entorno.',
-					'El informe HTML/cabeceras sigue siendo valido; activa Chromium serverless para sumar revision visual.',
+		auditVisualWebsite(finalUrl.toString(), { timeoutMs: Math.min(20_000, timeoutMs) }).catch(
+			(error) => ({
+				available: false,
+				issues: [
+					issue(
+						'delivery.visual-audit-unavailable',
+						'delivery',
+						'info',
+						'Auditoria visual no disponible',
+						'Los checks con navegador real no se han podido ejecutar en este entorno.',
+						'El informe HTML/cabeceras sigue siendo valido; activa Chromium serverless para sumar revision visual.',
+						error instanceof Error ? error.message : 'Error desconocido'
+					)
+				],
+				passed: [],
+				signals: visualAuditUnavailableSignals(
 					error instanceof Error ? error.message : 'Error desconocido'
 				)
-			],
-			passed: [],
-			signals: visualAuditUnavailableSignals(error instanceof Error ? error.message : 'Error desconocido')
-		}))
+			})
+		)
 	]);
-	const wordpressIssues = await analyzeWordPress(finalUrl.origin, htmlAudit.signals.isWordPress, snapshot.html);
+	const wordpressIssues = await analyzeWordPress(
+		finalUrl.origin,
+		htmlAudit.signals.isWordPress,
+		snapshot.html
+	);
 	const detectedTechnologies = detectTechnologies(snapshot);
 	const wordPressPlugins = detectWordPressPlugins(snapshot.html);
 	const issues = dedupeIssues([
@@ -1976,7 +2972,9 @@ export async function auditPublicWebsite(
 		...wordpressIssues
 	]);
 	const categories = buildCategories(issues, options.baseScores);
-	const overallScore = Math.round(categories.reduce((sum, category) => sum + category.score, 0) / categories.length);
+	const overallScore = Math.round(
+		categories.reduce((sum, category) => sum + category.score, 0) / categories.length
+	);
 
 	return {
 		finalUrl: finalUrl.toString(),

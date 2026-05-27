@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { type Component, onMount } from "svelte";
-	import LogoColumn from "./LogoColumn.svelte";
-	import { cn } from "../utils/cn";
+	import { type Component, onMount } from 'svelte';
+	import LogoColumn from './LogoColumn.svelte';
+	import { cn } from '../utils/cn';
 
 	interface Logo {
 		name: string;
@@ -30,12 +30,7 @@
 		class?: string;
 	}
 
-	let {
-		columnCount = 2,
-		logos,
-		cycleInterval = 2000,
-		class: className,
-	}: Props = $props();
+	let { columnCount = 2, logos, cycleInterval = 2000, class: className }: Props = $props();
 
 	let isMounted = $state(false);
 
@@ -52,11 +47,7 @@
 		return shuffled;
 	};
 
-	const distributeLogos = (
-		allLogos: Logo[],
-		columnCount: number,
-		shuffle: boolean,
-	): Logo[][] => {
+	const distributeLogos = (allLogos: Logo[], columnCount: number, shuffle: boolean): Logo[][] => {
 		const shuffled = shuffle ? shuffleArray(allLogos) : [...allLogos];
 		const columns: Logo[][] = Array.from({ length: columnCount }, () => []);
 
@@ -67,9 +58,7 @@
 		const maxLength = Math.max(...columns.map((col) => col.length));
 		columns.forEach((col) => {
 			while (col.length < maxLength) {
-				col.push(
-					shuffled[Math.floor(Math.random() * shuffled.length)] || shuffled[0],
-				);
+				col.push(shuffled[Math.floor(Math.random() * shuffled.length)] || shuffled[0]);
 			}
 		});
 
@@ -79,7 +68,7 @@
 	let logoSets = $derived(distributeLogos(logos, columnCount, isMounted));
 </script>
 
-<div class={cn("flex space-x-4", className)}>
+<div class={cn('flex space-x-4', className)}>
 	{#each logoSets as logos, index (index)}
 		<LogoColumn {logos} {index} {cycleInterval} />
 	{/each}
