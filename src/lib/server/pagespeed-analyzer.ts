@@ -47,6 +47,8 @@ export type AnalyzerResponse = {
   signals: PublicWebAudit['signals'];
   highlights: string[];
   cached: boolean;
+  analysisMode: 'complete' | 'partial';
+  analysisNote?: string;
 };
 
 export type AnalyzeJobState = {
@@ -63,7 +65,7 @@ export type AnalyzeJobState = {
 
 const CACHE_TTL_MS = 60 * 60 * 1000;
 const STALE_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
-const DEFAULT_PAGESPEED_TIMEOUT_MS = 90000;
+const DEFAULT_PAGESPEED_TIMEOUT_MS = 45000;
 const MAX_JOBS = 200;
 const JOB_KEEP_MS = 10 * 60 * 1000;
 
@@ -161,6 +163,10 @@ function highlightsFromScore(score: number): string[] {
 
 function scoreFromLighthouse(value: unknown): number {
   return typeof value === 'number' ? Math.round(value * 100) : 0;
+}
+
+function categoryScore(audit: PublicWebAudit, id: AuditCategoryId, fallback = 0): number {
+  return audit.categories.find((category) => category.id === id)?.score ?? fallback;
 }
 
 function lighthouseIssue(
@@ -297,7 +303,7 @@ async function fetchAnalyze(url: string, strategy: 'mobile' | 'desktop'): Promis
 
   const configuredTimeoutMs = Number(env.PAGESPEED_TIMEOUT_MS || DEFAULT_PAGESPEED_TIMEOUT_MS);
   const timeoutMs = Number.isFinite(configuredTimeoutMs)
-    ? Math.max(30000, Math.min(180000, Math.round(configuredTimeoutMs)))
+    ? Math.max(30000, Math.min(90000, Math.round(configuredTimeoutMs)))
     : DEFAULT_PAGESPEED_TIMEOUT_MS;
 
   const fetchWithTimeout = async () => {
@@ -413,8 +419,75 @@ async function fetchAnalyze(url: string, strategy: 'mobile' | 'desktop'): Promis
           : 'La web está en buen estado para entrega según los checks automáticos.',
       ...highlightsFromScore(performanceScore)
     ],
-    cached: false
+    cached: false,
+    analysisMode: 'complete'
   };
+}
+
+async function buildPartialAnalyzeResponse(
+  url: string,
+  strategy: 'mobile' | 'desktop',
+  reason: string
+): Promise<AnalyzerResponse> {
+  const pageSpeedIssue: AuditIssue = {
+    id: 'performance.pagespeed-unavailable',
+    category: 'performance',
+    severity: 'warning',
+    title: 'PageSpeed no respondio a tiempo',
+    why: reason,
+    fix: 'Reintenta el analisis en unos minutos. Mientras tanto, revisa los checks tecnicos que si se han podido completar.'
+  };
+  const lighthouseScores: Partial<Record<AuditCategoryId, number>> = { performance: 0 };
+  const publicAudit = await auditPublicWebsite(url, {
+    timeoutMs: 12000,
+    lighthouseScores,
+    extraIssues: [pageSpeedIssue]
+  }).catch(() => fallbackAudit(url, lighthouseScores, [pageSpeedIssue]));
+  const performanceScore = categoryScore(publicAudit, 'performance', 0);
+
+  return {
+    ok: true,
+    requestedUrl: url,
+    strategy,
+    finalUrl: publicAudit.finalUrl,
+    performanceScore,
+    overallScore: publicAudit.overallScore,
+    deliveryVerdict: publicAudit.verdict,
+    severity: severityFromScore(performanceScore),
+    categoryScores: {
+      performance: performanceScore,
+      accessibility: categoryScore(publicAudit, 'accessibility', 0),
+      bestPractices: categoryScore(publicAudit, 'quality', 0),
+      seo: categoryScore(publicAudit, 'seo', 0),
+      security: categoryScore(publicAudit, 'security', 0),
+      quality: categoryScore(publicAudit, 'quality', 0)
+    },
+    metrics: {
+      fcp: 'N/D',
+      lcp: 'N/D',
+      cls: 'N/D',
+      tbt: 'N/D',
+      imageWeight: 'N/D',
+      pageWeight: 'N/D'
+    },
+    categories: publicAudit.categories,
+    issues: publicAudit.issues,
+    passedChecks: publicAudit.passedChecks,
+    signals: publicAudit.signals,
+    highlights: [
+      'PageSpeed ha tardado demasiado, pero el informe tecnico parcial se ha generado igualmente.',
+      'Se han revisado HTTPS, redirecciones, robots.txt, sitemap, metadatos, cabeceras y senales basicas de accesibilidad.',
+      ...publicAudit.issues.slice(0, 2).map((issue) => issue.title)
+    ],
+    cached: false,
+    analysisMode: 'partial',
+    analysisNote: reason
+  };
+}
+
+function isRecoverablePageSpeedError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return error.name === 'AbortError' || error.message === 'PSI_RESPONSE_NOT_OK';
 }
 
 async function runAnalyzeWithCoalescing(cacheKey: string, url: string, strategy: 'mobile' | 'desktop') {
@@ -461,15 +534,25 @@ async function processJob(jobId: string) {
       return;
     }
 
-    if (error instanceof Error && error.name === 'AbortError') {
-      job.error = 'El análisis está tardando demasiado. Prueba de nuevo en unos segundos.';
+    if (isRecoverablePageSpeedError(error)) {
+      const reason =
+        error instanceof Error && error.name === 'AbortError'
+          ? 'La medicion de PageSpeed ha superado el tiempo maximo de espera.'
+          : 'PageSpeed no ha devuelto una respuesta valida en este momento.';
+      const result = await buildPartialAnalyzeResponse(job.requestedUrl, job.strategy, reason);
+      registerCache(job.cacheKey, result, Date.now());
+      job.status = 'completed';
+      job.result = result;
+      job.updatedAt = Date.now();
     } else if (error instanceof Error && error.message === 'PAGESPEED_API_KEY_MISSING') {
       job.error = 'Falta configurar PAGESPEED_API_KEY en el servidor.';
+      job.status = 'error';
+      job.updatedAt = Date.now();
     } else {
       job.error = 'No se pudo completar el análisis en este momento.';
+      job.status = 'error';
+      job.updatedAt = Date.now();
     }
-    job.status = 'error';
-    job.updatedAt = Date.now();
   } finally {
     cleanOldJobs(Date.now());
   }

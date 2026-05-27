@@ -8,10 +8,29 @@ type LeadPayload = {
   email?: unknown;
   url?: unknown;
   score?: unknown;
+  overallScore?: unknown;
+  finalUrl?: unknown;
+  deliveryVerdict?: unknown;
   severity?: unknown;
+  categoryScores?: unknown;
   metrics?: unknown;
+  categories?: unknown;
+  issues?: unknown;
+  passedChecks?: unknown;
+  signals?: unknown;
   highlights?: unknown;
+  analysisMode?: unknown;
+  analysisNote?: unknown;
   website?: unknown; // honeypot
+};
+
+type EmailIssue = {
+  severity: string;
+  category: string;
+  title: string;
+  why: string;
+  fix: string;
+  evidence: string;
 };
 
 const LEAD_WINDOW_MS = 60 * 60 * 1000;
@@ -40,6 +59,146 @@ function hasInvalidOrigin(request: Request, url: URL): boolean {
 
 function asRecord(v: unknown): Record<string, unknown> | null {
   return v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : null;
+}
+
+function asScore(value: unknown): number | null {
+  const score = Number(value);
+  return Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : null;
+}
+
+function scoreTone(score: number | null): { label: string; color: string; bg: string } {
+  if (score === null) return { label: 'Sin datos', color: '#64748b', bg: '#e2e8f0' };
+  if (score >= 90) return { label: 'Bien', color: '#047857', bg: '#d1fae5' };
+  if (score >= 60) return { label: 'Mejorable', color: '#b45309', bg: '#fef3c7' };
+  return { label: 'Critico', color: '#be123c', bg: '#ffe4e6' };
+}
+
+function scoreBarHtml(score: number | null, color = '#0d71e3'): string {
+  const width = score === null ? 0 : score;
+  return `
+    <div style="height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;">
+      <div style="height:8px;width:${width}%;background:${color};border-radius:999px;"></div>
+    </div>
+  `;
+}
+
+function metricCardHtml(label: string, value: string): string {
+  return `
+    <td style="width:50%;padding:8px;">
+      <div style="border:1px solid #dbeafe;background:#f8fbff;border-radius:14px;padding:14px;">
+        <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#64748b;font-weight:700;">${toSafeHtml(label)}</div>
+        <div style="font-size:22px;line-height:1.15;color:#0f172a;font-weight:800;margin-top:6px;">${toSafeHtml(value || '-')}</div>
+      </div>
+    </td>
+  `;
+}
+
+function severityLabel(value: string): string {
+  if (value === 'critical') return 'Critico';
+  if (value === 'warning') return 'Revisar';
+  if (value === 'info') return 'Aviso';
+  if (value === 'pass') return 'Correcto';
+  return value || '-';
+}
+
+function verdictLabel(value: string): string {
+  if (value === 'block') return 'Bloqueante';
+  if (value === 'review') return 'Necesita revision';
+  if (value === 'ready') return 'Buen estado';
+  return value || '-';
+}
+
+function parseIssues(value: unknown): EmailIssue[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      const record = asRecord(item);
+      if (!record) return null;
+      return {
+        severity: toCleanString(record.severity),
+        category: toCleanString(record.category),
+        title: toCleanString(record.title),
+        why: toCleanString(record.why),
+        fix: toCleanString(record.fix),
+        evidence: toCleanString(record.evidence)
+      };
+    })
+    .filter((item): item is EmailIssue => Boolean(item?.title))
+    .slice(0, 12);
+}
+
+function categoryRowsHtml(categoryScores: Record<string, unknown> | null): string {
+  const categories = [
+    ['performance', 'Rendimiento'],
+    ['accessibility', 'Accesibilidad'],
+    ['seo', 'SEO tecnico'],
+    ['security', 'Seguridad'],
+    ['quality', 'Calidad visible'],
+    ['bestPractices', 'Buenas practicas']
+  ];
+  return categories
+    .map(([key, label]) => {
+      const score = asScore(categoryScores?.[key]);
+      const tone = scoreTone(score);
+      return `
+        <tr>
+          <td style="padding:10px 0;color:#334155;font-weight:700;">${label}</td>
+          <td style="padding:10px 0;width:90px;text-align:right;color:${tone.color};font-weight:800;">${score ?? '-'}/100</td>
+        </tr>
+        <tr>
+          <td colspan="2" style="padding:0 0 8px;">${scoreBarHtml(score, tone.color)}</td>
+        </tr>
+      `;
+    })
+    .join('');
+}
+
+function issuesHtml(issues: EmailIssue[]): string {
+  if (!issues.length) {
+    return '<p style="margin:0;color:#475569;">No se han detectado problemas prioritarios en el resumen enviado.</p>';
+  }
+  return issues
+    .map((issue) => {
+      const tone =
+        issue.severity === 'critical'
+          ? { bg: '#ffe4e6', color: '#be123c' }
+          : issue.severity === 'warning'
+            ? { bg: '#fef3c7', color: '#b45309' }
+            : { bg: '#e0f2fe', color: '#0369a1' };
+      return `
+        <div style="border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin:0 0 10px;background:#ffffff;">
+          <div style="display:inline-block;background:${tone.bg};color:${tone.color};font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:5px 8px;">${severityLabel(issue.severity)}</div>
+          <h4 style="font-size:16px;line-height:1.25;margin:10px 0 6px;color:#0f172a;">${toSafeHtml(issue.title)}</h4>
+          ${issue.evidence ? `<p style="margin:0 0 6px;color:#64748b;font-size:13px;"><strong>Evidencia:</strong> ${toSafeHtml(issue.evidence)}</p>` : ''}
+          ${issue.why ? `<p style="margin:0 0 6px;color:#475569;font-size:14px;">${toSafeHtml(issue.why)}</p>` : ''}
+          ${issue.fix ? `<p style="margin:0;color:#0f172a;font-size:14px;"><strong>Que hacer:</strong> ${toSafeHtml(issue.fix)}</p>` : ''}
+        </div>
+      `;
+    })
+    .join('');
+}
+
+function signalsHtml(signals: Record<string, unknown> | null): string {
+  const rows = [
+    ['HTTPS', signals?.isHttps === true ? 'Correcto' : 'Revisar'],
+    ['Redireccion HTTPS', signals?.redirectsToHttps === true ? 'Si' : 'No detectada'],
+    ['robots.txt', signals?.hasRobotsTxt === true ? 'Detectado' : 'No detectado'],
+    ['sitemap.xml', signals?.hasSitemap === true ? 'Detectado' : 'No detectado'],
+    ['WordPress', signals?.isWordPress === true ? 'Detectado' : 'No detectado'],
+    ['Scripts externos', String(signals?.externalScripts ?? '-')],
+    ['Enlaces internos', String(signals?.internalLinks ?? '-')],
+    ['Imagenes sin alt', String(signals?.imagesWithoutAlt ?? '-')]
+  ];
+  return rows
+    .map(
+      ([label, value]) => `
+        <tr>
+          <td style="padding:8px 0;color:#64748b;">${label}</td>
+          <td style="padding:8px 0;text-align:right;color:#0f172a;font-weight:700;">${value}</td>
+        </tr>
+      `
+    )
+    .join('');
 }
 
 function toSafeHtml(value: string): string {
@@ -161,26 +320,45 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
   const honeypot = toCleanString(body.website);
   const url = toCleanString(body.url);
   const normalizedUrl = normalizeUrlForSanity(url);
-  const scoreRaw = Number(body.score);
-  const score = Number.isFinite(scoreRaw) ? Math.max(0, Math.min(100, Math.round(scoreRaw))) : null;
+  const finalUrl = toCleanString(body.finalUrl);
+  const score = asScore(body.score);
+  const overallScore = asScore(body.overallScore);
+  const deliveryVerdict = toCleanString(body.deliveryVerdict);
   const severity = toCleanString(body.severity);
+  const categoryScores = asRecord(body.categoryScores);
   const metrics = asRecord(body.metrics);
   const fcp = toCleanString(metrics?.fcp);
   const lcp = toCleanString(metrics?.lcp);
+  const cls = toCleanString(metrics?.cls);
+  const tbt = toCleanString(metrics?.tbt);
   const imageWeight = toCleanString(metrics?.imageWeight);
   const pageWeight = toCleanString(metrics?.pageWeight);
+  const issues = parseIssues(body.issues);
+  const criticalIssues = issues.filter((issue) => issue.severity === 'critical').length;
+  const warningIssues = issues.filter((issue) => issue.severity === 'warning').length;
+  const signals = asRecord(body.signals);
+  const passedChecks = Array.isArray(body.passedChecks)
+    ? body.passedChecks.filter((item): item is string => typeof item === 'string' && item.trim().length > 0).slice(0, 10)
+    : [];
+  const analysisMode = toCleanString(body.analysisMode) === 'partial' ? 'partial' : 'complete';
+  const analysisNote = toCleanString(body.analysisNote);
   const highlights = Array.isArray(body.highlights)
-    ? body.highlights.filter((item): item is string => typeof item === 'string' && item.trim().length > 0).slice(0, 3)
+    ? body.highlights.filter((item): item is string => typeof item === 'string' && item.trim().length > 0).slice(0, 5)
     : [];
 
   const scoreLabel = `Nota de velocidad en movil (0-100): ${score ?? '-'}`;
+  const overallScoreLabel = `Nota global del informe (0-100): ${overallScore ?? '-'}`;
   const metricLines = [
     `Tiempo hasta ver la pagina: ${fcp || '-'}`,
     `Tiempo de carga principal: ${lcp || '-'}`,
+    `Cambios de diseno (CLS): ${cls || '-'}`,
+    `Bloqueo de JS (TBT): ${tbt || '-'}`,
     `Peso total de imagenes: ${imageWeight || '-'}`,
     `Peso total de la pagina: ${pageWeight || '-'}`
   ];
   const weightStatus = pageWeightStatus(pageWeight || '');
+  const scoreStyle = scoreTone(score);
+  const overallStyle = scoreTone(overallScore);
 
   if (honeypot) {
     return json({ ok: true });
@@ -223,35 +401,56 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
     '',
     `Email: ${email}`,
     `URL analizada: ${url || '-'}`,
+    `URL final: ${finalUrl || '-'}`,
     scoreLabel,
+    overallScoreLabel,
+    `Veredicto: ${verdictLabel(deliveryVerdict)}`,
+    `Modo de informe: ${analysisMode}`,
+    analysisNote ? `Nota: ${analysisNote}` : '',
     `Severidad: ${severity || '-'}`,
+    `Problemas: ${criticalIssues} criticos, ${warningIssues} avisos`,
     `Estado del peso de pagina: ${weightStatus.text}`,
     ...metricLines,
+    '',
+    ...issues.slice(0, 5).map((issue, index) => `${index + 1}. [${severityLabel(issue.severity)}] ${issue.title}`),
     `IP: ${ip}`
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 
   const ownerHtml = `
-    <h2>Nuevo lead desde el analizador web</h2>
-    <p><strong>Email:</strong> ${toSafeHtml(email)}</p>
-    <p><strong>URL analizada:</strong> ${toSafeHtml(url || '-')}</p>
-    <p><strong>${toSafeHtml(scoreLabel)}</strong></p>
-    <p><strong>Severidad:</strong> ${toSafeHtml(severity || '-')}</p>
-    <p><strong>Estado peso de pagina:</strong> ${toSafeHtml(`${weightStatus.emoji} ${weightStatus.text}`)}</p>
-    <ul>
-      <li><strong>Tiempo hasta ver la pagina:</strong> ${toSafeHtml(fcp || '-')}</li>
-      <li><strong>Tiempo de carga principal:</strong> ${toSafeHtml(lcp || '-')}</li>
-      <li><strong>Peso total de imagenes:</strong> ${toSafeHtml(imageWeight || '-')}</li>
-      <li><strong>Peso total de la pagina:</strong> ${toSafeHtml(pageWeight || '-')}</li>
-    </ul>
+    <div style="font-family:Arial,sans-serif;max-width:720px;color:#0f172a;">
+      <h2 style="margin:0 0 8px;">Nuevo lead desde el analizador web</h2>
+      <p style="margin:0 0 14px;color:#475569;"><strong>Email:</strong> ${toSafeHtml(email)} · <strong>URL:</strong> ${toSafeHtml(url || '-')}</p>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 12px;">
+        <tr>
+          ${metricCardHtml('Velocidad movil', score === null ? '-' : `${score}/100`)}
+          ${metricCardHtml('Nota global', overallScore === null ? '-' : `${overallScore}/100`)}
+        </tr>
+        <tr>
+          ${metricCardHtml('Veredicto', verdictLabel(deliveryVerdict))}
+          ${metricCardHtml('Problemas', `${criticalIssues} criticos · ${warningIssues} avisos`)}
+        </tr>
+      </table>
+      <p style="margin:0 0 8px;color:#475569;"><strong>Modo:</strong> ${analysisMode === 'partial' ? 'Parcial' : 'Completo'}${analysisNote ? ` · ${toSafeHtml(analysisNote)}` : ''}</p>
+      <h3 style="margin:18px 0 8px;">Metricas</h3>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+        <tr>${metricCardHtml('FCP', fcp || '-')}${metricCardHtml('LCP', lcp || '-')}</tr>
+        <tr>${metricCardHtml('CLS', cls || '-')}${metricCardHtml('TBT', tbt || '-')}</tr>
+        <tr>${metricCardHtml('Imagenes', imageWeight || '-')}${metricCardHtml('Peso pagina', pageWeight || '-')}</tr>
+      </table>
+      <h3 style="margin:18px 0 8px;">Puntuaciones</h3>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${categoryRowsHtml(categoryScores)}</table>
+      <h3 style="margin:18px 0 8px;">Problemas prioritarios</h3>
+      ${issuesHtml(issues)}
     ${
       highlights.length
-        ? `<p><strong>Highlights:</strong></p><ul>${highlights
+        ? `<p style="margin:18px 0 6px;"><strong>Highlights:</strong></p><ul>${highlights
             .map((line) => `<li>${toSafeHtml(line)}</li>`)
             .join('')}</ul>`
         : ''
     }
-    <hr />
-    <p><small>IP: ${toSafeHtml(ip)}</small></p>
+      <hr style="border:none;border-top:1px solid #e2e8f0;margin:18px 0;" />
+      <p style="margin:0;color:#64748b;font-size:12px;">IP: ${toSafeHtml(ip)}</p>
+    </div>
   `;
 
   const analyzedDomain = extractDomain(url || '');
@@ -262,39 +461,90 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
     'Gracias por solicitar tu informe.',
     '',
     `Web analizada: ${url || '-'}`,
+    finalUrl ? `URL final: ${finalUrl}` : '',
     scoreLabel,
+    overallScoreLabel,
+    `Veredicto: ${verdictLabel(deliveryVerdict)}`,
+    analysisMode === 'partial' ? 'Nota: PageSpeed tardo demasiado y se ha generado un informe tecnico parcial.' : '',
     '',
     ...metricLines,
     '',
     `Estado de peso de pagina: ${weightStatus.emoji} ${weightStatus.text}`,
+    `Problemas detectados: ${criticalIssues} criticos, ${warningIssues} avisos`,
     '',
     ...highlights.map((line, index) => `${index + 1}. ${line}`),
     '',
+    ...issues.slice(0, 5).map((issue, index) => `${index + 1}. ${issue.title} - ${issue.fix}`),
+    '',
     'Si quieres, te ayudo personalmente a mejorar estos puntos en tu web.'
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 
   const customerHtml = `
-    <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#0f172a;">
-      <h2 style="margin:0 0 12px;">Tu informe web esta listo</h2>
-      <p style="margin:0 0 14px;color:#334155;">Gracias por solicitarlo. Aqui tienes el resumen de rendimiento de tu web.</p>
-      <div style="border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;background:#f8fafc;">
-        <p style="margin:0 0 8px;"><strong>Web analizada:</strong> ${toSafeHtml(url || '-')}</p>
-        <p style="margin:0 0 8px;"><strong>Nota de velocidad en movil (0-100):</strong> ${score ?? '-'}</p>
-        <p style="margin:0 0 8px;"><strong>Tiempo hasta ver la pagina:</strong> ${toSafeHtml(fcp || '-')}</p>
-        <p style="margin:0 0 8px;"><strong>Tiempo de carga principal:</strong> ${toSafeHtml(lcp || '-')}</p>
-        <p style="margin:0 0 8px;"><strong>Peso total de imagenes:</strong> ${toSafeHtml(imageWeight || '-')}</p>
-        <p style="margin:0;"><strong>Peso total de la pagina:</strong> ${toSafeHtml(pageWeight || '-')}</p>
+    <div style="font-family:Arial,sans-serif;max-width:720px;margin:0 auto;color:#0f172a;background:#ffffff;">
+      <div style="background:#061224;color:#ffffff;border-radius:18px 18px 0 0;padding:26px 28px;">
+        <p style="margin:0 0 8px;color:#7dd3fc;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;">Informe web tecnico</p>
+        <h2 style="margin:0;font-size:28px;line-height:1.1;">Tu informe web esta listo</h2>
+        <p style="margin:12px 0 0;color:#cbd5e1;">${toSafeHtml(analyzedDomain || 'Web analizada')} · ${analysisMode === 'partial' ? 'informe parcial' : 'analisis completo'}</p>
       </div>
-      <p style="margin:12px 0 0;color:#334155;"><strong>Estado de peso de pagina:</strong> ${toSafeHtml(`${weightStatus.emoji} ${weightStatus.text}`)}</p>
+      <div style="border:1px solid #dbeafe;border-top:none;border-radius:0 0 18px 18px;padding:24px 28px;background:#f8fbff;">
+        <p style="margin:0 0 16px;color:#334155;">Gracias por solicitarlo. Aqui tienes un resumen mas completo para entender que esta funcionando y que conviene revisar.</p>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 10px;">
+          <tr>
+            <td style="width:50%;padding:8px;">
+              <div style="background:${scoreStyle.bg};border-radius:16px;padding:18px;">
+                <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:${scoreStyle.color};font-weight:800;">Velocidad movil</div>
+                <div style="font-size:42px;line-height:1;color:${scoreStyle.color};font-weight:900;margin-top:8px;">${score ?? '-'}</div>
+                <div style="margin-top:10px;">${scoreBarHtml(score, scoreStyle.color)}</div>
+              </div>
+            </td>
+            <td style="width:50%;padding:8px;">
+              <div style="background:${overallStyle.bg};border-radius:16px;padding:18px;">
+                <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:${overallStyle.color};font-weight:800;">Nota global</div>
+                <div style="font-size:42px;line-height:1;color:${overallStyle.color};font-weight:900;margin-top:8px;">${overallScore ?? '-'}</div>
+                <div style="margin-top:10px;">${scoreBarHtml(overallScore, overallStyle.color)}</div>
+              </div>
+            </td>
+          </tr>
+        </table>
+        <p style="margin:8px 8px 18px;color:#475569;"><strong>Web analizada:</strong> ${toSafeHtml(url || '-')}${finalUrl ? `<br><strong>URL final:</strong> ${toSafeHtml(finalUrl)}` : ''}</p>
+        ${
+          analysisMode === 'partial'
+            ? `<div style="border:1px solid #fde68a;background:#fffbeb;border-radius:14px;padding:12px 14px;margin:0 8px 18px;color:#92400e;"><strong>Nota:</strong> PageSpeed ha tardado demasiado, asi que se ha generado un informe tecnico parcial con los checks propios disponibles.</div>`
+            : ''
+        }
+        <h3 style="margin:22px 8px 8px;">Metricas clave</h3>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+          <tr>${metricCardHtml('FCP', fcp || '-')}${metricCardHtml('LCP', lcp || '-')}</tr>
+          <tr>${metricCardHtml('CLS', cls || '-')}${metricCardHtml('TBT', tbt || '-')}</tr>
+          <tr>${metricCardHtml('Imagenes', imageWeight || '-')}${metricCardHtml('Peso pagina', pageWeight || '-')}</tr>
+        </table>
+        <h3 style="margin:22px 8px 8px;">Puntuaciones por area</h3>
+        <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:12px 16px;margin:0 8px 18px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${categoryRowsHtml(categoryScores)}</table>
+        </div>
+        <h3 style="margin:22px 8px 8px;">Senales tecnicas detectadas</h3>
+        <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:12px 16px;margin:0 8px 18px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${signalsHtml(signals)}</table>
+        </div>
       ${
         highlights.length
-          ? `<h3 style="margin:18px 0 8px;">Mejoras recomendadas</h3><ul style="margin:0 0 16px;padding-left:20px;">${highlights
+          ? `<h3 style="margin:22px 8px 8px;">Lectura rapida</h3><ul style="margin:0 8px 16px;padding-left:20px;color:#334155;">${highlights
               .map((line) => `<li style="margin-bottom:6px;">${toSafeHtml(line)}</li>`)
               .join('')}</ul>`
           : ''
       }
-      <p style="margin:14px 0 18px;color:#475569;">Si quieres, te puedo enviar una propuesta concreta para que tu web cargue mejor y convierta mas visitas en clientes.</p>
-      <a href="${toSafeHtml(whatsappHref)}" style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;padding:10px 16px;border-radius:8px;font-weight:700;">Hablar por WhatsApp</a>
+        <h3 style="margin:22px 8px 8px;">Problemas prioritarios</h3>
+        <div style="margin:0 8px 18px;">${issuesHtml(issues.slice(0, 6))}</div>
+        ${
+          passedChecks.length
+            ? `<h3 style="margin:22px 8px 8px;">Checks correctos</h3><ul style="margin:0 8px 18px;padding-left:20px;color:#334155;">${passedChecks
+                .map((line) => `<li style="margin-bottom:5px;">${toSafeHtml(line)}</li>`)
+                .join('')}</ul>`
+            : ''
+        }
+        <p style="margin:18px 8px;color:#475569;">Si quieres, puedo revisar estos puntos contigo y priorizar que merece la pena tocar primero para mejorar rendimiento, SEO tecnico y confianza visual.</p>
+        <a href="${toSafeHtml(whatsappHref)}" style="display:inline-block;background:#0d71e3;color:#fff;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:800;margin:0 8px 4px;">Comentar el informe</a>
+      </div>
     </div>
   `;
 

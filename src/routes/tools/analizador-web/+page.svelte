@@ -48,6 +48,8 @@
       imagesWithoutAlt: number;
     };
     highlights: string[];
+    analysisMode?: 'complete' | 'partial';
+    analysisNote?: string;
   };
 
   type AuditIssue = {
@@ -270,7 +272,9 @@
         internalLinks: 0,
         imagesWithoutAlt: 0
       },
-      highlights: Array.isArray(input.highlights) ? input.highlights : []
+      highlights: Array.isArray(input.highlights) ? input.highlights : [],
+      analysisMode: input.analysisMode === 'partial' ? 'partial' : 'complete',
+      analysisNote: typeof input.analysisNote === 'string' ? input.analysisNote : undefined
     };
   }
 
@@ -388,8 +392,18 @@
         url: result.requestedUrl,
         score: result.performanceScore,
         severity: result.severity,
+        overallScore: result.overallScore,
+        deliveryVerdict: result.deliveryVerdict,
+        finalUrl: result.finalUrl,
+        categoryScores: result.categoryScores,
         metrics: result.metrics,
+        categories: result.categories,
+        issues: result.issues,
+        passedChecks: result.passedChecks,
+        signals: result.signals,
         highlights: result.highlights,
+        analysisMode: result.analysisMode,
+        analysisNote: result.analysisNote,
         website: leadHoneypot
       })
     });
