@@ -107,6 +107,12 @@ function categoryScore(audit: PublicWebAudit, id: AuditCategoryId, fallback = 0)
 	return audit.categories.find((category) => category.id === id)?.score ?? fallback;
 }
 
+function formatBytes(bytes: number): string {
+	if (!Number.isFinite(bytes) || bytes <= 0) return 'N/D';
+	if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+	return `${Math.round(bytes / 1024)} KB`;
+}
+
 function fallbackAudit(url: string, extraIssues: AuditIssue[]): PublicWebAudit {
 	const auditUnavailable: AuditIssue = {
 		id: 'quality.remote-audit-unavailable',
@@ -167,7 +173,15 @@ function fallbackAudit(url: string, extraIssues: AuditIssue[]): PublicWebAudit {
 			isWordPress: false,
 			externalScripts: 0,
 			internalLinks: 0,
-			imagesWithoutAlt: 0
+			imagesWithoutAlt: 0,
+			responseTimeMs: 0,
+			resourceCount: 0,
+			resourceErrors: 0,
+			brokenInternalLinks: 0,
+			estimatedResourceBytes: 0,
+			detectedTechnologies: [],
+			wordPressPlugins: [],
+			hasCustom404: false
 		}
 	};
 }
@@ -263,7 +277,7 @@ async function fetchAnalyze(url: string, strategy: 'mobile' | 'desktop'): Promis
 			cls: 'N/D',
 			tbt: 'N/D',
 			imageWeight: 'N/D',
-			pageWeight: 'N/D'
+			pageWeight: formatBytes(publicAudit.signals.estimatedResourceBytes)
 		},
 		categories: publicAudit.categories,
 		issues: publicAudit.issues,

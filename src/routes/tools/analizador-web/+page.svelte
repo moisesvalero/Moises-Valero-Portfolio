@@ -58,6 +58,14 @@
       externalScripts: number;
       internalLinks: number;
       imagesWithoutAlt: number;
+      responseTimeMs: number;
+      resourceCount: number;
+      resourceErrors: number;
+      brokenInternalLinks: number;
+      estimatedResourceBytes: number;
+      detectedTechnologies: string[];
+      wordPressPlugins: string[];
+      hasCustom404: boolean;
     };
     highlights: string[];
     analysisMode?: 'complete' | 'partial';
@@ -76,6 +84,7 @@
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/tools/analizador-web`;
+  const MIN_ANALYSIS_REVEAL_MS = 10000;
   const pageJsonLd = stringifyJsonLdForHtml({
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
@@ -155,8 +164,8 @@
             score: Math.round((result.categoryScores.performance || result.performanceScore) * animatedProgress),
             checks: [
               `${categoryIssueCount('performance')} hallazgos`,
-              `${result.signals.externalScripts} scripts externos`,
-              'Estructura y recursos visibles'
+              `${result.signals.responseTimeMs || 0} ms respuesta`,
+              `${formatBytes(result.signals.estimatedResourceBytes)} recursos`
             ]
           },
           {
@@ -165,7 +174,7 @@
             checks: [
               result.signals.hasRobotsTxt ? 'robots.txt detectado' : 'robots.txt pendiente',
               result.signals.hasSitemap ? 'sitemap.xml detectado' : 'sitemap.xml pendiente',
-              `${result.signals.internalLinks} enlaces internos`
+              `${result.signals.brokenInternalLinks} enlaces rotos`
             ]
           },
           {
@@ -181,7 +190,7 @@
           {
             label: 'Accesibilidad',
             score: Math.round(result.categoryScores.accessibility * animatedProgress),
-            checks: [`${result.signals.imagesWithoutAlt} imágenes sin alt`, `${warningIssues} avisos`, `${infoIssues} notas`]
+            checks: [`${result.signals.imagesWithoutAlt} imágenes sin alt`, `${result.signals.resourceErrors} recursos rotos`, `${infoIssues} notas`]
           }
         ]
       : []
@@ -199,6 +208,49 @@
   function cardRingStyle(score: number) {
     const tone = score >= 90 ? '#22c55e' : score >= 60 ? '#f2b015' : '#f43f5e';
     return `--score:${score};--score-tone:${tone}`;
+  }
+
+  function formatBytes(bytes: number) {
+    if (!Number.isFinite(bytes) || bytes <= 0) return '0 KB';
+    if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+    return `${Math.round(bytes / 1024)} KB`;
+  }
+
+  function normalizeSignals(input: Partial<AnalyzerResult>['signals']): AnalyzerResult['signals'] {
+    return {
+      isHttps: input?.isHttps === true,
+      redirectsToHttps: input?.redirectsToHttps === true,
+      hasRobotsTxt: input?.hasRobotsTxt === true,
+      hasSitemap: input?.hasSitemap === true,
+      hasLlmsTxt: input?.hasLlmsTxt === true,
+      hasSecurityTxt: input?.hasSecurityTxt === true,
+      isWordPress: input?.isWordPress === true,
+      externalScripts: typeof input?.externalScripts === 'number' ? input.externalScripts : 0,
+      internalLinks: typeof input?.internalLinks === 'number' ? input.internalLinks : 0,
+      imagesWithoutAlt: typeof input?.imagesWithoutAlt === 'number' ? input.imagesWithoutAlt : 0,
+      responseTimeMs: typeof input?.responseTimeMs === 'number' ? input.responseTimeMs : 0,
+      resourceCount: typeof input?.resourceCount === 'number' ? input.resourceCount : 0,
+      resourceErrors: typeof input?.resourceErrors === 'number' ? input.resourceErrors : 0,
+      brokenInternalLinks: typeof input?.brokenInternalLinks === 'number' ? input.brokenInternalLinks : 0,
+      estimatedResourceBytes: typeof input?.estimatedResourceBytes === 'number' ? input.estimatedResourceBytes : 0,
+      detectedTechnologies: Array.isArray(input?.detectedTechnologies)
+        ? input.detectedTechnologies.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+        : [],
+      wordPressPlugins: Array.isArray(input?.wordPressPlugins)
+        ? input.wordPressPlugins.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+        : [],
+      hasCustom404: input?.hasCustom404 === true
+    };
+  }
+
+  async function waitForPremiumReveal(startedAt: number) {
+    const elapsed = performance.now() - startedAt;
+    const remaining = MIN_ANALYSIS_REVEAL_MS - elapsed;
+    if (remaining <= 0) return;
+    loadingProgress = Math.max(loadingProgress, 92);
+    await new Promise((resolve) => setTimeout(resolve, remaining));
+    loadingProgress = 100;
+    await new Promise((resolve) => setTimeout(resolve, 220));
   }
 
   $effect(() => {
@@ -281,18 +333,7 @@
       categories: Array.isArray(input.categories) ? input.categories : [],
       issues: Array.isArray(input.issues) ? input.issues : [],
       passedChecks: Array.isArray(input.passedChecks) ? input.passedChecks : [],
-      signals: input.signals || {
-        isHttps: false,
-        redirectsToHttps: false,
-        hasRobotsTxt: false,
-        hasSitemap: false,
-        hasLlmsTxt: false,
-        hasSecurityTxt: false,
-        isWordPress: false,
-        externalScripts: 0,
-        internalLinks: 0,
-        imagesWithoutAlt: 0
-      },
+      signals: normalizeSignals(input.signals),
       highlights: Array.isArray(input.highlights) ? input.highlights : [],
       analysisMode: input.analysisMode === 'partial' ? 'partial' : 'complete',
       analysisNote: typeof input.analysisNote === 'string' ? input.analysisNote : undefined
@@ -342,6 +383,7 @@
 
   async function analyzeUrl() {
     if (status === 'loading') return;
+    const revealStartedAt = performance.now();
     status = 'loading';
     loadingProgress = 8;
     errorMessage = '';
@@ -379,11 +421,13 @@
         errorMessage = resolved.error;
         return;
       }
+      await waitForPremiumReveal(revealStartedAt);
       result = normalizeResult(resolved.result);
       status = 'success';
       return;
     }
 
+    await waitForPremiumReveal(revealStartedAt);
     result = normalizeResult(data.status === 'completed' && data.result ? data.result : data);
     status = 'success';
   }
@@ -660,6 +704,33 @@
             <div>
               <span>Revision editorial y tecnica</span>
               <strong>SEO, AEO, privacidad, confianza, CMS y calidad visible</strong>
+            </div>
+          </div>
+
+          <div class="source-grid" aria-label="Senales tecnicas detectadas">
+            <div>
+              <span>Respuesta HTML</span>
+              <strong>{result.signals.responseTimeMs || 0} ms</strong>
+            </div>
+            <div>
+              <span>Recursos revisados</span>
+              <strong>{result.signals.resourceCount} recursos - {result.signals.resourceErrors} errores</strong>
+            </div>
+            <div>
+              <span>Enlaces internos</span>
+              <strong>{result.signals.internalLinks} detectados - {result.signals.brokenInternalLinks} rotos</strong>
+            </div>
+            <div>
+              <span>Peso estimado</span>
+              <strong>{formatBytes(result.signals.estimatedResourceBytes)}</strong>
+            </div>
+            <div>
+              <span>404</span>
+              <strong>{result.signals.hasCustom404 ? 'Personalizada detectada' : 'No detectada'}</strong>
+            </div>
+            <div>
+              <span>Tecnologias</span>
+              <strong>{result.signals.detectedTechnologies.length ? result.signals.detectedTechnologies.slice(0, 4).join(', ') : 'Sin fingerprint claro'}</strong>
             </div>
           </div>
 

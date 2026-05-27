@@ -50,6 +50,14 @@ export type PublicWebAudit = {
 		externalScripts: number;
 		internalLinks: number;
 		imagesWithoutAlt: number;
+		responseTimeMs: number;
+		resourceCount: number;
+		resourceErrors: number;
+		brokenInternalLinks: number;
+		estimatedResourceBytes: number;
+		detectedTechnologies: string[];
+		wordPressPlugins: string[];
+		hasCustom404: boolean;
 	};
 };
 
@@ -58,6 +66,16 @@ type FetchSnapshot = {
 	status: number;
 	headers: Headers;
 	html: string;
+	responseTimeMs: number;
+};
+
+type ResourceCheck = {
+	url: string;
+	status: number;
+	ok: boolean;
+	bytes: number;
+	contentType: string;
+	kind: 'script' | 'style' | 'image' | 'link' | 'sensitive' | 'wordpress' | 'notFound';
 };
 
 const CATEGORY_LABELS: Record<AuditCategoryId, string> = {
@@ -99,6 +117,29 @@ const SUSPICIOUS_HOST_PATTERNS = [
 	/\bviagra\b/i,
 	/\bcrypto\b/i,
 	/\btelegram\b/i
+];
+
+const SENSITIVE_PATHS = [
+	'/.env',
+	'/.git/config',
+	'/backup.zip',
+	'/backup.sql',
+	'/database.sql',
+	'/phpinfo.php',
+	'/server-status',
+	'/admin',
+	'/staging',
+	'/test'
+];
+
+const CDN_HEADER_PATTERNS = [
+	/cloudflare/i,
+	/vercel/i,
+	/akamai/i,
+	/fastly/i,
+	/cloudfront/i,
+	/bunny/i,
+	/netlify/i
 ];
 
 function issue(
@@ -207,14 +248,31 @@ async function fetchTextIfAvailable(url: string, timeoutMs: number): Promise<{ o
 	}
 }
 
+async function fetchResourceIfAvailable(url: string, timeoutMs: number, kind: ResourceCheck['kind']): Promise<ResourceCheck> {
+	const controller = new AbortController();
+	const timer = setTimeout(() => controller.abort(), timeoutMs);
+	try {
+		const response = await fetchWithSafeRedirects(url, { method: 'GET', signal: controller.signal }, 2);
+		const contentType = response.headers.get('content-type') ?? '';
+		const contentLength = Number(response.headers.get('content-length'));
+		const bytes = Number.isFinite(contentLength) && contentLength > 0 ? contentLength : (await response.arrayBuffer().catch(() => new ArrayBuffer(0))).byteLength;
+		return { url: response.url || url, status: response.status, ok: response.ok, bytes, contentType, kind };
+	} catch {
+		return { url, status: 0, ok: false, bytes: 0, contentType: '', kind };
+	} finally {
+		clearTimeout(timer);
+	}
+}
+
 async function fetchMainDocument(url: string, timeoutMs: number): Promise<FetchSnapshot> {
 	const controller = new AbortController();
 	const timer = setTimeout(() => controller.abort(), timeoutMs);
+	const startedAt = performance.now();
 	try {
 		const response = await fetchWithSafeRedirects(url, { method: 'GET', signal: controller.signal });
 		const contentType = response.headers.get('content-type') ?? '';
 		const html = contentType.includes('text/html') ? await response.text() : '';
-		return { url: response.url || url, status: response.status, headers: response.headers, html };
+		return { url: response.url || url, status: response.status, headers: response.headers, html, responseTimeMs: Math.round(performance.now() - startedAt) };
 	} finally {
 		clearTimeout(timer);
 	}
@@ -238,6 +296,15 @@ function analyzeHeaders(snapshot: FetchSnapshot, requestedUrl: string): { issues
 	const referrerPolicy = cleanHeader(snapshot.headers.get('referrer-policy'));
 	const permissionsPolicy = cleanHeader(snapshot.headers.get('permissions-policy'));
 	const contentTypeOptions = cleanHeader(snapshot.headers.get('x-content-type-options'));
+	const coop = cleanHeader(snapshot.headers.get('cross-origin-opener-policy'));
+	const corp = cleanHeader(snapshot.headers.get('cross-origin-resource-policy'));
+	const coep = cleanHeader(snapshot.headers.get('cross-origin-embedder-policy'));
+	const exposedTechHeaders = [
+		['Server', snapshot.headers.get('server')],
+		['X-Powered-By', snapshot.headers.get('x-powered-by')],
+		['X-AspNet-Version', snapshot.headers.get('x-aspnet-version')],
+		['Via', snapshot.headers.get('via')]
+	].filter(([, value]) => cleanHeader(value));
 
 	if (finalUrl.protocol !== 'https:') {
 		issues.push(
@@ -361,6 +428,59 @@ function analyzeHeaders(snapshot: FetchSnapshot, requestedUrl: string): { issues
 		);
 	}
 
+	if (!coop) {
+		issues.push(
+			issue(
+				'security.coop',
+				'security',
+				'info',
+				'Falta Cross-Origin-Opener-Policy',
+				'COOP ayuda a aislar la ventana frente a contextos cross-origin.',
+				'Usa Cross-Origin-Opener-Policy: same-origin si no rompe integraciones.'
+			)
+		);
+	}
+
+	if (!corp) {
+		issues.push(
+			issue(
+				'security.corp',
+				'security',
+				'info',
+				'Falta Cross-Origin-Resource-Policy',
+				'CORP reduce exposicion de recursos ante lecturas cross-origin no deseadas.',
+				'Define same-origin o cross-origin segun los recursos que sirvas.'
+			)
+		);
+	}
+
+	if (!coep) {
+		issues.push(
+			issue(
+				'security.coep',
+				'security',
+				'info',
+				'Falta Cross-Origin-Embedder-Policy',
+				'COEP completa el aislamiento cuando la web necesita APIs avanzadas o control estricto de embeds.',
+				'Valora require-corp solo si tus recursos externos lo permiten.'
+			)
+		);
+	}
+
+	if (exposedTechHeaders.length) {
+		issues.push(
+			issue(
+				'security.exposed-tech-headers',
+				'security',
+				'info',
+				'Cabeceras revelan tecnologia',
+				'Mostrar servidor, framework o version facilita fingerprinting tecnico.',
+				'Oculta o reduce cabeceras como Server, X-Powered-By, X-AspNet-Version o Via si el hosting lo permite.',
+				exposedTechHeaders.map(([name, value]) => `${name}: ${value}`).join(' · ')
+			)
+		);
+	}
+
 	for (const cookie of snapshot.headers.getSetCookie?.() ?? []) {
 		const lower = cookie.toLowerCase();
 		if (!lower.includes('secure') || !lower.includes('httponly') || !lower.includes('samesite')) {
@@ -457,6 +577,86 @@ function uniqueHost(value: string, base: URL): string {
 	}
 }
 
+function uniqueValues(values: string[]): string[] {
+	return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+}
+
+function assetUrlFromTag(tag: string): string {
+	return getAttr(tag, 'src') || getAttr(tag, 'href');
+}
+
+function sameOriginHttpUrl(value: string, base: URL): string | null {
+	if (!value || value.startsWith('#') || value.startsWith('mailto:') || value.startsWith('tel:') || value.startsWith('javascript:')) return null;
+	try {
+		const parsed = new URL(value, base);
+		if (!['http:', 'https:'].includes(parsed.protocol)) return null;
+		if (parsed.origin !== base.origin) return null;
+		return parsed.toString();
+	} catch {
+		return null;
+	}
+}
+
+function detectTechnologies(snapshot: FetchSnapshot): string[] {
+	const html = snapshot.html;
+	const headers = snapshot.headers;
+	const generator = metaContent(html, 'name', 'generator');
+	const poweredBy = cleanHeader(headers.get('x-powered-by'));
+	const server = cleanHeader(headers.get('server'));
+	const tags = [...getTags(html, 'script'), ...getTags(html, 'link')];
+	const urls = tags.map(assetUrlFromTag).join(' ');
+	const technologies = [
+		/wordpress/i.test(generator + urls) ? 'WordPress' : '',
+		/woocommerce/i.test(urls + html) ? 'WooCommerce' : '',
+		/elementor/i.test(urls + html) ? 'Elementor' : '',
+		/wp-content\/themes\/kadence/i.test(urls) ? 'Kadence' : '',
+		/svelte|_app\/immutable|sveltekit/i.test(urls + html) ? 'SvelteKit' : '',
+		/next\/static|__next/i.test(urls + html) ? 'Next.js' : '',
+		/shopify/i.test(urls + html) ? 'Shopify' : '',
+		/webflow/i.test(urls + html) ? 'Webflow' : '',
+		/wixstatic|wix\.com/i.test(urls + html) ? 'Wix' : '',
+		/squarespace/i.test(urls + html) ? 'Squarespace' : '',
+		poweredBy ? `X-Powered-By: ${poweredBy}` : '',
+		server ? `Server: ${server}` : ''
+	];
+	return uniqueValues(technologies);
+}
+
+function detectWordPressPlugins(html: string): string[] {
+	return uniqueValues([...html.matchAll(/\/wp-content\/plugins\/([^/?"'#]+)/gi)].map((match) => match[1])).slice(0, 12);
+}
+
+function detectWordPressVersion(html: string, sideText = ''): string {
+	const generator = metaContent(html, 'name', 'generator');
+	const generatorVersion = generator.match(/WordPress\s+([\d.]+)/i)?.[1];
+	if (generatorVersion) return generatorVersion;
+	const readmeVersion = sideText.match(/Version\s+([\d.]+)/i)?.[1] ?? sideText.match(/WordPress\s+([\d.]+)/i)?.[1];
+	return readmeVersion ?? '';
+}
+
+function headerLooksLikeCdn(headers: Headers): boolean {
+	const values = [
+		headers.get('server') ?? '',
+		headers.get('cf-ray') ?? '',
+		headers.get('x-vercel-id') ?? '',
+		headers.get('x-cache') ?? '',
+		headers.get('via') ?? ''
+	].join(' ');
+	return CDN_HEADER_PATTERNS.some((pattern) => pattern.test(values));
+}
+
+function formatBytes(bytes: number): string {
+	if (!Number.isFinite(bytes) || bytes <= 0) return '0 KB';
+	if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+	return `${Math.round(bytes / 1024)} KB`;
+}
+
+function resourceKindFromTag(tag: string): ResourceCheck['kind'] {
+	if (/^<script\b/i.test(tag)) return 'script';
+	if (/^<img\b/i.test(tag)) return 'image';
+	return 'style';
+}
+
 export function detectWordPress(html: string): boolean {
 	const generator = metaContent(html, 'name', 'generator');
 	if (/wordpress/i.test(generator)) return true;
@@ -481,15 +681,34 @@ function analyzeAccessibilityBasics(snapshot: FetchSnapshot): { issues: AuditIss
 	const lang = getAttr(htmlTag, 'lang');
 	const images = getTags(html, 'img');
 	const buttons = getTags(html, 'button');
+	const links = getTags(html, 'a');
 	const inputs = getTags(html, 'input').filter((input) => !['hidden', 'submit', 'button', 'reset'].includes(getAttr(input, 'type').toLowerCase()));
 	const labels = getTags(html, 'label');
+	const ids = [...html.matchAll(/\sid\s*=\s*(["'])(.*?)\1/gi)].map((match) => match[2]);
+	const idSet = new Set(ids);
 	const hTags = [...html.matchAll(/<h([1-6])\b[^>]*>/gi)].map((match) => Number(match[1]));
 	const imagesWithoutAlt = images.filter((img) => !tagHasAttr(img, 'alt')).length;
 	const emptyButtons = buttons.filter((button) => !decodeHtmlText(button).trim() && !getAttr(button, 'aria-label') && !getAttr(button, 'title')).length;
+	const emptyLinks = links.filter((link) => getAttr(link, 'href') && !decodeHtmlText(link).trim() && !getAttr(link, 'aria-label') && !getAttr(link, 'title')).length;
+	const duplicateIds = ids.length - idSet.size;
+	const brokenAriaRefs = [...html.matchAll(/\saria-(?:labelledby|describedby)\s*=\s*(["'])(.*?)\1/gi)]
+		.flatMap((match) => match[2].split(/\s+/))
+		.filter((id) => id && !idSet.has(id)).length;
+	const focusableHidden = [...html.matchAll(/<([a-z0-9-]+)\b[^>]*aria-hidden\s*=\s*(["'])true\2[^>]*>[\s\S]*?<\/\1>/gi)].filter((match) =>
+		/<(?:a|button|input|select|textarea)\b|\stabindex\s*=\s*(["'])?0/i.test(match[0])
+	).length;
+	const dialogRoleTags = html.match(/<[^>]+\srole\s*=\s*(["'])dialog\1[^>]*>/gi) ?? [];
+	const dialogs = [...getTags(html, 'dialog'), ...dialogRoleTags];
+	const unnamedDialogs = dialogs.filter((dialog) => !getAttr(dialog, 'aria-label') && !getAttr(dialog, 'aria-labelledby')).length;
 	const unlabeledInputs = inputs.filter((input) => {
 		const id = getAttr(input, 'id');
 		const hasLabelFor = id && labels.some((label) => getAttr(label, 'for') === id);
 		return !hasLabelFor && !getAttr(input, 'aria-label') && !getAttr(input, 'aria-labelledby');
+	}).length;
+	const placeholderOnlyInputs = inputs.filter((input) => {
+		const id = getAttr(input, 'id');
+		const hasLabelFor = id && labels.some((label) => getAttr(label, 'for') === id);
+		return getAttr(input, 'placeholder') && !hasLabelFor && !getAttr(input, 'aria-label') && !getAttr(input, 'aria-labelledby');
 	}).length;
 	const skippedHeading = hTags.some((level, index) => index > 0 && level - hTags[index - 1] > 1);
 
@@ -504,8 +723,26 @@ function analyzeAccessibilityBasics(snapshot: FetchSnapshot): { issues: AuditIss
 	if (emptyButtons > 0) {
 		issues.push(issue('accessibility.button-name', 'accessibility', 'critical', 'Hay botones sin nombre accesible', 'Un usuario con lector de pantalla no sabra que accion ejecutan.', 'Anade texto visible, aria-label o aria-labelledby.', `${emptyButtons} botones`));
 	}
+	if (emptyLinks > 0) {
+		issues.push(issue('accessibility.link-name', 'accessibility', 'critical', 'Hay enlaces sin nombre accesible', 'Un lector de pantalla anunciara enlaces sin contexto.', 'Anade texto visible, aria-label o contenido accesible.', `${emptyLinks} enlaces`));
+	}
 	if (unlabeledInputs > 0) {
 		issues.push(issue('accessibility.input-label', 'accessibility', 'critical', 'Hay campos de formulario sin label', 'Los formularios quedan confusos para lectores de pantalla y autocompletado.', 'Asocia cada input con label, aria-label o aria-labelledby.', `${unlabeledInputs} campos`));
+	}
+	if (placeholderOnlyInputs > 0) {
+		issues.push(issue('accessibility.placeholder-label', 'accessibility', 'warning', 'Inputs usan placeholder como etiqueta', 'El placeholder desaparece al escribir y no sustituye una etiqueta accesible.', 'Usa label visible o aria-label estable.', `${placeholderOnlyInputs} campos`));
+	}
+	if (duplicateIds > 0) {
+		issues.push(issue('accessibility.duplicate-id', 'accessibility', 'warning', 'IDs duplicados en HTML', 'IDs repetidos rompen referencias ARIA, labels y navegacion.', 'Haz que cada id sea unico.', `${duplicateIds} duplicados`));
+	}
+	if (brokenAriaRefs > 0) {
+		issues.push(issue('accessibility.aria-reference', 'accessibility', 'warning', 'Referencias ARIA rotas', 'aria-labelledby o aria-describedby apuntan a IDs inexistentes.', 'Corrige los IDs referenciados o elimina referencias obsoletas.', `${brokenAriaRefs} referencias`));
+	}
+	if (focusableHidden > 0) {
+		issues.push(issue('accessibility.aria-hidden-focus', 'accessibility', 'critical', 'Elemento oculto contiene foco', 'aria-hidden con enlaces o botones dentro crea trampas para teclado y lector de pantalla.', 'No ocultes contenido focusable con aria-hidden; retira foco o usa inert.', `${focusableHidden} bloques`));
+	}
+	if (unnamedDialogs > 0) {
+		issues.push(issue('accessibility.dialog-name', 'accessibility', 'warning', 'Dialogos sin nombre accesible', 'Un modal/dialog sin nombre es confuso para lectores de pantalla.', 'Anade aria-label o aria-labelledby y gestiona foco/cierre.', `${unnamedDialogs} dialogos`));
 	}
 	if (skippedHeading) {
 		issues.push(issue('accessibility.heading-order', 'accessibility', 'info', 'Jerarquia de headings salta niveles', 'Saltos como H2 a H4 dificultan navegar por estructura.', 'Ordena headings de forma progresiva.'));
@@ -525,6 +762,10 @@ function analyzePerformanceStructure(snapshot: FetchSnapshot): { issues: AuditIs
 	const stylesheets = getTags(snapshot.html, 'link').filter((link) => getAttr(link, 'rel').toLowerCase().includes('stylesheet'));
 	const images = getTags(snapshot.html, 'img');
 	const fonts = getTags(snapshot.html, 'link').filter((link) => /font/i.test(getAttr(link, 'as')) || /font/i.test(getAttr(link, 'href')));
+	const preconnects = getTags(snapshot.html, 'link').filter((link) => /preconnect|dns-prefetch/i.test(getAttr(link, 'rel')));
+	const preloads = getTags(snapshot.html, 'link').filter((link) => /preload/i.test(getAttr(link, 'rel')));
+	const blockingScripts = scripts.filter((script) => !tagHasAttr(script, 'defer') && !tagHasAttr(script, 'async') && getAttr(script, 'type').toLowerCase() !== 'module');
+	const imagesWithoutModernHints = images.filter((img) => !getAttr(img, 'srcset') && !getAttr(img, 'sizes')).length;
 	const externalHosts = new Set(
 		[...scripts.map((tag) => getAttr(tag, 'src')), ...stylesheets.map((tag) => getAttr(tag, 'href')), ...images.map((tag) => getAttr(tag, 'src'))]
 			.filter((url) => isLikelyExternalUrl(url, base))
@@ -535,7 +776,13 @@ function analyzePerformanceStructure(snapshot: FetchSnapshot): { issues: AuditIs
 	const imagesWithoutSize = images.filter((img) => !getAttr(img, 'width') || !getAttr(img, 'height')).length;
 	const cacheControl = cleanHeader(snapshot.headers.get('cache-control'));
 	const encoding = cleanHeader(snapshot.headers.get('content-encoding'));
+	const cdnDetected = headerLooksLikeCdn(snapshot.headers);
 
+	if (snapshot.responseTimeMs > 2500) {
+		issues.push(issue('performance.response-time', 'performance', 'warning', 'Respuesta HTML lenta', 'Una respuesta inicial lenta hace que todo lo demas empiece tarde.', 'Revisa hosting, cache, consultas de servidor y CDN.', `${snapshot.responseTimeMs} ms`));
+	} else {
+		passed.push(`Respuesta HTML en ${snapshot.responseTimeMs} ms.`);
+	}
 	if (htmlBytes > 250_000) {
 		issues.push(issue('performance.html-weight', 'performance', 'warning', 'HTML muy pesado', 'Un HTML grande retrasa el primer byte util y puede indicar render excesivo.', 'Reduce HTML inicial, listas enormes o contenido duplicado.', `${Math.round(htmlBytes / 1024)} KB`));
 	} else {
@@ -550,8 +797,20 @@ function analyzePerformanceStructure(snapshot: FetchSnapshot): { issues: AuditIs
 	if (externalHosts.size > 8) {
 		issues.push(issue('performance.third-party-hosts', 'performance', 'warning', 'Muchos dominios externos', 'Cada tercero aumenta DNS, TLS, privacidad y riesgo de fallo.', 'Conserva solo proveedores necesarios y usa preconnect si procede.', `${externalHosts.size} dominios`));
 	}
+	if (externalHosts.size > 2 && preconnects.length === 0) {
+		issues.push(issue('performance.preconnect', 'performance', 'info', 'Sin preconnect para terceros', 'Si hay varios dominios externos, preconnect puede reducir latencia percibida.', 'Anade preconnect solo para origenes realmente criticos.'));
+	}
+	if (!preloads.length && fonts.length) {
+		issues.push(issue('performance.preload-fonts', 'performance', 'info', 'Fuentes sin preload detectado', 'Las fuentes criticas pueden retrasar texto visible si cargan tarde.', 'Preload solo la fuente principal necesaria above-the-fold.'));
+	}
+	if (blockingScripts.length > 2) {
+		issues.push(issue('performance.blocking-scripts', 'performance', 'warning', 'Scripts potencialmente bloqueantes', 'Scripts sin defer/async pueden retrasar el parseo del HTML.', 'Usa defer, async o type=\"module\" si no deben bloquear render.', `${blockingScripts.length} scripts`));
+	}
 	if (imagesWithoutLazy > 6) {
 		issues.push(issue('performance.lazy-images', 'performance', 'info', 'Muchas imagenes sin lazy loading', 'Las imagenes fuera de viewport pueden cargar antes de tiempo.', 'Usa loading="lazy" salvo imagenes criticas del hero.', `${imagesWithoutLazy} imagenes`));
+	}
+	if (imagesWithoutModernHints > 4) {
+		issues.push(issue('performance.responsive-images', 'performance', 'info', 'Imagenes sin srcset/sizes', 'Sin variantes responsive se pueden servir imagenes demasiado grandes en movil.', 'Usa srcset/sizes o un pipeline de imagenes responsive.', `${imagesWithoutModernHints} imagenes`));
 	}
 	if (imagesWithoutSize > 0) {
 		issues.push(issue('performance.image-dimensions', 'performance', 'info', 'Imagenes sin width/height', 'Sin dimensiones, el layout puede saltar al cargar imagenes.', 'Declara width y height o aspect-ratio estable.', `${imagesWithoutSize} imagenes`));
@@ -561,6 +820,9 @@ function analyzePerformanceStructure(snapshot: FetchSnapshot): { issues: AuditIs
 	}
 	if (!encoding) {
 		issues.push(issue('performance.compression', 'performance', 'info', 'No se detecta compresion HTTP', 'Gzip/Brotli reducen transferencia de HTML/CSS/JS.', 'Activa Brotli o gzip en CDN/hosting.'));
+	}
+	if (!cdnDetected) {
+		issues.push(issue('performance.cdn', 'performance', 'info', 'No se detecta CDN/cache perimetral', 'Un CDN reduce latencia y absorbe picos si el proyecto lo necesita.', 'Valora Cloudflare, Vercel Edge, Fastly, Bunny o CDN del hosting.'));
 	}
 	return { issues, passed };
 }
@@ -573,11 +835,16 @@ function analyzeSeoTechnical(snapshot: FetchSnapshot): { issues: AuditIssue[]; p
 	const canonical = canonicalHref(snapshot.html);
 	const robots = metaContent(snapshot.html, 'name', 'robots').toLowerCase();
 	const h1s = getTags(snapshot.html, 'h1');
+	const h2s = getTags(snapshot.html, 'h2');
+	const h3s = getTags(snapshot.html, 'h3');
 	const ogTitle = metaContent(snapshot.html, 'property', 'og:title');
 	const ogDescription = metaContent(snapshot.html, 'property', 'og:description');
 	const ogImage = metaContent(snapshot.html, 'property', 'og:image');
+	const ogUrl = metaContent(snapshot.html, 'property', 'og:url');
 	const twitterCard = metaContent(snapshot.html, 'name', 'twitter:card');
+	const hreflangs = getTags(snapshot.html, 'link').filter((link) => getAttr(link, 'rel').toLowerCase() === 'alternate' && getAttr(link, 'hreflang'));
 	const jsonLd = getTags(snapshot.html, 'script').filter((script) => getAttr(script, 'type').toLowerCase() === 'application/ld+json');
+	const xRobotsTag = cleanHeader(snapshot.headers.get('x-robots-tag')).toLowerCase();
 
 	if (!title) {
 		issues.push(issue('seo.title', 'seo', 'critical', 'Falta title', 'El title es una senal basica para SEO y para la pestana del navegador.', 'Anade un title unico y descriptivo.'));
@@ -594,14 +861,23 @@ function analyzeSeoTechnical(snapshot: FetchSnapshot): { issues: AuditIssue[]; p
 	if (!canonical) {
 		issues.push(issue('seo.canonical', 'seo', 'warning', 'Falta canonical', 'El canonical reduce duplicados y ayuda a consolidar senales SEO.', 'Anade link rel="canonical" con la URL final preferida.'));
 	}
-	if (robots.includes('noindex')) {
-		issues.push(issue('seo.noindex', 'seo', 'critical', 'La pagina esta marcada como noindex', 'Google puede excluir esta URL de resultados.', 'Quita noindex si la pagina debe posicionar.', robots));
+	if (robots.includes('noindex') || xRobotsTag.includes('noindex')) {
+		issues.push(issue('seo.noindex', 'seo', 'critical', 'La pagina esta marcada como noindex', 'Google puede excluir esta URL de resultados.', 'Quita noindex si la pagina debe posicionar.', robots || xRobotsTag));
 	}
 	if (h1s.length !== 1) {
 		issues.push(issue('seo.h1', 'seo', h1s.length === 0 ? 'critical' : 'warning', h1s.length === 0 ? 'Falta H1' : 'Hay mas de un H1', 'El H1 ayuda a entender el tema principal de la pagina.', 'Usa un unico H1 descriptivo por pagina.', `${h1s.length} H1`));
 	}
-	if (!ogTitle || !ogDescription || !ogImage || !twitterCard) {
+	if (!h2s.length && !h3s.length) {
+		issues.push(issue('seo.heading-depth', 'seo', 'info', 'Faltan H2/H3 descriptivos', 'Una pagina sin subtitulos suele ser mas dificil de escanear e interpretar.', 'Divide el contenido con H2/H3 utiles para usuarios, buscadores e IA.'));
+	}
+	if (canonical && !/^https?:\/\//i.test(canonical)) {
+		issues.push(issue('seo.canonical-relative', 'seo', 'info', 'Canonical no absoluto', 'Un canonical relativo puede interpretarse peor en algunos pipelines.', 'Usa una URL absoluta en rel=canonical.', canonical));
+	}
+	if (!ogTitle || !ogDescription || !ogImage || !twitterCard || !ogUrl) {
 		issues.push(issue('seo.open-graph', 'seo', 'info', 'Metadatos sociales incompletos', 'Las vistas previas al compartir pueden verse pobres o incorrectas.', 'Anade og:title, og:description, og:image y twitter:card.'));
+	}
+	if (!hreflangs.length) {
+		issues.push(issue('seo.hreflang', 'seo', 'info', 'No se detecta hreflang', 'Si la web tiene idiomas o mercados, hreflang evita confusiones de indexacion.', 'Anade hreflang solo si existen versiones por idioma o pais.'));
 	}
 	for (const script of jsonLd) {
 		try {
@@ -628,6 +904,11 @@ function analyzeAiReadiness(snapshot: FetchSnapshot): { issues: AuditIssue[]; pa
 	const hasFaqText = /\b(faq|preguntas frecuentes|questions)\b/i.test(text);
 	const hasAuthor = /\b(author|autor|byline|moises|moisés)\b/i.test(snapshot.html);
 	const hasContact = /\b(contacto|contact|email|mailto:|linkedin)\b/i.test(snapshot.html);
+	const hasVisibleDate = /\b(actualizado|ultima actualizacion|última actualización|dateModified|datePublished|published|modified)\b/i.test(snapshot.html);
+	const scripts = getTags(snapshot.html, 'script').filter((script) => getAttr(script, 'src'));
+	const jsShellLikely = text.length < 350 && scripts.length > 3 && /<div[^>]+id\s*=\s*(["'])(?:app|root|__next|svelte)\1/i.test(snapshot.html);
+	const schemaText = jsonLd.map(scriptBody).join(' ');
+	const hasEntitySchema = /Person|Organization|LocalBusiness|WebSite|Article|FAQPage|sameAs|mainEntity|publisher|author/i.test(schemaText);
 
 	if (text.length < 700) {
 		issues.push(issue('ai.thin-content', 'ai', 'warning', 'Poco contenido legible para IA', 'Los asistentes y buscadores necesitan texto suficiente para entender contexto y utilidad.', 'Anade explicaciones claras, casos, beneficios y preguntas frecuentes.', `${text.length} caracteres`));
@@ -646,6 +927,15 @@ function analyzeAiReadiness(snapshot: FetchSnapshot): { issues: AuditIssue[]; pa
 	}
 	if (!hasContact) {
 		issues.push(issue('ai.contact-context', 'ai', 'info', 'Contacto poco visible', 'Los sistemas y usuarios necesitan entender quien esta detras y como contactar.', 'Incluye email, formulario, LinkedIn o datos de contacto.'));
+	}
+	if (!hasVisibleDate && /article|blog|post|noticia|guia|guía/i.test(snapshot.url + snapshot.html)) {
+		issues.push(issue('ai.updated-date', 'ai', 'info', 'No se detecta fecha de actualizacion', 'En articulos y guias, la fecha ayuda a valorar vigencia y fiabilidad.', 'Incluye datePublished/dateModified en JSON-LD o una fecha visible.'));
+	}
+	if (jsShellLikely) {
+		issues.push(issue('ai.js-only-shell', 'ai', 'warning', 'Contenido posiblemente dependiente de JS', 'Si el HTML inicial viene casi vacio, buscadores y asistentes pueden entender peor la pagina.', 'Sirve contenido principal renderizado en servidor o HTML inicial suficiente.'));
+	}
+	if (jsonLd.length && !hasEntitySchema) {
+		issues.push(issue('ai.schema-quality', 'ai', 'info', 'JSON-LD poco expresivo', 'Que el JSON-LD sea valido no significa que explique bien entidad, autor o contenido.', 'Incluye tipos schema.org utiles: Person, Organization, WebSite, Article, FAQPage, sameAs o mainEntity.'));
 	}
 	if (!issues.length) {
 		passed.push('Contenido preparado para interpretacion por buscadores e IA.');
@@ -668,7 +958,10 @@ function analyzePrivacyLegal(snapshot: FetchSnapshot): { issues: AuditIssue[]; p
 	const trackerHosts = scripts
 		.map((script) => uniqueHost(getAttr(script, 'src'), base))
 		.filter((host) => /google-analytics|googletagmanager|facebook|hotjar|clarity|tiktok|doubleclick|hubspot|intercom|segment|matomo/i.test(host));
+	const inlineTracking = /\b(gtag\s*\(|dataLayer|fbq\s*\(|clarity\s*\(|hj\s*\(|_paq\.push|googletagmanager|google-analytics)\b/i.test(html);
+	const hasCmp = /\b(onetrust|cookiebot|didomi|axeptio|iubenda|tarteaucitron|cookieyes|consent mode|cmp)\b/i.test(html);
 	const formsWithoutLegal = forms.filter((form) => !/privacidad|privacy|legal|consent|acepto|accept/i.test(form)).length;
+	const precheckedConsent = forms.filter((form) => /type\s*=\s*(["'])checkbox\1[^>]*checked/i.test(form) && /privacidad|privacy|legal|consent|acepto|accept/i.test(form)).length;
 	const insecureForms = forms.filter((form) => {
 		const action = getAttr(form, 'action');
 		return /^http:\/\//i.test(action);
@@ -677,14 +970,20 @@ function analyzePrivacyLegal(snapshot: FetchSnapshot): { issues: AuditIssue[]; p
 	if (!hasPrivacy) {
 		issues.push(issue('privacy.policy', 'privacy', 'warning', 'No se detecta politica de privacidad', 'Una web con formularios, analitica o contacto necesita explicar el tratamiento de datos.', 'Anade una politica de privacidad visible y enlazada.'));
 	}
-	if (trackerHosts.length && !hasCookies) {
+	if ((trackerHosts.length || inlineTracking) && !hasCookies) {
 		issues.push(issue('privacy.cookies', 'privacy', 'warning', 'Hay tracking pero no se detecta politica de cookies', 'Scripts de medicion o marketing pueden requerir informacion y consentimiento.', 'Anade politica/gestion de cookies ajustada al uso real.', [...new Set(trackerHosts)].join(', ')));
+	}
+	if ((trackerHosts.length || inlineTracking) && !hasCmp) {
+		issues.push(issue('privacy.consent-banner', 'privacy', 'info', 'Tracking sin gestor de consentimiento visible', 'Si hay analitica o marketing, puede hacer falta pedir consentimiento antes de activar cookies no necesarias.', 'Usa un CMP o carga tracking solo tras consentimiento.'));
 	}
 	if (!hasLegal) {
 		issues.push(issue('privacy.legal-notice', 'privacy', 'info', 'No se detecta aviso legal o terminos', 'En webs comerciales suele ser una senal basica de confianza y cumplimiento.', 'Incluye aviso legal, terminos o datos del responsable si aplica.'));
 	}
 	if (formsWithoutLegal > 0) {
 		issues.push(issue('privacy.form-consent', 'privacy', 'warning', 'Formularios sin referencia legal visible', 'El usuario deberia saber que pasa con sus datos antes de enviarlos.', 'Incluye texto legal, checkbox o enlace a privacidad junto al formulario.', `${formsWithoutLegal} formularios`));
+	}
+	if (precheckedConsent > 0) {
+		issues.push(issue('privacy.prechecked-consent', 'privacy', 'warning', 'Checkbox legal premarcado', 'El consentimiento debe ser una accion clara del usuario cuando aplique.', 'No marques por defecto checks de consentimiento o marketing.', `${precheckedConsent} formularios`));
 	}
 	if (insecureForms > 0) {
 		issues.push(issue('privacy.insecure-form-action', 'privacy', 'critical', 'Formulario envia a HTTP', 'Los datos enviados podrian viajar sin cifrar.', 'Cambia el action del formulario a HTTPS.', `${insecureForms} formularios`));
@@ -1067,16 +1366,235 @@ async function analyzeSideFiles(origin: string, isHttps: boolean): Promise<{
 	return { issues, passed, hasRobotsTxt: robots.ok, hasSitemap: sitemap.ok, hasLlmsTxt: llms.ok, hasSecurityTxt: securityTxt.ok };
 }
 
-async function analyzeWordPress(origin: string, isWordPress: boolean): Promise<AuditIssue[]> {
+async function analyzeSensitivePaths(origin: string): Promise<{ issues: AuditIssue[]; passed: string[] }> {
+	const checks = await Promise.all(
+		SENSITIVE_PATHS.map((path) => fetchResourceIfAvailable(`${origin}${path}`, 3000, 'sensitive').then((result) => ({ path, result })))
+	);
+	const exposed = checks.filter(({ result }) => result.ok && result.bytes > 20);
+	const issues: AuditIssue[] = [];
+	const passed: string[] = [];
+
+	for (const { path, result } of exposed) {
+		const isHighRisk = /\.env|\.git|backup|database|\.sql|phpinfo/i.test(path);
+		issues.push(
+			issue(
+				'security.sensitive-path',
+				path.includes('/admin') || path.includes('/staging') || path.includes('/test') ? 'delivery' : 'security',
+				isHighRisk ? 'critical' : 'warning',
+				isHighRisk ? 'Ruta sensible expuesta' : 'Ruta de trabajo accesible',
+				isHighRisk
+					? 'Archivos de entorno, backups o configuracion publica pueden exponer secretos o estructura interna.'
+					: 'Rutas de admin, staging o test publicas pueden confundir usuarios o revelar partes no terminadas.',
+				isHighRisk
+					? 'Bloquea esa ruta en hosting/CDN y retira el archivo del directorio publico.'
+					: 'Protege, redirige o elimina rutas que no deban estar publicas.',
+				`${path} - HTTP ${result.status}`
+			)
+		);
+	}
+
+	if (!exposed.length) {
+		passed.push('No se detectan rutas sensibles habituales expuestas.');
+	}
+
+	return { issues, passed };
+}
+
+async function analyzeHttpMethods(origin: string): Promise<{ issues: AuditIssue[]; passed: string[] }> {
+	const controller = new AbortController();
+	const timer = setTimeout(() => controller.abort(), 3000);
+	try {
+		const response = await fetchWithSafeRedirects(origin, { method: 'OPTIONS', signal: controller.signal }, 1);
+		const allow = cleanHeader(response.headers.get('allow'));
+		if (/\b(TRACE|PUT|DELETE)\b/i.test(allow)) {
+			return {
+				issues: [
+					issue(
+						'security.http-methods',
+						'security',
+						'warning',
+						'Metodos HTTP sensibles anunciados',
+						'Si el servidor acepta metodos innecesarios aumenta superficie de ataque.',
+						'Permite solo GET, HEAD, POST y OPTIONS cuando sean necesarios.',
+						`Allow: ${allow}`
+					)
+				],
+				passed: []
+			};
+		}
+		return { issues: [], passed: allow ? [`Metodos HTTP anunciados sin metodos sensibles: ${allow}.`] : [] };
+	} catch {
+		return { issues: [], passed: [] };
+	} finally {
+		clearTimeout(timer);
+	}
+}
+
+async function analyzeResourcesAndLinks(snapshot: FetchSnapshot): Promise<{
+	issues: AuditIssue[];
+	passed: string[];
+	resourceCount: number;
+	resourceErrors: number;
+	brokenInternalLinks: number;
+	estimatedResourceBytes: number;
+	hasCustom404: boolean;
+}> {
+	const base = new URL(snapshot.url);
+	const html = snapshot.html;
+	const resourceTags = [
+		...getTags(html, 'script').filter((tag) => getAttr(tag, 'src')),
+		...getTags(html, 'link').filter((tag) => /stylesheet|preload|icon/i.test(getAttr(tag, 'rel')) && getAttr(tag, 'href')),
+		...getTags(html, 'img').filter((tag) => getAttr(tag, 'src'))
+	];
+	const resourceTargets = uniqueValues(
+		resourceTags
+			.map((tag) => {
+				const raw = assetUrlFromTag(tag);
+				try {
+					const parsed = new URL(raw, base);
+					return ['http:', 'https:'].includes(parsed.protocol) ? parsed.toString() : '';
+				} catch {
+					return '';
+				}
+			})
+			.filter(Boolean)
+		)
+		.slice(0, 28);
+	const resourceChecks = await Promise.all(
+		resourceTargets.map((url) => {
+			const tag = resourceTags.find((item) => {
+				try {
+					return new URL(assetUrlFromTag(item), base).toString() === url;
+				} catch {
+					return false;
+				}
+			});
+			return fetchResourceIfAvailable(url, 3500, tag ? resourceKindFromTag(tag) : 'link');
+		})
+	);
+
+	const internalLinkTargets = uniqueValues(
+		getTags(html, 'a')
+			.map((anchor) => sameOriginHttpUrl(getAttr(anchor, 'href'), base))
+			.filter((url): url is string => Boolean(url))
+			.filter((url) => {
+				const parsed = new URL(url);
+				return parsed.pathname !== base.pathname || parsed.search !== base.search;
+			})
+	).slice(0, 18);
+	const linkChecks = await Promise.all(internalLinkTargets.map((url) => fetchResourceIfAvailable(url, 3500, 'link')));
+	const notFoundCheck = await fetchResourceIfAvailable(`${base.origin}/__mv-audit-${Date.now()}-404`, 3500, 'notFound');
+
+	const failedResources = resourceChecks.filter((item) => item.status >= 400 || item.status === 0);
+	const brokenLinks = linkChecks.filter((item) => item.status >= 400 || item.status === 0);
+	const estimatedResourceBytes = resourceChecks.reduce((sum, item) => sum + item.bytes, 0);
+	const largeResource = resourceChecks.find((item) => item.bytes > 1_200_000);
+	const issues: AuditIssue[] = [];
+	const passed: string[] = [];
+
+	if (failedResources.length) {
+		issues.push(
+			issue(
+				'delivery.resource-errors',
+				'delivery',
+				'warning',
+				'Recursos con error',
+				'JS, CSS o imagenes que fallan generan una web rota o incompleta.',
+				'Corrige rutas, assets eliminados, permisos o dominios externos caidos.',
+				failedResources.slice(0, 3).map((item) => `${item.status || 'timeout'} ${item.url}`).join(' | ')
+			)
+		);
+	} else if (resourceChecks.length) {
+		passed.push('Recursos principales sin errores HTTP.');
+	}
+
+	if (brokenLinks.length) {
+		issues.push(
+			issue(
+				'seo.broken-links',
+				'seo',
+				'warning',
+				'Enlaces internos rotos',
+				'Los enlaces 404 perjudican rastreo, confianza y experiencia de usuario.',
+				'Actualiza o elimina enlaces internos que ya no existen.',
+				brokenLinks.slice(0, 3).map((item) => `${item.status || 'timeout'} ${item.url}`).join(' | ')
+			)
+		);
+	}
+
+	if (estimatedResourceBytes > 3_500_000) {
+		issues.push(
+			issue(
+				'performance.resource-weight',
+				'performance',
+				'warning',
+				'Peso de recursos elevado',
+				'Muchos assets o assets pesados empeoran carga real, sobre todo en movil.',
+				'Comprime imagenes, elimina scripts y carga recursos bajo demanda.',
+				formatBytes(estimatedResourceBytes)
+			)
+		);
+	}
+
+	if (largeResource) {
+		issues.push(
+			issue(
+				'performance.large-resource',
+				'performance',
+				'info',
+				'Recurso individual muy pesado',
+				'Un unico asset enorme puede retrasar la pagina aunque el resto este bien.',
+				'Genera versiones optimizadas, usa formatos modernos y carga diferida.',
+				`${formatBytes(largeResource.bytes)} - ${largeResource.url}`
+			)
+		);
+	}
+
+	if (notFoundCheck.status === 200) {
+		issues.push(
+			issue(
+				'delivery.soft-404',
+				'delivery',
+				'warning',
+				'Posible 404 blando',
+				'Una ruta inexistente responde 200, lo que puede confundir buscadores y usuarios.',
+				'Devuelve HTTP 404 real para paginas no encontradas.',
+				notFoundCheck.url
+			)
+		);
+	} else if (notFoundCheck.status === 404 && notFoundCheck.bytes > 500) {
+		passed.push('404 personalizada detectada.');
+	}
+
+	return {
+		issues,
+		passed,
+		resourceCount: resourceChecks.length,
+		resourceErrors: failedResources.length,
+		brokenInternalLinks: brokenLinks.length,
+		estimatedResourceBytes,
+		hasCustom404: notFoundCheck.status === 404 && notFoundCheck.bytes > 500
+	};
+}
+
+async function analyzeWordPress(origin: string, isWordPress: boolean, html: string): Promise<AuditIssue[]> {
 	if (!isWordPress) return [];
-	const [wpJson, wpUsers, xmlrpc, readme, license, wpLogin] = await Promise.all([
+	const [wpJson, wpUsers, xmlrpc, readme, license, wpLogin, wpAdmin, pluginsDir, uploadsDir, themesDir] = await Promise.all([
 		fetchTextIfAvailable(`${origin}/wp-json/`, 8000),
 		fetchTextIfAvailable(`${origin}/wp-json/wp/v2/users`, 8000),
 		fetchTextIfAvailable(`${origin}/xmlrpc.php`, 8000),
 		fetchTextIfAvailable(`${origin}/readme.html`, 8000),
 		fetchTextIfAvailable(`${origin}/license.txt`, 8000),
-		fetchTextIfAvailable(`${origin}/wp-login.php`, 8000)
+		fetchTextIfAvailable(`${origin}/wp-login.php`, 8000),
+		fetchTextIfAvailable(`${origin}/wp-admin/`, 8000),
+		fetchTextIfAvailable(`${origin}/wp-content/plugins/`, 8000),
+		fetchTextIfAvailable(`${origin}/wp-content/uploads/`, 8000),
+		fetchTextIfAvailable(`${origin}/wp-content/themes/`, 8000)
 	]);
+	const plugins = detectWordPressPlugins(html);
+	const themes = uniqueValues([...html.matchAll(/\/wp-content\/themes\/([^/?"'#]+)/gi)].map((match) => match[1])).slice(0, 8);
+	const version = detectWordPressVersion(html, readme.text);
+	const hasDirectoryListing = [pluginsDir, uploadsDir, themesDir].some((result) => result.ok && /<title>\s*Index of|Parent Directory/i.test(result.text));
 	const issues: AuditIssue[] = [
 		issue(
 			'quality.wordpress-detected',
@@ -1109,6 +1627,45 @@ async function analyzeWordPress(origin: string, isWordPress: boolean): Promise<A
 				'Enumerar usuarios facilita ataques de fuerza bruta o phishing.',
 				'Limita el endpoint de usuarios o evita exponer slugs innecesarios.',
 				'/wp-json/wp/v2/users'
+			)
+		);
+	}
+	if (version) {
+		issues.push(
+			issue(
+				'cms.wp-version',
+				'cms',
+				'warning',
+				'Version de WordPress visible',
+				'Exponer version facilita localizar vulnerabilidades conocidas si no esta actualizado.',
+				'Oculta generadores/versiones y manten core, tema y plugins al dia.',
+				`WordPress ${version}`
+			)
+		);
+	}
+	if (plugins.length) {
+		issues.push(
+			issue(
+				'cms.wp-plugins',
+				'cms',
+				'info',
+				'Plugins WordPress detectables',
+				'Las rutas publicas permiten inferir plugins y priorizar ataques sobre extensiones vulnerables.',
+				'Manten plugins actualizados y elimina los que no sean imprescindibles.',
+				plugins.join(', ')
+			)
+		);
+	}
+	if (themes.length) {
+		issues.push(
+			issue(
+				'cms.wp-theme',
+				'cms',
+				'info',
+				'Tema WordPress detectable',
+				'No siempre es un problema, pero ayuda a perfilar la instalacion.',
+				'Manten el tema actualizado y evita exponer archivos innecesarios.',
+				themes.join(', ')
 			)
 		);
 	}
@@ -1146,6 +1703,32 @@ async function analyzeWordPress(origin: string, isWordPress: boolean): Promise<A
 				'Login WordPress accesible',
 				'Es normal, pero conviene protegerlo si la web recibe ataques o no necesita login publico.',
 				'Usa limite de intentos, 2FA, captcha o proteccion por proveedor.'
+			)
+		);
+	}
+	if (wpAdmin.ok || [301, 302, 401, 403].includes(wpAdmin.status)) {
+		issues.push(
+			issue(
+				'cms.wp-admin',
+				'cms',
+				'info',
+				'wp-admin responde',
+				'Es normal en WordPress, pero conviene proteger el acceso de administracion.',
+				'Usa 2FA, limite de intentos, WAF o restricciones por proveedor si procede.',
+				`HTTP ${wpAdmin.status}`
+			)
+		);
+	}
+	if (hasDirectoryListing) {
+		issues.push(
+			issue(
+				'cms.wp-directory-listing',
+				'cms',
+				'warning',
+				'Directorio WordPress lista archivos',
+				'El listado de directorios puede exponer uploads, plugins o temas.',
+				'Desactiva directory listing en servidor/hosting.',
+				'/wp-content/'
 			)
 		);
 	}
@@ -1217,8 +1800,15 @@ export async function auditPublicWebsite(
 	const privacyAudit = analyzePrivacyLegal(snapshot);
 	const deliveryAudit = analyzeDeliveryQuality(snapshot);
 	const trustAudit = analyzeCommercialTrust(snapshot);
-	const sideFiles = await analyzeSideFiles(finalUrl.origin, finalUrl.protocol === 'https:');
-	const wordpressIssues = await analyzeWordPress(finalUrl.origin, htmlAudit.signals.isWordPress);
+	const [sideFiles, sensitiveAudit, methodAudit, resourceAudit] = await Promise.all([
+		analyzeSideFiles(finalUrl.origin, finalUrl.protocol === 'https:'),
+		analyzeSensitivePaths(finalUrl.origin),
+		analyzeHttpMethods(finalUrl.origin),
+		analyzeResourcesAndLinks(snapshot)
+	]);
+	const wordpressIssues = await analyzeWordPress(finalUrl.origin, htmlAudit.signals.isWordPress, snapshot.html);
+	const detectedTechnologies = detectTechnologies(snapshot);
+	const wordPressPlugins = detectWordPressPlugins(snapshot.html);
 	const issues = dedupeIssues([
 		...(options.extraIssues ?? []),
 		...headerAudit.issues,
@@ -1231,6 +1821,9 @@ export async function auditPublicWebsite(
 		...deliveryAudit.issues,
 		...trustAudit.issues,
 		...sideFiles.issues,
+		...sensitiveAudit.issues,
+		...methodAudit.issues,
+		...resourceAudit.issues,
 		...wordpressIssues
 	]);
 	const categories = buildCategories(issues, options.baseScores);
@@ -1252,7 +1845,10 @@ export async function auditPublicWebsite(
 			...privacyAudit.passed,
 			...deliveryAudit.passed,
 			...trustAudit.passed,
-			...sideFiles.passed
+			...sideFiles.passed,
+			...sensitiveAudit.passed,
+			...methodAudit.passed,
+			...resourceAudit.passed
 		],
 		signals: {
 			isHttps: finalUrl.protocol === 'https:',
@@ -1261,7 +1857,15 @@ export async function auditPublicWebsite(
 			hasSitemap: sideFiles.hasSitemap,
 			hasLlmsTxt: sideFiles.hasLlmsTxt,
 			hasSecurityTxt: sideFiles.hasSecurityTxt,
-			...htmlAudit.signals
+			...htmlAudit.signals,
+			responseTimeMs: snapshot.responseTimeMs,
+			resourceCount: resourceAudit.resourceCount,
+			resourceErrors: resourceAudit.resourceErrors,
+			brokenInternalLinks: resourceAudit.brokenInternalLinks,
+			estimatedResourceBytes: resourceAudit.estimatedResourceBytes,
+			detectedTechnologies,
+			wordPressPlugins,
+			hasCustom404: resourceAudit.hasCustom404
 		}
 	};
 }
