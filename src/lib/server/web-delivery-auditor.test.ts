@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
 	computeDeliveryVerdict,
 	detectWordPress,
+	enrichIssue,
 	isAllowedPublicAuditUrl,
 	scoreCategoryFromIssues,
 	type AuditIssue
@@ -67,4 +68,21 @@ test('detects WordPress from strong platform signals', () => {
 	);
 	assert.equal(detectWordPress('<script src="https://example.com/wp-includes/js/jquery/jquery.min.js"></script>'), true);
 	assert.equal(detectWordPress('<a href="/wp-admin/">Entrar</a>'), true);
+});
+
+test('enriches mixed-content issues with repair context and AI prompt', () => {
+	const issue = enrichIssue({
+		id: 'security.mixed-content',
+		category: 'security',
+		severity: 'warning',
+		title: 'Posible mixed content',
+		why: 'Recursos HTTP dentro de una pagina HTTPS pueden bloquearse.',
+		fix: 'Cambia recursos http:// por https:// o alojalos localmente.',
+		evidence: 'http://example.com/logo.png'
+	});
+
+	assert.equal(issue.confidence, 'alta');
+	assert.deepEqual(issue.affectedResources, ['http://example.com/logo.png']);
+	assert.ok(issue.repairSteps?.some((step) => step.includes('http:// exacta')));
+	assert.match(issue.aiPrompt ?? '', /http:\/\/example\.com\/logo\.png/);
 });

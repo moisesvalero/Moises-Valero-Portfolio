@@ -93,6 +93,11 @@
     why: string;
     fix: string;
     evidence?: string;
+    confidence?: 'alta' | 'media' | 'baja';
+    technicalContext?: string;
+    affectedResources?: string[];
+    repairSteps?: string[];
+    aiPrompt?: string;
   };
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
@@ -375,6 +380,11 @@
     if (severity === 'warning') return 'Revisar';
     if (severity === 'info') return 'Aviso';
     return 'Correcto';
+  }
+
+  async function copyIssuePrompt(issue: AuditIssue) {
+    if (!issue.aiPrompt || typeof navigator === 'undefined') return;
+    await navigator.clipboard.writeText(issue.aiPrompt);
   }
 
   async function pollAnalyzeJob(
@@ -818,6 +828,39 @@
                           </div>
                           {#if item.evidence}
                             <small>Evidencia: {item.evidence}</small>
+                          {/if}
+                          {#if item.technicalContext || item.repairSteps?.length || item.aiPrompt}
+                            <div class="repair-box">
+                              <div class="repair-box__meta">
+                                <span>Modo reparación</span>
+                                {#if item.confidence}
+                                  <strong>Confianza {item.confidence}</strong>
+                                {/if}
+                              </div>
+                              {#if item.technicalContext}
+                                <p>{item.technicalContext}</p>
+                              {/if}
+                              {#if item.affectedResources?.length}
+                                <div class="repair-resources">
+                                  <span>Detectado en</span>
+                                  {#each item.affectedResources.slice(0, 3) as resource (resource)}
+                                    <code>{resource}</code>
+                                  {/each}
+                                </div>
+                              {/if}
+                              {#if item.repairSteps?.length}
+                                <ol>
+                                  {#each item.repairSteps.slice(0, 4) as step (step)}
+                                    <li>{step}</li>
+                                  {/each}
+                                </ol>
+                              {/if}
+                              {#if item.aiPrompt}
+                                <button type="button" class="copy-prompt-button" onclick={() => void copyIssuePrompt(item)}>
+                                  Copiar prompt para IA
+                                </button>
+                              {/if}
+                            </div>
                           {/if}
                         </li>
                       {/each}
@@ -1664,7 +1707,9 @@
 
   .source-grid span,
   .category-report__section header span,
-  .fix-box span {
+  .fix-box span,
+  .repair-box__meta span,
+  .repair-resources span {
     display: block;
     color: #0066e5;
     font-size: 0.68rem;
@@ -1772,7 +1817,8 @@
   }
 
   .detailed-issue-list p,
-  .fix-box p {
+  .fix-box p,
+  .repair-box p {
     margin: 0;
     color: #475569;
     line-height: 1.5;
@@ -1800,6 +1846,65 @@
     margin-top: 0.55rem;
     color: #64748b;
     word-break: break-word;
+  }
+
+  .repair-box {
+    margin-top: 0.7rem;
+    padding: 0.75rem;
+    border: 1px solid rgba(0, 113, 227, 0.14);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .repair-box__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .repair-box__meta strong {
+    color: #0f172a;
+    font-size: 0.78rem;
+    font-weight: 900;
+  }
+
+  .repair-resources {
+    display: grid;
+    gap: 0.35rem;
+    margin-top: 0.65rem;
+  }
+
+  .repair-resources code {
+    display: block;
+    padding: 0.42rem 0.5rem;
+    overflow-wrap: anywhere;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 6px;
+    background: rgba(248, 250, 252, 0.92);
+    color: #0f172a;
+    font-size: 0.78rem;
+  }
+
+  .repair-box ol {
+    margin: 0.65rem 0 0;
+    padding-left: 1.15rem;
+    color: #334155;
+    line-height: 1.55;
+  }
+
+  .copy-prompt-button {
+    margin-top: 0.7rem;
+    border: 1px solid rgba(0, 113, 227, 0.22);
+    border-radius: 7px;
+    background: rgba(0, 113, 227, 0.08);
+    color: #005fc7;
+    padding: 0.52rem 0.7rem;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 900;
+    cursor: pointer;
   }
 
   .category-ok {
@@ -1965,6 +2070,7 @@
   :global(html.dark) .category-report__section header,
   :global(html.dark) .detailed-issue-list li,
   :global(html.dark) .fix-box,
+  :global(html.dark) .repair-box,
   :global(html.dark) .passed-panel,
   :global(html.dark) .report-counters span {
     border-color: rgba(255, 255, 255, 0.12);
@@ -2005,7 +2111,10 @@
   :global(html.dark) .category-report__section header strong,
   :global(html.dark) .detail-title strong,
   :global(html.dark) .detail-title span,
-  :global(html.dark) .fix-box p {
+  :global(html.dark) .fix-box p,
+  :global(html.dark) .repair-box p,
+  :global(html.dark) .repair-box__meta strong,
+  :global(html.dark) .repair-resources code {
     color: #f8fafc;
   }
 
@@ -2016,6 +2125,12 @@
   :global(html.dark) .detailed-issue-list small,
   :global(html.dark) .passed-panel ul {
     color: #d4d4d8;
+  }
+
+  :global(html.dark) .repair-resources code,
+  :global(html.dark) .copy-prompt-button {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(77, 163, 255, 0.1);
   }
 
   @media (max-width: 940px) {

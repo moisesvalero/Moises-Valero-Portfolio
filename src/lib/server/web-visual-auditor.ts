@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import type { AuditIssue } from './web-delivery-auditor';
+import { enrichIssue, type AuditIssue } from './web-delivery-auditor.ts';
 
 export type VisualAuditSignals = {
 	visualAuditAvailable: boolean;
@@ -93,7 +93,7 @@ export function isPrivateOrLocalResource(rawUrl: string): boolean {
 }
 
 function visualIssue(id: string, severity: AuditIssue['severity'], title: string, why: string, fix: string, evidence?: string): AuditIssue {
-	return {
+	return enrichIssue({
 		id,
 		category: id.startsWith('accessibility') ? 'accessibility' : id.startsWith('privacy') ? 'privacy' : 'delivery',
 		severity,
@@ -101,7 +101,7 @@ function visualIssue(id: string, severity: AuditIssue['severity'], title: string
 		why,
 		fix,
 		evidence
-	};
+	});
 }
 
 export function contrastRatio(foreground: [number, number, number], background: [number, number, number]): number {

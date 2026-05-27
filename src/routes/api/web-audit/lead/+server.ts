@@ -31,6 +31,11 @@ type EmailIssue = {
   why: string;
   fix: string;
   evidence: string;
+  confidence: string;
+  technicalContext: string;
+  affectedResources: string[];
+  repairSteps: string[];
+  aiPrompt: string;
 };
 
 type EmailCategory = {
@@ -146,7 +151,16 @@ function parseIssues(value: unknown): EmailIssue[] {
         title: toCleanString(record.title),
         why: toCleanString(record.why),
         fix: toCleanString(record.fix),
-        evidence: toCleanString(record.evidence)
+        evidence: toCleanString(record.evidence),
+        confidence: toCleanString(record.confidence),
+        technicalContext: toCleanString(record.technicalContext),
+        affectedResources: Array.isArray(record.affectedResources)
+          ? record.affectedResources.filter((resource): resource is string => typeof resource === 'string' && resource.trim().length > 0).slice(0, 4)
+          : [],
+        repairSteps: Array.isArray(record.repairSteps)
+          ? record.repairSteps.filter((step): step is string => typeof step === 'string' && step.trim().length > 0).slice(0, 5)
+          : [],
+        aiPrompt: toCleanString(record.aiPrompt)
       };
     })
     .filter((item): item is EmailIssue => Boolean(item?.title))
@@ -229,10 +243,51 @@ function issuesHtml(issues: EmailIssue[]): string {
           ${issue.evidence ? `<p style="margin:0 0 6px;color:#64748b;font-size:13px;"><strong>Evidencia:</strong> ${toSafeHtml(issue.evidence)}</p>` : ''}
           ${issue.why ? `<p style="margin:0 0 6px;color:#475569;font-size:14px;">${toSafeHtml(issue.why)}</p>` : ''}
           ${issue.fix ? `<p style="margin:0;color:#0f172a;font-size:14px;"><strong>Que hacer:</strong> ${toSafeHtml(issue.fix)}</p>` : ''}
+          ${
+            issue.technicalContext || issue.repairSteps.length || issue.aiPrompt
+              ? `<div style="margin-top:12px;border:1px solid #dbeafe;background:#f8fbff;border-radius:12px;padding:12px;">
+                  <p style="margin:0 0 6px;color:#0369a1;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;">Modo reparación${issue.confidence ? ` · confianza ${toSafeHtml(issue.confidence)}` : ''}</p>
+                  ${issue.technicalContext ? `<p style="margin:0 0 8px;color:#334155;font-size:13px;">${toSafeHtml(issue.technicalContext)}</p>` : ''}
+                  ${
+                    issue.affectedResources.length
+                      ? `<p style="margin:0 0 6px;color:#0f172a;font-size:13px;"><strong>Detectado en:</strong><br>${issue.affectedResources
+                          .slice(0, 3)
+                          .map((resource) => `<code style="font-size:12px;word-break:break-all;">${toSafeHtml(resource)}</code>`)
+                          .join('<br>')}</p>`
+                      : ''
+                  }
+                  ${
+                    issue.repairSteps.length
+                      ? `<ol style="margin:8px 0 0;padding-left:18px;color:#334155;font-size:13px;">${issue.repairSteps
+                          .slice(0, 4)
+                          .map((step) => `<li style="margin-bottom:4px;">${toSafeHtml(step)}</li>`)
+                          .join('')}</ol>`
+                      : ''
+                  }
+                  ${
+                    issue.aiPrompt
+                      ? `<p style="margin:10px 0 6px;color:#0f172a;font-size:13px;"><strong>Prompt para IA:</strong></p>
+                         <pre style="white-space:pre-wrap;word-break:break-word;margin:0;background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;color:#334155;font-family:Arial,sans-serif;font-size:12px;line-height:1.45;">${toSafeHtml(issue.aiPrompt)}</pre>`
+                      : ''
+                  }
+                </div>`
+              : ''
+          }
         </div>
       `;
     })
     .join('');
+}
+
+function issuePlainText(issue: EmailIssue, index: number): string {
+  const lines = [
+    `${index + 1}. [${severityLabel(issue.severity)}] ${issue.title}`,
+    issue.evidence ? `   Evidencia: ${issue.evidence}` : '',
+    issue.technicalContext ? `   Contexto: ${issue.technicalContext}` : '',
+    issue.repairSteps.length ? `   Pasos: ${issue.repairSteps.map((step, stepIndex) => `${stepIndex + 1}) ${step}`).join(' ')}` : `   Como arreglarlo: ${issue.fix}`,
+    issue.aiPrompt ? `   Prompt para IA:\n${issue.aiPrompt}` : ''
+  ];
+  return lines.filter(Boolean).join('\n');
 }
 
 function signalsHtml(signals: Record<string, unknown> | null): string {
@@ -477,7 +532,7 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
     `Problemas: ${criticalIssues} críticos, ${warningIssues} avisos`,
     ...metricLines,
     '',
-    ...issues.slice(0, 5).map((issue, index) => `${index + 1}. [${severityLabel(issue.severity)}] ${issue.title}`),
+    ...issues.slice(0, 5).map((issue, index) => issuePlainText(issue, index)),
     `IP: ${ip}`
   ].filter(Boolean).join('\n');
 
@@ -545,7 +600,7 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
     '',
     ...highlights.map((line, index) => `${index + 1}. ${line}`),
     '',
-    ...issues.slice(0, 5).map((issue, index) => `${index + 1}. ${issue.title} - ${issue.fix}`),
+    ...issues.slice(0, 5).map((issue, index) => issuePlainText(issue, index)),
     '',
     'Si quieres, te ayudo personalmente a mejorar estos puntos en tu web.'
   ].filter(Boolean).join('\n');

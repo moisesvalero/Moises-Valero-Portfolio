@@ -24,6 +24,11 @@ export type AuditIssue = {
 	why: string;
 	fix: string;
 	evidence?: string;
+	confidence?: 'alta' | 'media' | 'baja';
+	technicalContext?: string;
+	affectedResources?: string[];
+	repairSteps?: string[];
+	aiPrompt?: string;
 };
 
 export type AuditCategory = {
@@ -152,7 +157,131 @@ function issue(
 	fix: string,
 	evidence?: string
 ): AuditIssue {
-	return { id, category, severity, title, why, fix, evidence };
+	return enrichIssue({ id, category, severity, title, why, fix, evidence });
+}
+
+function extractUrls(value?: string): string[] {
+	if (!value) return [];
+	return [...value.matchAll(/https?:\/\/[^\s"'<>),]+/gi)].map((match) => match[0]).slice(0, 5);
+}
+
+function inferIssueContext(issue: AuditIssue): Pick<AuditIssue, 'confidence' | 'technicalContext' | 'affectedResources' | 'repairSteps'> {
+	const urls = extractUrls(issue.evidence);
+	const affectedResources = urls.length ? urls : issue.evidence ? [issue.evidence] : [];
+
+	if (issue.id === 'security.mixed-content') {
+		return {
+			confidence: issue.evidence ? 'alta' : 'media',
+			technicalContext: 'Tipo: recurso HTTP dentro de una pagina HTTPS. Impacto: el navegador puede bloquearlo o mostrar advertencias de seguridad.',
+			affectedResources,
+			repairSteps: [
+				'Busca la URL http:// exacta en el CMS, HTML, CSS, JavaScript o configuracion del tema.',
+				'Sustituyela por https:// si el proveedor sirve el mismo recurso con TLS.',
+				'Si no existe version HTTPS, descarga el recurso y sirvelo desde el propio dominio o cambia de proveedor.'
+			]
+		};
+	}
+
+	if (issue.id.startsWith('security.')) {
+		return {
+			confidence: 'alta',
+			technicalContext: `Tipo: configuracion de seguridad HTTP. Impacto: ${issue.why}`,
+			affectedResources,
+			repairSteps: [
+				'Comprueba la cabecera o ajuste indicado en el hosting, CDN o framework.',
+				'Aplica el cambio en produccion o en la configuracion global de respuestas HTTP.',
+				'Vuelve a analizar la URL y confirma que la cabecera aparece en la respuesta final.'
+			]
+		};
+	}
+
+	if (issue.id.startsWith('cms.') || issue.id.startsWith('wordpress.')) {
+		return {
+			confidence: issue.evidence ? 'alta' : 'media',
+			technicalContext: `Tipo: exposicion de CMS o WordPress. Impacto: ${issue.why}`,
+			affectedResources,
+			repairSteps: [
+				'Abre la ruta indicada en ventana privada y confirma si realmente es publica.',
+				'Bloquea o limita el endpoint desde WordPress, servidor, plugin de seguridad o CDN.',
+				'Actualiza WordPress/plugins y oculta versiones o listados que no deban ser publicos.'
+			]
+		};
+	}
+
+	if (issue.id.includes('image') || issue.id.includes('alt')) {
+		return {
+			confidence: 'alta',
+			technicalContext: `Tipo: accesibilidad o entrega de imagenes. Impacto: ${issue.why}`,
+			affectedResources,
+			repairSteps: [
+				'Localiza las imagenes afectadas en el HTML renderizado o en el gestor de contenidos.',
+				'Anade alt descriptivo si la imagen aporta informacion, o alt vacio si es decorativa.',
+				'Si la imagen esta rota, revisa URL, permisos, CDN, formato y transformaciones.'
+			]
+		};
+	}
+
+	if (issue.id.includes('link') || issue.id.includes('resource') || issue.id.includes('console') || issue.id.includes('render')) {
+		return {
+			confidence: issue.evidence ? 'alta' : 'media',
+			technicalContext: `Tipo: recurso, enlace o ejecucion en navegador. Impacto: ${issue.why}`,
+			affectedResources,
+			repairSteps: [
+				'Reproduce la pagina en navegador y abre la pestana Network/Console.',
+				'Busca la evidencia exacta del informe y confirma el archivo, endpoint o elemento afectado.',
+				'Corrige la ruta, dependencia, script o enlace y repite el analisis.'
+			]
+		};
+	}
+
+	if (issue.id.includes('tap-target') || issue.id.includes('contrast') || issue.id.startsWith('accessibility.')) {
+		return {
+			confidence: 'media',
+			technicalContext: `Tipo: accesibilidad automatica. Impacto: ${issue.why}`,
+			affectedResources,
+			repairSteps: [
+				'Revisa el elemento afectado en movil y con inspector del navegador.',
+				'Ajusta texto, color, foco, label o area tactil segun el problema indicado.',
+				'Valida despues con teclado, lector de pantalla basico o una herramienta WCAG.'
+			]
+		};
+	}
+
+	return {
+		confidence: issue.evidence ? 'media' : 'baja',
+		technicalContext: `Tipo: ${CATEGORY_LABELS[issue.category]}. Impacto: ${issue.why}`,
+		affectedResources,
+		repairSteps: [
+			'Revisa la evidencia y localiza el origen en el CMS, codigo o configuracion del servidor.',
+			'Aplica la correccion recomendada en el informe.',
+			'Vuelve a ejecutar el analizador para confirmar que el hallazgo desaparece.'
+		]
+	};
+}
+
+function buildAiPrompt(issue: AuditIssue): string {
+	const affected = issue.affectedResources?.length ? issue.affectedResources.join('\n') : 'No hay recurso exacto aislado; usa la evidencia y la URL analizada.';
+	const steps = issue.repairSteps?.length ? issue.repairSteps.map((step, index) => `${index + 1}. ${step}`).join('\n') : issue.fix;
+	return [
+		'Actua como auditor senior web. Quiero corregir este problema sin romper la web.',
+		`Problema: ${issue.title}`,
+		`Categoria: ${CATEGORY_LABELS[issue.category]}`,
+		`Severidad: ${issue.severity}`,
+		`Confianza del hallazgo: ${issue.confidence ?? 'media'}`,
+		issue.technicalContext ? `Contexto tecnico: ${issue.technicalContext}` : '',
+		issue.evidence ? `Evidencia: ${issue.evidence}` : '',
+		`Recursos o elementos afectados:\n${affected}`,
+		`Pasos sugeridos:\n${steps}`,
+		'Dame un plan de correccion paso a paso, dime donde buscarlo segun si la web es WordPress, SvelteKit u otro stack, y como comprobar que queda solucionado.'
+	]
+		.filter(Boolean)
+		.join('\n');
+}
+
+export function enrichIssue(base: AuditIssue): AuditIssue {
+	const inferred = inferIssueContext(base);
+	const enriched = { ...base, ...inferred };
+	return { ...enriched, aiPrompt: buildAiPrompt(enriched) };
 }
 
 function cleanHeader(value: string | null): string {
@@ -1262,7 +1391,8 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 		}
 	}
 
-	if (base.protocol === 'https:' && /\s(?:src|href)=["']http:\/\//i.test(snapshot.html)) {
+	const mixedContentMatch = snapshot.html.match(/\s(?:src|href)=["'](http:\/\/[^"'\s<>]+)["']/i);
+	if (base.protocol === 'https:' && mixedContentMatch?.[1]) {
 		issues.push(
 			issue(
 				'security.mixed-content',
@@ -1270,7 +1400,8 @@ function analyzeHtml(snapshot: FetchSnapshot): {
 				'warning',
 				'Posible mixed content',
 				'Recursos HTTP dentro de una página HTTPS pueden bloquearse o degradar seguridad.',
-				'Cambia recursos http:// por https:// o alojalos localmente.'
+				'Cambia recursos http:// por https:// o alojalos localmente.',
+				mixedContentMatch[1]
 			)
 		);
 	}
