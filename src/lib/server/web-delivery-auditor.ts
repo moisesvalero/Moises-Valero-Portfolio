@@ -1,5 +1,6 @@
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
+import { auditVisualWebsite, visualAuditUnavailableSignals, type VisualAuditSignals } from './web-visual-auditor.ts';
 
 export type AuditSeverity = 'critical' | 'warning' | 'info' | 'pass';
 export type AuditCategoryId =
@@ -58,7 +59,7 @@ export type PublicWebAudit = {
 		detectedTechnologies: string[];
 		wordPressPlugins: string[];
 		hasCustom404: boolean;
-	};
+	} & VisualAuditSignals;
 };
 
 type FetchSnapshot = {
@@ -1800,11 +1801,27 @@ export async function auditPublicWebsite(
 	const privacyAudit = analyzePrivacyLegal(snapshot);
 	const deliveryAudit = analyzeDeliveryQuality(snapshot);
 	const trustAudit = analyzeCommercialTrust(snapshot);
-	const [sideFiles, sensitiveAudit, methodAudit, resourceAudit] = await Promise.all([
+	const [sideFiles, sensitiveAudit, methodAudit, resourceAudit, visualAudit] = await Promise.all([
 		analyzeSideFiles(finalUrl.origin, finalUrl.protocol === 'https:'),
 		analyzeSensitivePaths(finalUrl.origin),
 		analyzeHttpMethods(finalUrl.origin),
-		analyzeResourcesAndLinks(snapshot)
+		analyzeResourcesAndLinks(snapshot),
+		auditVisualWebsite(finalUrl.toString(), { timeoutMs: Math.min(20_000, timeoutMs) }).catch((error) => ({
+			available: false,
+			issues: [
+				issue(
+					'delivery.visual-audit-unavailable',
+					'delivery',
+					'info',
+					'Auditoria visual no disponible',
+					'Los checks con navegador real no se han podido ejecutar en este entorno.',
+					'El informe HTML/cabeceras sigue siendo valido; activa Chromium serverless para sumar revision visual.',
+					error instanceof Error ? error.message : 'Error desconocido'
+				)
+			],
+			passed: [],
+			signals: visualAuditUnavailableSignals(error instanceof Error ? error.message : 'Error desconocido')
+		}))
 	]);
 	const wordpressIssues = await analyzeWordPress(finalUrl.origin, htmlAudit.signals.isWordPress, snapshot.html);
 	const detectedTechnologies = detectTechnologies(snapshot);
@@ -1824,6 +1841,7 @@ export async function auditPublicWebsite(
 		...sensitiveAudit.issues,
 		...methodAudit.issues,
 		...resourceAudit.issues,
+		...visualAudit.issues,
 		...wordpressIssues
 	]);
 	const categories = buildCategories(issues, options.baseScores);
@@ -1848,7 +1866,8 @@ export async function auditPublicWebsite(
 			...sideFiles.passed,
 			...sensitiveAudit.passed,
 			...methodAudit.passed,
-			...resourceAudit.passed
+			...resourceAudit.passed,
+			...visualAudit.passed
 		],
 		signals: {
 			isHttps: finalUrl.protocol === 'https:',
@@ -1865,7 +1884,8 @@ export async function auditPublicWebsite(
 			estimatedResourceBytes: resourceAudit.estimatedResourceBytes,
 			detectedTechnologies,
 			wordPressPlugins,
-			hasCustom404: resourceAudit.hasCustom404
+			hasCustom404: resourceAudit.hasCustom404,
+			...visualAudit.signals
 		}
 	};
 }

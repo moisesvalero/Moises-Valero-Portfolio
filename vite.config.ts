@@ -30,6 +30,7 @@ export default defineConfig(({ mode }) => {
 				}
 			},
 			ssr: {
+				external: ['@sparticuz/chromium', 'playwright-core'],
 				resolve: {
 					conditions: ['production', 'module', 'node', 'import'],
 					externalConditions: ['production', 'module', 'node', 'import']

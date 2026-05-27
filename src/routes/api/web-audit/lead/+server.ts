@@ -248,7 +248,16 @@ function signalsHtml(signals: Record<string, unknown> | null): string {
     ['Peso estimado de recursos', formatBytes(signals?.estimatedResourceBytes)],
     ['404 personalizada', signals?.hasCustom404 === true ? 'Detectada' : 'No detectada'],
     ['Tecnologias detectadas', listSignal(signals?.detectedTechnologies)],
-    ['Plugins WordPress', listSignal(signals?.wordPressPlugins)]
+    ['Plugins WordPress', listSignal(signals?.wordPressPlugins)],
+    ['Auditoria visual', signals?.visualAuditAvailable === true ? 'Ejecutada' : toCleanString(signals?.visualAuditReason) || 'No disponible'],
+    ['Errores JS consola', String(signals?.consoleErrors ?? '-')],
+    ['Recursos rotos render', String(signals?.renderedResourceErrors ?? '-')],
+    ['Requests fallidas render', String(signals?.failedRequests ?? '-')],
+    ['Tap targets pequenos', String(signals?.smallTapTargets ?? '-')],
+    ['Textos bajo contraste', String(signals?.lowContrastTexts ?? '-')],
+    ['Overflow responsive', listSignal(signals?.horizontalOverflowViewports)],
+    ['Imagenes rotas render', String(signals?.brokenRenderedImages ?? '-')],
+    ['Cookies antes de consentimiento', String(signals?.cookiesBeforeConsent ?? '-')]
   ];
   return rows
     .map(
@@ -397,7 +406,16 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
     `Peso estimado de recursos: ${formatBytes(signals?.estimatedResourceBytes)}`,
     `404 personalizada: ${signals?.hasCustom404 === true ? 'Detectada' : 'No detectada'}`,
     `Tecnologias detectadas: ${listSignal(signals?.detectedTechnologies)}`,
-    `Plugins WordPress: ${listSignal(signals?.wordPressPlugins)}`
+    `Plugins WordPress: ${listSignal(signals?.wordPressPlugins)}`,
+    `Auditoria visual: ${signals?.visualAuditAvailable === true ? 'Ejecutada' : toCleanString(signals?.visualAuditReason) || 'No disponible'}`,
+    `Errores JS consola: ${String(signals?.consoleErrors ?? '-')}`,
+    `Recursos rotos render: ${String(signals?.renderedResourceErrors ?? '-')}`,
+    `Requests fallidas render: ${String(signals?.failedRequests ?? '-')}`,
+    `Tap targets pequenos: ${String(signals?.smallTapTargets ?? '-')}`,
+    `Textos bajo contraste: ${String(signals?.lowContrastTexts ?? '-')}`,
+    `Overflow responsive: ${listSignal(signals?.horizontalOverflowViewports)}`,
+    `Imagenes rotas render: ${String(signals?.brokenRenderedImages ?? '-')}`,
+    `Cookies antes de consentimiento: ${String(signals?.cookiesBeforeConsent ?? '-')}`
   ];
   const scoreStyle = scoreTone(score);
   const overallStyle = scoreTone(overallScore);
@@ -480,6 +498,8 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
         <tr>${metricCardHtml('Respuesta HTML', signals?.responseTimeMs ? `${signals.responseTimeMs} ms` : '-')}${metricCardHtml('Peso recursos', formatBytes(signals?.estimatedResourceBytes))}</tr>
         <tr>${metricCardHtml('Recursos con error', String(signals?.resourceErrors ?? '-'))}${metricCardHtml('Enlaces rotos', String(signals?.brokenInternalLinks ?? '-'))}</tr>
         <tr>${metricCardHtml('Tecnologias', listSignal(signals?.detectedTechnologies))}${metricCardHtml('Plugins WP', listSignal(signals?.wordPressPlugins))}</tr>
+        <tr>${metricCardHtml('Auditoria visual', signals?.visualAuditAvailable === true ? 'Ejecutada' : 'No disponible')}${metricCardHtml('Consola JS', `${String(signals?.consoleErrors ?? '-')} errores`)}</tr>
+        <tr>${metricCardHtml('Responsive real', listSignal(signals?.horizontalOverflowViewports) === '-' ? 'Sin overflow' : listSignal(signals?.horizontalOverflowViewports))}${metricCardHtml('Cookies render', String(signals?.cookiesBeforeConsent ?? '-'))}</tr>
       </table>
       <h3 style="margin:18px 0 8px;">Puntuaciones</h3>
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${categoryRowsHtml(categories, categoryScores)}</table>
@@ -563,6 +583,8 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
           <tr>${metricCardHtml('Respuesta HTML', signals?.responseTimeMs ? `${signals.responseTimeMs} ms` : '-')}${metricCardHtml('Peso recursos', formatBytes(signals?.estimatedResourceBytes))}</tr>
           <tr>${metricCardHtml('Recursos con error', String(signals?.resourceErrors ?? '-'))}${metricCardHtml('Enlaces rotos', String(signals?.brokenInternalLinks ?? '-'))}</tr>
           <tr>${metricCardHtml('Tecnologias', listSignal(signals?.detectedTechnologies))}${metricCardHtml('Plugins WP', listSignal(signals?.wordPressPlugins))}</tr>
+          <tr>${metricCardHtml('Auditoria visual', signals?.visualAuditAvailable === true ? 'Ejecutada' : 'No disponible')}${metricCardHtml('Consola JS', `${String(signals?.consoleErrors ?? '-')} errores`)}</tr>
+          <tr>${metricCardHtml('Responsive real', listSignal(signals?.horizontalOverflowViewports) === '-' ? 'Sin overflow' : listSignal(signals?.horizontalOverflowViewports))}${metricCardHtml('Cookies render', String(signals?.cookiesBeforeConsent ?? '-'))}</tr>
         </table>
         <h3 style="margin:22px 8px 8px;">Puntuaciones por area</h3>
         <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:12px 16px;margin:0 8px 18px;">

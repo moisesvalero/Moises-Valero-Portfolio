@@ -8,6 +8,12 @@ type AnalyzePayload = {
   strategy?: unknown;
 };
 
+export const config = {
+  runtime: 'nodejs22.x',
+  maxDuration: 60,
+  memory: 2048
+};
+
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const ipHits = new Map<string, number[]>();
 const dailyBudget = new Map<string, number>();

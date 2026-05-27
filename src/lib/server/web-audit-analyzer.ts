@@ -13,6 +13,7 @@ import {
 	type DeliveryVerdict,
 	type PublicWebAudit
 } from '$lib/server/web-delivery-auditor';
+import { visualAuditUnavailableSignals } from '$lib/server/web-visual-auditor';
 
 type Severity = 'slow' | 'needs_improvement' | 'fast';
 
@@ -181,7 +182,8 @@ function fallbackAudit(url: string, extraIssues: AuditIssue[]): PublicWebAudit {
 			estimatedResourceBytes: 0,
 			detectedTechnologies: [],
 			wordPressPlugins: [],
-			hasCustom404: false
+			hasCustom404: false,
+			...visualAuditUnavailableSignals('Auditoria visual no disponible en fallback.')
 		}
 	};
 }

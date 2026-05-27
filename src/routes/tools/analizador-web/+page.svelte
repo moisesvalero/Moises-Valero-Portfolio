@@ -66,6 +66,19 @@
       detectedTechnologies: string[];
       wordPressPlugins: string[];
       hasCustom404: boolean;
+      visualAuditAvailable: boolean;
+      visualAuditReason: string;
+      consoleErrors: number;
+      consoleWarnings: number;
+      renderedResourceErrors: number;
+      failedRequests: number;
+      smallTapTargets: number;
+      lowContrastTexts: number;
+      horizontalOverflowViewports: string[];
+      brokenRenderedImages: number;
+      cookiesBeforeConsent: number;
+      viewportChecks: string[];
+      blankRenderDetected: boolean;
     };
     highlights: string[];
     analysisMode?: 'complete' | 'partial';
@@ -190,7 +203,7 @@
           {
             label: 'Accesibilidad',
             score: Math.round(result.categoryScores.accessibility * animatedProgress),
-            checks: [`${result.signals.imagesWithoutAlt} imágenes sin alt`, `${result.signals.resourceErrors} recursos rotos`, `${infoIssues} notas`]
+            checks: [`${result.signals.imagesWithoutAlt} imágenes sin alt`, `${result.signals.smallTapTargets} tap targets`, `${result.signals.lowContrastTexts} contrastes`]
           }
         ]
       : []
@@ -239,7 +252,24 @@
       wordPressPlugins: Array.isArray(input?.wordPressPlugins)
         ? input.wordPressPlugins.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
         : [],
-      hasCustom404: input?.hasCustom404 === true
+      hasCustom404: input?.hasCustom404 === true,
+      visualAuditAvailable: input?.visualAuditAvailable === true,
+      visualAuditReason: typeof input?.visualAuditReason === 'string' ? input.visualAuditReason : 'Auditoría visual no ejecutada.',
+      consoleErrors: typeof input?.consoleErrors === 'number' ? input.consoleErrors : 0,
+      consoleWarnings: typeof input?.consoleWarnings === 'number' ? input.consoleWarnings : 0,
+      renderedResourceErrors: typeof input?.renderedResourceErrors === 'number' ? input.renderedResourceErrors : 0,
+      failedRequests: typeof input?.failedRequests === 'number' ? input.failedRequests : 0,
+      smallTapTargets: typeof input?.smallTapTargets === 'number' ? input.smallTapTargets : 0,
+      lowContrastTexts: typeof input?.lowContrastTexts === 'number' ? input.lowContrastTexts : 0,
+      horizontalOverflowViewports: Array.isArray(input?.horizontalOverflowViewports)
+        ? input.horizontalOverflowViewports.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+        : [],
+      brokenRenderedImages: typeof input?.brokenRenderedImages === 'number' ? input.brokenRenderedImages : 0,
+      cookiesBeforeConsent: typeof input?.cookiesBeforeConsent === 'number' ? input.cookiesBeforeConsent : 0,
+      viewportChecks: Array.isArray(input?.viewportChecks)
+        ? input.viewportChecks.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+        : [],
+      blankRenderDetected: input?.blankRenderDetected === true
     };
   }
 
@@ -731,6 +761,33 @@
             <div>
               <span>Tecnologias</span>
               <strong>{result.signals.detectedTechnologies.length ? result.signals.detectedTechnologies.slice(0, 4).join(', ') : 'Sin fingerprint claro'}</strong>
+            </div>
+          </div>
+
+          <div class="source-grid" aria-label="Auditoria visual con navegador">
+            <div>
+              <span>Navegador real</span>
+              <strong>{result.signals.visualAuditAvailable ? `Ejecutado: ${result.signals.viewportChecks.join(', ') || 'viewport real'}` : result.signals.visualAuditReason}</strong>
+            </div>
+            <div>
+              <span>Consola JS</span>
+              <strong>{result.signals.consoleErrors} errores - {result.signals.consoleWarnings} avisos</strong>
+            </div>
+            <div>
+              <span>Render resources</span>
+              <strong>{result.signals.renderedResourceErrors} respuestas rotas - {result.signals.failedRequests} requests fallidas</strong>
+            </div>
+            <div>
+              <span>Responsive real</span>
+              <strong>{result.signals.horizontalOverflowViewports.length ? `Overflow: ${result.signals.horizontalOverflowViewports.join(', ')}` : 'Sin overflow detectado'}</strong>
+            </div>
+            <div>
+              <span>Accesibilidad visual</span>
+              <strong>{result.signals.smallTapTargets} tap targets - {result.signals.lowContrastTexts} contrastes</strong>
+            </div>
+            <div>
+              <span>Privacidad render</span>
+              <strong>{result.signals.cookiesBeforeConsent} cookies antes de consentimiento</strong>
             </div>
           </div>
 
