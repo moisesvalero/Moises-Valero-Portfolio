@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { getAnalyzeJob } from '$lib/server/pagespeed-analyzer';
+import { getAnalyzeJob } from '$lib/server/web-audit-analyzer';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params }) => {

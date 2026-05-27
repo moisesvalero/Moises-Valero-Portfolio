@@ -33,6 +33,13 @@ type EmailIssue = {
   evidence: string;
 };
 
+type EmailCategory = {
+  id: string;
+  label: string;
+  score: number | null;
+  issues: EmailIssue[];
+};
+
 const LEAD_WINDOW_MS = 60 * 60 * 1000;
 const LEAD_MAX_PER_IP = 8;
 const LEAD_COOLDOWN_MS = 120 * 1000;
@@ -127,22 +134,53 @@ function parseIssues(value: unknown): EmailIssue[] {
     .slice(0, 12);
 }
 
-function categoryRowsHtml(categoryScores: Record<string, unknown> | null): string {
-  const categories = [
-    ['performance', 'Rendimiento'],
-    ['accessibility', 'Accesibilidad'],
-    ['seo', 'SEO tecnico'],
+function parseCategories(value: unknown): EmailCategory[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      const record = asRecord(item);
+      if (!record) return null;
+      return {
+        id: toCleanString(record.id),
+        label: toCleanString(record.label),
+        score: asScore(record.score),
+        issues: parseIssues(record.issues)
+      };
+    })
+    .filter((item): item is EmailCategory => Boolean(item?.label))
+    .slice(0, 12);
+}
+
+function fallbackEmailCategories(categoryScores: Record<string, unknown> | null): EmailCategory[] {
+  return [
     ['security', 'Seguridad'],
+    ['cms', 'CMS / WordPress'],
+    ['seo', 'SEO tecnico'],
+    ['ai', 'AEO / IA'],
+    ['accessibility', 'Accesibilidad'],
+    ['performance', 'Rendimiento'],
+    ['privacy', 'Privacidad / legal'],
     ['quality', 'Calidad visible'],
-    ['bestPractices', 'Buenas practicas']
-  ];
-  return categories
-    .map(([key, label]) => {
-      const score = asScore(categoryScores?.[key]);
+    ['trust', 'Confianza comercial'],
+    ['delivery', 'Entrega']
+  ].map(([id, label]) => ({
+    id,
+    label,
+    score: asScore(categoryScores?.[id]),
+    issues: []
+  }));
+}
+
+function categoryRowsHtml(categories: EmailCategory[], categoryScores: Record<string, unknown> | null): string {
+  const source = categories.length ? categories : fallbackEmailCategories(categoryScores);
+  return source
+    .map((category) => {
+      const score = category.score;
       const tone = scoreTone(score);
+      const issueCount = category.issues.length;
       return `
         <tr>
-          <td style="padding:10px 0;color:#334155;font-weight:700;">${label}</td>
+          <td style="padding:10px 0;color:#334155;font-weight:700;">${toSafeHtml(category.label)}${issueCount ? `<span style="display:block;color:#64748b;font-size:12px;font-weight:600;margin-top:2px;">${issueCount} hallazgos</span>` : ''}</td>
           <td style="padding:10px 0;width:90px;text-align:right;color:${tone.color};font-weight:800;">${score ?? '-'}/100</td>
         </tr>
         <tr>
@@ -184,6 +222,8 @@ function signalsHtml(signals: Record<string, unknown> | null): string {
     ['Redireccion HTTPS', signals?.redirectsToHttps === true ? 'Si' : 'No detectada'],
     ['robots.txt', signals?.hasRobotsTxt === true ? 'Detectado' : 'No detectado'],
     ['sitemap.xml', signals?.hasSitemap === true ? 'Detectado' : 'No detectado'],
+    ['llms.txt', signals?.hasLlmsTxt === true ? 'Detectado' : 'No detectado'],
+    ['security.txt', signals?.hasSecurityTxt === true ? 'Detectado' : 'No detectado'],
     ['WordPress', signals?.isWordPress === true ? 'Detectado' : 'No detectado'],
     ['Scripts externos', String(signals?.externalScripts ?? '-')],
     ['Enlaces internos', String(signals?.internalLinks ?? '-')],
@@ -208,27 +248,6 @@ function toSafeHtml(value: string): string {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
-}
-
-function parsePageWeightMb(label: string): number | null {
-  const clean = label.trim().toLowerCase().replace(',', '.');
-  const match = clean.match(/([\d.]+)\s*(b|kb|mb)/);
-  if (!match) return null;
-  const value = Number(match[1]);
-  if (!Number.isFinite(value)) return null;
-  const unit = match[2];
-  if (unit === 'mb') return value;
-  if (unit === 'kb') return value / 1024;
-  if (unit === 'b') return value / (1024 * 1024);
-  return null;
-}
-
-function pageWeightStatus(label: string): { text: string; emoji: string } {
-  const mb = parsePageWeightMb(label);
-  if (mb === null) return { text: 'Sin datos', emoji: '⚪' };
-  if (mb < 1) return { text: 'Ligera', emoji: '🟢' };
-  if (mb <= 2) return { text: 'Aceptable', emoji: '🟡' };
-  return { text: 'Pesada', emoji: '🔴' };
 }
 
 function extractDomain(rawUrl: string): string | null {
@@ -326,14 +345,8 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
   const deliveryVerdict = toCleanString(body.deliveryVerdict);
   const severity = toCleanString(body.severity);
   const categoryScores = asRecord(body.categoryScores);
-  const metrics = asRecord(body.metrics);
-  const fcp = toCleanString(metrics?.fcp);
-  const lcp = toCleanString(metrics?.lcp);
-  const cls = toCleanString(metrics?.cls);
-  const tbt = toCleanString(metrics?.tbt);
-  const imageWeight = toCleanString(metrics?.imageWeight);
-  const pageWeight = toCleanString(metrics?.pageWeight);
   const issues = parseIssues(body.issues);
+  const categories = parseCategories(body.categories);
   const criticalIssues = issues.filter((issue) => issue.severity === 'critical').length;
   const warningIssues = issues.filter((issue) => issue.severity === 'warning').length;
   const signals = asRecord(body.signals);
@@ -346,17 +359,17 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
     ? body.highlights.filter((item): item is string => typeof item === 'string' && item.trim().length > 0).slice(0, 5)
     : [];
 
-  const scoreLabel = `Nota de velocidad en movil (0-100): ${score ?? '-'}`;
+  const scoreLabel = `Nota de rendimiento estructural (0-100): ${score ?? '-'}`;
   const overallScoreLabel = `Nota global del informe (0-100): ${overallScore ?? '-'}`;
   const metricLines = [
-    `Tiempo hasta ver la pagina: ${fcp || '-'}`,
-    `Tiempo de carga principal: ${lcp || '-'}`,
-    `Cambios de diseno (CLS): ${cls || '-'}`,
-    `Bloqueo de JS (TBT): ${tbt || '-'}`,
-    `Peso total de imagenes: ${imageWeight || '-'}`,
-    `Peso total de la pagina: ${pageWeight || '-'}`
+    `HTTPS: ${signals?.isHttps === true ? 'Correcto' : 'Revisar'}`,
+    `robots.txt: ${signals?.hasRobotsTxt === true ? 'Detectado' : 'No detectado'}`,
+    `sitemap.xml: ${signals?.hasSitemap === true ? 'Detectado' : 'No detectado'}`,
+    `llms.txt: ${signals?.hasLlmsTxt === true ? 'Detectado' : 'No detectado'}`,
+    `security.txt: ${signals?.hasSecurityTxt === true ? 'Detectado' : 'No detectado'}`,
+    `Scripts externos: ${String(signals?.externalScripts ?? '-')}`,
+    `Imagenes sin alt: ${String(signals?.imagesWithoutAlt ?? '-')}`
   ];
-  const weightStatus = pageWeightStatus(pageWeight || '');
   const scoreStyle = scoreTone(score);
   const overallStyle = scoreTone(overallScore);
 
@@ -409,7 +422,6 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
     analysisNote ? `Nota: ${analysisNote}` : '',
     `Severidad: ${severity || '-'}`,
     `Problemas: ${criticalIssues} criticos, ${warningIssues} avisos`,
-    `Estado del peso de pagina: ${weightStatus.text}`,
     ...metricLines,
     '',
     ...issues.slice(0, 5).map((issue, index) => `${index + 1}. [${severityLabel(issue.severity)}] ${issue.title}`),
@@ -422,7 +434,7 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
       <p style="margin:0 0 14px;color:#475569;"><strong>Email:</strong> ${toSafeHtml(email)} · <strong>URL:</strong> ${toSafeHtml(url || '-')}</p>
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 12px;">
         <tr>
-          ${metricCardHtml('Velocidad movil', score === null ? '-' : `${score}/100`)}
+          ${metricCardHtml('Rendimiento estructural', score === null ? '-' : `${score}/100`)}
           ${metricCardHtml('Nota global', overallScore === null ? '-' : `${overallScore}/100`)}
         </tr>
         <tr>
@@ -431,14 +443,14 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
         </tr>
       </table>
       <p style="margin:0 0 8px;color:#475569;"><strong>Modo:</strong> ${analysisMode === 'partial' ? 'Parcial' : 'Completo'}${analysisNote ? ` · ${toSafeHtml(analysisNote)}` : ''}</p>
-      <h3 style="margin:18px 0 8px;">Metricas</h3>
+      <h3 style="margin:18px 0 8px;">Senales tecnicas</h3>
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
-        <tr>${metricCardHtml('FCP', fcp || '-')}${metricCardHtml('LCP', lcp || '-')}</tr>
-        <tr>${metricCardHtml('CLS', cls || '-')}${metricCardHtml('TBT', tbt || '-')}</tr>
-        <tr>${metricCardHtml('Imagenes', imageWeight || '-')}${metricCardHtml('Peso pagina', pageWeight || '-')}</tr>
+        <tr>${metricCardHtml('HTTPS', signals?.isHttps === true ? 'Correcto' : 'Revisar')}${metricCardHtml('WordPress', signals?.isWordPress === true ? 'Detectado' : 'No detectado')}</tr>
+        <tr>${metricCardHtml('robots.txt', signals?.hasRobotsTxt === true ? 'Detectado' : 'No detectado')}${metricCardHtml('sitemap.xml', signals?.hasSitemap === true ? 'Detectado' : 'No detectado')}</tr>
+        <tr>${metricCardHtml('Scripts externos', String(signals?.externalScripts ?? '-'))}${metricCardHtml('Imagenes sin alt', String(signals?.imagesWithoutAlt ?? '-'))}</tr>
       </table>
       <h3 style="margin:18px 0 8px;">Puntuaciones</h3>
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${categoryRowsHtml(categoryScores)}</table>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${categoryRowsHtml(categories, categoryScores)}</table>
       <h3 style="margin:18px 0 8px;">Problemas prioritarios</h3>
       ${issuesHtml(issues)}
     ${
@@ -465,11 +477,10 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
     scoreLabel,
     overallScoreLabel,
     `Veredicto: ${verdictLabel(deliveryVerdict)}`,
-    analysisMode === 'partial' ? 'Nota: PageSpeed tardo demasiado y se ha generado un informe tecnico parcial.' : '',
+    analysisMode === 'partial' ? 'Nota: se ha generado un informe tecnico parcial con los checks disponibles.' : '',
     '',
     ...metricLines,
     '',
-    `Estado de peso de pagina: ${weightStatus.emoji} ${weightStatus.text}`,
     `Problemas detectados: ${criticalIssues} criticos, ${warningIssues} avisos`,
     '',
     ...highlights.map((line, index) => `${index + 1}. ${line}`),
@@ -492,7 +503,7 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
           <tr>
             <td style="width:50%;padding:8px;">
               <div style="background:${scoreStyle.bg};border-radius:16px;padding:18px;">
-                <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:${scoreStyle.color};font-weight:800;">Velocidad movil</div>
+                <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:${scoreStyle.color};font-weight:800;">Rendimiento estructural</div>
                 <div style="font-size:42px;line-height:1;color:${scoreStyle.color};font-weight:900;margin-top:8px;">${score ?? '-'}</div>
                 <div style="margin-top:10px;">${scoreBarHtml(score, scoreStyle.color)}</div>
               </div>
@@ -509,18 +520,18 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
         <p style="margin:8px 8px 18px;color:#475569;"><strong>Web analizada:</strong> ${toSafeHtml(url || '-')}${finalUrl ? `<br><strong>URL final:</strong> ${toSafeHtml(finalUrl)}` : ''}</p>
         ${
           analysisMode === 'partial'
-            ? `<div style="border:1px solid #fde68a;background:#fffbeb;border-radius:14px;padding:12px 14px;margin:0 8px 18px;color:#92400e;"><strong>Nota:</strong> PageSpeed ha tardado demasiado, asi que se ha generado un informe tecnico parcial con los checks propios disponibles.</div>`
+            ? `<div style="border:1px solid #fde68a;background:#fffbeb;border-radius:14px;padding:12px 14px;margin:0 8px 18px;color:#92400e;"><strong>Nota:</strong> se ha generado un informe tecnico parcial con los checks propios disponibles.</div>`
             : ''
         }
-        <h3 style="margin:22px 8px 8px;">Metricas clave</h3>
+        <h3 style="margin:22px 8px 8px;">Senales tecnicas clave</h3>
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
-          <tr>${metricCardHtml('FCP', fcp || '-')}${metricCardHtml('LCP', lcp || '-')}</tr>
-          <tr>${metricCardHtml('CLS', cls || '-')}${metricCardHtml('TBT', tbt || '-')}</tr>
-          <tr>${metricCardHtml('Imagenes', imageWeight || '-')}${metricCardHtml('Peso pagina', pageWeight || '-')}</tr>
+          <tr>${metricCardHtml('HTTPS', signals?.isHttps === true ? 'Correcto' : 'Revisar')}${metricCardHtml('WordPress', signals?.isWordPress === true ? 'Detectado' : 'No detectado')}</tr>
+          <tr>${metricCardHtml('robots.txt', signals?.hasRobotsTxt === true ? 'Detectado' : 'No detectado')}${metricCardHtml('sitemap.xml', signals?.hasSitemap === true ? 'Detectado' : 'No detectado')}</tr>
+          <tr>${metricCardHtml('Scripts externos', String(signals?.externalScripts ?? '-'))}${metricCardHtml('Imagenes sin alt', String(signals?.imagesWithoutAlt ?? '-'))}</tr>
         </table>
         <h3 style="margin:22px 8px 8px;">Puntuaciones por area</h3>
         <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:12px 16px;margin:0 8px 18px;">
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${categoryRowsHtml(categoryScores)}</table>
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">${categoryRowsHtml(categories, categoryScores)}</table>
         </div>
         <h3 style="margin:22px 8px 8px;">Senales tecnicas detectadas</h3>
         <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:12px 16px;margin:0 8px 18px;">
@@ -566,7 +577,7 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
       html: customerHtml
     });
   } catch (error) {
-    console.error('[pagespeed-lead] Resend error', error);
+    console.error('[web-audit-lead] Resend error', error);
     return json(
       {
         ok: false,
@@ -587,15 +598,11 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
         url: normalizedUrl,
         score: score ?? undefined,
         severity: severity || undefined,
-        fcp: fcp || undefined,
-        lcp: lcp || undefined,
-        imageWeight: imageWeight || undefined,
-        pageWeight: pageWeight || undefined,
         source: 'tools-analizador-web',
         createdAt: new Date().toISOString()
       });
     } catch (error) {
-      console.warn('[pagespeed-lead] No se pudo guardar en Sanity', error);
+      console.warn('[web-audit-lead] No se pudo guardar en Sanity', error);
     }
   }
 

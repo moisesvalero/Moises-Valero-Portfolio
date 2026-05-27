@@ -76,7 +76,7 @@ export const sitePages: SitePage[] = [
     path: '/tools/analizador-web',
     titleEs: 'Analizador web técnico',
     descEs:
-      'Herramienta propia para auditar rendimiento web con PageSpeed, métricas Core Web Vitals y señales técnicas.',
+      'Herramienta propia para auditar seguridad, SEO, accesibilidad, privacidad y señales técnicas de una web.',
     changefreq: 'monthly',
     priority: 0.78,
     group: 'portfolio',

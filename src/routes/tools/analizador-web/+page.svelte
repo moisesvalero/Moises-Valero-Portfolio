@@ -30,7 +30,17 @@
       pageWeight: string;
     };
     categories: Array<{
-      id: 'performance' | 'security' | 'seo' | 'accessibility' | 'quality';
+      id:
+        | 'security'
+        | 'cms'
+        | 'seo'
+        | 'ai'
+        | 'accessibility'
+        | 'performance'
+        | 'privacy'
+        | 'quality'
+        | 'trust'
+        | 'delivery';
       label: string;
       score: number;
       issues: AuditIssue[];
@@ -42,6 +52,8 @@
       redirectsToHttps: boolean;
       hasRobotsTxt: boolean;
       hasSitemap: boolean;
+      hasLlmsTxt: boolean;
+      hasSecurityTxt: boolean;
       isWordPress: boolean;
       externalScripts: number;
       internalLinks: number;
@@ -133,13 +145,19 @@
   const criticalIssues = $derived(result?.issues.filter((item) => item.severity === 'critical').length ?? 0);
   const warningIssues = $derived(result?.issues.filter((item) => item.severity === 'warning').length ?? 0);
   const infoIssues = $derived(result?.issues.filter((item) => item.severity === 'info').length ?? 0);
+  const categoryIssueCount = (id: AnalyzerResult['categories'][number]['id']) =>
+    result?.categories.find((category) => category.id === id)?.issues.length ?? 0;
   const heroCards = $derived(
     result
       ? [
           {
             label: 'Rendimiento',
             score: Math.round((result.categoryScores.performance || result.performanceScore) * animatedProgress),
-            checks: [`FCP: ${result.metrics.fcp}`, `LCP: ${result.metrics.lcp}`, `Peso: ${result.metrics.pageWeight}`]
+            checks: [
+              `${categoryIssueCount('performance')} hallazgos`,
+              `${result.signals.externalScripts} scripts externos`,
+              'Estructura y recursos visibles'
+            ]
           },
           {
             label: 'SEO',
@@ -156,6 +174,7 @@
             checks: [
               result.signals.isHttps ? 'HTTPS correcto' : 'HTTPS pendiente',
               result.signals.redirectsToHttps ? 'Redirige a HTTPS' : 'Sin redirección HTTPS',
+              result.signals.hasSecurityTxt ? 'security.txt detectado' : 'security.txt pendiente',
               `${criticalIssues} críticos`
             ]
           },
@@ -267,6 +286,8 @@
         redirectsToHttps: false,
         hasRobotsTxt: false,
         hasSitemap: false,
+        hasLlmsTxt: false,
+        hasSecurityTxt: false,
         isWordPress: false,
         externalScripts: 0,
         internalLinks: 0,
@@ -295,7 +316,7 @@
 
     while (Date.now() - startedAt < timeoutMs) {
       await new Promise((resolve) => setTimeout(resolve, intervalMs));
-      const response = await fetch(`/api/pagespeed/analyze/${encodeURIComponent(jobId)}`);
+      const response = await fetch(`/api/web-audit/analyze/${encodeURIComponent(jobId)}`);
       const data = (await response.json().catch(() => null)) as {
         ok?: boolean;
         status?: 'queued' | 'running' | 'completed' | 'error';
@@ -328,7 +349,7 @@
     leadStatus = 'idle';
     leadError = '';
 
-    const response = await fetch('/api/pagespeed/analyze', {
+    const response = await fetch('/api/web-audit/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: analyzerUrl, strategy: 'mobile' })
@@ -384,7 +405,7 @@
     leadStatus = 'sending';
     leadError = '';
 
-    const response = await fetch('/api/pagespeed/lead', {
+    const response = await fetch('/api/web-audit/lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -479,14 +500,16 @@
           <div class="preflight-panel">
             <p>El informe revisará</p>
             <div>
-              <span>PageSpeed</span>
-              <span>Cabeceras HTTP</span>
-              <span>HTTPS</span>
               <span>SEO técnico</span>
+              <span>AEO / IA</span>
+              <span>Seguridad visible</span>
+              <span>CMS / WordPress</span>
               <span>Accesibilidad</span>
-              <span>WordPress</span>
-              <span>Scripts sospechosos</span>
-              <span>Recursos visibles</span>
+              <span>Rendimiento estructural</span>
+              <span>Privacidad / legal</span>
+              <span>Calidad de entrega</span>
+              <span>Confianza comercial</span>
+              <span>Veredicto final</span>
             </div>
           </div>
         {/if}
@@ -524,7 +547,7 @@
         <span></span>
       </div>
       <div class="analysis-steps">
-        <span>PageSpeed</span>
+        <span>Auditor propio</span>
         <span>Cabeceras HTTP</span>
         <span>SEO técnico</span>
         <span>Accesibilidad</span>
@@ -581,7 +604,7 @@
       <form class="lead-panel" onsubmit={(event) => { event.preventDefault(); void submitLeadForm(); }}>
         <div>
           <h2>Enviar informe por email</h2>
-          <p>Te envío el resumen con la URL, puntuación, métricas y mejoras principales.</p>
+          <p>Te envío los 10 apartados, puntuaciones, problemas prioritarios y acciones recomendadas.</p>
         </div>
         <input
           bind:value={leadEmail}
@@ -608,7 +631,7 @@
 
   {#if result}
     <section class="report-section" aria-label="Informe del analizador web">
-      <details class="full-report">
+      <details class="full-report" open>
         <summary>
           <span>Informe completo</span>
           <strong>Ver revisión técnica detallada</strong>
@@ -627,16 +650,16 @@
 
           <div class="source-grid" aria-label="Tipos de análisis incluidos">
             <div>
-              <span>PageSpeed</span>
-              <strong>Rendimiento, SEO y accesibilidad</strong>
+              <span>Auditor propio</span>
+              <strong>10 apartados de entrega web con checks propios</strong>
             </div>
             <div>
-              <span>MDN Observatory / SecurityHeaders</span>
+              <span>Cabeceras y politicas</span>
               <strong>Cabeceras, HTTPS, CSP, HSTS y cookies</strong>
             </div>
             <div>
-              <span>Sucuri-style visible scan</span>
-              <strong>WordPress, iframes, scripts y señales sospechosas</strong>
+              <span>Revision editorial y tecnica</span>
+              <strong>SEO, AEO, privacidad, confianza, CMS y calidad visible</strong>
             </div>
           </div>
 

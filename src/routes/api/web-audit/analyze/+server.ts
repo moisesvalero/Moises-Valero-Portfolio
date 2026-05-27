@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
-import { enqueueAnalyzeJob } from '$lib/server/pagespeed-analyzer';
+import { enqueueAnalyzeJob } from '$lib/server/web-audit-analyzer';
 import type { RequestHandler } from './$types';
 
 type AnalyzePayload = {
@@ -46,7 +46,7 @@ export const POST: RequestHandler = async ({ request, url, getClientAddress }) =
 
   const requesterIp = getClientAddress();
   const now = Date.now();
-  const hourlyLimit = Math.max(1, Number(env.PAGESPEED_RATE_LIMIT_PER_HOUR || 15));
+  const hourlyLimit = Math.max(1, Number(env.WEB_AUDIT_RATE_LIMIT_PER_HOUR || 15));
   const currentHits = (ipHits.get(requesterIp) || []).filter((at) => now - at < RATE_LIMIT_WINDOW_MS);
   if (currentHits.length >= hourlyLimit) {
     return json(
@@ -58,7 +58,7 @@ export const POST: RequestHandler = async ({ request, url, getClientAddress }) =
   ipHits.set(requesterIp, currentHits);
 
   const dayKey = new Date(now).toISOString().slice(0, 10);
-  const maxCallsPerDay = Math.max(1, Number(env.PAGESPEED_MAX_CALLS_PER_DAY || 250));
+  const maxCallsPerDay = Math.max(1, Number(env.WEB_AUDIT_MAX_CALLS_PER_DAY || 250));
   const todayCalls = dailyBudget.get(dayKey) || 0;
   if (todayCalls >= maxCallsPerDay) {
     return json(
