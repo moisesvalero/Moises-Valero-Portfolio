@@ -1,6 +1,5 @@
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
-import { env as publicEnv } from '$env/dynamic/public';
 import { getSanityWriteClient } from '$lib/server/sanity/get-server-client';
 import type { RequestHandler } from './$types';
 
@@ -194,7 +193,7 @@ function fallbackEmailCategories(categoryScores: Record<string, unknown> | null)
     ['performance', 'Rendimiento'],
     ['privacy', 'Privacidad / legal'],
     ['quality', 'Calidad visible'],
-    ['trust', 'Confianza comercial'],
+    ['trust', 'Claridad y confianza'],
     ['delivery', 'Entrega']
   ].map(([id, label]) => ({
     id,
@@ -266,8 +265,7 @@ function issuesHtml(issues: EmailIssue[]): string {
                   }
                   ${
                     issue.aiPrompt
-                      ? `<p style="margin:10px 0 6px;color:#0f172a;font-size:13px;"><strong>Prompt para IA:</strong></p>
-                         <pre style="white-space:pre-wrap;word-break:break-word;margin:0;background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;color:#334155;font-family:Arial,sans-serif;font-size:12px;line-height:1.45;">${toSafeHtml(issue.aiPrompt)}</pre>`
+                      ? `<a href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:10px;background:#0d71e3;color:#ffffff;text-decoration:none;padding:9px 12px;border-radius:8px;font-weight:800;font-size:12px;">Abrir IA para corregirlo</a>`
                       : ''
                   }
                 </div>`
@@ -284,8 +282,7 @@ function issuePlainText(issue: EmailIssue, index: number): string {
     `${index + 1}. [${severityLabel(issue.severity)}] ${issue.title}`,
     issue.evidence ? `   Evidencia: ${issue.evidence}` : '',
     issue.technicalContext ? `   Contexto: ${issue.technicalContext}` : '',
-    issue.repairSteps.length ? `   Pasos: ${issue.repairSteps.map((step, stepIndex) => `${stepIndex + 1}) ${step}`).join(' ')}` : `   Como arreglarlo: ${issue.fix}`,
-    issue.aiPrompt ? `   Prompt para IA:\n${issue.aiPrompt}` : ''
+    issue.repairSteps.length ? `   Pasos: ${issue.repairSteps.map((step, stepIndex) => `${stepIndex + 1}) ${step}`).join(' ')}` : `   Como arreglarlo: ${issue.fix}`
   ];
   return lines.filter(Boolean).join('\n');
 }
@@ -361,13 +358,6 @@ function normalizeUrlForSanity(rawUrl: string): string | undefined {
   } catch {
     return undefined;
   }
-}
-
-function normalizeE164(raw: string | undefined): string | null {
-  if (!raw?.trim()) return null;
-  const digits = raw.replace(/\D/g, '');
-  if (digits.length < 10 || digits.length > 15) return null;
-  return digits;
 }
 
 async function sendResendEmail({
@@ -507,15 +497,6 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
 
   const toEmail = env.CONTACT_TO_EMAIL || env.PUBLIC_CONTACT_EMAIL || 'info@moisesvalero.es';
   const fromEmail = env.CONTACT_FROM_EMAIL || 'Web <onboarding@resend.dev>';
-  const publicSiteUrl = (publicEnv.PUBLIC_SITE_URL || 'https://moisesvalero.es').replace(/\/$/, '');
-  const whatsappId = normalizeE164(env.WHATSAPP_E164 || '34627950559');
-  const whatsappText = encodeURIComponent(
-    `Hola, Moisés. He recibido el informe de mi web (${url || 'sin URL'}) y quería comentarlo contigo.`
-  );
-  const whatsappHref = whatsappId
-    ? `https://wa.me/${whatsappId}?text=${whatsappText}`
-    : `${publicSiteUrl}/api/contact/whatsapp`;
-
   const ownerSubject = `Nuevo informe solicitado · ${email}`;
   const ownerText = [
     'Nuevo lead desde el analizador web',
@@ -675,8 +656,6 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
                 .join('')}</ul>`
             : ''
         }
-        <p style="margin:18px 8px;color:#475569;">Si quieres, puedo revisar estos puntos contigo y priorizar qué merece la pena tocar primero para mejorar rendimiento, SEO técnico y confianza visual.</p>
-        <a href="${toSafeHtml(whatsappHref)}" style="display:inline-block;background:#0d71e3;color:#fff;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:800;margin:0 8px 4px;">Comentar el informe</a>
       </div>
     </div>
   `;

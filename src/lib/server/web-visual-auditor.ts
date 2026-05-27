@@ -289,6 +289,9 @@ export async function auditVisualWebsite(url: string, options: { timeoutMs?: num
 	if (process.env.DISABLE_BROWSER_AUDIT === '1') {
 		return defaultUnavailable('DISABLE_BROWSER_AUDIT=1');
 	}
+	if (process.env.VERCEL === '1' && process.env.ENABLE_BROWSER_AUDIT !== '1') {
+		return defaultUnavailable('Auditoria visual con navegador desactivada en Vercel para evitar fallos de Chromium serverless.');
+	}
 
 	const timeoutMs = options.timeoutMs ?? 18_000;
 	let playwright: typeof import('playwright-core');

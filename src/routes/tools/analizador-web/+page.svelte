@@ -592,7 +592,7 @@
               <span>Rendimiento estructural</span>
               <span>Privacidad / legal</span>
               <span>Calidad de entrega</span>
-              <span>Confianza comercial</span>
+              <span>Claridad y confianza</span>
               <span>Veredicto final</span>
             </div>
           </div>

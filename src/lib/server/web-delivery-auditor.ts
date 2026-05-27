@@ -93,7 +93,7 @@ const CATEGORY_LABELS: Record<AuditCategoryId, string> = {
 	performance: 'Rendimiento estructural',
 	privacy: 'Privacidad / legal',
 	quality: 'Calidad visible',
-	trust: 'Confianza comercial',
+	trust: 'Claridad y confianza',
 	delivery: 'Entrega'
 };
 
@@ -1107,7 +1107,7 @@ function analyzePrivacyLegal(snapshot: FetchSnapshot): { issues: AuditIssue[]; p
 		issues.push(issue('privacy.consent-banner', 'privacy', 'info', 'Tracking sin gestor de consentimiento visible', 'Si hay analitica o marketing, puede hacer falta pedir consentimiento antes de activar cookies no necesarias.', 'Usa un CMP o carga tracking solo tras consentimiento.'));
 	}
 	if (!hasLegal) {
-		issues.push(issue('privacy.legal-notice', 'privacy', 'info', 'No se detecta aviso legal o terminos', 'En webs comerciales suele ser una senal basica de confianza y cumplimiento.', 'Incluye aviso legal, terminos o datos del responsable si aplica.'));
+		issues.push(issue('privacy.legal-notice', 'privacy', 'info', 'No se detecta aviso legal o terminos', 'En webs publicas suele ser una senal basica de confianza y cumplimiento.', 'Incluye aviso legal, terminos o datos del responsable si aplica.'));
 	}
 	if (formsWithoutLegal > 0) {
 		issues.push(issue('privacy.form-consent', 'privacy', 'warning', 'Formularios sin referencia legal visible', 'El usuario deberia saber que pasa con sus datos antes de enviarlos.', 'Incluye texto legal, checkbox o enlace a privacidad junto al formulario.', `${formsWithoutLegal} formularios`));
@@ -1188,10 +1188,10 @@ function analyzeCommercialTrust(snapshot: FetchSnapshot): { issues: AuditIssue[]
 	const hasEmailOrPhone = /mailto:|tel:|[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.test(html);
 
 	if (!hasContact || !hasEmailOrPhone) {
-		issues.push(issue('trust.contact', 'trust', 'warning', 'Contacto poco claro', 'Si el usuario no encuentra contacto rapido, baja la conversion y la confianza.', 'Incluye email, formulario, telefono, LinkedIn o CTA visible.'));
+		issues.push(issue('trust.contact', 'trust', 'warning', 'Contacto poco claro', 'Si la persona que visita la web no encuentra una via de contacto rapida, baja la confianza.', 'Incluye email, formulario, telefono, LinkedIn o una accion visible.'));
 	}
 	if (!hasCta) {
-		issues.push(issue('trust.cta', 'trust', 'info', 'No se detecta llamada a la accion clara', 'Una web puede estar bien tecnicamente y aun asi no guiar al usuario.', 'Incluye una accion principal coherente con el objetivo de la pagina.'));
+		issues.push(issue('trust.cta', 'trust', 'info', 'No se detecta accion principal clara', 'Una web puede estar bien tecnicamente y aun asi no guiar a la persona que la visita.', 'Incluye una accion principal coherente con el objetivo de la pagina.'));
 	}
 	if (!hasSocial) {
 		issues.push(issue('trust.social-proof-links', 'trust', 'info', 'No se detectan enlaces sociales/profesionales', 'Perfiles externos pueden reforzar identidad y confianza.', 'Enlaza LinkedIn, GitHub, redes o plataformas relevantes.'));
@@ -1203,7 +1203,7 @@ function analyzeCommercialTrust(snapshot: FetchSnapshot): { issues: AuditIssue[]
 		issues.push(issue('trust.location', 'trust', 'info', 'Ubicacion o ambito poco claro', 'Para servicios locales o empleo, el contexto geografico/remoto ayuda a filtrar oportunidades.', 'Indica zona, modalidad o ambito de trabajo si aplica.'));
 	}
 	if (!issues.length) {
-		passed.push('Confianza comercial basica bien cubierta.');
+		passed.push('Claridad y confianza basicas bien cubiertas.');
 	}
 	return { issues, passed };
 }

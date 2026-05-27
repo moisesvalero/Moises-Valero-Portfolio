@@ -145,7 +145,7 @@ function fallbackAudit(url: string, extraIssues: AuditIssue[]): PublicWebAudit {
 		performance: 'Rendimiento estructural',
 		privacy: 'Privacidad / legal',
 		quality: 'Calidad visible',
-		trust: 'Confianza comercial',
+		trust: 'Claridad y confianza',
 		delivery: 'Entrega'
 	};
 	const categories = categoryIds.map((id) => {
