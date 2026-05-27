@@ -278,11 +278,6 @@ function issuesHtml(issues: EmailIssue[]): string {
 													.join('')}</ol>`
 											: ''
 									}
-                  ${
-										issue.aiPrompt
-											? `<a href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:10px;background:#0d71e3;color:#ffffff;text-decoration:none;padding:9px 12px;border-radius:8px;font-weight:800;font-size:12px;">Abrir IA para corregirlo</a>`
-											: ''
-									}
                 </div>`
 							: ''
 					}
