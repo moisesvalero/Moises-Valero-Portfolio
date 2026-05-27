@@ -49,7 +49,7 @@ function mapRow(
     excerpt,
     publishedAt: asString(row.publishedAt, new Date().toISOString()),
     readingMinutes: asNumber(row.readingMinutes, 5),
-    coverImageSrc: imageFromAsset || asString(row.coverImageSrc, '/og-image.png'),
+    coverImageSrc: imageFromAsset || asString(row.coverImageSrc, '/og-image-2026.png'),
     coverImageAlt: asString(row.coverImageAlt, title),
     bodyHtml: asString(row.bodyHtml, ''),
     seoTitle: asString(row.seoTitle, title),

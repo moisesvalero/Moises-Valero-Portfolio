@@ -9,7 +9,7 @@
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
   const canonical = $derived(`${baseUrl}/proyectos/${data.studySeo.slug}`);
-  const ogImageDefault = `${baseUrl}/og-image.png`;
+  const ogImageDefault = `${baseUrl}/og-image-2026.png`;
   const ogDescription = $derived(data.studySeo.seoDescription ?? data.studySeo.heroDescription);
   const ogTitle = $derived(`${data.studySeo.title} | Caso de Estudio`);
   const projectJsonLd = $derived(

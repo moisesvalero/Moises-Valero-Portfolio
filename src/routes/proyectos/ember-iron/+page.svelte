@@ -10,7 +10,7 @@
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/ember-iron`;
-  const ogImage = `${baseUrl}/og-image.png`;
+  const ogImage = `${baseUrl}/og-image-2026.png`;
   const ogTitleShort = 'Ember & Iron — Caso de Estudio';
   const ogDesc =
     'Alto impacto visual sin sacrificar rendimiento: Kadence, child theme, Handbrake, XnConvert y formulario sin plugins.';

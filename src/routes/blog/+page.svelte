@@ -67,7 +67,7 @@
     content="Guías y notas prácticas sobre desarrollo web, rendimiento, seguridad y SEO técnico."
   />
   <meta property="og:url" content={canonical} />
-  <meta property="og:image" content={`${baseUrl}/og-image.png`} />
+  <meta property="og:image" content={`${baseUrl}/og-image-2026.png`} />
   <meta name="twitter:card" content="summary_large_image" />
   <JsonLdScript json={listJsonLd} />
 </svelte:head>

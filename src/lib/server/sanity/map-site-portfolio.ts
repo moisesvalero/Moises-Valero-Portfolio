@@ -216,6 +216,9 @@ function resolveOgImagePath(fromCms: string | undefined, fallback: string): stri
   if (!raw) {
     return fallback;
   }
+  if (raw === '/og-image.png') {
+    return fallback;
+  }
   if (raw.includes('Moises-Valero-Sanchez.png')) {
     return fallback;
   }

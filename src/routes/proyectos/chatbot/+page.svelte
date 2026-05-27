@@ -10,7 +10,7 @@
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/chatbot`;
-  const ogImage = `${baseUrl}/og-image.png`;
+  const ogImage = `${baseUrl}/og-image-2026.png`;
   const ogTitleShort = 'Chatbot IA — Caso de Estudio';
   const ogDesc =
     'IA conversacional entrenada con tu perfil, webhooks y notificaciones en tiempo real sin infraestructura compleja.';

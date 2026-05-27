@@ -18,7 +18,7 @@ export type SiteSeo = {
   description: string;
   ogTitle: string;
   ogDescription: string;
-  /** URL absoluta o relativa a la raíz (p. ej. /og-image.png) */
+  /** URL absoluta o relativa a la raíz (p. ej. /og-image-2026.png) */
   ogImage: string;
   twitterCard: 'summary' | 'summary_large_image';
 };

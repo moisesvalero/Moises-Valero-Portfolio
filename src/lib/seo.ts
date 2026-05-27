@@ -54,7 +54,7 @@ export const defaultSeo: SeoState = {
   ogTitle: 'Moisés Valero – Desarrollador Web',
   ogDescription:
     'Desarrollo web con foco en rendimiento, WordPress, SvelteKit y soporte técnico.',
-  ogImage: `${baseUrl}/og-image.png`,
+  ogImage: `${baseUrl}/og-image-2026.png`,
   ogType: 'website',
   ogUrl: baseUrl,
   twitterCard: 'summary_large_image',

@@ -25,7 +25,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
     ogTitle: 'Moisés Valero – Desarrollador Web',
     ogDescription:
       'Desarrollo web con foco en rendimiento, WordPress, SvelteKit y soporte técnico.',
-    ogImage: '/og-image.png',
+    ogImage: '/og-image-2026.png',
     twitterCard: 'summary_large_image'
   },
   hero: {

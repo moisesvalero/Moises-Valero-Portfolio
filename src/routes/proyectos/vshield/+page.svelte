@@ -10,7 +10,7 @@
 
   const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es').toString().replace(/\/$/, '');
   const canonical = `${baseUrl}/proyectos/vshield`;
-  const ogImage = `${baseUrl}/og-image.png`;
+  const ogImage = `${baseUrl}/og-image-2026.png`;
   const ogTitleShort = 'V-Shield — Caso de Estudio';
   const ogDesc =
     'Landing de ciberseguridad con terminal interactiva, formulario sin plugins y optimización de rendimiento.';

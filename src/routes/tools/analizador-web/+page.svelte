@@ -420,7 +420,7 @@
     content="Análisis completo para encontrar fallos de rendimiento, cabeceras, SEO, accesibilidad y código sospechoso antes de publicar una web."
   />
   <meta property="og:url" content={canonical} />
-  <meta property="og:image" content={`${baseUrl}/og-image.png`} />
+  <meta property="og:image" content={`${baseUrl}/og-image-2026.png`} />
   <meta name="twitter:card" content="summary_large_image" />
   <JsonLdScript json={pageJsonLd} />
 </svelte:head>
