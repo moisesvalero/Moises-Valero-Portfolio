@@ -541,7 +541,7 @@
     <h1>Analizador web</h1>
     <p class="lead">
       Analiza una URL en una sola pasada: rendimiento, seguridad visible, SEO técnico, accesibilidad,
-      cabeceras HTTP, WordPress y señales sospechosas. Pensado para revisar tus trabajos antes de publicarlos.
+      cabeceras HTTP, WordPress y señales sospechosas.
     </p>
   </section>
 

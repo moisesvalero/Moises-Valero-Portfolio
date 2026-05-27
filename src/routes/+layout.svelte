@@ -63,6 +63,9 @@
       const pick = (predicate: (item: HeaderNavItem) => boolean): HeaderNavItem | undefined =>
         source.find(predicate);
 
+      const home =
+        pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#top') ??
+        ({ label: data.locale === 'en' ? 'Home' : 'Inicio', href: '/#top' } as HeaderNavItem);
       const assistant = { label: data.locale === 'en' ? 'AI Assistant' : 'Asistente IA', href: '/ia-moises' } as HeaderNavItem;
       const blog =
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/blog') ??
@@ -77,9 +80,10 @@
         pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#contacto') ??
         ({ label: data.locale === 'en' ? 'Contact' : 'Contacto', href: '/#contacto' } as HeaderNavItem);
 
+      const cv = { label: 'CV', href: '/api/cv' } as HeaderNavItem;
       const career = pick((item) => item.openCareerModal === true);
 
-      const preferred = [projects, contact, assistant, analyzer, blog, career].filter(
+      const preferred = [home, projects, contact, assistant, analyzer, blog, cv, career].filter(
         Boolean
       ) as HeaderNavItem[];
       return preferred;
@@ -91,17 +95,17 @@
       {
         title: 'Portfolio',
         variant: 'default',
-        items: headerNavItems.slice(0, 2)
+        items: headerNavItems.slice(0, 3)
       },
       {
         title: data.locale === 'en' ? 'Work' : 'Trabajo',
         variant: 'muted',
-        items: headerNavItems.slice(2, 4)
+        items: headerNavItems.slice(3, 5)
       },
       {
         title: data.locale === 'en' ? 'More' : 'Más',
         variant: 'default',
-        items: headerNavItems.slice(4)
+        items: headerNavItems.slice(5)
       }
     ]
       .map((group, index) =>
