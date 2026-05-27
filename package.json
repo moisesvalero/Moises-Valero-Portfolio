@@ -28,7 +28,7 @@
 		"@sveltejs/kit": "^2.59.1",
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@types/gsap": "^3.0.0",
-		"@types/node": "^25.8.0",
+		"@types/node": "^25.9.1",
 		"eslint": "^10.4.0",
 		"eslint-plugin-svelte": "^3.18.0",
 		"globals": "^17.6.0",
