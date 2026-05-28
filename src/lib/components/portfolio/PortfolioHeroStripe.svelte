@@ -291,7 +291,7 @@
 
 	.hero-stripe-pro-v2 h1 {
 		color: #0f172a !important;
-		font-size: clamp(44px, 6.8vw, 104px) !important;
+		font-size: clamp(48px, 7.25vw, 124px) !important;
 		font-weight: 800 !important;
 		margin: 0 0 13px 0 !important;
 		letter-spacing: -0.062em;
