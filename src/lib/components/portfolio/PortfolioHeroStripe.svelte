@@ -36,6 +36,9 @@
 	]);
 	const heroCapabilitiesLabel = $derived(heroCapabilities.map((item) => item.label).join(' · '));
 	const titleWords = $derived(title.split(/\s+/).filter(Boolean));
+	const scrollCtaLabel = $derived(
+		/\bview\b/i.test(careerCtaLabel) ? 'Scroll to about me' : 'Bajar a sobre mí'
+	);
 	const iconifySvgUrl = (name: string) =>
 		`url("https://api.iconify.design/${encodeURIComponent(name)}.svg")`;
 	const resolvePath = resolve as unknown as (href: string) => string;
@@ -97,6 +100,15 @@
 				</a>
 			</div>
 		</div>
+
+		<a class="hero-scroll-cue" href="#sobre" aria-label={scrollCtaLabel}>
+			<span class="hero-scroll-shell" aria-hidden="true">
+				<span class="hero-scroll-dot"></span>
+				<svg viewBox="0 0 24 24" focusable="false">
+					<path d="M12 5v13m0 0 6-6m-6 6-6-6" />
+				</svg>
+			</span>
+		</a>
 	</div>
 </div>
 
@@ -277,6 +289,116 @@
 		--hero-entry-blur: 6px;
 		--hero-entry-duration: 760ms;
 		animation-delay: 590ms;
+	}
+
+	.hero-scroll-cue {
+		position: absolute;
+		left: 50%;
+		bottom: clamp(24px, 5vh, 46px);
+		z-index: 12;
+		display: inline-flex;
+		width: 54px;
+		height: 54px;
+		align-items: center;
+		justify-content: center;
+		border-radius: 999px;
+		color: #005fd6;
+		text-decoration: none;
+		transform: translateX(-50%);
+		animation: heroScrollCueIn 760ms cubic-bezier(0.22, 1, 0.36, 1) 820ms both;
+	}
+
+	.hero-scroll-shell {
+		position: relative;
+		display: grid;
+		width: 46px;
+		height: 46px;
+		place-items: center;
+		border: 1px solid rgba(0, 113, 227, 0.18);
+		border-radius: 999px;
+		background:
+			linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.42)),
+			radial-gradient(circle at 50% 20%, rgba(0, 113, 227, 0.16), transparent 58%);
+		box-shadow:
+			0 18px 48px rgba(15, 23, 42, 0.12),
+			0 1px 0 rgba(255, 255, 255, 0.8) inset;
+		-webkit-backdrop-filter: blur(14px) saturate(1.2);
+		backdrop-filter: blur(14px) saturate(1.2);
+		transition:
+			transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+			border-color 260ms cubic-bezier(0.22, 1, 0.36, 1),
+			box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.hero-scroll-shell::before {
+		content: '';
+		position: absolute;
+		inset: -7px;
+		border: 1px solid rgba(0, 113, 227, 0.1);
+		border-radius: inherit;
+		opacity: 0.9;
+	}
+
+	.hero-scroll-dot {
+		position: absolute;
+		top: 8px;
+		width: 4px;
+		height: 4px;
+		border-radius: 999px;
+		background: currentColor;
+		animation: heroScrollDot 1450ms cubic-bezier(0.22, 1, 0.36, 1) infinite;
+	}
+
+	.hero-scroll-cue svg {
+		width: 22px;
+		height: 22px;
+		margin-top: 5px;
+		stroke: currentColor;
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		fill: none;
+	}
+
+	.hero-scroll-cue:hover .hero-scroll-shell,
+	.hero-scroll-cue:focus-visible .hero-scroll-shell {
+		transform: translateY(3px);
+		border-color: rgba(0, 113, 227, 0.34);
+		box-shadow:
+			0 22px 56px rgba(0, 113, 227, 0.16),
+			0 1px 0 rgba(255, 255, 255, 0.86) inset;
+	}
+
+	.hero-scroll-cue:focus-visible {
+		outline: 2px solid rgba(0, 113, 227, 0.38);
+		outline-offset: 8px;
+	}
+
+	@keyframes heroScrollDot {
+		0%,
+		100% {
+			opacity: 0.32;
+			transform: translateY(0);
+		}
+
+		45% {
+			opacity: 1;
+			transform: translateY(10px);
+		}
+	}
+
+	@keyframes heroScrollCueIn {
+		0% {
+			opacity: 0;
+			transform: translateX(-50%) translateY(14px) scale(0.94);
+			filter: blur(6px);
+		}
+
+		100% {
+			opacity: 1;
+			transform: translateX(-50%) translateY(0) scale(1);
+			filter: blur(0);
+		}
 	}
 
 	.label-top {
@@ -545,6 +667,20 @@
 		opacity: 0.96;
 	}
 
+	:global(html.dark) .hero-scroll-cue {
+		color: #4da3ff;
+	}
+
+	:global(html.dark) .hero-scroll-shell {
+		border-color: rgba(77, 163, 255, 0.24);
+		background:
+			linear-gradient(180deg, rgba(15, 23, 42, 0.78), rgba(15, 23, 42, 0.44)),
+			radial-gradient(circle at 50% 20%, rgba(77, 163, 255, 0.2), transparent 58%);
+		box-shadow:
+			0 18px 48px rgba(0, 0, 0, 0.28),
+			0 1px 0 rgba(255, 255, 255, 0.08) inset;
+	}
+
 	/*
    * Hero oscuro — "luz de estudio nocturna": malla azul de marca, deriva lenta,
    * núcleo detrás del título y viñeta para profundidad (sin rosa/amarillo del claro).
@@ -650,7 +786,9 @@
 
 		.hero-stripe-pro-v2::before,
 		:global(html.dark) .hero-stripe-pro-v2::before,
-		:global(html.dark) .hero-stripe-pro-v2::after {
+		:global(html.dark) .hero-stripe-pro-v2::after,
+		.hero-scroll-cue,
+		.hero-scroll-dot {
 			animation: none !important;
 			will-change: auto;
 		}
@@ -779,6 +917,22 @@
 			font-size: 14.5px;
 			line-height: 1.15;
 			white-space: normal;
+		}
+
+		.hero-scroll-cue {
+			bottom: max(18px, env(safe-area-inset-bottom, 0px));
+			width: 46px;
+			height: 46px;
+		}
+
+		.hero-scroll-shell {
+			width: 40px;
+			height: 40px;
+		}
+
+		.hero-scroll-cue svg {
+			width: 19px;
+			height: 19px;
 		}
 	}
 

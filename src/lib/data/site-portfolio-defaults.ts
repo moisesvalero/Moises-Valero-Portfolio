@@ -10,8 +10,8 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 		logoText: 'Moisés Valero',
 		logoHref: '/',
 		navItems: [
-			{ label: 'Inicio', href: '/#top' },
-			{ label: 'Proyectos', href: '/#proyectos' },
+			{ label: 'Trayectoria', href: '#', openCareerModal: true },
+			{ label: 'Proyectos', href: '/proyectos' },
 			{ label: 'Asistente IA', href: '/ia-moises' },
 			{ label: 'Analizador web', href: '/tools/analizador-web' },
 			{ label: 'Contacto', href: '/#contacto' },
@@ -93,6 +93,8 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 						alt: 'SvelteKit',
 						title: 'SvelteKit / Svelte 5'
 					},
+					{ devicon: 'nextjs/nextjs-original.svg', alt: 'Next.js', title: 'Next.js' },
+					{ devicon: 'react/react-original.svg', alt: 'React', title: 'React' },
 					{
 						devicon: 'tailwindcss/tailwindcss-original.svg',
 						alt: 'Tailwind CSS',

@@ -34,13 +34,13 @@
 		$locale === 'en'
 			? [
 					{ label: 'Target role', value: 'Web Developer' },
-					{ label: 'Stack + focus', value: 'SvelteKit · TypeScript · Performance · SEO' },
+					{ label: 'Stack + focus', value: 'SvelteKit · TypeScript · Next.js / React · SEO' },
 					{ label: 'Development practices', value: 'Clear specs / human review / AI support' },
 					{ label: 'Attitude', value: 'I learn what the team needs' }
 				]
 			: [
 					{ label: 'Rol objetivo', value: 'Desarrollador web' },
-					{ label: 'Stack + foco', value: 'SvelteKit · TypeScript · Performance · SEO' },
+					{ label: 'Stack + foco', value: 'SvelteKit · TypeScript · Next.js / React · SEO' },
 					{
 						label: 'Buenas prácticas',
 						value: 'AI-Driven Dev · Spec-Driven Development'
@@ -55,13 +55,13 @@
 <section
 	class="servicios-grid-container"
 	class:has-legacy-items={hasLegacyItems}
-	id="servicios"
-	aria-labelledby="servicios-titulo"
+	id="competencias"
+	aria-labelledby="competencias-titulo"
 >
 	<div class="servicios-intro">
 		<div class="servicios-heading">
 			<p class="meta-servicios">{meta}</p>
-			<h2 id="servicios-titulo">{heading}</h2>
+			<h2 id="competencias-titulo">{heading}</h2>
 		</div>
 
 		<p class="servicios-summary">{summary}</p>

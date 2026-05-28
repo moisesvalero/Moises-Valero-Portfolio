@@ -15,7 +15,9 @@
 	import KadenceLogo from './tech-logos/KadenceLogo.svelte';
 	import OpenAiLogo from './tech-logos/OpenAiLogo.svelte';
 	import OpenCodeLogo from './tech-logos/OpenCodeLogo.svelte';
+	import NextLogo from './tech-logos/NextLogo.svelte';
 	import PwaLogo from './tech-logos/PwaLogo.svelte';
+	import ReactLogo from './tech-logos/ReactLogo.svelte';
 	import SanityLogo from './tech-logos/SanityLogo.svelte';
 	import StripeLogo from './tech-logos/StripeLogo.svelte';
 	import SupabaseLogo from './tech-logos/SupabaseLogo.svelte';
@@ -69,6 +71,8 @@
 			title: 'Frameworks y Librerías',
 			icons: [
 				{ devicon: 'svelte/svelte-original.svg', alt: 'SvelteKit', title: 'SvelteKit / Svelte 5' },
+				{ devicon: 'nextjs/nextjs-original.svg', alt: 'Next.js', title: 'Next.js' },
+				{ devicon: 'react/react-original.svg', alt: 'React', title: 'React' },
 				{
 					devicon: 'tailwindcss/tailwindcss-original.svg',
 					alt: 'Tailwind CSS',
@@ -135,7 +139,9 @@
 		OpenAI: OpenAiLogo,
 		'OpenAI Codex': CodexLogo,
 		OpenCode: OpenCodeLogo,
+		'Next.js': NextLogo,
 		PWA: PwaLogo,
+		React: ReactLogo,
 		Sanity: SanityLogo,
 		Stripe: StripeLogo,
 		Supabase: SupabaseLogo,

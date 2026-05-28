@@ -62,9 +62,13 @@
 			const pick = (predicate: (item: HeaderNavItem) => boolean): HeaderNavItem | undefined =>
 				source.find(predicate);
 
-			const home =
-				pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#top') ??
-				({ label: data.locale === 'en' ? 'Home' : 'Inicio', href: '/#top' } as HeaderNavItem);
+			const career =
+				pick((item) => item.openCareerModal === true) ??
+				({
+					label: data.locale === 'en' ? 'Career' : 'Trayectoria',
+					href: '#',
+					openCareerModal: true
+				} as HeaderNavItem);
 			const assistant = {
 				label: data.locale === 'en' ? 'AI Assistant' : 'Asistente IA',
 				href: '/ia-moises'
@@ -74,7 +78,9 @@
 				({ label: data.locale === 'en' ? 'Guides' : 'Guías', href: '/blog' } as HeaderNavItem);
 			const projects =
 				pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/proyectos') ??
-				pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#proyectos');
+				pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#proyectos') ??
+				({ label: data.locale === 'en' ? 'Projects' : 'Proyectos', href: '/proyectos' } as HeaderNavItem);
+			const projectsLink = { ...projects, href: '/proyectos' } as HeaderNavItem;
 			const analyzer =
 				pick(
 					(item) => !item.openCareerModal && normalizeNavHref(item.href) === '/tools/analizador-web'
@@ -87,9 +93,7 @@
 					href: '/#contacto'
 				} as HeaderNavItem);
 
-			const career = pick((item) => item.openCareerModal === true);
-
-			const preferred = [home, projects, contact, assistant, analyzer, blog, career].filter(
+			const preferred = [career, projectsLink, contact, assistant, analyzer, blog].filter(
 				Boolean
 			) as HeaderNavItem[];
 			return preferred;

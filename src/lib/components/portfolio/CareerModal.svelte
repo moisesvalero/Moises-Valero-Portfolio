@@ -36,10 +36,14 @@
 	const narrative = $derived(
 		locale === 'en'
 			? {
-					eyebrow: 'Professional experience'
+					eyebrow: 'Professional experience',
+					journey: 'Journey map',
+					stack: 'Working stack'
 				}
 			: {
-					eyebrow: 'Experiencia profesional'
+					eyebrow: 'Experiencia profesional',
+					journey: 'Mapa de recorrido',
+					stack: 'Stack de trabajo'
 				}
 	);
 
@@ -202,6 +206,11 @@
 					{#if activeTimelineItem}
 						<article class="career-feature-preview" aria-live="polite">
 							<div class="career-preview-art" aria-hidden="true">
+								<span class="career-preview-label">{narrative.journey}</span>
+								<span class="career-route-line"></span>
+								<span class="career-route-stop career-route-stop-a"></span>
+								<span class="career-route-stop career-route-stop-b"></span>
+								<span class="career-route-stop career-route-stop-c"></span>
 								<span class="career-preview-core">{String(currentIndex + 1).padStart(2, '0')}</span>
 							</div>
 							<div class="career-preview-copy">
@@ -209,6 +218,14 @@
 								<h4>{activeTimelineItem.role}</h4>
 								<div class="career-tl-desc">
 									{@html activeTimelineItem.descHtml}
+								</div>
+								<div class="career-stack-rail" aria-label={c.stackTitle || narrative.stack}>
+									<span class="career-stack-label">{c.stackTitle || narrative.stack}</span>
+									<div class="career-stack-list">
+										{#each c.stackLines as stackLine (stackLine)}
+											<span class="career-stack-pill">{@html stackLine}</span>
+										{/each}
+									</div>
 								</div>
 							</div>
 						</article>
@@ -252,12 +269,12 @@
 		width: min(100%, 920px);
 		min-height: 0;
 		max-height: calc(100svh - 2.5rem);
-		height: auto;
+		height: min(780px, calc(100svh - 2.5rem));
 		margin-block: auto;
 		background:
 			radial-gradient(circle at 16% 8%, rgba(0, 113, 227, 0.12), transparent 22rem),
-			radial-gradient(circle at 88% 0%, rgba(167, 243, 255, 0.18), transparent 24rem),
-			linear-gradient(180deg, #f8fafc 0%, #eef4fb 100%);
+			radial-gradient(circle at 88% 0%, rgba(43, 160, 148, 0.16), transparent 24rem),
+			linear-gradient(135deg, #f8fafc 0%, #eef4fb 48%, #f3f7f2 100%);
 		border-radius: 8px;
 		border: 1px solid rgba(15, 23, 42, 0.12);
 		box-shadow:
@@ -298,8 +315,8 @@
 
 	.career-scroll {
 		overflow-y: auto;
-		height: auto;
-		max-height: calc(100svh - 2.5rem);
+		height: 100%;
+		max-height: none;
 		padding: clamp(1.15rem, 2.2vw, 1.75rem);
 	}
 
@@ -354,12 +371,13 @@
 	}
 
 	.career-feature-stage {
-		--career-preview-height: clamp(360px, 46vh, 430px);
+		--career-preview-height: clamp(430px, 55vh, 500px);
 		display: grid;
-		grid-template-columns: minmax(260px, 0.66fr) minmax(380px, 1fr);
+		grid-template-columns: minmax(260px, 0.58fr) minmax(420px, 1fr);
 		align-items: stretch;
 		gap: clamp(1rem, 2.8vw, 1.6rem);
-		min-height: var(--career-preview-height);
+		height: var(--career-preview-height);
+		min-height: 0;
 		padding-top: clamp(0.35rem, 1.4vh, 0.8rem);
 	}
 
@@ -369,6 +387,18 @@
 		flex-direction: column;
 		gap: 0.65rem;
 		min-width: 0;
+		min-height: 0;
+		padding-left: 0.55rem;
+	}
+
+	.career-feature-list::before {
+		content: '';
+		position: absolute;
+		top: 1.6rem;
+		bottom: 1.6rem;
+		left: 2.1rem;
+		width: 1px;
+		background: linear-gradient(180deg, rgba(0, 113, 227, 0), rgba(0, 113, 227, 0.45), rgba(43, 160, 148, 0));
 	}
 
 	.career-feature-trigger {
@@ -377,7 +407,8 @@
 		grid-template-columns: 3.15rem minmax(0, 1fr);
 		gap: 0.9rem;
 		width: 100%;
-		min-height: 88px;
+		flex: 1 1 0;
+		min-height: 0;
 		padding: 0.78rem 0.82rem;
 		border: 1px solid rgba(15, 23, 42, 0.1);
 		border-radius: 8px;
@@ -458,10 +489,10 @@
 		position: sticky;
 		top: 0;
 		align-self: start;
-		height: auto;
+		height: var(--career-preview-height);
 		min-height: var(--career-preview-height);
 		display: grid;
-		grid-template-rows: 170px minmax(0, 1fr);
+		grid-template-rows: 176px minmax(0, 1fr);
 		overflow: hidden;
 		border: 1px solid rgba(15, 23, 42, 0.12);
 		border-radius: 8px;
@@ -474,12 +505,12 @@
 
 	.career-preview-art {
 		position: relative;
-		min-height: 170px;
+		min-height: 176px;
 		overflow: hidden;
 		background:
-			radial-gradient(circle at 22% 28%, rgba(77, 163, 255, 0.28), transparent 16rem),
-			radial-gradient(circle at 82% 18%, rgba(167, 243, 255, 0.12), transparent 14rem),
-			linear-gradient(180deg, #101827 0%, #0b1220 100%);
+			linear-gradient(115deg, rgba(10, 18, 32, 0.92), rgba(12, 35, 56, 0.94)),
+			radial-gradient(circle at 22% 28%, rgba(77, 163, 255, 0.32), transparent 16rem),
+			radial-gradient(circle at 82% 18%, rgba(43, 160, 148, 0.26), transparent 14rem);
 	}
 
 	.career-preview-art::before,
@@ -490,6 +521,53 @@
 
 	.career-preview-art::after {
 		top: 4.7rem;
+	}
+
+	.career-preview-label {
+		position: absolute;
+		top: 1rem;
+		right: 1.1rem;
+		z-index: 2;
+		color: rgba(248, 250, 252, 0.72);
+		font-size: 0.66rem;
+		font-weight: 780;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	.career-route-line {
+		position: absolute;
+		left: 1.55rem;
+		right: 1.55rem;
+		bottom: 2.1rem;
+		height: 2px;
+		background: linear-gradient(90deg, rgba(248, 250, 252, 0.15), rgba(77, 163, 255, 0.72), rgba(43, 160, 148, 0.68));
+	}
+
+	.career-route-stop {
+		position: absolute;
+		bottom: 1.78rem;
+		z-index: 2;
+		width: 0.65rem;
+		height: 0.65rem;
+		border: 2px solid rgba(248, 250, 252, 0.84);
+		border-radius: 999px;
+		background: #0071e3;
+		box-shadow: 0 0 0 6px rgba(77, 163, 255, 0.15);
+	}
+
+	.career-route-stop-a {
+		left: 1.55rem;
+	}
+
+	.career-route-stop-b {
+		left: 50%;
+		transform: translateX(-50%);
+	}
+
+	.career-route-stop-c {
+		right: 1.55rem;
+		background: #2ba094;
 	}
 
 	.career-preview-core {
@@ -514,6 +592,9 @@
 	}
 
 	.career-preview-copy {
+		display: grid;
+		grid-template-rows: auto auto minmax(74px, 1fr) auto;
+		min-height: 0;
 		padding: clamp(1rem, 2.5vw, 1.35rem);
 	}
 
@@ -537,9 +618,14 @@
 
 	.career-tl-desc {
 		margin: 0;
+		min-height: 0;
+		max-height: 104px;
+		overflow-y: auto;
+		padding-right: 0.35rem;
 		font-size: 0.95rem;
 		line-height: 1.62;
 		color: #6e6e73;
+		scrollbar-width: thin;
 	}
 
 	.career-tl-desc :global(p) {
@@ -554,6 +640,52 @@
 	.career-tl-desc :global(b) {
 		color: #334155;
 		font-weight: 820;
+	}
+
+	.career-stack-rail {
+		align-self: end;
+		margin-top: 0.72rem;
+		padding-top: 0.68rem;
+		border-top: 1px solid rgba(15, 23, 42, 0.1);
+	}
+
+	.career-stack-label {
+		display: block;
+		margin-bottom: 0.44rem;
+		color: #64748b;
+		font-size: 0.66rem;
+		font-weight: 820;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+
+	.career-stack-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.34rem;
+		overflow: hidden;
+		padding-bottom: 0.1rem;
+	}
+
+	.career-stack-pill {
+		display: inline-flex;
+		align-items: center;
+		flex: 0 0 auto;
+		min-height: 26px;
+		padding: 0.28rem 0.48rem;
+		border: 1px solid rgba(0, 113, 227, 0.12);
+		border-radius: 6px;
+		background: rgba(0, 113, 227, 0.06);
+		color: #0f172a;
+		font-size: 0.66rem;
+		font-weight: 760;
+		line-height: 1.15;
+	}
+
+	.career-stack-pill :global(.career-tag-sub) {
+		margin-left: 0.24rem;
+		color: #64748b;
+		font-weight: 620;
 	}
 
 	.career-footer {
@@ -678,14 +810,31 @@
 		color: #ffffff;
 	}
 
+	:global(html.dark) .career-stack-rail {
+		border-color: rgba(255, 255, 255, 0.12);
+	}
+
+	:global(html.dark) .career-stack-label,
+	:global(html.dark) .career-stack-pill :global(.career-tag-sub) {
+		color: #aeb8c5;
+	}
+
+	:global(html.dark) .career-stack-pill {
+		border-color: rgba(77, 163, 255, 0.22);
+		background: rgba(77, 163, 255, 0.11);
+		color: #f8fafc;
+	}
+
 	@media (max-width: 900px) {
 		.career-panel {
 			width: min(100%, calc(100vw - 2rem));
 			max-height: calc(100svh - 2rem);
+			height: min(740px, calc(100svh - 2rem));
 		}
 
 		.career-scroll {
-			max-height: calc(100svh - 2rem);
+			height: 100%;
+			max-height: none;
 			padding: 1.15rem;
 		}
 
@@ -695,13 +844,12 @@
 		}
 
 		.career-feature-stage {
-			--career-preview-height: clamp(350px, 43vh, 410px);
+			--career-preview-height: clamp(410px, 53vh, 470px);
 			grid-template-columns: minmax(160px, 0.72fr) minmax(0, 1fr);
 			gap: 1rem;
 		}
 
 		.career-feature-trigger {
-			min-height: 74px;
 			grid-template-columns: 2.5rem minmax(0, 1fr);
 			gap: 0.7rem;
 			padding: 0.62rem;
@@ -717,11 +865,15 @@
 		}
 
 		.career-feature-preview {
-			grid-template-rows: 140px minmax(0, 1fr);
+			grid-template-rows: 150px minmax(0, 1fr);
 		}
 
 		.career-preview-art {
-			min-height: 140px;
+			min-height: 150px;
+		}
+
+		.career-tl-desc {
+			max-height: 96px;
 		}
 	}
 
@@ -734,11 +886,13 @@
 		.career-panel {
 			width: min(100%, calc(100vw - 1.4rem));
 			max-height: calc(100svh - 1.4rem);
+			height: min(760px, calc(100svh - 1.4rem));
 			border-radius: 8px;
 		}
 
 		.career-scroll {
-			max-height: calc(100svh - 1.4rem);
+			height: 100%;
+			max-height: none;
 			-webkit-overflow-scrolling: touch;
 			padding: 1rem 0.85rem 0.85rem;
 		}
@@ -754,7 +908,9 @@
 		}
 
 		.career-feature-stage {
+			--career-preview-height: auto;
 			grid-template-columns: 1fr;
+			height: auto;
 			min-height: 0;
 			gap: 0.65rem;
 			padding-top: 0;
@@ -768,6 +924,10 @@
 			width: 100%;
 			padding: 0;
 			margin-inline: 0;
+		}
+
+		.career-feature-list::before {
+			display: none;
 		}
 
 		.career-feature-trigger {
@@ -807,13 +967,19 @@
 
 		.career-feature-preview {
 			position: relative;
-			height: auto;
-			min-height: 0;
-			grid-template-rows: 72px minmax(0, 1fr);
+			height: 390px;
+			min-height: 390px;
+			grid-template-rows: 84px minmax(0, 1fr);
 		}
 
 		.career-preview-art {
-			min-height: 72px;
+			min-height: 84px;
+		}
+
+		.career-preview-label,
+		.career-route-line,
+		.career-route-stop {
+			display: none;
 		}
 
 		.career-preview-core {
@@ -834,6 +1000,22 @@
 		.career-tl-desc {
 			font-size: 0.79rem;
 			line-height: 1.42;
+			max-height: 92px;
+		}
+
+		.career-stack-rail {
+			margin-top: 0.7rem;
+			padding-top: 0.65rem;
+		}
+
+		.career-stack-list {
+			gap: 0.34rem;
+		}
+
+		.career-stack-pill {
+			min-height: 26px;
+			padding: 0.28rem 0.45rem;
+			font-size: 0.64rem;
 		}
 
 		.career-tl-desc :global(p) {
