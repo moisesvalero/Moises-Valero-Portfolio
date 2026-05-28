@@ -41,7 +41,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
 		cvHref: '/api/cv',
 		label: 'PORTFOLIO — MOISÉS VALERO',
 		title: 'Web Developer',
-		subtitle: 'SvelteKit | WordPress | IT Support',
+		subtitle: 'SvelteKit | React/Next.js | APIs | applied AI | WordPress',
 		bio: 'I develop fast, robust and maintainable websites and web apps, with a focus on performance, AI and real integrations. I am looking to join a team where I can bring technical judgement, fast learning and value from day one.',
 		ctaPrimaryLabel: 'View CV',
 		careerCtaLabel: 'View career'

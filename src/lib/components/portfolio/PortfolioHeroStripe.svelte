@@ -17,17 +17,24 @@
 		cvHref = '/#contacto',
 		label = 'PORTFOLIO – MOISÉS VALERO',
 		title = 'Desarrollador Web',
-		subtitle = 'SvelteKit | WordPress | Sistemas & SEO',
+		subtitle = 'SvelteKit | React/Next.js | APIs | IA aplicada | WordPress',
 		ctaPrimaryLabel = 'Ver CV',
 		careerCtaLabel = 'Ver Trayectoria'
 	}: Props = $props();
 
 	const heroCapabilities = $derived([
 		{ label: 'SvelteKit', icon: 'simple-icons:svelte', color: '#ff3e00' },
+		{
+			label: 'React/Next.js',
+			icon: 'simple-icons:nextdotjs',
+			color: '#111827',
+			darkColor: '#f8fafc'
+		},
 		{ label: 'APIs', icon: 'lucide:webhook', color: '#0ea5e9' },
-		{ label: 'IA aplicada', icon: 'lucide:brain-circuit', color: '#6d5dfc' },
-		{ label: 'WordPress', icon: 'simple-icons:wordpress', color: '#21759b' }
+		{ label: 'IA aplicada', shortLabel: 'IA', icon: 'lucide:brain-circuit', color: '#6d5dfc' },
+		{ label: 'WordPress', shortLabel: 'WP', icon: 'simple-icons:wordpress', color: '#21759b' }
 	]);
+	const heroCapabilitiesLabel = $derived(heroCapabilities.map((item) => item.label).join(' · '));
 	const titleWords = $derived(title.split(/\s+/).filter(Boolean));
 	const iconifySvgUrl = (name: string) =>
 		`url("https://api.iconify.design/${encodeURIComponent(name)}.svg")`;
@@ -63,19 +70,21 @@
 					{/if}
 				{/each}
 			</h1>
-			<h2 class="sub-frase hero-entry hero-entry-3" aria-label={subtitle}>
+			<h2 class="sub-frase hero-entry hero-entry-3" aria-label={heroCapabilitiesLabel || subtitle}>
 				{#each heroCapabilities as item, index (item.label)}
 					<span
 						class="hero-tech-item"
 						style:--hero-tech-index={index}
 						style:--hero-tech-color={item.color}
+						style:--hero-tech-dark-color={item.darkColor ?? item.color}
 					>
 						<span
 							class="hero-tech-icon"
 							style:--hero-tech-icon={iconifySvgUrl(item.icon)}
 							aria-hidden="true"
 						></span>
-						<span>{item.label}</span>
+						<span class="hero-tech-label-full">{item.label}</span>
+						<span class="hero-tech-label-short">{item.shortLabel ?? item.label}</span>
 					</span>
 				{/each}
 			</h2>
@@ -282,7 +291,7 @@
 
 	.hero-stripe-pro-v2 h1 {
 		color: #0f172a !important;
-		font-size: clamp(36px, 5.5vw, 80px) !important;
+		font-size: clamp(42px, 6vw, 88px) !important;
 		font-weight: 800 !important;
 		margin: 0 0 13px 0 !important;
 		letter-spacing: -0.062em;
@@ -373,6 +382,10 @@
 		background: currentColor;
 		mask: var(--hero-tech-icon) center / contain no-repeat;
 		-webkit-mask: var(--hero-tech-icon) center / contain no-repeat;
+	}
+
+	.hero-tech-label-short {
+		display: none;
 	}
 
 	.texto-bio {
@@ -495,7 +508,7 @@
 	}
 
 	:global(html.dark) .hero-tech-item:hover {
-		color: var(--hero-tech-color);
+		color: var(--hero-tech-dark-color, var(--hero-tech-color));
 	}
 
 	:global(html.dark) .hero-title-accent {
@@ -519,9 +532,14 @@
 	}
 
 	:global(html.dark) .hero-tech-icon {
-		color: var(--hero-tech-color, #a7f3ff);
+		color: var(--hero-tech-dark-color, var(--hero-tech-color, #a7f3ff));
 		filter: drop-shadow(
-				0 0 10px color-mix(in srgb, var(--hero-tech-color, #a7f3ff) 28%, transparent)
+				0 0 10px
+					color-mix(
+						in srgb,
+						var(--hero-tech-dark-color, var(--hero-tech-color, #a7f3ff)) 28%,
+						transparent
+					)
 			)
 			drop-shadow(0 10px 22px rgba(0, 0, 0, 0.24));
 		opacity: 0.96;
@@ -584,7 +602,7 @@
 		}
 
 		.hero-stripe-pro-v2 h1 {
-			font-size: clamp(48px, 11vw, 64px) !important;
+			font-size: clamp(50px, 11.6vw, 68px) !important;
 			letter-spacing: -0.046em;
 			line-height: 0.94;
 		}
@@ -696,18 +714,18 @@
 		}
 
 		.hero-stripe-pro-v2 h1 {
-			font-size: clamp(47px, 13.7vw, 56px) !important;
+			font-size: clamp(50px, 14.6vw, 60px) !important;
 			letter-spacing: -0.055em;
-			line-height: 0.9;
+			line-height: 0.88;
 		}
 
 		.sub-frase {
 			display: inline-flex;
-			width: min(100%, 330px);
-			font-size: 13px !important;
+			width: min(100%, 350px);
+			font-size: 12.5px !important;
 			margin: 0 0 24px 0 !important;
-			column-gap: 14px;
-			row-gap: 9px;
+			column-gap: 13px;
+			row-gap: 8px;
 		}
 
 		.hero-tech-item {
@@ -717,12 +735,20 @@
 		}
 
 		.hero-tech-item:not(:last-child)::after {
-			right: -10px;
+			right: -9px;
 		}
 
 		.hero-tech-icon {
-			width: 17px;
-			height: 17px;
+			width: 16px;
+			height: 16px;
+		}
+
+		.hero-tech-label-full {
+			display: none;
+		}
+
+		.hero-tech-label-short {
+			display: inline;
 		}
 
 		.texto-bio {

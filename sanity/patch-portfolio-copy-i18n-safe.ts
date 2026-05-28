@@ -117,8 +117,8 @@ async function main() {
 			'hero.label': ls('PORTFOLIO – MOISÉS VALERO', 'PORTFOLIO — MOISÉS VALERO'),
 			'hero.title': ls(site.hero.title, en.hero.title),
 			'hero.subtitle': ls(
-				'SvelteKit · APIs · IA aplicada · WordPress',
-				'SvelteKit · APIs · applied AI · WordPress'
+				'SvelteKit · React/Next.js · APIs · IA aplicada · WordPress',
+				'SvelteKit · React/Next.js · APIs · applied AI · WordPress'
 			),
 			'hero.bio': lt(site.hero.bio, en.hero.bio),
 			'hero.ctaPrimaryLabel': ls(site.hero.ctaPrimaryLabel, en.hero.ctaPrimaryLabel),

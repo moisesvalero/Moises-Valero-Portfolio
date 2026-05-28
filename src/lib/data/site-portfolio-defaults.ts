@@ -32,7 +32,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 		cvHref: '/api/cv',
 		label: 'PORTFOLIO – MOISÉS VALERO',
 		title: 'Desarrollador Web',
-		subtitle: 'SvelteKit | WordPress | Sistemas & SEO',
+		subtitle: 'SvelteKit | React/Next.js | APIs | IA aplicada | WordPress',
 		bio: 'Desarrollo webs y web apps con SvelteKit, APIs, IA aplicada y WordPress. Busco incorporarme a un equipo y aportar rendimiento, integraciones y criterio técnico.',
 		ctaPrimaryLabel: 'Ver CV',
 		careerCtaLabel: 'Ver Trayectoria'
