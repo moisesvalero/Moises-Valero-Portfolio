@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { Globe, type GlobeMarker, type GlobeMarkerTooltipContext } from '$lib/motion-core';
+	import PortfolioModalShell from '$lib/components/portfolio/PortfolioModalShell.svelte';
 
 	interface Props {
 		heading?: string;
@@ -59,31 +60,6 @@
 	function closeFormModal() {
 		isFormModalOpen = false;
 	}
-
-	function portal(node: HTMLElement) {
-		if (typeof document === 'undefined') return;
-		document.body.appendChild(node);
-		return {
-			destroy() {
-				node.remove();
-			}
-		};
-	}
-
-	$effect(() => {
-		if (!isFormModalOpen) return;
-
-		document.body.style.overflow = 'hidden';
-		const onKeyDown = (event: KeyboardEvent) => {
-			if (event.key === 'Escape') closeFormModal();
-		};
-		window.addEventListener('keydown', onKeyDown);
-
-		return () => {
-			window.removeEventListener('keydown', onKeyDown);
-			document.body.style.overflow = '';
-		};
-	});
 
 	async function submitForm(event: SubmitEvent) {
 		event.preventDefault();
@@ -165,57 +141,63 @@
 	</div>
 </section>
 
-{#if isFormModalOpen}
-	<div class="modal-shell" use:portal role="presentation" onmousedown={closeFormModal}>
-		<div
-			class="modal-card"
-			role="dialog"
-			aria-modal="true"
-			aria-labelledby="form-modal-title"
-			tabindex="-1"
-			onmousedown={(event) => event.stopPropagation()}
-		>
-			<div class="modal-head">
+<PortfolioModalShell
+	bind:open={isFormModalOpen}
+	labelledBy="form-modal-title"
+	panelClass="contact-modal-panel"
+>
+	<div class="contact-modal-content">
+		<div class="modal-head">
+			<div>
+				<p class="modal-kicker">Contacto directo</p>
 				<h4 id="form-modal-title">{formModalHeading}</h4>
 				<p>{formModalText}</p>
 			</div>
-			<form class="modal-form" onsubmit={submitForm}>
-				<label>
-					<span>Nombre *</span>
-					<input required bind:value={form.name} maxlength="100" />
-				</label>
-				<label>
-					<span>Email *</span>
-					<input type="email" required bind:value={form.email} maxlength="120" />
-				</label>
-				<label>
-					<span>Telefono (opcional)</span>
-					<input bind:value={form.phone} maxlength="40" />
-				</label>
-				<label>
-					<span>Mensaje *</span>
-					<textarea required bind:value={form.message} maxlength="2000"></textarea>
-				</label>
-				<label class="checkline">
-					<input type="checkbox" required bind:checked={form.privacyAccepted} />
-					<span>{formModalPrivacyLabel} <a href={resolve('/privacidad')}>Ver politica</a></span>
-				</label>
-				{#if formStatus === 'error' && formError}
-					<p class="form-feedback error">{formError}</p>
-				{/if}
-				{#if formStatus === 'success'}
-					<p class="form-feedback success">{formModalSuccessMessage}</p>
-				{/if}
-				<div class="modal-actions">
-					<button type="button" class="btn-modal-ghost" onclick={closeFormModal}>Cerrar</button>
-					<button type="submit" class="btn-modal-primary" disabled={formStatus === 'sending'}>
-						{formStatus === 'sending' ? 'Enviando...' : formModalSubmitLabel}
-					</button>
-				</div>
-			</form>
+			<button
+				type="button"
+				class="modal-close"
+				aria-label="Cerrar formulario"
+				onclick={closeFormModal}
+			>
+				<span aria-hidden="true">close</span>
+			</button>
 		</div>
+		<form class="modal-form" onsubmit={submitForm}>
+			<label>
+				<span>Nombre *</span>
+				<input required bind:value={form.name} maxlength="100" />
+			</label>
+			<label>
+				<span>Email *</span>
+				<input type="email" required bind:value={form.email} maxlength="120" />
+			</label>
+			<label>
+				<span>Telefono (opcional)</span>
+				<input bind:value={form.phone} maxlength="40" />
+			</label>
+			<label>
+				<span>Mensaje *</span>
+				<textarea required bind:value={form.message} maxlength="2000"></textarea>
+			</label>
+			<label class="checkline">
+				<input type="checkbox" required bind:checked={form.privacyAccepted} />
+				<span>{formModalPrivacyLabel} <a href={resolve('/privacidad')}>Ver politica</a></span>
+			</label>
+			{#if formStatus === 'error' && formError}
+				<p class="form-feedback error">{formError}</p>
+			{/if}
+			{#if formStatus === 'success'}
+				<p class="form-feedback success">{formModalSuccessMessage}</p>
+			{/if}
+			<div class="modal-actions">
+				<button type="button" class="btn-modal-ghost" onclick={closeFormModal}>Cerrar</button>
+				<button type="submit" class="btn-modal-primary" disabled={formStatus === 'sending'}>
+					{formStatus === 'sending' ? 'Enviando...' : formModalSubmitLabel}
+				</button>
+			</div>
+		</form>
 	</div>
-{/if}
+</PortfolioModalShell>
 
 <style>
 	.team-contact-section {
@@ -413,34 +395,29 @@
 		border-left: 5px solid transparent;
 	}
 
-	.modal-shell {
-		position: fixed;
-		inset: 0;
-		z-index: 20000;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 16px;
-		background: rgba(4, 7, 13, 0.72);
-		backdrop-filter: blur(5px);
-		-webkit-backdrop-filter: blur(5px);
-		box-sizing: border-box;
-	}
-
-	.modal-card {
-		position: relative;
-		z-index: 1;
-		width: min(700px, 100%);
-		max-height: calc(100vh - 32px);
-		overflow: auto;
-		border-radius: 16px;
-		background: #fff;
-		box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
-		text-align: left;
+	.contact-modal-content {
+		background:
+			linear-gradient(180deg, rgba(255, 255, 255, 0.72), transparent 150px),
+			color-mix(in srgb, #f8fafc 98%, #dbeafe 2%);
 	}
 
 	.modal-head {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 18px;
 		padding: 24px 24px 8px;
+	}
+
+	.modal-kicker {
+		margin: 0 0 8px !important;
+		color: #0071e3 !important;
+		font-family: var(--font-mono);
+		font-size: 0.68rem !important;
+		font-weight: 820;
+		letter-spacing: 0.12em;
+		line-height: 1.1;
+		text-transform: uppercase;
 	}
 
 	.modal-head h4 {
@@ -454,6 +431,37 @@
 		margin: 10px 0 0;
 		color: #65656b;
 		font-size: 15px;
+	}
+
+	.modal-close {
+		display: inline-flex;
+		width: 38px;
+		height: 38px;
+		flex: 0 0 auto;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid rgba(15, 23, 42, 0.12);
+		border-radius: 7px;
+		background: rgba(255, 255, 255, 0.72);
+		color: #111827;
+		cursor: pointer;
+		transition:
+			transform 180ms ease,
+			background-color 180ms ease,
+			border-color 180ms ease;
+	}
+
+	.modal-close span {
+		font-family: 'Material Symbols Outlined';
+		font-size: 20px;
+		font-weight: 400;
+		line-height: 1;
+	}
+
+	.modal-close:hover {
+		border-color: rgba(0, 113, 227, 0.28);
+		background: rgba(219, 234, 254, 0.78);
+		transform: translateY(-1px);
 	}
 
 	.modal-form {
@@ -612,11 +620,10 @@
 		background: var(--portfolio-action-secondary-bg-hover);
 	}
 
-	:global(html.dark) .modal-card {
-		background: #0a0a0a;
-		border: 1px solid rgba(255, 255, 255, 0.12);
-		box-shadow: 0 30px 90px rgba(0, 0, 0, 0.58);
-		color: #e5e7eb;
+	:global(html.dark) .contact-modal-content {
+		background:
+			linear-gradient(180deg, rgba(15, 23, 42, 0.5), transparent 150px),
+			color-mix(in srgb, #090f1a 98%, #4da3ff 2%);
 	}
 
 	:global(html.dark) .modal-head h4 {
@@ -637,6 +644,17 @@
 		background: rgba(255, 255, 255, 0.055);
 		border-color: rgba(255, 255, 255, 0.14);
 		color: #f8fafc;
+	}
+
+	:global(html.dark) .modal-close {
+		border-color: rgba(255, 255, 255, 0.12);
+		background: rgba(255, 255, 255, 0.055);
+		color: #f8fafc;
+	}
+
+	:global(html.dark) .modal-close:hover {
+		border-color: rgba(77, 163, 255, 0.32);
+		background: rgba(77, 163, 255, 0.12);
 	}
 
 	:global(html.dark) .checkline a {

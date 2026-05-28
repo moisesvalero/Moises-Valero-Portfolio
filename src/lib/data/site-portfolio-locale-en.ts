@@ -29,22 +29,23 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
 		logoText: 'Moisés Valero',
 		logoHref: '/',
 		navItems: [
-			{ label: 'Career', href: '#', openCareerModal: true },
+			{ label: 'Home', href: '/' },
 			{ label: 'Projects', href: '/proyectos' },
-			{ label: 'AI Assistant', href: '/ia-moises' },
 			{ label: 'Web Analyzer', href: '/tools/analizador-web' },
-			{ label: 'Contact', href: '/#contacto' },
-			{ label: 'Guides', href: '/blog' }
+			{ label: 'AI Assistant', href: '/ia-moises' },
+			{ label: 'Guides', href: '/blog' },
+			{ label: 'Contact', href: '/#contacto' }
 		]
 	},
 	hero: {
 		cvHref: '/api/cv',
+		projectsHref: '#proyectos',
 		label: 'PORTFOLIO — MOISÉS VALERO',
 		title: 'Web Developer',
 		subtitle: 'SvelteKit | React/Next.js | APIs | applied AI | WordPress',
 		bio: 'I develop fast, robust and maintainable websites and web apps, with a focus on performance, AI and real integrations. I am looking to join a team where I can bring technical judgement, fast learning and value from day one.',
-		ctaPrimaryLabel: 'View CV',
-		careerCtaLabel: 'View career'
+		ctaPrimaryLabel: 'View projects',
+		cvCtaLabel: 'View CV'
 	},
 	about: {
 		imageSrc: '/imagenes/Moises-Valero-Sanchez.png',
@@ -263,51 +264,11 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
 	},
 	footer: {
 		copyrightTemplate:
-			'Moisés Valero © {{year}} | Web developer focused on product, performance and integrations | SvelteKit, WordPress, Sanity CMS and technical SEO.',
+			'Moisés Valero © {{year}} | Web developer focused on product, performance and integrations | SvelteKit, React/Next.js, WordPress, Sanity CMS and technical SEO.',
 		githubHref: 'https://github.com/moisesvalero',
 		linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
 		maltHref: 'https://www.malt.es/profile/moisesvalerosanchez',
 		emailHref: 'mailto:info@moisesvalero.es'
-	},
-	careerModal: {
-		pdfHref: '/imagenes/MOISES-VALERO-CV.pdf',
-		closeAria: 'Close',
-		title: 'Professional background of Moisés Valero',
-		profileTitle: 'Profile',
-		profileHtml: `<p class="career-p">
-            I hold a <strong>Level 3 Vocational Certificate in Web Development</strong>
-            (equivalent to <strong>higher vocational training</strong>), covering up-to-date skills
-            for professional web development environments.
-          </p>`,
-		expTitle: 'Experience',
-		timeline: [
-			{
-				range: '2019 – 2022',
-				role: 'Freelance',
-				descHtml: 'Business digitalisation, technical project management, and systems maintenance.'
-			},
-			{
-				range: '2012 – 2014',
-				role: 'MutuaSAD',
-				descHtml:
-					'WordPress administration, e-commerce (WooCommerce / PrestaShop), and IT and network support.'
-			},
-			{
-				range: '2001 – 2026',
-				role: 'Additional background',
-				descHtml: `Over two decades bringing <strong>professional maturity</strong> and
-                <strong>leadership</strong> as a specialist in industrial environments and
-                <strong>technical woodworking</strong>, with a strong focus on quality, coordination,
-                and solving complex problems.`,
-				span: true
-			}
-		],
-		stackTitle: 'Technical stack',
-		pdfHide: 'Hide PDF résumé',
-		pdfShow: 'View original PDF résumé',
-		pdfIframeTitle: 'Moisés Valero résumé (PDF)',
-		pdfHintBefore: 'If the document does not display, ',
-		pdfHintLink: 'open it in a new tab'
 	}
 };
 

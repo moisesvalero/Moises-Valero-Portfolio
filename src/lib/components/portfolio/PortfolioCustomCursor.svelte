@@ -120,11 +120,6 @@
 		display: none;
 	}
 
-	:global(body.career-modal-open) .cursor-dot,
-	:global(body.career-modal-open) .cursor-outline {
-		display: none !important;
-	}
-
 	@media (max-width: 768px) {
 		.cursor-dot,
 		.cursor-outline {

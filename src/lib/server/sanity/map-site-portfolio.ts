@@ -58,9 +58,9 @@ function pickLocalized(
 }
 
 /** Botón «Ver CV»: en Studio a veces queda `/#contacto` por error; el enlace correcto es `/api/cv`. */
-function resolveHeroCvHref(cvHref: string, ctaPrimaryLabel: string, defaultCvHref: string): string {
+function resolveHeroCvHref(cvHref: string, cvCtaLabel: string, defaultCvHref: string): string {
 	const href = (cvHref || defaultCvHref).trim();
-	const label = ctaPrimaryLabel.trim();
+	const label = cvCtaLabel.trim();
 	const looksLikeCv = /\bcv\b/i.test(label);
 	const pointsToContact = href === '/#contacto' || href === '#contacto';
 	if (looksLikeCv && pointsToContact) {
@@ -74,11 +74,18 @@ function replaceCmsText(value: string, replacements: Record<string, string>): st
 	return replacements[normalized] ?? value;
 }
 
-function normalizeHeroCtaLabel(value: string, locale: SiteLocale): string {
-	if (locale === 'en') return value;
+function normalizeHeroProjectCtaLabel(value: string, locale: SiteLocale): string {
+	if (locale === 'en') {
+		return replaceCmsText(value, {
+			'view cv': 'View projects',
+			'view career': 'View projects'
+		});
+	}
 	return replaceCmsText(value, {
-		'¿hablamos?': 'Ver CV',
-		hablemos: 'Ver CV'
+		'¿hablamos?': 'Ver proyectos',
+		hablemos: 'Ver proyectos',
+		'ver cv': 'Ver proyectos',
+		'ver trayectoria': 'Ver proyectos'
 	});
 }
 
@@ -131,6 +138,18 @@ function normalizeContactModalText(value: string, locale: SiteLocale): string {
 	});
 }
 
+function normalizeFooterCopyright(value: string): string {
+	return value
+		.replace(
+			'SvelteKit, WordPress, Sanity CMS y SEO técnico',
+			'SvelteKit, React/Next.js, WordPress, Sanity CMS y SEO técnico'
+		)
+		.replace(
+			'SvelteKit, WordPress, Sanity CMS and technical SEO',
+			'SvelteKit, React/Next.js, WordPress, Sanity CMS and technical SEO'
+		);
+}
+
 function normalizeAboutHtml(value: string, locale: SiteLocale): string {
 	if (locale === 'en') return value;
 	const staleAiDisclaimer = new RegExp(
@@ -147,17 +166,9 @@ function normalizeAboutHtml(value: string, locale: SiteLocale): string {
 		.replace('herramientas actuales, podemos encajar.', 'herramientas del futuro, hablemos.');
 }
 
-function pickNavLabel(
-	raw: unknown,
-	locale: SiteLocale,
-	href: string,
-	openCareerModal: boolean,
-	esFallback: string
-): string {
+function pickNavLabel(raw: unknown, locale: SiteLocale, href: string, esFallback: string): string {
 	const enItem = enUi.header.navItems.find(
-		(item) =>
-			(openCareerModal && item.openCareerModal) ||
-			normalizeHashHref(item.href) === normalizeHashHref(href)
+		(item) => normalizeHashHref(item.href) === normalizeHashHref(href)
 	);
 	return pickLocalized(raw, locale, esFallback, enItem?.label);
 }
@@ -187,21 +198,12 @@ function mergeHeader(
 					if (!r) {
 						return null;
 					}
-					const href = asStringOpt(r.href) ?? (r.openCareerModal === true ? '#' : undefined);
-					const label = pickNavLabel(
-						r.label,
-						locale,
-						href ?? '',
-						r.openCareerModal === true,
-						d.navItems[i]?.label ?? ''
-					);
-					const openCareerModal = r.openCareerModal === true;
+					const href = asStringOpt(r.href);
+					const label = pickNavLabel(r.label, locale, href ?? '', d.navItems[i]?.label ?? '');
 					if (!label || href === undefined) {
 						return null;
 					}
-					return openCareerModal
-						? { label, href, openCareerModal: true as const }
-						: { label, href };
+					return { label, href };
 				})
 				.filter(Boolean)
 		: [];
@@ -269,28 +271,30 @@ function mergeHero(
 	if (!o) {
 		return d;
 	}
-	const ctaPrimaryLabel = normalizeHeroCtaLabel(
+	const ctaPrimaryLabel = normalizeHeroProjectCtaLabel(
 		pickLocalized(
 			o.ctaPrimaryLabel,
 			locale,
-			d.ctaPrimaryLabel ?? 'Ver CV',
+			d.ctaPrimaryLabel ?? 'Ver proyectos',
 			enUi.hero.ctaPrimaryLabel
 		),
 		locale
 	);
+	const cvCtaLabel = pickLocalized(
+		o.cvCtaLabel,
+		locale,
+		d.cvCtaLabel ?? 'Ver CV',
+		enUi.hero.cvCtaLabel
+	);
 	return {
-		cvHref: resolveHeroCvHref(asString(o.cvHref, d.cvHref), ctaPrimaryLabel, d.cvHref),
+		cvHref: resolveHeroCvHref(asString(o.cvHref, d.cvHref), cvCtaLabel, d.cvHref),
+		projectsHref: asString(o.projectsHref, d.projectsHref ?? '#proyectos'),
 		label: pickLocalized(o.label, locale, d.label, enUi.hero.label),
 		title: pickLocalized(o.title, locale, d.title, enUi.hero.title),
 		subtitle: pickLocalized(o.subtitle, locale, d.subtitle, enUi.hero.subtitle),
 		bio: normalizeHeroBio(pickLocalized(o.bio, locale, d.bio, enUi.hero.bio), locale),
 		ctaPrimaryLabel,
-		careerCtaLabel: pickLocalized(
-			o.careerCtaLabel,
-			locale,
-			d.careerCtaLabel ?? 'Ver Trayectoria',
-			enUi.hero.careerCtaLabel
-		)
+		cvCtaLabel
 	};
 }
 
@@ -499,66 +503,13 @@ function mergeFooter(
 		return d;
 	}
 	return {
-		copyrightTemplate: pickLocalized(
-			o.copyrightTemplate,
-			locale,
-			d.copyrightTemplate,
-			enUi.footer.copyrightTemplate
+		copyrightTemplate: normalizeFooterCopyright(
+			pickLocalized(o.copyrightTemplate, locale, d.copyrightTemplate, enUi.footer.copyrightTemplate)
 		),
 		githubHref: asString(o.githubHref, d.githubHref),
 		linkedinHref: asString(o.linkedinHref, d.linkedinHref),
 		maltHref: asString(o.maltHref, d.maltHref),
 		emailHref: asString(o.emailHref, d.emailHref)
-	};
-}
-
-function mergeCareerModal(
-	raw: unknown,
-	d: SitePortfolioContent['careerModal'],
-	locale: SiteLocale
-): SitePortfolioContent['careerModal'] {
-	const o = asRecord(raw);
-	if (!o) {
-		return d;
-	}
-	const timelineRaw = Array.isArray(o.timeline) ? (o.timeline as unknown[]) : [];
-	const pdfAssetUrl = asStringOpt(o.pdfAssetUrl);
-	const timeline = timelineRaw
-		.map((x, i) => {
-			const r = asRecord(x);
-			if (!r) {
-				return null;
-			}
-			const fallback = d.timeline[i] ?? d.timeline[0];
-			const range = asStringOpt(r.range) ?? fallback?.range ?? '';
-			const role = pickLocalized(r.role, locale, fallback?.role ?? '');
-			const descHtml = pickLocalized(r.descHtml, locale, fallback?.descHtml ?? '');
-			if (!range || !role || !descHtml) {
-				return null;
-			}
-			return {
-				range,
-				role,
-				descHtml,
-				span: r.span === true
-			};
-		})
-		.filter(Boolean) as SitePortfolioContent['careerModal']['timeline'];
-
-	return {
-		pdfHref: pdfAssetUrl ?? asString(o.pdfHref, d.pdfHref),
-		closeAria: pickLocalized(o.closeAria, locale, d.closeAria),
-		title: pickLocalized(o.title, locale, d.title),
-		profileTitle: pickLocalized(o.profileTitle, locale, d.profileTitle),
-		profileHtml: pickLocalized(o.profileHtml, locale, d.profileHtml),
-		expTitle: pickLocalized(o.expTitle, locale, d.expTitle),
-		timeline: timeline.length ? timeline : d.timeline,
-		stackTitle: pickLocalized(o.stackTitle, locale, d.stackTitle),
-		pdfHide: pickLocalized(o.pdfHide, locale, d.pdfHide),
-		pdfShow: pickLocalized(o.pdfShow, locale, d.pdfShow),
-		pdfIframeTitle: pickLocalized(o.pdfIframeTitle, locale, d.pdfIframeTitle),
-		pdfHintBefore: pickLocalized(o.pdfHintBefore, locale, d.pdfHintBefore),
-		pdfHintLink: pickLocalized(o.pdfHintLink, locale, d.pdfHintLink)
 	};
 }
 
@@ -588,7 +539,6 @@ export function mapSanitySitePortfolio(
 		quality: defaults.quality,
 		projects: mergeProjects(raw.projects, defaults.projects, ctx),
 		contact: mergeContact(raw.contact, defaults.contact, ctx.locale),
-		footer: mergeFooter(raw.footer, defaults.footer, ctx.locale),
-		careerModal: mergeCareerModal(raw.careerModal, defaults.careerModal, ctx.locale)
+		footer: mergeFooter(raw.footer, defaults.footer, ctx.locale)
 	};
 }

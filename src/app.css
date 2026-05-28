@@ -479,10 +479,6 @@ html.dark :where(.btn.ghost) {
 	color: #e2e8f0 !important;
 }
 
-html.dark :where(.career-modal, .career-panel) {
-	color: #e2e8f0;
-}
-
 html.dark :where(.footer-custom) {
 	background: linear-gradient(180deg, #0a0a0a 0%, #111111 100%) !important;
 	border-top-color: rgba(255, 255, 255, 0.12) !important;

@@ -62,14 +62,7 @@ export const portfolioSite = defineType({
 									name: 'href',
 									type: 'string',
 									title: 'URL o ancla',
-									description: 'Ej. /#sobre. Si marcas «Abrir trayectoria», puede quedar en #.'
-								},
-								{
-									name: 'openCareerModal',
-									type: 'boolean',
-									title: 'Abrir modal Trayectoria',
-									description: 'Si está activo, no navega: abre el mismo modal que en el hero.',
-									initialValue: false
+									description: 'Ej. /proyectos, /tools/analizador-web o /#contacto.'
 								}
 							],
 							preview: {
@@ -122,12 +115,19 @@ export const portfolioSite = defineType({
 						'Recomendado: /api/cv (descarga el PDF). No uses /#contacto para este botón.',
 					initialValue: '/api/cv'
 				},
+				{
+					name: 'projectsHref',
+					type: 'string',
+					title: 'Enlace botón «Ver proyectos»',
+					description: 'Recomendado: #proyectos para bajar a proyectos destacados.',
+					initialValue: '#proyectos'
+				},
 				{ name: 'label', type: 'localeString', title: 'Etiqueta superior' },
 				{ name: 'title', type: 'localeString', title: 'Título H1' },
 				{ name: 'subtitle', type: 'localeString', title: 'Subtítulo' },
 				{ name: 'bio', type: 'localeText', title: 'Bio' },
-				{ name: 'ctaPrimaryLabel', type: 'localeString', title: 'Texto botón «Ver CV»' },
-				{ name: 'careerCtaLabel', type: 'localeString', title: 'Texto botón «Trayectoria»' }
+				{ name: 'ctaPrimaryLabel', type: 'localeString', title: 'Texto botón «Ver proyectos»' },
+				{ name: 'cvCtaLabel', type: 'localeString', title: 'Texto botón «Ver CV»' }
 			]
 		}),
 		defineField({
@@ -306,68 +306,6 @@ export const portfolioSite = defineType({
 				{ name: 'linkedinHref', type: 'url' },
 				{ name: 'maltHref', type: 'url', title: 'Malt (perfil)' },
 				{ name: 'emailHref', type: 'string', title: 'mailto:…' }
-			]
-		}),
-		defineField({
-			name: 'careerModal',
-			type: 'object',
-			title: 'Modal de trayectoria + CV',
-			description: 'Contenido del modal que se abre al pulsar «Trayectoria».',
-			group: 'contacto',
-			fields: [
-				{
-					name: 'pdfFile',
-					type: 'file',
-					title: 'Archivo CV (PDF)',
-					description:
-						'Sube aquí el CV en PDF desde el panel. La web usará este archivo automáticamente.',
-					options: {
-						accept: 'application/pdf'
-					}
-				},
-				{
-					name: 'pdfHref',
-					type: 'string',
-					title: 'Ruta o URL del CV (PDF)',
-					description:
-						'Opcional como respaldo manual. Si has subido "Archivo CV (PDF)", la web prioriza ese archivo.'
-				},
-				{ name: 'closeAria', type: 'localeString', title: 'Etiqueta cerrar (accesibilidad)' },
-				{ name: 'title', type: 'localeString', title: 'Título del modal' },
-				{ name: 'profileTitle', type: 'localeString', title: 'Título bloque perfil' },
-				{
-					name: 'profileHtml',
-					type: 'localeText',
-					title: 'Texto perfil (HTML permitido)',
-					description: 'Puedes usar <p>, <strong> y enlaces.'
-				},
-				{ name: 'expTitle', type: 'localeString', title: 'Título bloque experiencia' },
-				{
-					name: 'timeline',
-					type: 'array',
-					title: 'Línea de tiempo',
-					of: [
-						{
-							type: 'object',
-							fields: [
-								{ name: 'range', type: 'string', title: 'Rango (ej. 2019 - 2022)' },
-								{ name: 'role', type: 'localeString', title: 'Rol / Empresa' },
-								{
-									name: 'descHtml',
-									type: 'localeText',
-									title: 'Descripción (HTML permitido)'
-								},
-								{ name: 'span', type: 'boolean', title: 'Destacar este bloque' }
-							]
-						}
-					]
-				},
-				{ name: 'stackTitle', type: 'localeString', title: 'Título stack' },
-				{ name: 'pdfHide', type: 'localeString', title: 'Texto botón ocultar PDF' },
-				{ name: 'pdfShow', type: 'localeString', title: 'Texto botón ver PDF' },
-				{ name: 'pdfIframeTitle', type: 'localeString', title: 'Título iframe PDF' },
-				{ name: 'pdfHintBefore', type: 'localeString', title: 'Texto antes del enlace' },
-				{ name: 'pdfHintLink', type: 'localeString', title: 'Texto del enlace' }
 			]
 		})
 	],

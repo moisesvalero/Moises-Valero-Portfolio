@@ -9,12 +9,7 @@ const PDF_QUERY = `coalesce(
   *[_type == "sitePortfolio" && _id == "portfolioSite"][0],
   *[_type == "sitePortfolio"] | order(_updatedAt desc)[0]
 ){
-  "pdfHref": careerModal.pdfHref,
-  "pdfAsset": careerModal.pdfFile.asset->{
-    _id,
-    url,
-    originalFilename
-  }
+  "pdfHref": hero.cvHref
 }`;
 
 const DEFAULT_PDF_PATH = '/imagenes/MOISES-VALERO-CV.pdf';

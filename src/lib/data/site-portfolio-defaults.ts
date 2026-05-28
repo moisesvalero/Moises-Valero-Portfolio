@@ -10,12 +10,12 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 		logoText: 'Moisés Valero',
 		logoHref: '/',
 		navItems: [
-			{ label: 'Trayectoria', href: '#', openCareerModal: true },
+			{ label: 'Inicio', href: '/' },
 			{ label: 'Proyectos', href: '/proyectos' },
-			{ label: 'Asistente IA', href: '/ia-moises' },
 			{ label: 'Analizador web', href: '/tools/analizador-web' },
-			{ label: 'Contacto', href: '/#contacto' },
-			{ label: 'Guías', href: '/blog' }
+			{ label: 'Asistente IA', href: '/ia-moises' },
+			{ label: 'Guías', href: '/blog' },
+			{ label: 'Contacto', href: '/#contacto' }
 		]
 	},
 	seo: {
@@ -30,12 +30,13 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 	},
 	hero: {
 		cvHref: '/api/cv',
+		projectsHref: '#proyectos',
 		label: 'PORTFOLIO – MOISÉS VALERO',
 		title: 'Desarrollador Web',
 		subtitle: 'SvelteKit | React/Next.js | APIs | IA aplicada | WordPress',
 		bio: 'Desarrollo webs y web apps con SvelteKit, APIs, IA aplicada y WordPress. Busco incorporarme a un equipo y aportar rendimiento, integraciones y criterio técnico.',
-		ctaPrimaryLabel: 'Ver CV',
-		careerCtaLabel: 'Ver Trayectoria'
+		ctaPrimaryLabel: 'Ver proyectos',
+		cvCtaLabel: 'Ver CV'
 	},
 	about: {
 		imageSrc: '/imagenes/Moises-Valero-Sanchez.png',
@@ -259,51 +260,10 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 	},
 	footer: {
 		copyrightTemplate:
-			'Moisés Valero © {{year}} | Desarrollador web orientado a producto, rendimiento e integraciones | SvelteKit, WordPress, Sanity CMS y SEO técnico.',
+			'Moisés Valero © {{year}} | Desarrollador web orientado a producto, rendimiento e integraciones | SvelteKit, React/Next.js, WordPress, Sanity CMS y SEO técnico.',
 		githubHref: 'https://github.com/moisesvalero',
 		linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
 		maltHref: '',
 		emailHref: 'mailto:info@moisesvalero.es'
-	},
-	careerModal: {
-		pdfHref: '/imagenes/MOISES-VALERO-CV.pdf',
-		closeAria: 'Cerrar',
-		title: 'Trayectoria profesional de Moisés Valero',
-		profileTitle: 'Perfil',
-		profileHtml: `<p class="career-p">
-            Cuento con el <strong>Certificado de Profesionalidad de Nivel 3 en Desarrollo Web</strong>
-            (equivalente a formación de <strong>Grado Superior</strong>), que avala competencias
-            actualizadas en desarrollo y entornos web profesionales.
-          </p>`,
-		expTitle: 'Experiencia',
-		timeline: [
-			{
-				range: '2019 – 2022',
-				role: 'Autónomo',
-				descHtml:
-					'Digitalización de negocios, gestión de proyectos técnicos y mantenimiento de sistemas.'
-			},
-			{
-				range: '2012 – 2014',
-				role: 'MutuaSAD',
-				descHtml:
-					'Administración WordPress, comercio electrónico (WooCommerce / PrestaShop) y soporte microinformático y de redes.'
-			},
-			{
-				range: '2001 – 2026',
-				role: 'Trayectoria adicional',
-				descHtml: `Más de dos décadas aportando <strong>madurez profesional</strong> y
-                <strong>capacidad de liderazgo</strong> como oficial especialista en entornos
-                industriales y en <strong>carpintería técnica</strong>, con fuerte orientación a la
-                calidad, la coordinación y la resolución de problemas complejos.`,
-				span: true
-			}
-		],
-		stackTitle: 'Stack técnico',
-		pdfHide: 'Ocultar CV en PDF',
-		pdfShow: 'Ver CV original en PDF',
-		pdfIframeTitle: 'CV de Moisés Valero (PDF)',
-		pdfHintBefore: 'Si no se muestra el documento, ',
-		pdfHintLink: 'ábrelo en una pestaña nueva'
 	}
 };

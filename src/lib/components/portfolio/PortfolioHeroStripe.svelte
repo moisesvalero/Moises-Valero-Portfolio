@@ -1,25 +1,27 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { getCareerModalControls } from '$lib/career-modal-context';
 	import PointerHighlight from '$lib/components/motion/PointerHighlight.svelte';
+	import { getCvModalControls } from '$lib/cv-modal-context';
 
 	interface Props {
 		cvHref?: string;
+		projectsHref?: string;
 		label?: string;
 		title?: string;
 		subtitle?: string;
 		bio?: string;
 		ctaPrimaryLabel?: string;
-		careerCtaLabel?: string;
+		cvCtaLabel?: string;
 	}
 
 	let {
 		cvHref = '/#contacto',
+		projectsHref = '#proyectos',
 		label = 'PORTFOLIO – MOISÉS VALERO',
 		title = 'Desarrollador Web',
 		subtitle = 'SvelteKit | React/Next.js | APIs | IA aplicada | WordPress',
-		ctaPrimaryLabel = 'Ver CV',
-		careerCtaLabel = 'Ver Trayectoria'
+		ctaPrimaryLabel = 'Ver proyectos',
+		cvCtaLabel = 'Ver CV'
 	}: Props = $props();
 
 	const heroCapabilities = $derived([
@@ -39,13 +41,17 @@
 	const iconifySvgUrl = (name: string) =>
 		`url("https://api.iconify.design/${encodeURIComponent(name)}.svg")`;
 	const resolvePath = resolve as unknown as (href: string) => string;
+	const projectsLinkProps = $derived({
+		href: /^\/(?!\/)/.test(projectsHref) ? resolvePath(projectsHref) : projectsHref
+	});
+	const cvModal = getCvModalControls();
 	const cvLinkProps = $derived({
-		href: /^\/(?!\/)/.test(cvHref) ? resolvePath(cvHref) : cvHref,
-		target: '_blank',
-		rel: 'noopener noreferrer'
+		href: /^\/(?!\/)/.test(cvHref) ? resolvePath(cvHref) : cvHref
 	});
 
-	const careerModal = getCareerModalControls();
+	function openCvModal() {
+		cvModal?.open();
+	}
 </script>
 
 <div class="hero-viewport-root" id="top">
@@ -89,12 +95,18 @@
 				{/each}
 			</h2>
 			<div class="botones-wrap hero-entry hero-entry-5">
-				<button type="button" class="btn-apple-blue" onclick={() => careerModal?.open()}>
-					{careerCtaLabel}
-				</button>
-				<a {...cvLinkProps} class="btn-ghost-slim">
+				<a {...projectsLinkProps} class="btn-apple-blue">
 					{ctaPrimaryLabel}
 				</a>
+				{#if cvModal}
+					<button type="button" class="btn-ghost-slim" onclick={openCvModal}>
+						{cvCtaLabel}
+					</button>
+				{:else}
+					<a {...cvLinkProps} class="btn-ghost-slim">
+						{cvCtaLabel}
+					</a>
+				{/if}
 			</div>
 		</div>
 	</div>
@@ -445,6 +457,7 @@
 	}
 
 	.btn-ghost-slim {
+		appearance: none;
 		min-height: var(--portfolio-action-height);
 		background: var(--portfolio-action-secondary-bg);
 		color: var(--portfolio-action-secondary-text) !important;

@@ -3,8 +3,6 @@
 export type SiteNavItem = {
 	label: string;
 	href: string;
-	/** Si es true, el header abre el modal de trayectoria en lugar de navegar a `href`. */
-	openCareerModal?: boolean;
 };
 
 export type SiteHeader = {
@@ -25,14 +23,15 @@ export type SiteSeo = {
 
 export type SiteHero = {
 	cvHref: string;
+	projectsHref?: string;
 	label: string;
 	title: string;
 	subtitle: string;
 	bio: string;
 	/** CTA principal del hero (i18n). */
 	ctaPrimaryLabel?: string;
-	/** Abre el modal de trayectoria (i18n). */
-	careerCtaLabel?: string;
+	/** CTA secundario del hero para abrir/descargar el CV. */
+	cvCtaLabel?: string;
 };
 
 export type SiteAbout = {
@@ -139,30 +138,6 @@ export type SiteFooter = {
 	emailHref: string;
 };
 
-export type SiteCareerTimelineItem = {
-	range: string;
-	role: string;
-	descHtml: string;
-	span?: boolean;
-};
-
-/** Contenido editable del modal de trayectoria. */
-export type SiteCareerModal = {
-	pdfHref: string;
-	closeAria: string;
-	title: string;
-	profileTitle: string;
-	profileHtml: string;
-	expTitle: string;
-	timeline: SiteCareerTimelineItem[];
-	stackTitle: string;
-	pdfHide: string;
-	pdfShow: string;
-	pdfIframeTitle: string;
-	pdfHintBefore: string;
-	pdfHintLink: string;
-};
-
 export type SitePortfolioContent = {
 	header: SiteHeader;
 	seo: SiteSeo;
@@ -174,5 +149,4 @@ export type SitePortfolioContent = {
 	projects: SiteProjectsSection;
 	contact: SiteContact;
 	footer: SiteFooter;
-	careerModal: SiteCareerModal;
 };

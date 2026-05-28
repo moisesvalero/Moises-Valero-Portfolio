@@ -82,9 +82,5 @@ export const sitePortfolioQuery = `coalesce(
     formModalPrivacyLabel,
     formModalSuccessMessage
   },
-  footer,
-  careerModal{
-    ...,
-    "pdfAssetUrl": pdfFile.asset->url
-  }
+  footer
 }`;

@@ -4,12 +4,12 @@
 	import { resolve } from '$app/paths';
 	import CookieBanner from '$lib/components/CookieBanner.svelte';
 	import GoogleAnalytics from '$lib/components/GoogleAnalytics.svelte';
+	import CvModal from '$lib/components/portfolio/CvModal.svelte';
 	import PortfolioFooter from '$lib/components/portfolio/PortfolioFooter.svelte';
 	import PortfolioCustomCursor from '$lib/components/portfolio/PortfolioCustomCursor.svelte';
 	import SmoothHashScroll from '$lib/components/SmoothHashScroll.svelte';
 	import HeaderBrand from '$lib/components/HeaderBrand.svelte';
-	import CareerModal from '$lib/components/portfolio/CareerModal.svelte';
-	import { setCareerModalControls } from '$lib/career-modal-context';
+	import { setCvModalControls } from '$lib/cv-modal-context';
 	import { onMount } from 'svelte';
 	import type { LayoutData } from './$types';
 
@@ -48,9 +48,6 @@
 
 			const source = site.header.navItems
 				.map((item) => {
-					if (item.openCareerModal) {
-						return item;
-					}
 					const normalizedHref = normalizeNavHref(item.href);
 					if (normalizedHref === '#sobre' || normalizedHref === '#stack') {
 						return null;
@@ -62,41 +59,36 @@
 			const pick = (predicate: (item: HeaderNavItem) => boolean): HeaderNavItem | undefined =>
 				source.find(predicate);
 
-			const career =
-				pick((item) => item.openCareerModal === true) ??
-				({
-					label: data.locale === 'en' ? 'Career' : 'Trayectoria',
-					href: '#',
-					openCareerModal: true
-				} as HeaderNavItem);
 			const assistant = {
 				label: data.locale === 'en' ? 'AI Assistant' : 'Asistente IA',
 				href: '/ia-moises'
 			} as HeaderNavItem;
 			const blog =
-				pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/blog') ??
+				pick((item) => normalizeNavHref(item.href) === '/blog') ??
 				({ label: data.locale === 'en' ? 'Guides' : 'Guías', href: '/blog' } as HeaderNavItem);
 			const projects =
-				pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/proyectos') ??
-				pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#proyectos') ??
+				pick((item) => normalizeNavHref(item.href) === '/proyectos') ??
+				pick((item) => normalizeNavHref(item.href) === '#proyectos') ??
 				({
 					label: data.locale === 'en' ? 'Projects' : 'Proyectos',
 					href: '/proyectos'
 				} as HeaderNavItem);
 			const projectsLink = { ...projects, href: '/proyectos' } as HeaderNavItem;
 			const analyzer =
-				pick(
-					(item) => !item.openCareerModal && normalizeNavHref(item.href) === '/tools/analizador-web'
-				) ?? ({ label: analyzerLabel, href: '/tools/analizador-web' } as HeaderNavItem);
+				pick((item) => normalizeNavHref(item.href) === '/tools/analizador-web') ??
+				({ label: analyzerLabel, href: '/tools/analizador-web' } as HeaderNavItem);
+			const home =
+				pick((item) => normalizeNavHref(item.href) === '/') ??
+				({ label: data.locale === 'en' ? 'Home' : 'Inicio', href: '/' } as HeaderNavItem);
 
 			const contact =
-				pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#contacto') ??
+				pick((item) => normalizeNavHref(item.href) === '#contacto') ??
 				({
 					label: data.locale === 'en' ? 'Contact' : 'Contacto',
 					href: '/#contacto'
 				} as HeaderNavItem);
 
-			const preferred = [career, projectsLink, contact, assistant, analyzer, blog].filter(
+			const preferred = [home, projectsLink, analyzer, assistant, blog, contact].filter(
 				Boolean
 			) as HeaderNavItem[];
 			return preferred;
@@ -113,12 +105,12 @@
 			{
 				title: data.locale === 'en' ? 'Work' : 'Trabajo',
 				variant: 'muted',
-				items: headerNavItems.slice(3, 5)
+				items: headerNavItems.slice(2, 4)
 			},
 			{
 				title: data.locale === 'en' ? 'More' : 'Más',
 				variant: 'default',
-				items: [headerNavItems[5], headerNavItems[2], ...headerNavItems.slice(6)].filter(Boolean)
+				items: headerNavItems.slice(4, 6)
 			}
 		]
 			.map((group, index) =>
@@ -134,15 +126,15 @@
 		}
 	});
 
-	let careerOpen = $state(false);
-	setCareerModalControls({
-		open: () => {
-			careerOpen = true;
-		}
-	});
-
 	let menuOpen = $state(false);
 	let colorTheme = $state<'light' | 'dark'>('light');
+	let cvModalOpen = $state(false);
+
+	setCvModalControls({
+		open: () => {
+			cvModalOpen = true;
+		}
+	});
 
 	function applyColorTheme(theme: 'light' | 'dark') {
 		colorTheme = theme;
@@ -323,34 +315,19 @@
 							<div class:muted={group.variant === 'muted'} class="motion-menu-group">
 								<h3>{group.title}</h3>
 								<div class="motion-menu-links">
-									{#each group.items as item, itemIndex (item.label + item.href + (item.openCareerModal ? '1' : '0'))}
-										{#if item.openCareerModal}
-											<button
-												type="button"
-												class="motion-menu-link"
-												style={`--stagger:${groupIndex * 3 + itemIndex}`}
-												onpointermove={handleLinkMove}
-												onclick={() => {
-													careerOpen = true;
-													closeMenu();
-												}}
-											>
-												<span><span>{item.label}</span></span>
-											</button>
-										{:else}
-											<a
-												class="motion-menu-link"
-												style={`--stagger:${groupIndex * 3 + itemIndex}`}
-												href={item.href.startsWith('/') ? resolve(item.href as '/blog') : item.href}
-												data-sveltekit-reload={shouldForceDocumentNavigation(item.href)
-													? 'true'
-													: undefined}
-												onpointermove={handleLinkMove}
-												onclick={closeMenu}
-											>
-												<span><span>{item.label}</span></span>
-											</a>
-										{/if}
+									{#each group.items as item, itemIndex (item.label + item.href)}
+										<a
+											class="motion-menu-link"
+											style={`--stagger:${groupIndex * 3 + itemIndex}`}
+											href={item.href.startsWith('/') ? resolve(item.href as '/blog') : item.href}
+											data-sveltekit-reload={shouldForceDocumentNavigation(item.href)
+												? 'true'
+												: undefined}
+											onpointermove={handleLinkMove}
+											onclick={closeMenu}
+										>
+											<span><span>{item.label}</span></span>
+										</a>
 										{#if itemIndex < group.items.length - 1}
 											<hr />
 										{/if}
@@ -374,15 +351,12 @@
 	</header>
 {/if}
 
-{#if !hideSiteChrome}
-	<CareerModal bind:open={careerOpen} locale={data.locale} career={site.careerModal} />
-{/if}
-
 {@render children()}
 
 {#if !hideSiteChrome}
 	<SmoothHashScroll />
 	<PortfolioCustomCursor />
+	<CvModal bind:open={cvModalOpen} cvHref={site.hero.cvHref} locale={data.locale} />
 	<PortfolioFooter {...site.footer} />
 {/if}
 
