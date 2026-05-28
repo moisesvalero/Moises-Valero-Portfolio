@@ -79,7 +79,10 @@
 			const projects =
 				pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '/proyectos') ??
 				pick((item) => !item.openCareerModal && normalizeNavHref(item.href) === '#proyectos') ??
-				({ label: data.locale === 'en' ? 'Projects' : 'Proyectos', href: '/proyectos' } as HeaderNavItem);
+				({
+					label: data.locale === 'en' ? 'Projects' : 'Proyectos',
+					href: '/proyectos'
+				} as HeaderNavItem);
 			const projectsLink = { ...projects, href: '/proyectos' } as HeaderNavItem;
 			const analyzer =
 				pick(

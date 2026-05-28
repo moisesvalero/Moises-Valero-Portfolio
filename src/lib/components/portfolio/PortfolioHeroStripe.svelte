@@ -102,12 +102,7 @@
 		</div>
 
 		<a class="hero-scroll-cue" href="#sobre" aria-label={scrollCtaLabel}>
-			<span class="hero-scroll-shell" aria-hidden="true">
-				<span class="hero-scroll-dot"></span>
-				<svg viewBox="0 0 24 24" focusable="false">
-					<path d="M12 5v13m0 0 6-6m-6 6-6-6" />
-				</svg>
-			</span>
+			<span class="hero-scroll-arrows" aria-hidden="true"></span>
 		</a>
 	</div>
 </div>
@@ -292,81 +287,52 @@
 	}
 
 	.hero-scroll-cue {
+		--hero-arrow-size: 42px;
+		--hero-arrow-stroke: 3px;
+		--hero-arrow-speed: 2.7s;
 		position: absolute;
 		left: 50%;
 		bottom: clamp(24px, 5vh, 46px);
 		z-index: 12;
 		display: inline-flex;
-		width: 54px;
-		height: 54px;
+		width: calc(var(--hero-arrow-size) * 1.35);
+		height: calc(var(--hero-arrow-size) * 1.35);
 		align-items: center;
 		justify-content: center;
-		border-radius: 999px;
 		color: #005fd6;
 		text-decoration: none;
 		transform: translateX(-50%);
 		animation: heroScrollCueIn 760ms cubic-bezier(0.22, 1, 0.36, 1) 820ms both;
 	}
 
-	.hero-scroll-shell {
+	.hero-scroll-arrows {
 		position: relative;
-		display: grid;
-		width: 46px;
-		height: 46px;
-		place-items: center;
-		border: 1px solid rgba(0, 113, 227, 0.18);
-		border-radius: 999px;
-		background:
-			linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.42)),
-			radial-gradient(circle at 50% 20%, rgba(0, 113, 227, 0.16), transparent 58%);
-		box-shadow:
-			0 18px 48px rgba(15, 23, 42, 0.12),
-			0 1px 0 rgba(255, 255, 255, 0.8) inset;
-		-webkit-backdrop-filter: blur(14px) saturate(1.2);
-		backdrop-filter: blur(14px) saturate(1.2);
-		transition:
-			transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
-			border-color 260ms cubic-bezier(0.22, 1, 0.36, 1),
-			box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1);
+		width: var(--hero-arrow-size);
+		height: var(--hero-arrow-size);
+		filter: drop-shadow(0 16px 26px rgba(0, 95, 214, 0.2));
+		transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
 	}
 
-	.hero-scroll-shell::before {
+	.hero-scroll-arrows::before,
+	.hero-scroll-arrows::after {
 		content: '';
 		position: absolute;
-		inset: -7px;
-		border: 1px solid rgba(0, 113, 227, 0.1);
-		border-radius: inherit;
-		opacity: 0.9;
+		width: 100%;
+		height: 100%;
+		border-left: var(--hero-arrow-stroke) solid currentColor;
+		border-bottom: var(--hero-arrow-stroke) solid currentColor;
+		opacity: 0;
+		transform: translate(-14%, -42%) rotate(-45deg);
+		animation: heroArrowDrift var(--hero-arrow-speed) linear infinite;
 	}
 
-	.hero-scroll-dot {
-		position: absolute;
-		top: 8px;
-		width: 4px;
-		height: 4px;
-		border-radius: 999px;
-		background: currentColor;
-		animation: heroScrollDot 1450ms cubic-bezier(0.22, 1, 0.36, 1) infinite;
+	.hero-scroll-arrows::after {
+		animation-delay: calc(var(--hero-arrow-speed) / -2);
 	}
 
-	.hero-scroll-cue svg {
-		width: 22px;
-		height: 22px;
-		margin-top: 5px;
-		stroke: currentColor;
-		stroke-width: 2;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-		fill: none;
-	}
-
-	.hero-scroll-cue:hover .hero-scroll-shell,
-	.hero-scroll-cue:focus-visible .hero-scroll-shell {
-		transform: translateY(3px);
-		border-color: rgba(0, 113, 227, 0.34);
-		box-shadow:
-			0 22px 56px rgba(0, 113, 227, 0.16),
-			0 1px 0 rgba(255, 255, 255, 0.86) inset;
+	.hero-scroll-cue:hover .hero-scroll-arrows,
+	.hero-scroll-cue:focus-visible .hero-scroll-arrows {
+		transform: translateY(5px);
 	}
 
 	.hero-scroll-cue:focus-visible {
@@ -374,16 +340,25 @@
 		outline-offset: 8px;
 	}
 
-	@keyframes heroScrollDot {
-		0%,
-		100% {
-			opacity: 0.32;
-			transform: translateY(0);
+	@keyframes heroArrowDrift {
+		0% {
+			opacity: 0;
+			transform: translate(-14%, -42%) rotate(-45deg);
 		}
 
-		45% {
-			opacity: 1;
-			transform: translateY(10px);
+		12%,
+		88% {
+			opacity: 0;
+		}
+
+		50% {
+			opacity: 0.78;
+			transform: translate(-14%, 0) rotate(-45deg);
+		}
+
+		100% {
+			opacity: 0;
+			transform: translate(-14%, 42%) rotate(-45deg);
 		}
 	}
 
@@ -671,14 +646,9 @@
 		color: #4da3ff;
 	}
 
-	:global(html.dark) .hero-scroll-shell {
-		border-color: rgba(77, 163, 255, 0.24);
-		background:
-			linear-gradient(180deg, rgba(15, 23, 42, 0.78), rgba(15, 23, 42, 0.44)),
-			radial-gradient(circle at 50% 20%, rgba(77, 163, 255, 0.2), transparent 58%);
-		box-shadow:
-			0 18px 48px rgba(0, 0, 0, 0.28),
-			0 1px 0 rgba(255, 255, 255, 0.08) inset;
+	:global(html.dark) .hero-scroll-arrows {
+		filter: drop-shadow(0 0 12px rgba(77, 163, 255, 0.38))
+			drop-shadow(0 14px 24px rgba(0, 0, 0, 0.22));
 	}
 
 	/*
@@ -788,7 +758,8 @@
 		:global(html.dark) .hero-stripe-pro-v2::before,
 		:global(html.dark) .hero-stripe-pro-v2::after,
 		.hero-scroll-cue,
-		.hero-scroll-dot {
+		.hero-scroll-arrows::before,
+		.hero-scroll-arrows::after {
 			animation: none !important;
 			will-change: auto;
 		}
@@ -920,19 +891,9 @@
 		}
 
 		.hero-scroll-cue {
+			--hero-arrow-size: 32px;
+			--hero-arrow-stroke: 2.5px;
 			bottom: max(18px, env(safe-area-inset-bottom, 0px));
-			width: 46px;
-			height: 46px;
-		}
-
-		.hero-scroll-shell {
-			width: 40px;
-			height: 40px;
-		}
-
-		.hero-scroll-cue svg {
-			width: 19px;
-			height: 19px;
 		}
 	}
 

@@ -398,7 +398,12 @@
 		bottom: 1.6rem;
 		left: 2.1rem;
 		width: 1px;
-		background: linear-gradient(180deg, rgba(0, 113, 227, 0), rgba(0, 113, 227, 0.45), rgba(43, 160, 148, 0));
+		background: linear-gradient(
+			180deg,
+			rgba(0, 113, 227, 0),
+			rgba(0, 113, 227, 0.45),
+			rgba(43, 160, 148, 0)
+		);
 	}
 
 	.career-feature-trigger {
@@ -541,7 +546,12 @@
 		right: 1.55rem;
 		bottom: 2.1rem;
 		height: 2px;
-		background: linear-gradient(90deg, rgba(248, 250, 252, 0.15), rgba(77, 163, 255, 0.72), rgba(43, 160, 148, 0.68));
+		background: linear-gradient(
+			90deg,
+			rgba(248, 250, 252, 0.15),
+			rgba(77, 163, 255, 0.72),
+			rgba(43, 160, 148, 0.68)
+		);
 	}
 
 	.career-route-stop {
