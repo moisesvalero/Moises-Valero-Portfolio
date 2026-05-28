@@ -36,9 +36,6 @@
 	]);
 	const heroCapabilitiesLabel = $derived(heroCapabilities.map((item) => item.label).join(' · '));
 	const titleWords = $derived(title.split(/\s+/).filter(Boolean));
-	const scrollCtaLabel = $derived(
-		/\bview\b/i.test(careerCtaLabel) ? 'Scroll to about me' : 'Bajar a sobre mí'
-	);
 	const iconifySvgUrl = (name: string) =>
 		`url("https://api.iconify.design/${encodeURIComponent(name)}.svg")`;
 	const resolvePath = resolve as unknown as (href: string) => string;
@@ -100,10 +97,6 @@
 				</a>
 			</div>
 		</div>
-
-		<a class="hero-scroll-cue" href="#sobre" aria-label={scrollCtaLabel}>
-			<span class="hero-scroll-arrows" aria-hidden="true"></span>
-		</a>
 	</div>
 </div>
 
@@ -286,96 +279,6 @@
 		animation-delay: 590ms;
 	}
 
-	.hero-scroll-cue {
-		--hero-arrow-size: 42px;
-		--hero-arrow-stroke: 3px;
-		--hero-arrow-speed: 2.7s;
-		position: absolute;
-		left: 50%;
-		bottom: clamp(24px, 5vh, 46px);
-		z-index: 12;
-		display: inline-flex;
-		width: calc(var(--hero-arrow-size) * 1.35);
-		height: calc(var(--hero-arrow-size) * 1.35);
-		align-items: center;
-		justify-content: center;
-		color: #005fd6;
-		text-decoration: none;
-		transform: translateX(-50%);
-		animation: heroScrollCueIn 760ms cubic-bezier(0.22, 1, 0.36, 1) 820ms both;
-	}
-
-	.hero-scroll-arrows {
-		position: relative;
-		width: var(--hero-arrow-size);
-		height: var(--hero-arrow-size);
-		filter: drop-shadow(0 16px 26px rgba(0, 95, 214, 0.2));
-		transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
-	}
-
-	.hero-scroll-arrows::before,
-	.hero-scroll-arrows::after {
-		content: '';
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		border-left: var(--hero-arrow-stroke) solid currentColor;
-		border-bottom: var(--hero-arrow-stroke) solid currentColor;
-		opacity: 0;
-		transform: translate(-14%, -42%) rotate(-45deg);
-		animation: heroArrowDrift var(--hero-arrow-speed) linear infinite;
-	}
-
-	.hero-scroll-arrows::after {
-		animation-delay: calc(var(--hero-arrow-speed) / -2);
-	}
-
-	.hero-scroll-cue:hover .hero-scroll-arrows,
-	.hero-scroll-cue:focus-visible .hero-scroll-arrows {
-		transform: translateY(5px);
-	}
-
-	.hero-scroll-cue:focus-visible {
-		outline: 2px solid rgba(0, 113, 227, 0.38);
-		outline-offset: 8px;
-	}
-
-	@keyframes heroArrowDrift {
-		0% {
-			opacity: 0;
-			transform: translate(-14%, -42%) rotate(-45deg);
-		}
-
-		12%,
-		88% {
-			opacity: 0;
-		}
-
-		50% {
-			opacity: 0.78;
-			transform: translate(-14%, 0) rotate(-45deg);
-		}
-
-		100% {
-			opacity: 0;
-			transform: translate(-14%, 42%) rotate(-45deg);
-		}
-	}
-
-	@keyframes heroScrollCueIn {
-		0% {
-			opacity: 0;
-			transform: translateX(-50%) translateY(14px) scale(0.94);
-			filter: blur(6px);
-		}
-
-		100% {
-			opacity: 1;
-			transform: translateX(-50%) translateY(0) scale(1);
-			filter: blur(0);
-		}
-	}
-
 	.label-top {
 		color: #0071e3;
 		font-size: 12.5px;
@@ -388,7 +291,7 @@
 
 	.hero-stripe-pro-v2 h1 {
 		color: #0f172a !important;
-		font-size: clamp(48px, 7.25vw, 124px) !important;
+		font-size: clamp(46px, calc((100vw - 3rem) / 12), 94px) !important;
 		font-weight: 800 !important;
 		margin: 0 0 13px 0 !important;
 		letter-spacing: -0.062em;
@@ -642,15 +545,6 @@
 		opacity: 0.96;
 	}
 
-	:global(html.dark) .hero-scroll-cue {
-		color: #4da3ff;
-	}
-
-	:global(html.dark) .hero-scroll-arrows {
-		filter: drop-shadow(0 0 12px rgba(77, 163, 255, 0.38))
-			drop-shadow(0 14px 24px rgba(0, 0, 0, 0.22));
-	}
-
 	/*
    * Hero oscuro — "luz de estudio nocturna": malla azul de marca, deriva lenta,
    * núcleo detrás del título y viñeta para profundidad (sin rosa/amarillo del claro).
@@ -690,13 +584,6 @@
 		border-color: #ffffff !important;
 	}
 
-	/* iPad horizontal y portátiles estrechos: evitar desbordes del título */
-	@media (max-width: 1199px) {
-		.hero-stripe-pro-v2 h1 {
-			white-space: normal;
-		}
-	}
-
 	@media (max-width: 1024px) {
 		.hero-viewport-root {
 			min-height: 100svh;
@@ -708,7 +595,6 @@
 		}
 
 		.hero-stripe-pro-v2 h1 {
-			font-size: clamp(52px, 12vw, 74px) !important;
 			letter-spacing: -0.046em;
 			line-height: 0.94;
 		}
@@ -756,10 +642,7 @@
 
 		.hero-stripe-pro-v2::before,
 		:global(html.dark) .hero-stripe-pro-v2::before,
-		:global(html.dark) .hero-stripe-pro-v2::after,
-		.hero-scroll-cue,
-		.hero-scroll-arrows::before,
-		.hero-scroll-arrows::after {
+		:global(html.dark) .hero-stripe-pro-v2::after {
 			animation: none !important;
 			will-change: auto;
 		}
@@ -827,7 +710,7 @@
 		}
 
 		.hero-stripe-pro-v2 h1 {
-			font-size: clamp(50px, 14.6vw, 60px) !important;
+			font-size: clamp(46px, calc((100vw - 3rem) / 12), 60px) !important;
 			letter-spacing: -0.055em;
 			line-height: 0.88;
 		}
@@ -889,15 +772,9 @@
 			line-height: 1.15;
 			white-space: normal;
 		}
-
-		.hero-scroll-cue {
-			--hero-arrow-size: 32px;
-			--hero-arrow-stroke: 2.5px;
-			bottom: max(18px, env(safe-area-inset-bottom, 0px));
-		}
 	}
 
-	@media (max-width: 420px) {
+	@media (max-width: 520px) {
 		.hero-stripe-pro-v2 {
 			min-height: 100svh;
 			padding-top: max(5.25rem, calc(env(safe-area-inset-top, 0px) + 4.55rem));
@@ -905,6 +782,8 @@
 
 		.hero-stripe-pro-v2 h1 {
 			font-size: clamp(47px, 13.9vw, 55px) !important;
+			white-space: normal;
+			flex-wrap: wrap;
 		}
 	}
 </style>
