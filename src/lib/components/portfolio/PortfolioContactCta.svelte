@@ -159,7 +159,9 @@
 				aria-label="Cerrar formulario"
 				onclick={closeFormModal}
 			>
-				<span aria-hidden="true">close</span>
+				<svg viewBox="0 0 24 24" aria-hidden="true">
+					<path d="m6.4 5 12.6 12.6-1.4 1.4L5 6.4 6.4 5Zm11.2 0L19 6.4 6.4 19 5 17.6 17.6 5Z" />
+				</svg>
 			</button>
 		</div>
 		<form class="modal-form" onsubmit={submitForm}>
@@ -451,11 +453,10 @@
 			border-color 180ms ease;
 	}
 
-	.modal-close span {
-		font-family: 'Material Symbols Outlined';
-		font-size: 20px;
-		font-weight: 400;
-		line-height: 1;
+	.modal-close svg {
+		width: 18px;
+		height: 18px;
+		fill: currentColor;
 	}
 
 	.modal-close:hover {

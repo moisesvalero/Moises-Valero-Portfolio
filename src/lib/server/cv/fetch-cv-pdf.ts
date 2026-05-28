@@ -14,6 +14,7 @@ const PDF_QUERY = `coalesce(
 
 const DEFAULT_PDF_PATH = '/imagenes/MOISES-VALERO-CV.pdf';
 const SANITY_CDN_HOST = 'cdn.sanity.io';
+const SANITY_SOURCE_TIMEOUT_MS = 2500;
 
 type PdfAsset = {
 	_id?: string;
@@ -125,7 +126,10 @@ async function loadPdfSource(): Promise<PdfSource | null> {
 	const client = getSanityServerClient();
 	if (!client) return null;
 	try {
-		return await client.fetch<PdfSource>(PDF_QUERY);
+		return await Promise.race([
+			client.fetch<PdfSource>(PDF_QUERY),
+			new Promise<null>((resolve) => setTimeout(() => resolve(null), SANITY_SOURCE_TIMEOUT_MS))
+		]);
 	} catch {
 		return null;
 	}
@@ -162,9 +166,11 @@ export async function resolveCvPdfResponse(
 		}
 
 		if (parsed.origin === origin) {
-			const local = await fetchSameOriginPdf(parsed.pathname + parsed.search, origin, kitFetch);
-			if (local?.body) {
-				return inlinePdfResponse(local.body, local.headers.get('content-length'));
+			if (parsed.pathname !== '/api/cv') {
+				const local = await fetchSameOriginPdf(parsed.pathname + parsed.search, origin, kitFetch);
+				if (local?.body) {
+					return inlinePdfResponse(local.body, local.headers.get('content-length'));
+				}
 			}
 		} else if (parsed.hostname === SANITY_CDN_HOST) {
 			const remote = await fetchRemotePdf(parsed.toString(), token);

@@ -12,21 +12,20 @@
 
 	const resolvePath = resolve as unknown as (href: string) => string;
 	const resolvedCvHref = $derived(/^\/(?!\/)/.test(cvHref) ? resolvePath(cvHref) : cvHref);
+	const viewerHref = $derived(`${resolvedCvHref}#view=FitH`);
 	const copy = $derived(
 		locale === 'en'
 			? {
-					title: 'Moises Valero CV',
+					title: 'Curriculum',
 					eyebrow: 'Professional profile',
-					description: 'Preview the CV without leaving the portfolio.',
 					open: 'Open in tab',
 					download: 'Download',
 					close: 'Close CV'
 				}
 			: {
-					title: 'CV de Moises Valero',
+					title: 'Currículum',
 					eyebrow: 'Perfil profesional',
-					description: 'Vista previa del CV sin salir del portfolio.',
-					open: 'Abrir en pestana',
+					open: 'Abrir en pestaña',
 					download: 'Descargar',
 					close: 'Cerrar CV'
 				}
@@ -43,19 +42,38 @@
 			<div>
 				<p>{copy.eyebrow}</p>
 				<h2 id="cv-modal-title">{copy.title}</h2>
-				<span>{copy.description}</span>
 			</div>
 			<div class="cv-modal-actions">
-				<a href={resolvedCvHref} target="_blank" rel="noopener noreferrer">{copy.open}</a>
-				<a href={resolvedCvHref} download>{copy.download}</a>
+				<a
+					href={resolvedCvHref}
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label={copy.open}
+					title={copy.open}
+				>
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path
+							d="M14 4h6v6h-2V7.42l-7.3 7.3-1.42-1.42 7.3-7.3H14V4ZM5.8 6h5.4v2H8v8h8v-3.2h2v5a.2.2 0 0 1-.2.2h-12a.2.2 0 0 1-.2-.2v-12c0-.11.09-.2.2-.2Z"
+						/>
+					</svg>
+				</a>
+				<a href={resolvedCvHref} download aria-label={copy.download} title={copy.download}>
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path
+							d="M11 4h2v8.17l3.24-3.24 1.42 1.41L12 16l-5.66-5.66 1.42-1.41L11 12.17V4ZM5 18h14v2H5v-2Z"
+						/>
+					</svg>
+				</a>
 				<button type="button" aria-label={copy.close} onclick={close}>
-					<span aria-hidden="true">close</span>
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="m6.4 5 12.6 12.6-1.4 1.4L5 6.4 6.4 5Zm11.2 0L19 6.4 6.4 19 5 17.6 17.6 5Z" />
+					</svg>
 				</button>
 			</div>
 		</header>
 
 		<div class="cv-frame-wrap">
-			<iframe class="cv-frame" src={resolvedCvHref} title={copy.title}></iframe>
+			<iframe class="cv-frame" src={viewerHref} title={copy.title}></iframe>
 		</div>
 	</div>
 </PortfolioModalShell>
@@ -100,14 +118,6 @@
 		line-height: 1;
 	}
 
-	.cv-modal-head span {
-		display: block;
-		margin-top: 9px;
-		color: #64748b;
-		font-size: 0.95rem;
-		line-height: 1.4;
-	}
-
 	.cv-modal-actions {
 		display: flex;
 		align-items: center;
@@ -119,6 +129,7 @@
 	.cv-modal-actions a,
 	.cv-modal-actions button {
 		display: inline-flex;
+		width: 38px;
 		height: 38px;
 		align-items: center;
 		justify-content: center;
@@ -127,11 +138,8 @@
 		background: rgba(255, 255, 255, 0.72);
 		color: #111827;
 		font: inherit;
-		font-size: 0.78rem;
-		font-weight: 780;
 		line-height: 1;
 		text-decoration: none;
-		white-space: nowrap;
 		cursor: pointer;
 		transition:
 			transform 180ms ease,
@@ -139,21 +147,16 @@
 			border-color 180ms ease;
 	}
 
-	.cv-modal-actions a {
-		padding: 0 12px;
-	}
-
+	.cv-modal-actions a,
 	.cv-modal-actions button {
-		width: 38px;
 		padding: 0;
 	}
 
-	.cv-modal-actions button span {
-		margin: 0;
-		font-family: 'Material Symbols Outlined';
-		font-size: 20px;
-		font-weight: 400;
-		line-height: 1;
+	.cv-modal-actions a svg,
+	.cv-modal-actions button svg {
+		width: 18px;
+		height: 18px;
+		fill: currentColor;
 	}
 
 	.cv-modal-actions a:hover,
@@ -199,10 +202,6 @@
 
 	:global(html.dark) .cv-modal-head h2 {
 		color: #f8fafc;
-	}
-
-	:global(html.dark) .cv-modal-head span {
-		color: #cbd5e1;
 	}
 
 	:global(html.dark) .cv-modal-actions a,
