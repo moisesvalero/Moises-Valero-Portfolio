@@ -291,7 +291,7 @@
 
 	.hero-stripe-pro-v2 h1 {
 		color: #0f172a !important;
-		font-size: clamp(42px, 6vw, 88px) !important;
+		font-size: clamp(44px, 6.8vw, 104px) !important;
 		font-weight: 800 !important;
 		margin: 0 0 13px 0 !important;
 		letter-spacing: -0.062em;
@@ -602,7 +602,7 @@
 		}
 
 		.hero-stripe-pro-v2 h1 {
-			font-size: clamp(50px, 11.6vw, 68px) !important;
+			font-size: clamp(52px, 12vw, 74px) !important;
 			letter-spacing: -0.046em;
 			line-height: 0.94;
 		}
@@ -704,6 +704,10 @@
 			padding-bottom: max(3.5rem, env(safe-area-inset-bottom, 0px));
 		}
 
+		.contenido-hero {
+			margin-top: clamp(-88px, -7svh, -48px);
+		}
+
 		.label-top {
 			font-size: 11.5px;
 			letter-spacing: 0.12em;
@@ -735,7 +739,7 @@
 		}
 
 		.hero-tech-item:not(:last-child)::after {
-			right: -9px;
+			content: none;
 		}
 
 		.hero-tech-icon {
