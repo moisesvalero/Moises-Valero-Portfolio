@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit';
+import { read } from '$app/server';
 import { env } from '$env/dynamic/private';
 import {
 	getSanityProjectConfig,
@@ -92,6 +93,13 @@ async function fetchSameOriginPdf(
 	origin: string,
 	kitFetch: typeof fetch
 ): Promise<Response | null> {
+	try {
+		const res = read(pathname);
+		if (res.ok && res.body) return res;
+	} catch {
+		// fallback to event fetch
+	}
+
 	const absolute = new URL(pathname, origin).toString();
 	try {
 		const res = await kitFetch(absolute, { headers: { Accept: 'application/pdf' } });
@@ -142,6 +150,11 @@ export async function resolveCvPdfResponse(
 	origin: string,
 	kitFetch: typeof fetch
 ): Promise<Response> {
+	const fallback = await fetchSameOriginPdf(DEFAULT_PDF_PATH, origin, kitFetch);
+	if (fallback?.body) {
+		return inlinePdfResponse(fallback.body, fallback.headers.get('content-length'));
+	}
+
 	const token = env.SANITY_READ_TOKEN?.trim();
 	const config = getSanityProjectConfig();
 	const source = await loadPdfSource();
@@ -180,15 +193,10 @@ export async function resolveCvPdfResponse(
 		}
 	}
 
-	const fallback = await fetchSameOriginPdf(DEFAULT_PDF_PATH, origin, kitFetch);
-	if (fallback?.body) {
-		return inlinePdfResponse(fallback.body, fallback.headers.get('content-length'));
-	}
-
 	throw error(
 		404,
 		token
-			? 'No se pudo obtener el CV. Comprueba el PDF en Sanity o la ruta estática.'
-			: 'No se pudo obtener el CV. Configura SANITY_READ_TOKEN si el PDF está en Sanity como privado.'
+			? 'No se pudo obtener el CV. Comprueba el PDF estatico o el asset de Sanity.'
+			: 'No se pudo obtener el CV. Comprueba el PDF estatico.'
 	);
 }

@@ -12,7 +12,7 @@
 
 	const resolvePath = resolve as unknown as (href: string) => string;
 	const resolvedCvHref = $derived(/^\/(?!\/)/.test(cvHref) ? resolvePath(cvHref) : cvHref);
-	const viewerHref = $derived(`${resolvedCvHref}#view=FitH`);
+	const previewHref = $derived(resolvePath('/imagenes/cv/moises-valero-cv-1.png'));
 	const copy = $derived(
 		locale === 'en'
 			? {
@@ -30,11 +30,16 @@
 					close: 'Cerrar CV'
 				}
 	);
+	let previewFailed = $state(false);
 
 	function close() {
 		open = false;
 	}
 </script>
+
+<svelte:head>
+	<link rel="preload" as="image" href={previewHref} />
+</svelte:head>
 
 <PortfolioModalShell bind:open labelledBy="cv-modal-title" panelClass="cv-modal-panel">
 	<div class="cv-modal-content">
@@ -72,8 +77,34 @@
 			</div>
 		</header>
 
-		<div class="cv-frame-wrap">
-			<iframe class="cv-frame" src={viewerHref} title={copy.title}></iframe>
+		<div class="cv-preview-wrap">
+			{#if previewFailed}
+				<div class="cv-preview-fallback">
+					<p>
+						{locale === 'en' ? 'The CV is available as a PDF.' : 'El CV está disponible en PDF.'}
+					</p>
+					<a href={resolvedCvHref} target="_blank" rel="noopener noreferrer">{copy.open}</a>
+				</div>
+			{:else}
+				<a
+					class="cv-preview-link"
+					href={resolvedCvHref}
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label={copy.open}
+				>
+					<img
+						class="cv-preview-image"
+						src={previewHref}
+						alt={locale === 'en' ? 'Curriculum preview' : 'Vista previa del currículum'}
+						loading="eager"
+						decoding="async"
+						onerror={() => {
+							previewFailed = true;
+						}}
+					/>
+				</a>
+			{/if}
 		</div>
 	</div>
 </PortfolioModalShell>
@@ -166,7 +197,8 @@
 		transform: translateY(-1px);
 	}
 
-	.cv-frame-wrap {
+	.cv-preview-wrap {
+		overflow: auto;
 		min-height: 0;
 		padding: 14px;
 		background:
@@ -175,15 +207,55 @@
 		background-size: 22px 22px;
 	}
 
-	.cv-frame {
+	.cv-preview-link {
 		display: block;
 		width: 100%;
-		height: 100%;
-		min-height: 0;
+		max-width: 860px;
+		margin: 0 auto;
+		border-radius: 10px;
+		text-decoration: none;
+	}
+
+	.cv-preview-image {
+		display: block;
+		width: 100%;
+		height: auto;
 		border: 1px solid rgba(15, 23, 42, 0.12);
 		border-radius: 10px;
 		background: #f8fafc;
 		box-shadow: 0 18px 48px rgba(15, 23, 42, 0.12);
+	}
+
+	.cv-preview-fallback {
+		display: grid;
+		min-height: 360px;
+		place-content: center;
+		gap: 16px;
+		border: 1px solid rgba(15, 23, 42, 0.12);
+		border-radius: 10px;
+		background: #f8fafc;
+		text-align: center;
+	}
+
+	.cv-preview-fallback p {
+		margin: 0;
+		color: #475569;
+		font-size: 0.98rem;
+		font-weight: 650;
+	}
+
+	.cv-preview-fallback a {
+		display: inline-flex;
+		min-height: 42px;
+		align-items: center;
+		justify-content: center;
+		border-radius: var(--portfolio-action-radius);
+		background: var(--portfolio-action-primary-bg);
+		color: var(--portfolio-action-primary-text);
+		padding: 0 16px;
+		font-size: 0.9rem;
+		font-weight: 780;
+		text-decoration: none;
 	}
 
 	:global(html.dark) .cv-modal-content {
@@ -217,11 +289,22 @@
 		background: rgba(77, 163, 255, 0.12);
 	}
 
-	:global(html.dark) .cv-frame-wrap {
+	:global(html.dark) .cv-preview-wrap {
 		background:
 			linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
 			linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
 		background-size: 22px 22px;
+	}
+
+	:global(html.dark) .cv-preview-image,
+	:global(html.dark) .cv-preview-fallback {
+		border-color: rgba(255, 255, 255, 0.12);
+		background: #0f172a;
+		box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3);
+	}
+
+	:global(html.dark) .cv-preview-fallback p {
+		color: #cbd5e1;
 	}
 
 	@media (max-width: 760px) {
@@ -239,7 +322,7 @@
 			flex: 1 1 auto;
 		}
 
-		.cv-frame-wrap {
+		.cv-preview-wrap {
 			padding: 8px;
 		}
 	}
