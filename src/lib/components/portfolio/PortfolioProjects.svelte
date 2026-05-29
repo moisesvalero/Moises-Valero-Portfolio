@@ -146,9 +146,6 @@
 			{#if archiveHref}
 				<a class="proyectos-archive-link" {...archiveLinkProps(archiveHref)}>
 					{archiveLinkLabel}
-					{#if projects.length}
-						<span aria-label={`${projects.length} proyectos`}>{projects.length}</span>
-					{/if}
 				</a>
 			{/if}
 		</div>
@@ -365,33 +362,47 @@
 	.proyectos-archive-link {
 		display: inline-flex;
 		align-items: center;
-		gap: 9px;
-		min-height: 0;
-		padding: 0 0 7px;
-		color: #101114;
+		justify-content: center;
+		gap: 10px;
+		min-height: 46px;
+		padding: 0 18px;
+		color: var(--portfolio-action-primary-text);
 		text-decoration: none;
-		font-size: 13px;
-		font-weight: 760;
-		border: 0;
-		border-bottom: 1px solid rgba(16, 17, 20, 0.24);
-		border-radius: 0;
-		background: transparent;
-		box-shadow: none;
+		font-size: 14px;
+		font-weight: 820;
+		border: 1px solid var(--portfolio-action-primary-border);
+		border-radius: var(--portfolio-action-radius);
+		background: var(--portfolio-action-primary-bg);
+		box-shadow: var(--portfolio-action-primary-shadow);
 		transition:
 			transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+			background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
 			border-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+			box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1),
 			color 260ms cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	.proyectos-archive-link::after {
+		content: '->';
+		color: currentColor;
+		font-family: var(--font-mono);
+		font-size: 13px;
+		font-weight: 820;
+		transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
 
 	.proyectos-archive-link:hover,
 	.proyectos-archive-link:focus-visible {
 		transform: translateY(-2px);
-		border-color: rgba(0, 113, 227, 0.62);
-		color: #005fd6;
+		border-color: var(--portfolio-action-primary-bg-hover);
+		background: var(--portfolio-action-primary-bg-hover);
+		color: var(--portfolio-action-primary-text);
+		box-shadow: var(--portfolio-action-primary-shadow);
 	}
 
-	.proyectos-archive-link span {
-		color: #0071e3;
+	.proyectos-archive-link:hover::after,
+	.proyectos-archive-link:focus-visible::after {
+		transform: translateX(3px);
 	}
 
 	.project-showcase {
@@ -876,8 +887,8 @@
 	}
 
 	:global(html.dark) .proyectos-archive-link {
-		color: #f8fafc;
-		border-color: rgba(255, 255, 255, 0.14);
-		background: rgba(255, 255, 255, 0.06);
+		color: var(--portfolio-action-primary-text);
+		border-color: var(--portfolio-action-primary-border);
+		background: var(--portfolio-action-primary-bg);
 	}
 </style>
