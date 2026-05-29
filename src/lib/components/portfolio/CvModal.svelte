@@ -16,14 +16,14 @@
 	const copy = $derived(
 		locale === 'en'
 			? {
-					title: 'Curriculum',
+					title: 'Curriculum Vitae',
 					eyebrow: 'Professional profile',
 					open: 'Open in tab',
 					download: 'Download',
 					close: 'Close CV'
 				}
 			: {
-					title: 'Currículum',
+					title: 'Currículum Vitae',
 					eyebrow: 'Perfil profesional',
 					open: 'Abrir en pestaña',
 					download: 'Descargar',
