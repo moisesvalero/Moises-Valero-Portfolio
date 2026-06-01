@@ -345,7 +345,7 @@ function mergeTechStack(
 	if (!o) {
 		return d;
 	}
-	/** Iconos y categorías del repo (devicons locales). Solo meta/título editables en Sanity. */
+	/** Iconos y categorías definidos en el repo. Solo meta/título editables en Sanity. */
 	return {
 		meta: pickLocalized(o.meta, ctx.locale, d.meta, enUi.techStack.meta),
 		title: pickLocalized(o.title, ctx.locale, d.title, enUi.techStack.title),

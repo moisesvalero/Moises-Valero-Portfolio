@@ -76,66 +76,62 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 			{
 				title: 'Lenguajes y Core',
 				icons: [
-					{ devicon: 'typescript/typescript-original.svg', alt: 'TypeScript', title: 'TypeScript' },
+					{ alt: 'TypeScript', title: 'TypeScript' },
 					{
-						devicon: 'javascript/javascript-original.svg',
 						alt: 'JavaScript',
 						title: 'JavaScript (ES6+)'
 					},
 					{ src: 'https://svgl.app/library/rust.svg', alt: 'Rust', title: 'Rust' },
-					{ devicon: 'html5/html5-original.svg', alt: 'HTML5', title: 'HTML5' },
-					{ devicon: 'css3/css3-original.svg', alt: 'CSS3', title: 'CSS3' }
+					{ alt: 'HTML5', title: 'HTML5' },
+					{ alt: 'CSS3', title: 'CSS3' }
 				]
 			},
 			{
 				title: 'Frameworks y Librerías',
 				icons: [
 					{
-						devicon: 'svelte/svelte-original.svg',
 						alt: 'SvelteKit',
 						title: 'SvelteKit / Svelte 5'
 					},
-					{ devicon: 'nextjs/nextjs-original.svg', alt: 'Next.js', title: 'Next.js' },
-					{ devicon: 'react/react-original.svg', alt: 'React', title: 'React' },
+					{ alt: 'Next.js', title: 'Next.js' },
+					{ alt: 'React', title: 'React' },
 					{
-						devicon: 'tailwindcss/tailwindcss-original.svg',
 						alt: 'Tailwind CSS',
 						title: 'Tailwind CSS'
 					},
-					{ devicon: 'vitejs/vitejs-original.svg', alt: 'Vite', title: 'Vite' },
+					{ alt: 'Vite', title: 'Vite' },
 					{ src: 'https://svgl.app/library/tauri.svg', alt: 'Tauri', title: 'Tauri' },
-					{ iconify: 'logos:pwa', alt: 'PWA', title: 'Progressive Web Apps' }
+					{ alt: 'PWA', title: 'Progressive Web Apps' }
 				]
 			},
 			{
 				title: 'Backend e Infraestructura',
 				icons: [
 					{
-						devicon: 'supabase/supabase-original.svg',
 						alt: 'Supabase',
 						title: 'Supabase (PostgreSQL)'
 					},
-					{ devicon: 'vercel/vercel-original.svg', alt: 'Vercel', title: 'Vercel' },
-					{ devicon: 'cloudflare/cloudflare-original.svg', alt: 'Cloudflare', title: 'Cloudflare' },
-					{ devicon: 'github/github-original.svg', alt: 'GitHub', title: 'GitHub' }
+					{ alt: 'Vercel', title: 'Vercel' },
+					{ alt: 'Cloudflare', title: 'Cloudflare' },
+					{ alt: 'GitHub', title: 'GitHub' }
 				]
 			},
 			{
 				title: 'Integraciones y APIs',
 				icons: [
-					{ iconify: 'logos:stripe', alt: 'Stripe', title: 'Stripe API' },
+					{ alt: 'Stripe', title: 'Stripe API' },
 					{ src: '/imagenes/claude-ai-icon.svg', alt: 'Claude', title: 'Claude API' },
-					{ iconify: 'logos:openai-icon', alt: 'OpenAI', title: 'OpenAI API' },
-					{ iconify: 'logos:google-gemini', alt: 'Gemini', title: 'Gemini API' }
+					{ alt: 'OpenAI', title: 'OpenAI API' },
+					{ alt: 'Gemini', title: 'Gemini API' }
 				]
 			},
 			{
 				title: 'CMS y Low-Code',
 				icons: [
-					{ devicon: 'wordpress/wordpress-plain.svg', alt: 'WordPress', title: 'WordPress' },
+					{ alt: 'WordPress', title: 'WordPress' },
 					{ src: '/imagenes/kadence.svg', alt: 'Kadence', title: 'Kadence' },
 					{ src: '/imagenes/elementor.svg', alt: 'Elementor', title: 'Elementor' },
-					{ devicon: 'sanity/sanity-original.svg', alt: 'Sanity', title: 'Sanity.io' }
+					{ alt: 'Sanity', title: 'Sanity.io' }
 				]
 			},
 			{

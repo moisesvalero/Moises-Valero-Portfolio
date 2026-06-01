@@ -21,7 +21,6 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
-		"@iconify/svelte": "^5.2.1",
 		"@sanity/cli": "^6.5.1",
 		"@sveltejs/adapter-auto": "^7.0.1",
 		"@sveltejs/adapter-vercel": "^6.3.3",
