@@ -91,6 +91,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
 						alt: 'JavaScript',
 						title: 'JavaScript (ES6+)'
 					},
+					{ src: 'https://svgl.app/library/rust.svg', alt: 'Rust', title: 'Rust' },
 					{ devicon: 'html5/html5-original.svg', alt: 'HTML5', title: 'HTML5' },
 					{ devicon: 'css3/css3-original.svg', alt: 'CSS3', title: 'CSS3' }
 				]
@@ -111,6 +112,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
 						title: 'Tailwind CSS'
 					},
 					{ devicon: 'vitejs/vitejs-original.svg', alt: 'Vite', title: 'Vite' },
+					{ src: 'https://svgl.app/library/tauri.svg', alt: 'Tauri', title: 'Tauri' },
 					{ iconify: 'logos:pwa', alt: 'PWA', title: 'Progressive Web Apps' }
 				]
 			},

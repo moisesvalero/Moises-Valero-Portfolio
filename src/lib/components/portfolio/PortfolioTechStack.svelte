@@ -18,11 +18,13 @@
 	import NextLogo from './tech-logos/NextLogo.svelte';
 	import PwaLogo from './tech-logos/PwaLogo.svelte';
 	import ReactLogo from './tech-logos/ReactLogo.svelte';
+	import RustLogo from './tech-logos/RustLogo.svelte';
 	import SanityLogo from './tech-logos/SanityLogo.svelte';
 	import StripeLogo from './tech-logos/StripeLogo.svelte';
 	import SupabaseLogo from './tech-logos/SupabaseLogo.svelte';
 	import SvelteKitLogo from './tech-logos/SvelteKitLogo.svelte';
 	import TailwindLogo from './tech-logos/TailwindLogo.svelte';
+	import TauriLogo from './tech-logos/TauriLogo.svelte';
 	import TypeScriptLogo from './tech-logos/TypeScriptLogo.svelte';
 	import VercelLogo from './tech-logos/VercelLogo.svelte';
 	import ViteLogo from './tech-logos/ViteLogo.svelte';
@@ -63,6 +65,7 @@
 					alt: 'JavaScript',
 					title: 'JavaScript (ES6+)'
 				},
+				{ src: 'https://svgl.app/library/rust.svg', alt: 'Rust', title: 'Rust' },
 				{ devicon: 'html5/html5-original.svg', alt: 'HTML5', title: 'HTML5' },
 				{ devicon: 'css3/css3-original.svg', alt: 'CSS3', title: 'CSS3' }
 			]
@@ -79,6 +82,7 @@
 					title: 'Tailwind CSS'
 				},
 				{ devicon: 'vitejs/vitejs-original.svg', alt: 'Vite', title: 'Vite' },
+				{ src: 'https://svgl.app/library/tauri.svg', alt: 'Tauri', title: 'Tauri' },
 				{ iconify: 'logos:pwa', alt: 'PWA', title: 'Progressive Web Apps' }
 			]
 		},
@@ -142,11 +146,13 @@
 		'Next.js': NextLogo,
 		PWA: PwaLogo,
 		React: ReactLogo,
+		Rust: RustLogo,
 		Sanity: SanityLogo,
 		Stripe: StripeLogo,
 		Supabase: SupabaseLogo,
 		SvelteKit: SvelteKitLogo,
 		'Tailwind CSS': TailwindLogo,
+		Tauri: TauriLogo,
 		TypeScript: TypeScriptLogo,
 		Vercel: VercelLogo,
 		Vite: ViteLogo,
