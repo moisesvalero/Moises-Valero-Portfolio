@@ -169,6 +169,6 @@ npm run build
 
 ## Licencia
 
-Este proyecto se publica bajo **Creative Commons BY-NC 4.0**. Puedes estudiar, compartir y adaptar el código con atribución, pero no usarlo con fines comerciales sin permiso.
+Este proyecto se publica bajo **PolyForm Noncommercial 1.0.0**. Puedes revisar, estudiar y usar el código para fines no comerciales; el uso comercial requiere permiso explícito.
 
 Consulta [LICENSE](./LICENSE) para más detalles.
