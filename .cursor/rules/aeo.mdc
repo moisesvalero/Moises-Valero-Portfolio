@@ -6,12 +6,14 @@ alwaysApply: false
 
 # AEO — twin Markdown obligatorio
 
+Este proyecto usa pnpm. No uses npm ni generes package-lock.json salvo petición explícita.
+
 Al crear o hacer indexable una ruta pública (`src/routes/...`):
 
 1. Añade entrada en `src/lib/site-pages.ts` (`aeoTwin: false` solo si debe omitirse).
 2. Crea builder en `src/lib/aeo/builders/` (reutiliza i18n, `site-pages`, CMS — no dupliques HTML).
 3. Regístralo en `src/lib/aeo/registry.ts` (`STATIC_BUILDERS` o patrón dinámico).
 4. Añade `src/routes/<ruta>.md/+server.ts` con `serveMarkdownTwin(event, '/ruta.md')`.
-5. Verifica: `npm run check` y `curl -sI -H "Accept: text/markdown" http://localhost:5173<ruta>`.
+5. Verifica: `pnpm run check` y `curl -sI -H "Accept: text/markdown" http://localhost:5173<ruta>`.
 
 Los twins llevan `X-Robots-Tag: noindex`; no sustituyen el HTML indexable.

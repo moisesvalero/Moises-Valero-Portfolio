@@ -70,26 +70,26 @@ static/
 ## Desarrollo local
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Validación antes de desplegar:
 
 ```bash
-npm run check
-npm run build
+pnpm run check
+pnpm run build
 ```
 
 Scripts útiles:
 
 ```bash
-npm run preview
-npm run studio
-npm run sanity:patch-og
-npm run sanity:clone-landing-national
-npm run sanity:hero-marquee
-npm run sanity:seed-support-articles
+pnpm run preview
+pnpm run studio
+pnpm run sanity:patch-og
+pnpm run sanity:clone-landing-national
+pnpm run sanity:hero-marquee
+pnpm run sanity:seed-support-articles
 ```
 
 ## Variables de entorno
@@ -163,8 +163,8 @@ Antes de publicar el repositorio, revisa:
 ```bash
 git status --short
 git ls-files .env dist tmp .sanity/runtime
-npm run check
-npm run build
+pnpm run check
+pnpm run build
 ```
 
 ## Licencia

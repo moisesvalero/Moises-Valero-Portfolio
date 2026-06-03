@@ -47,11 +47,11 @@
 ### Task 4: Verify Production Safety
 
 **Files:**
-- Modify: `package.json`, `package-lock.json` only if dependencies are needed.
+- Modify: `package.json`, `pnpm-lock.yaml` only if dependencies are needed.
 
 - [ ] Install optional browser dependencies if absent.
 - [ ] Run unit tests with `node --test`.
-- [ ] Run `npm run check`.
-- [ ] Run `npm run build`.
+- [ ] Run `pnpm run check`.
+- [ ] Run `pnpm run build`.
 - [ ] Run local analyzer on `https://example.com` and confirm V2 still works even if browser audit is unavailable.
 - [ ] Commit and push.

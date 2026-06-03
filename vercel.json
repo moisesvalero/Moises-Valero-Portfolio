@@ -1,4 +1,7 @@
 {
+	"installCommand": "pnpm install --frozen-lockfile",
+	"buildCommand": "pnpm run build",
+	"devCommand": "pnpm run dev",
 	"build": {
 		"env": {
 			"NODE_ENV": "production"
