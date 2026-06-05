@@ -55,13 +55,6 @@
 			columns[index % columnCount].push(logo);
 		});
 
-		const maxLength = Math.max(...columns.map((col) => col.length));
-		columns.forEach((col) => {
-			while (col.length < maxLength) {
-				col.push(shuffled[Math.floor(Math.random() * shuffled.length)] || shuffled[0]);
-			}
-		});
-
 		return columns;
 	};
 

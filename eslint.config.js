@@ -9,6 +9,7 @@ export default [
 			'node_modules/**',
 			'.svelte-kit/**',
 			'.vercel/**',
+			'.agents/**',
 			'.cache/**',
 			'dist/**',
 			'build/**',
