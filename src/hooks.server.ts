@@ -59,15 +59,8 @@ const PERMISSIONS_POLICY =
 
 /** Refuerza UTF-8 en HTML para evitar interpretaciones erróneas del juego de caracteres. */
 const LEGACY_COMMERCIAL_PATH_RE = /^\/diseno-web(?:-alcoy)?(?:\.md|\/|$)/;
-const SANITY_STUDIO_HOST = 'admin.moisesvalero.es';
-const SANITY_STUDIO_ORIGIN = 'https://moisesvalero-portfolio.sanity.studio';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	if (event.url.hostname === SANITY_STUDIO_HOST) {
-		const target = new URL(`${event.url.pathname}${event.url.search}`, SANITY_STUDIO_ORIGIN);
-		return Response.redirect(target.toString(), 308);
-	}
-
 	const pathname = normalizePathname(event.url.pathname);
 	const accept = event.request.headers.get('accept') ?? '';
 	const userAgent = event.request.headers.get('user-agent') ?? '';
