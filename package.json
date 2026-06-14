@@ -8,6 +8,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
+		"build:vercel": "node scripts/vercel-build.mjs",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"format": "prettier --write \"*.{js,ts,json,html}\" \"src/**/*.{js,ts,svelte,css,json}\" \"sanity/**/*.{js,ts}\"",
