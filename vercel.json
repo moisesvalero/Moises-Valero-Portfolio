@@ -1,6 +1,5 @@
 {
 	"installCommand": "pnpm install --frozen-lockfile",
-	"buildCommand": "pnpm run build:vercel",
 	"devCommand": "pnpm run dev",
 	"build": {
 		"env": {
