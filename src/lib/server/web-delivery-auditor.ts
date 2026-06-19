@@ -2434,7 +2434,8 @@ async function analyzeSideFiles(
 }
 
 async function analyzeSensitivePaths(
-	origin: string
+	origin: string,
+	isSpa = false
 ): Promise<{ issues: AuditIssue[]; passed: string[] }> {
 	const checks = await Promise.all(
 		SENSITIVE_PATHS.map((path) =>
@@ -2444,7 +2445,14 @@ async function analyzeSensitivePaths(
 			}))
 		)
 	);
-	const exposed = checks.filter(({ result }) => result.ok && result.bytes > 20);
+	// SPAs (Vercel, Netlify, GitHub Pages...) devuelven HTTP 200 con text/html para cualquier ruta.
+	// Un archivo sensible real (.env, .git/config...) nunca sirve text/html → filtrar estos falsos positivos.
+	const exposed = checks.filter(({ result }) => {
+		if (!result.ok || result.bytes <= 20) return false;
+		const isHtmlFallback = result.contentType.includes('text/html');
+		if (isHtmlFallback && isSpa) return false;
+		return true;
+	});
 	const issues: AuditIssue[] = [];
 	const passed: string[] = [];
 
@@ -2515,7 +2523,11 @@ async function analyzeHttpMethods(
 	}
 }
 
-async function analyzeResourcesAndLinks(snapshot: FetchSnapshot): Promise<{
+async function analyzeResourcesAndLinks(
+	snapshot: FetchSnapshot,
+	isSpa = false,
+	notFoundProbe?: { status: number; bytes: number; url: string; contentType: string }
+): Promise<{
 	issues: AuditIssue[];
 	passed: string[];
 	resourceCount: number;
@@ -2571,7 +2583,7 @@ async function analyzeResourcesAndLinks(snapshot: FetchSnapshot): Promise<{
 	const linkChecks = await Promise.all(
 		internalLinkTargets.map((url) => fetchResourceIfAvailable(url, 3500, 'link'))
 	);
-	const notFoundCheck = await fetchResourceIfAvailable(
+	const notFoundCheck = notFoundProbe ?? await fetchResourceIfAvailable(
 		`${base.origin}/__mv-audit-${Date.now()}-404`,
 		3500,
 		'notFound'
@@ -2648,7 +2660,7 @@ async function analyzeResourcesAndLinks(snapshot: FetchSnapshot): Promise<{
 		);
 	}
 
-	if (notFoundCheck.status === 200) {
+	if (notFoundCheck.status === 200 && !isSpa) {
 		issues.push(
 			issue(
 				'delivery.soft-404',
@@ -2661,6 +2673,8 @@ async function analyzeResourcesAndLinks(snapshot: FetchSnapshot): Promise<{
 			)
 		);
 	} else if (notFoundCheck.status === 404 && notFoundCheck.bytes > 500) {
+		passed.push('404 personalizada detectada.');
+	} else if (notFoundCheck.status === 200 && isSpa) {
 		passed.push('404 personalizada detectada.');
 	}
 
@@ -2920,11 +2934,25 @@ export async function auditPublicWebsite(
 	const privacyAudit = analyzePrivacyLegal(snapshot);
 	const deliveryAudit = analyzeDeliveryQuality(snapshot);
 	const trustAudit = analyzeCommercialTrust(snapshot);
+	// Detecta SPA antes del análisis paralelo: una SPA devuelve HTTP 200 con HTML para rutas arbitrarias.
+	// Esto evita falsos positivos en rutas sensibles y en el check de 404 blando.
+	const spaProbeCheck = await fetchResourceIfAvailable(
+		`${finalUrl.origin}/__mv-spa-probe-${Date.now()}`,
+		3000,
+		'notFound'
+	);
+	const isSpa = spaProbeCheck.ok && spaProbeCheck.contentType.includes('text/html');
+
 	const [sideFiles, sensitiveAudit, methodAudit, resourceAudit, visualAudit] = await Promise.all([
 		analyzeSideFiles(finalUrl.origin, finalUrl.protocol === 'https:'),
-		analyzeSensitivePaths(finalUrl.origin),
+		analyzeSensitivePaths(finalUrl.origin, isSpa),
 		analyzeHttpMethods(finalUrl.origin),
-		analyzeResourcesAndLinks(snapshot),
+		analyzeResourcesAndLinks(snapshot, isSpa, {
+			status: spaProbeCheck.status,
+			bytes: spaProbeCheck.bytes,
+			url: spaProbeCheck.url,
+			contentType: spaProbeCheck.contentType
+		}),
 		auditVisualWebsite(finalUrl.toString(), { timeoutMs: Math.min(20_000, timeoutMs) }).catch(
 			(error) => ({
 				available: false,
