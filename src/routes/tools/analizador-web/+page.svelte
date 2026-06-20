@@ -788,7 +788,8 @@
 					bind:value={leadHoneypot}
 					type="text"
 					tabindex="-1"
-					autocomplete="off"
+					autocomplete="new-password"
+					aria-hidden="true"
 				/>
 				<button type="submit" disabled={leadStatus === 'sending' || leadStatus === 'success'}>
 					{leadStatus === 'sending'

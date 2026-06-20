@@ -59,6 +59,53 @@ const VIEWPORTS = [
 	{ label: 'desktop', width: 1440, height: 900, isMobile: false }
 ];
 
+function parseIpAddress(host: string): string | null {
+	const cleanHost = host.replace(/^\[|\]$/g, '').trim().toLowerCase();
+
+	if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(cleanHost)) {
+		return cleanHost;
+	}
+
+	if (/^(0x[0-9a-f]+|\d+)$/i.test(cleanHost)) {
+		try {
+			const val = cleanHost.startsWith('0x')
+				? parseInt(cleanHost, 16)
+				: parseInt(cleanHost, cleanHost.startsWith('0') && cleanHost.length > 1 ? 8 : 10);
+			if (Number.isFinite(val) && val >= 0 && val <= 0xffffffff) {
+				const a = (val >>> 24) & 0xff;
+				const b = (val >>> 16) & 0xff;
+				const c = (val >>> 8) & 0xff;
+				const d = val & 0xff;
+				return `${a}.${b}.${c}.${d}`;
+			}
+		} catch {
+			// ignore parsing error
+		}
+	}
+
+	const parts = cleanHost.split('.');
+	if (parts.length === 4) {
+		try {
+			const decoded = parts.map((part) => {
+				if (part.startsWith('0x') || part.startsWith('0X')) {
+					return parseInt(part, 16);
+				}
+				if (part.startsWith('0') && part.length > 1) {
+					return parseInt(part, 8);
+				}
+				return parseInt(part, 10);
+			});
+			if (decoded.every((val) => Number.isFinite(val) && val >= 0 && val <= 255)) {
+				return decoded.join('.');
+			}
+		} catch {
+			// ignore
+		}
+	}
+
+	return null;
+}
+
 export function isPrivateOrLocalResource(rawUrl: string): boolean {
 	try {
 		const parsed = new URL(rawUrl);
@@ -73,7 +120,11 @@ export function isPrivateOrLocalResource(rawUrl: string): boolean {
 		) {
 			return true;
 		}
-		const parts = hostname.split('.').map((part) => Number(part));
+
+		const normalizedIp = parseIpAddress(hostname);
+		const ipToCheck = normalizedIp || hostname;
+
+		const parts = ipToCheck.split('.').map((part) => Number(part));
 		if (parts.length === 4 && parts.every((part) => Number.isInteger(part))) {
 			const [a, b] = parts;
 			return (
@@ -87,10 +138,10 @@ export function isPrivateOrLocalResource(rawUrl: string): boolean {
 			);
 		}
 		return (
-			hostname === '::1' ||
-			hostname.startsWith('fc') ||
-			hostname.startsWith('fd') ||
-			hostname.startsWith('fe80:')
+			ipToCheck === '::1' ||
+			ipToCheck.startsWith('fc') ||
+			ipToCheck.startsWith('fd') ||
+			ipToCheck.startsWith('fe80:')
 		);
 	} catch {
 		return true;

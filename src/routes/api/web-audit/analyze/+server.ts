@@ -2,6 +2,9 @@ import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { enqueueAnalyzeJob } from '$lib/server/web-audit-analyzer';
 import type { RequestHandler } from './$types';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 type AnalyzePayload = {
 	url?: unknown;
@@ -17,6 +20,41 @@ export const config = {
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const ipHits = new Map<string, number[]>();
 const dailyBudget = new Map<string, number>();
+
+const LIMITS_FILE = join(tmpdir(), 'web-audit-rate-limits.json');
+
+function loadLimits() {
+	try {
+		const raw = readFileSync(LIMITS_FILE, 'utf8');
+		const parsed = JSON.parse(raw);
+		if (parsed.ipHits && Array.isArray(parsed.ipHits)) {
+			for (const [ip, hits] of parsed.ipHits) {
+				ipHits.set(ip, hits);
+			}
+		}
+		if (parsed.dailyBudget && Array.isArray(parsed.dailyBudget)) {
+			for (const [day, count] of parsed.dailyBudget) {
+				dailyBudget.set(day, count);
+			}
+		}
+	} catch {
+		// Silencioso
+	}
+}
+
+function saveLimits() {
+	try {
+		const payload = {
+			ipHits: [...ipHits.entries()],
+			dailyBudget: [...dailyBudget.entries()]
+		};
+		writeFileSync(LIMITS_FILE, JSON.stringify(payload), 'utf8');
+	} catch {
+		// Silencioso
+	}
+}
+
+loadLimits();
 
 function toCleanString(value: unknown): string {
 	return typeof value === 'string' ? value.trim() : '';
@@ -70,6 +108,7 @@ export const POST: RequestHandler = async ({ request, url, getClientAddress }) =
 	}
 	currentHits.push(now);
 	ipHits.set(requesterIp, currentHits);
+	saveLimits();
 
 	const dayKey = new Date(now).toISOString().slice(0, 10);
 	const maxCallsPerDay = Math.max(1, Number(env.WEB_AUDIT_MAX_CALLS_PER_DAY || 250));
@@ -87,6 +126,7 @@ export const POST: RequestHandler = async ({ request, url, getClientAddress }) =
 	}
 	if (queued.status === 'completed') {
 		dailyBudget.set(dayKey, todayCalls + 1);
+		saveLimits();
 		return json(queued.result);
 	}
 	return json({

@@ -2,6 +2,9 @@ import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { getSanityWriteClient } from '$lib/server/sanity/get-server-client';
 import type { RequestHandler } from './$types';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 type LeadPayload = {
 	email?: unknown;
@@ -49,6 +52,41 @@ const LEAD_MAX_PER_IP = 8;
 const LEAD_COOLDOWN_MS = 120 * 1000;
 const leadHitsByIp = new Map<string, number[]>();
 const leadLastByEmail = new Map<string, number>();
+
+const LIMITS_FILE = join(tmpdir(), 'web-audit-lead-limits.json');
+
+function loadLimits() {
+	try {
+		const raw = readFileSync(LIMITS_FILE, 'utf8');
+		const parsed = JSON.parse(raw);
+		if (parsed.leadHitsByIp && Array.isArray(parsed.leadHitsByIp)) {
+			for (const [ip, hits] of parsed.leadHitsByIp) {
+				leadHitsByIp.set(ip, hits);
+			}
+		}
+		if (parsed.leadLastByEmail && Array.isArray(parsed.leadLastByEmail)) {
+			for (const [email, at] of parsed.leadLastByEmail) {
+				leadLastByEmail.set(email, at);
+			}
+		}
+	} catch {
+		// Silencioso
+	}
+}
+
+function saveLimits() {
+	try {
+		const payload = {
+			leadHitsByIp: [...leadHitsByIp.entries()],
+			leadLastByEmail: [...leadLastByEmail.entries()]
+		};
+		writeFileSync(LIMITS_FILE, JSON.stringify(payload), 'utf8');
+	} catch {
+		// Silencioso
+	}
+}
+
+loadLimits();
 
 function toCleanString(value: unknown): string {
 	return typeof value === 'string' ? value.trim() : '';
@@ -423,6 +461,7 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
 	}
 	ipHits.push(now);
 	leadHitsByIp.set(ip, ipHits);
+	saveLimits();
 
 	let body: LeadPayload;
 	try {
@@ -720,6 +759,7 @@ export const POST: RequestHandler = async ({ request, url: requestUrl, getClient
 	}
 
 	leadLastByEmail.set(emailKey, now);
+	saveLimits();
 
 	const sanityClient = getSanityWriteClient();
 	if (sanityClient) {

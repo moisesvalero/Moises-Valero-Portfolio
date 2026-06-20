@@ -389,6 +389,41 @@ async function fetchWithSafeRedirects(
 	throw new Error('AUDIT_REDIRECT_LIMIT');
 }
 
+async function fetchBodyWithLimit(response: Response, limitBytes: number): Promise<ArrayBuffer> {
+	const contentLength = Number(response.headers.get('content-length'));
+	if (Number.isFinite(contentLength) && contentLength > limitBytes) {
+		throw new Error('BODY_SIZE_LIMIT_EXCEEDED');
+	}
+	if (!response.body) {
+		return new ArrayBuffer(0);
+	}
+
+	const reader = response.body.getReader();
+	const chunks: Uint8Array[] = [];
+	let totalBytes = 0;
+
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) break;
+		if (value) {
+			totalBytes += value.length;
+			if (totalBytes > limitBytes) {
+				reader.cancel();
+				throw new Error('BODY_SIZE_LIMIT_EXCEEDED');
+			}
+			chunks.push(value);
+		}
+	}
+
+	const result = new Uint8Array(totalBytes);
+	let offset = 0;
+	for (const chunk of chunks) {
+		result.set(chunk, offset);
+		offset += chunk.length;
+	}
+	return result.buffer;
+}
+
 async function fetchTextIfAvailable(
 	url: string,
 	timeoutMs: number
@@ -401,7 +436,8 @@ async function fetchTextIfAvailable(
 			{ method: 'GET', signal: controller.signal },
 			2
 		);
-		const text = await response.text().catch(() => '');
+		const buffer = await fetchBodyWithLimit(response, 2 * 1024 * 1024);
+		const text = new TextDecoder('utf-8').decode(buffer);
 		return { ok: response.ok, status: response.status, text };
 	} catch {
 		return { ok: false, status: 0, text: '' };
@@ -424,11 +460,8 @@ async function fetchResourceIfAvailable(
 			2
 		);
 		const contentType = response.headers.get('content-type') ?? '';
-		const contentLength = Number(response.headers.get('content-length'));
-		const bytes =
-			Number.isFinite(contentLength) && contentLength > 0
-				? contentLength
-				: (await response.arrayBuffer().catch(() => new ArrayBuffer(0))).byteLength;
+		const buffer = await fetchBodyWithLimit(response, 2 * 1024 * 1024).catch(() => new ArrayBuffer(0));
+		const bytes = buffer.byteLength;
 		return {
 			url: response.url || url,
 			status: response.status,
@@ -454,7 +487,11 @@ async function fetchMainDocument(url: string, timeoutMs: number): Promise<FetchS
 			signal: controller.signal
 		});
 		const contentType = response.headers.get('content-type') ?? '';
-		const html = contentType.includes('text/html') ? await response.text() : '';
+		let html = '';
+		if (contentType.includes('text/html')) {
+			const buffer = await fetchBodyWithLimit(response, 4 * 1024 * 1024);
+			html = new TextDecoder('utf-8').decode(buffer);
+		}
 		return {
 			url: response.url || url,
 			status: response.status,
