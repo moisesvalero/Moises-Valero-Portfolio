@@ -957,18 +957,18 @@ function detectTechnologies(snapshot: FetchSnapshot): string[] {
 	const tags = [...getTags(html, 'script'), ...getTags(html, 'link')];
 	const urls = tags.map(assetUrlFromTag).join(' ');
 	const technologies = [
-		/wordpress/i.test(generator + urls) ? 'WordPress' : '',
-		/woocommerce/i.test(urls + html) ? 'WooCommerce' : '',
-		/elementor/i.test(urls + html) ? 'Elementor' : '',
+		(/wordpress/i.test(generator) || /\/wp-content\/|\/wp-includes\//i.test(urls) || detectWordPress(html)) ? 'WordPress' : '',
+		(/\/plugins\/woocommerce\/|class="[^"]*\bwoocommerce\b/i.test(urls + html)) ? 'WooCommerce' : '',
+		(/\/plugins\/elementor\/|class="[^"]*\belementor\b|id="[^"]*\belementor\b|data-elementor/i.test(urls + html)) ? 'Elementor' : '',
 		/wp-content\/themes\/kadence/i.test(urls) ? 'Kadence' : '',
-		/svelte|_app\/immutable|sveltekit/i.test(urls + html) ? 'SvelteKit' : '',
-		/next\/static|__next/i.test(urls + html) ? 'Next.js' : '',
-		/shopify/i.test(urls + html) ? 'Shopify' : '',
-		/webflow/i.test(urls + html) ? 'Webflow' : '',
-		/wixstatic|wix\.com/i.test(urls + html) ? 'Wix' : '',
-		/squarespace/i.test(urls + html) ? 'Squarespace' : '',
-		/joomla/i.test(generator + urls + html) ? 'Joomla' : '',
-		/drupal/i.test(generator + urls + html) ? 'Drupal' : '',
+		(/_app\/immutable|svelte-announcer|id="svelte"|svelte-kit/i.test(urls + html)) ? 'SvelteKit' : '',
+		(/_next\/static|__next|__NEXT_DATA__/i.test(urls + html)) ? 'Next.js' : '',
+		(/cdn\.shopify\.com|shopify-pay/i.test(urls + html) || /shopify/i.test(urls) || /Shopify\.(shop|theme)/.test(html)) ? 'Shopify' : '',
+		(/data-wf-page|data-wf-site|w-layout-grid/i.test(html) || /webflow/i.test(generator)) ? 'Webflow' : '',
+		(/wixstatic\.com|wix\.com/i.test(urls) || /wixEmbeds|wix-config/i.test(html)) ? 'Wix' : '',
+		(/squarespace\.com/i.test(urls) || /Static\.SQUARESPACE_CONTEXT/i.test(html)) ? 'Squarespace' : '',
+		(/joomla/i.test(generator) || /\/media\/system\/js\//i.test(urls)) ? 'Joomla' : '',
+		(/drupal/i.test(generator) || /\/sites\/default\/files\/|\/core\/modules\//i.test(urls) || /data-drupal-/i.test(html)) ? 'Drupal' : '',
 		poweredBy ? `X-Powered-By: ${poweredBy}` : '',
 		server ? `Server: ${server}` : ''
 	];
