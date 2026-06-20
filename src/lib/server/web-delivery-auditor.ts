@@ -460,7 +460,9 @@ async function fetchResourceIfAvailable(
 			2
 		);
 		const contentType = response.headers.get('content-type') ?? '';
-		const buffer = await fetchBodyWithLimit(response, 2 * 1024 * 1024).catch(() => new ArrayBuffer(0));
+		const buffer = await fetchBodyWithLimit(response, 2 * 1024 * 1024).catch(
+			() => new ArrayBuffer(0)
+		);
 		const bytes = buffer.byteLength;
 		return {
 			url: response.url || url,
@@ -509,6 +511,88 @@ function hasSecureDirective(csp: string, directive: string): boolean {
 		.split(';')
 		.map((item) => item.trim().toLowerCase())
 		.some((item) => item === directive || item.startsWith(`${directive} `));
+}
+
+export function auditClientLibraries(html: string): AuditIssue[] {
+	const issues: AuditIssue[] = [];
+	const scripts = getTags(html, 'script');
+
+	let hasPolyfillIo = false;
+	let jqueryVersion: string | null = null;
+	let bootstrapVersion: string | null = null;
+
+	for (const script of scripts) {
+		const src = getAttr(script, 'src');
+		if (!src) continue;
+
+		if (/polyfill\.io/i.test(src)) {
+			hasPolyfillIo = true;
+		}
+
+		const jqueryMatch =
+			src.match(/jquery[.-](?:min[.-])?(\d+\.\d+\.\d+)/i) || src.match(/jquery\/(\d+\.\d+\.\d+)/i);
+		if (jqueryMatch) {
+			jqueryVersion = jqueryMatch[1];
+		}
+
+		const bootstrapMatch =
+			src.match(/bootstrap[.-](?:min[.-])?(\d+\.\d+\.\d+)/i) ||
+			src.match(/bootstrap\/(\d+\.\d+\.\d+)/i);
+		if (bootstrapMatch) {
+			bootstrapVersion = bootstrapMatch[1];
+		}
+	}
+
+	if (hasPolyfillIo) {
+		issues.push(
+			issue(
+				'security.polyfill-supply-chain',
+				'security',
+				'critical',
+				'Uso crítico de CDN vulnerable (polyfill.io)',
+				'El dominio original de polyfill.io fue vendido y se reportó que inyecta código malicioso en las webs cliente (ataque a la cadena de suministro).',
+				'Elimina la carga de polyfill.io inmediatamente. Si necesitas polyfills, usa el CDN seguro de Cloudflare (cdnjs.cloudflare.com/polyfill) o compila localmente.'
+			)
+		);
+	}
+
+	if (jqueryVersion) {
+		const parts = jqueryVersion.split('.').map(Number);
+		const isOutdated = parts[0] < 3 || (parts[0] === 3 && parts[1] < 5);
+		if (isOutdated) {
+			issues.push(
+				issue(
+					'security.outdated-jquery',
+					'security',
+					'warning',
+					'jQuery desactualizado y vulnerable',
+					`Se detectó jQuery versión ${jqueryVersion}. Las versiones anteriores a la 3.5.0 contienen múltiples vulnerabilidades de seguridad conocidas (como XSS en regex de manipulación de HTML/CVE-2020-11022).`,
+					'Actualiza a jQuery 3.5.0 o posterior, o preferiblemente migra a JS nativo moderno (vanilla JS).',
+					`Versión detectada: ${jqueryVersion}`
+				)
+			);
+		}
+	}
+
+	if (bootstrapVersion) {
+		const parts = bootstrapVersion.split('.').map(Number);
+		const isOutdated = parts[0] < 4 || (parts[0] === 4 && parts[1] < 5);
+		if (isOutdated) {
+			issues.push(
+				issue(
+					'security.outdated-bootstrap',
+					'security',
+					'warning',
+					'Bootstrap JS desactualizado y vulnerable',
+					`Se detectó Bootstrap JS versión ${bootstrapVersion}. Las versiones anteriores a la 4.5.0 son propensas a ataques de Cross-Site Scripting (XSS) en diversos componentes como tooltips y popovers.`,
+					'Actualiza Bootstrap JS a la versión 4.5.0 o superior, o idealmente versión 5 que elimina la dependencia de jQuery.',
+					`Versión detectada: ${bootstrapVersion}`
+				)
+			);
+		}
+	}
+
+	return issues;
 }
 
 function analyzeHeaders(
@@ -727,6 +811,19 @@ function analyzeHeaders(
 		}
 	}
 
+	const clientLibIssues = auditClientLibraries(snapshot.html);
+	issues.push(...clientLibIssues);
+	if (
+		!clientLibIssues.some(
+			(item) =>
+				item.id.startsWith('security.outdated-') || item.id === 'security.polyfill-supply-chain'
+		)
+	) {
+		passed.push(
+			'No se detectan librerías cliente (jQuery/Bootstrap) vulnerables ni CDNs comprometidos (polyfill.io).'
+		);
+	}
+
 	return { issues, passed };
 }
 
@@ -870,6 +967,8 @@ function detectTechnologies(snapshot: FetchSnapshot): string[] {
 		/webflow/i.test(urls + html) ? 'Webflow' : '',
 		/wixstatic|wix\.com/i.test(urls + html) ? 'Wix' : '',
 		/squarespace/i.test(urls + html) ? 'Squarespace' : '',
+		/joomla/i.test(generator + urls + html) ? 'Joomla' : '',
+		/drupal/i.test(generator + urls + html) ? 'Drupal' : '',
 		poweredBy ? `X-Powered-By: ${poweredBy}` : '',
 		server ? `Server: ${server}` : ''
 	];
@@ -955,13 +1054,17 @@ function analyzeAccessibilityBasics(snapshot: FetchSnapshot): {
 	const imagesWithoutAlt = images.filter((img) => !tagHasAttr(img, 'alt')).length;
 	const emptyButtons = buttons.filter(
 		(button) =>
-			!decodeHtmlText(button).trim() && !getAttr(button, 'aria-label') && !getAttr(button, 'title')
+			!decodeHtmlText(button).trim() &&
+			!getAttr(button, 'aria-label') &&
+			!getAttr(button, 'aria-labelledby') &&
+			!getAttr(button, 'title')
 	).length;
 	const emptyLinks = links.filter(
 		(link) =>
 			getAttr(link, 'href') &&
 			!decodeHtmlText(link).trim() &&
 			!getAttr(link, 'aria-label') &&
+			!getAttr(link, 'aria-labelledby') &&
 			!getAttr(link, 'title')
 	).length;
 	const duplicateIds = ids.length - idSet.size;
@@ -1133,10 +1236,10 @@ function analyzeAccessibilityBasics(snapshot: FetchSnapshot): {
 			issue(
 				'accessibility.heading-order',
 				'accessibility',
-				'info',
-				'Jerarquia de headings salta niveles',
-				'Saltos como H2 a H4 dificultan navegar por estructura.',
-				'Ordena headings de forma progresiva.'
+				'warning',
+				'Jerarquía de encabezados incorrecta',
+				'Se detectaron saltos en la jerarquía de encabezados (por ejemplo, pasar de H2 a H4 sin pasar por H3). Esto dificulta la navegación semántica en lectores de pantalla.',
+				'Estructura el contenido de forma progresiva y ordenada (H1 -> H2 -> H3) sin omitir niveles intermedios.'
 			)
 		);
 	}
@@ -1187,8 +1290,12 @@ function analyzePerformanceStructure(snapshot: FetchSnapshot): {
 			.map((url) => uniqueHost(url, base))
 			.filter(Boolean)
 	);
+	const firstImage = images[0];
 	const imagesWithoutLazy = images.filter(
-		(img) => getAttr(img, 'loading').toLowerCase() !== 'lazy' && !getAttr(img, 'fetchpriority')
+		(img) =>
+			img !== firstImage &&
+			getAttr(img, 'loading').toLowerCase() !== 'lazy' &&
+			!getAttr(img, 'fetchpriority')
 	).length;
 	const imagesWithoutSize = images.filter(
 		(img) => !getAttr(img, 'width') || !getAttr(img, 'height')
@@ -1290,29 +1397,29 @@ function analyzePerformanceStructure(snapshot: FetchSnapshot): {
 			)
 		);
 	}
-	if (blockingScripts.length > 2) {
+	if (blockingScripts.length > 0) {
 		issues.push(
 			issue(
 				'performance.blocking-scripts',
 				'performance',
 				'warning',
-				'Scripts potencialmente bloqueantes',
-				'Scripts sin defer/async pueden retrasar el parseo del HTML.',
-				'Usa defer, async o type="module" si no deben bloquear render.',
+				'Scripts potencialmente bloqueantes en el head',
+				'Scripts externos cargados en el head sin defer, async o type="module" bloquean el renderizado del HTML inicial.',
+				'Añade el atributo defer o async a estos scripts para que no bloqueen la visualización.',
 				`${blockingScripts.length} scripts`
 			)
 		);
 	}
-	if (imagesWithoutLazy > 6) {
+	if (imagesWithoutLazy > 0) {
 		issues.push(
 			issue(
 				'performance.lazy-images',
 				'performance',
 				'info',
-				'Muchas imagenes sin lazy loading',
-				'Las imagenes fuera de viewport pueden cargar antes de tiempo.',
-				'Usa loading="lazy" salvo imagenes criticas del hero.',
-				`${imagesWithoutLazy} imagenes`
+				'Imágenes secundarias sin lazy loading',
+				'Las imágenes fuera de la pantalla de inicio cargan de forma innecesaria antes de tiempo, consumiendo datos y ralentizando la web.',
+				'Añade el atributo loading="lazy" a todas las imágenes excepto a la primera del primer pliegue.',
+				`${imagesWithoutLazy} imágenes`
 			)
 		);
 	}
@@ -1517,17 +1624,31 @@ function analyzeSeoTechnical(snapshot: FetchSnapshot): { issues: AuditIssue[]; p
 			)
 		);
 	}
-	if (!ogTitle || !ogDescription || !ogImage || !twitterCard || !ogUrl) {
+	const socialTags = {
+		'og:title': ogTitle,
+		'og:description': ogDescription,
+		'og:image': ogImage,
+		'og:url': ogUrl,
+		'twitter:card': twitterCard
+	};
+	const missingSocial = Object.entries(socialTags)
+		.filter(([, value]) => !value)
+		.map(([key]) => key);
+
+	if (missingSocial.length > 0) {
 		issues.push(
 			issue(
 				'seo.open-graph',
 				'seo',
-				'info',
+				missingSocial.length >= 3 ? 'warning' : 'info',
 				'Metadatos sociales incompletos',
-				'Las vistas previas al compartir pueden verse pobres o incorrectas.',
-				'Anade og:title, og:description, og:image y twitter:card.'
+				`No se detectaron las etiquetas: ${missingSocial.join(', ')}. Esto debilita las previsualizaciones al compartir en redes sociales.`,
+				'Añade metatags Open Graph (og:title, og:description, og:image, og:url) y Twitter Cards (twitter:card, twitter:image) para optimizar la visualización social.',
+				`Faltan: ${missingSocial.join(', ')}`
 			)
 		);
+	} else {
+		passed.push('Etiquetas Open Graph y Twitter Cards presentes.');
 	}
 	if (!hreflangs.length) {
 		issues.push(
@@ -1779,30 +1900,46 @@ function analyzePrivacyLegal(snapshot: FetchSnapshot): { issues: AuditIssue[]; p
 			)
 		);
 	}
-	if ((trackerHosts.length || inlineTracking) && !hasCookies) {
+	if (!hasCookies) {
 		issues.push(
 			issue(
 				'privacy.cookies',
 				'privacy',
-				'warning',
-				'Hay tracking pero no se detecta politica de cookies',
-				'Scripts de medicion o marketing pueden requerir informacion y consentimiento.',
-				'Anade politica/gestion de cookies ajustada al uso real.',
-				[...new Set(trackerHosts)].join(', ')
+				trackerHosts.length || inlineTracking ? 'warning' : 'info',
+				'No se detecta enlace a la política de cookies',
+				'Un enlace visible a la política de cookies es indispensable para cumplir con la ley y garantizar la transparencia del sitio.',
+				'Añade un enlace visible a tu política de cookies en el pie de página del sitio.'
 			)
 		);
+	} else {
+		passed.push('Enlace a la política de cookies detectado.');
 	}
-	if ((trackerHosts.length || inlineTracking) && !hasCmp) {
+
+	if (trackerHosts.length || inlineTracking) {
 		issues.push(
 			issue(
-				'privacy.consent-banner',
+				'privacy.analytics-detected',
 				'privacy',
 				'info',
-				'Tracking sin gestor de consentimiento visible',
-				'Si hay analitica o marketing, puede hacer falta pedir consentimiento antes de activar cookies no necesarias.',
-				'Usa un CMP o carga tracking solo tras consentimiento.'
+				'Scripts de analítica o seguimiento detectados',
+				`Se ha detectado la presencia de scripts de seguimiento: ${[...new Set(trackerHosts), inlineTracking ? 'script en línea (dataLayer/gtag/fbq)' : ''].filter(Boolean).join(', ')}.`,
+				'Asegúrate de que estos scripts estén desactivados por defecto y solo se activen después de recibir el consentimiento explícito del usuario.',
+				`Detectados: ${[...new Set(trackerHosts)].join(', ')}`
 			)
 		);
+
+		if (!hasCmp) {
+			issues.push(
+				issue(
+					'privacy.consent-banner',
+					'privacy',
+					'warning',
+					'Tracking sin gestor de consentimiento (CMP) visible',
+					'Se detectaron scripts de analítica o marketing, pero no firmas de gestores de consentimiento (como Cookiebot, Didomi, Axeptio, iubenda, etc.).',
+					'Implementa un CMP o asegúrate de que el tracking no cargue cookies no necesarias hasta que el usuario dé su consentimiento.'
+				)
+			);
+		}
 	}
 	if (!hasLegal) {
 		issues.push(
@@ -2428,10 +2565,42 @@ async function analyzeSideFiles(
 				'ai',
 				'info',
 				'llms-full.txt no encontrado',
-				'Una version extendida puede facilitar lectura profunda de contenido importante.',
-				'Publica /llms-full.txt si quieres dar mas contexto a herramientas IA.'
+				'Una versión extendida de llms.txt facilita la lectura profunda de contenido por parte de IAs.',
+				'Publica /llms-full.txt si quieres dar más contexto secundario a herramientas de IA.'
 			)
 		);
+	} else {
+		passed.push('llms-full.txt disponible.');
+	}
+
+	const blockedAiBots: string[] = [];
+	if (robots.ok) {
+		const aiBots = ['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended', 'Applebot-Extended'];
+		for (const bot of aiBots) {
+			const regex = new RegExp(
+				`User-agent:\\s*${bot}\\b[\\s\\S]*?Disallow:\\s*/(?:\\s|\\r|\\n|$)`,
+				'i'
+			);
+			if (regex.test(robots.text)) {
+				blockedAiBots.push(bot);
+			}
+		}
+	}
+
+	if (blockedAiBots.length > 0) {
+		issues.push(
+			issue(
+				'ai.blocked-bots',
+				'ai',
+				'info',
+				'Rastreadores de IA bloqueados en robots.txt',
+				`Se detectó el bloqueo de: ${blockedAiBots.join(', ')}.`,
+				'Esto impide que estas herramientas utilicen el contenido para entrenarse o dar respuestas.',
+				`Bloqueados: ${blockedAiBots.join(', ')}`
+			)
+		);
+	} else {
+		passed.push('Sin restricciones de rastreo para IAs populares en robots.txt.');
 	}
 
 	if (!securityTxt.ok || !/contact\s*:/i.test(securityTxt.text)) {
@@ -2582,8 +2751,13 @@ async function analyzeResourcesAndLinks(
 		),
 		...getTags(html, 'img').filter((tag) => getAttr(tag, 'src'))
 	];
-	const resourceTargets = uniqueValues(
-		resourceTags
+	const ogImage =
+		metaContent(html, 'property', 'og:image') || metaContent(html, 'name', 'og:image');
+	const twitterImage = metaContent(html, 'name', 'twitter:image');
+	const socialImageUrls = [ogImage, twitterImage].filter(Boolean);
+
+	const resourceTargets = uniqueValues([
+		...resourceTags
 			.map((tag) => {
 				const raw = assetUrlFromTag(tag);
 				try {
@@ -2593,8 +2767,18 @@ async function analyzeResourcesAndLinks(
 					return '';
 				}
 			})
+			.filter(Boolean),
+		...socialImageUrls
+			.map((url) => {
+				try {
+					const parsed = new URL(url, base);
+					return ['http:', 'https:'].includes(parsed.protocol) ? parsed.toString() : '';
+				} catch {
+					return '';
+				}
+			})
 			.filter(Boolean)
-	).slice(0, 28);
+	]).slice(0, 28);
 	const resourceChecks = await Promise.all(
 		resourceTargets.map((url) => {
 			const tag = resourceTags.find((item) => {
@@ -2620,11 +2804,13 @@ async function analyzeResourcesAndLinks(
 	const linkChecks = await Promise.all(
 		internalLinkTargets.map((url) => fetchResourceIfAvailable(url, 3500, 'link'))
 	);
-	const notFoundCheck = notFoundProbe ?? await fetchResourceIfAvailable(
-		`${base.origin}/__mv-audit-${Date.now()}-404`,
-		3500,
-		'notFound'
-	);
+	const notFoundCheck =
+		notFoundProbe ??
+		(await fetchResourceIfAvailable(
+			`${base.origin}/__mv-audit-${Date.now()}-404`,
+			3500,
+			'notFound'
+		));
 
 	const failedResources = resourceChecks.filter((item) => item.status >= 400 || item.status === 0);
 	const brokenLinks = linkChecks.filter((item) => item.status >= 400 || item.status === 0);
@@ -2726,12 +2912,7 @@ async function analyzeResourcesAndLinks(
 	};
 }
 
-async function analyzeWordPress(
-	origin: string,
-	isWordPress: boolean,
-	html: string
-): Promise<AuditIssue[]> {
-	if (!isWordPress) return [];
+async function analyzeWordPressInternal(origin: string, html: string): Promise<AuditIssue[]> {
 	const [
 		wpJson,
 		wpUsers,
@@ -2903,6 +3084,117 @@ async function analyzeWordPress(
 	return issues;
 }
 
+export async function analyzeCms(
+	origin: string,
+	detectedTechs: string[],
+	html: string
+): Promise<AuditIssue[]> {
+	const issues: AuditIssue[] = [];
+
+	const isWordPress = detectedTechs.includes('WordPress');
+	const isShopify = detectedTechs.includes('Shopify');
+	const isWebflow = detectedTechs.includes('Webflow');
+	const isJoomla = /joomla/i.test(html) || detectedTechs.includes('Joomla');
+	const isDrupal = /drupal/i.test(html) || detectedTechs.includes('Drupal');
+
+	if (isWordPress) {
+		const wpIssues = await analyzeWordPressInternal(origin, html);
+		issues.push(...wpIssues);
+	}
+
+	if (isShopify) {
+		issues.push(
+			issue(
+				'cms.shopify-detected',
+				'cms',
+				'info',
+				'Plataforma Shopify detectada',
+				'Shopify gestiona de forma nativa la seguridad y el rendimiento básico, pero conviene optimizar apps y scripts externos.',
+				'Reduce las apps de Shopify no utilizadas para evitar ralentizar la carga del script chain.'
+			)
+		);
+	}
+
+	if (isWebflow) {
+		issues.push(
+			issue(
+				'cms.webflow-detected',
+				'cms',
+				'info',
+				'Plataforma Webflow detectada',
+				'Webflow ofrece un hosting estático rápido. Recuerda limpiar estilos no utilizados y configurar correctamente el plan si deseas remover badges.',
+				'Elimina las clases y estilos CSS no utilizados desde el editor de Webflow para aligerar la carga de la página.'
+			)
+		);
+		if (/w-webflow-badge/i.test(html)) {
+			issues.push(
+				issue(
+					'cms.webflow-badge',
+					'cms',
+					'info',
+					'Badge de marca Webflow visible',
+					'La página incluye la insignia de marca Webflow en la esquina inferior.',
+					'Puedes remover la insignia desactivando el badge en la configuración del sitio dentro de Webflow (requiere plan de pago).'
+				)
+			);
+		}
+	}
+
+	if (isJoomla) {
+		const admin = await fetchTextIfAvailable(`${origin}/administrator/`, 5000);
+		issues.push(
+			issue(
+				'cms.joomla-detected',
+				'cms',
+				'info',
+				'CMS Joomla detectado',
+				'Joomla requiere actualizaciones de core y módulos de forma manual y frecuente.',
+				'Asegúrate de que la carpeta /administrator/ esté protegida a nivel de servidor o IP para evitar ataques de fuerza bruta.'
+			)
+		);
+		if (admin.ok && /joomla-form|login-form/i.test(admin.text)) {
+			issues.push(
+				issue(
+					'cms.joomla-admin-exposed',
+					'cms',
+					'warning',
+					'Panel de administración de Joomla accesible',
+					'La ruta /administrator/ está expuesta públicamente en la URL de acceso.',
+					'Protege el acceso /administrator/ utilizando una autenticación básica HTTP adicional (.htaccess) o restringe por IP.'
+				)
+			);
+		}
+	}
+
+	if (isDrupal) {
+		const userLogin = await fetchTextIfAvailable(`${origin}/user/login`, 5000);
+		issues.push(
+			issue(
+				'cms.drupal-detected',
+				'cms',
+				'info',
+				'CMS Drupal detectado',
+				'Drupal es una plataforma CMS compleja y robusta; vigila la aplicación de parches de seguridad (Drupal security advisories).',
+				'Configura módulos de caché avanzados (como Redis o Varnish) y purga módulos no utilizados.'
+			)
+		);
+		if (userLogin.ok && /drupal-user-login|form-id/i.test(userLogin.text)) {
+			issues.push(
+				issue(
+					'cms.drupal-login-exposed',
+					'cms',
+					'info',
+					'Formulario de login de Drupal accesible',
+					'El formulario de inicio de sesión (/user/login) está visible públicamente.',
+					'Valora mover o proteger con CAPTCHA el acceso administrativo para mitigar ataques de fuerza bruta.'
+				)
+			);
+		}
+	}
+
+	return issues;
+}
+
 export function computeDeliveryVerdict(issues: AuditIssue[]): DeliveryVerdict {
 	if (issues.some((item) => item.severity === 'critical')) return 'block';
 	if (issues.some((item) => item.severity === 'warning')) return 'review';
@@ -3011,12 +3303,8 @@ export async function auditPublicWebsite(
 			})
 		)
 	]);
-	const wordpressIssues = await analyzeWordPress(
-		finalUrl.origin,
-		htmlAudit.signals.isWordPress,
-		snapshot.html
-	);
 	const detectedTechnologies = detectTechnologies(snapshot);
+	const cmsIssues = await analyzeCms(finalUrl.origin, detectedTechnologies, snapshot.html);
 	const wordPressPlugins = detectWordPressPlugins(snapshot.html);
 	const issues = dedupeIssues([
 		...(options.extraIssues ?? []),
@@ -3034,7 +3322,7 @@ export async function auditPublicWebsite(
 		...methodAudit.issues,
 		...resourceAudit.issues,
 		...visualAudit.issues,
-		...wordpressIssues
+		...cmsIssues
 	]);
 	const categories = buildCategories(issues, options.baseScores);
 	const overallScore = Math.round(

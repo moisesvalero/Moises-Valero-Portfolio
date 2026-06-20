@@ -6,6 +6,8 @@ import {
 	enrichIssue,
 	isAllowedPublicAuditUrl,
 	scoreCategoryFromIssues,
+	auditClientLibraries,
+	analyzeCms,
 	type AuditIssue
 } from './web-delivery-auditor.ts';
 
@@ -90,4 +92,31 @@ test('enriches mixed-content issues with repair context and AI prompt', () => {
 	assert.deepEqual(issue.affectedResources, ['http://example.com/logo.png']);
 	assert.ok(issue.repairSteps?.some((step) => step.includes('http:// exacta')));
 	assert.match(issue.aiPrompt ?? '', /http:\/\/example\.com\/logo\.png/);
+});
+
+test('detects vulnerable client libraries', () => {
+	const htmlPolyfill = `<html><body><script src="https://polyfill.io/v3/polyfill.min.js"></script></body></html>`;
+	const issuesPolyfill = auditClientLibraries(htmlPolyfill);
+	assert.ok(issuesPolyfill.some((issue) => issue.id === 'security.polyfill-supply-chain'));
+
+	const htmlOldJquery = `<html><body><script src="https://code.jquery.com/jquery-3.4.1.min.js"></script></body></html>`;
+	const issuesJquery = auditClientLibraries(htmlOldJquery);
+	assert.ok(issuesJquery.some((issue) => issue.id === 'security.outdated-jquery'));
+
+	const htmlNewJquery = `<html><body><script src="https://code.jquery.com/jquery-3.6.0.min.js"></script></body></html>`;
+	const issuesNewJquery = auditClientLibraries(htmlNewJquery);
+	assert.equal(issuesNewJquery.length, 0);
+});
+
+test('detects CMS features like Shopify and Webflow', async () => {
+	const issuesShopify = await analyzeCms('https://mystore.com', ['Shopify'], '');
+	assert.ok(issuesShopify.some((issue) => issue.id === 'cms.shopify-detected'));
+
+	const issuesWebflowBadge = await analyzeCms(
+		'https://myweb.com',
+		['Webflow'],
+		'<html><body><div class="w-webflow-badge">Made in Webflow</div></body></html>'
+	);
+	assert.ok(issuesWebflowBadge.some((issue) => issue.id === 'cms.webflow-detected'));
+	assert.ok(issuesWebflowBadge.some((issue) => issue.id === 'cms.webflow-badge'));
 });
