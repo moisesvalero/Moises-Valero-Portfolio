@@ -21,7 +21,8 @@
 		"studio": "npx sanity dev",
 		"sanity:deploy": "sanity deploy",
 		"sanity:migrate-home-locale": "sanity exec sanity/migrate-home-locale-safe.ts --with-user-token",
-		"sanity:patch-portfolio": "sanity exec sanity/patch-portfolio-copy-i18n-safe.ts --with-user-token"
+		"sanity:patch-portfolio": "sanity exec sanity/patch-portfolio-copy-i18n-safe.ts --with-user-token",
+		"dns:sync": "zsh scripts/sync-moisesvalero-dns.sh"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",

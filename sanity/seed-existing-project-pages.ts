@@ -56,7 +56,7 @@ async function main() {
 				'Autoptimize',
 				'Yoast SEO'
 			],
-			liveUrl: 'https://moisesvalero.es/v-shield/',
+			liveUrl: 'https://v-shield.moisesvalero.es',
 			checklistPublicacion: {
 				tituloYSlug: true,
 				contenidoPrincipal: true,
@@ -94,7 +94,7 @@ async function main() {
 			},
 			resultado: { title: e.resultadoTitle, bodyHtml: `<p>${e.resultadoP}</p>` },
 			stack: ['WordPress', 'Kadence', 'Child Theme', 'Figma', 'Handbrake', 'XnConvert', 'AVIF'],
-			liveUrl: 'https://moisesvalero.es/ember',
+			liveUrl: 'https://ember.moisesvalero.es',
 			checklistPublicacion: {
 				tituloYSlug: true,
 				contenidoPrincipal: true,

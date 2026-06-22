@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { env } from '$env/dynamic/public';
+	import { projectLiveUrls } from '$lib/data/project-live-urls';
 	import { getProyectoPageLabels } from '$lib/i18n/proyecto-page-labels';
 	import { getEmberPageCopy } from '$lib/i18n/proyectos/ember-copy';
 	import JsonLdScript from '$lib/components/JsonLdScript.svelte';
@@ -208,7 +209,7 @@
 	<div class="cta-section">
 		<h3>{c.ctaTitle}</h3>
 		<p class="cta-lead">{c.ctaLead}</p>
-		<a href="https://ember.moisesvalero.es" class="btn" target="_blank" rel="noopener noreferrer"
+		<a href={projectLiveUrls.emberIron} class="btn" target="_blank" rel="noopener noreferrer"
 			>{c.ctaBtn}</a
 		>
 		<a href="/#proyectos" class="btn btn-outline">{c.ctaBack}</a>

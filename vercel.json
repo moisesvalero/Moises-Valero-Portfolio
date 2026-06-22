@@ -47,6 +47,26 @@
 			"source": "/vshield/",
 			"destination": "/proyectos/vshield",
 			"permanent": true
+		},
+		{
+			"source": "/ember",
+			"destination": "https://ember.moisesvalero.es",
+			"permanent": true
+		},
+		{
+			"source": "/ember/",
+			"destination": "https://ember.moisesvalero.es",
+			"permanent": true
+		},
+		{
+			"source": "/v-shield",
+			"destination": "https://v-shield.moisesvalero.es",
+			"permanent": true
+		},
+		{
+			"source": "/v-shield/",
+			"destination": "https://v-shield.moisesvalero.es",
+			"permanent": true
 		}
 	]
 }
