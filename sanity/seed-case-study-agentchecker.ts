@@ -67,6 +67,7 @@ async function main() {
 			'GitHub Actions'
 		],
 		images: {
+			cardImagePath: '/imagenes/agentchecker-card.png',
 			principal: '/imagenes/agentchecker-screen.png',
 			secondary1: '/imagenes/agentchecker-demo.gif',
 			secondary2: '/imagenes/agentchecker-og.png'
