@@ -83,6 +83,7 @@ Editar el array `FEATURED` en ese archivo si cambia la selección.
 
 | Script | Propósito |
 |--------|-----------|
+| `patch-case-study-live-urls.ts` | Actualiza `liveUrl` de demos (subdominios moisesvalero.es) |
 | `patch-sideglass-home-image.ts` | Tarjeta portada Sideglass (`images.cardImagePath`) |
 | `patch-home-featured-projects.ts` | **Portada:** 4 destacados + ocultar el resto (`showOnHome: false`) |
 | `patch-portfolio-site.ts` | Parche del singleton `portfolioSite` |

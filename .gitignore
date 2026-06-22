@@ -13,6 +13,7 @@ tmp
 # Generated app/runtime files
 .cache/
 .sanity/runtime
+sanity/.auth-check-result.json
 .superpowers/
 
 # OS

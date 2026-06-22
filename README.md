@@ -60,6 +60,7 @@ src/
     server/                      # fetch a Sanity, mapeos y lógica server
     data/                        # defaults/fallbacks locales
 sanity/
+  README.md                      # inventario scripts CMS (leer antes de case studies/portada)
   schemaTypes/                   # esquemas CMS
   seed-*.ts / patch-*.ts         # scripts de seed/migración
 static/
@@ -91,6 +92,8 @@ pnpm run sanity:clone-landing-national
 pnpm run sanity:hero-marquee
 pnpm run sanity:seed-support-articles
 ```
+
+Scripts Sanity (case studies, portada, auth): ver **[sanity/README.md](sanity/README.md)**.
 
 ## Variables de entorno
 

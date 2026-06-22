@@ -1,0 +1,16 @@
+---
+description: Scripts Sanity CMS, case studies y portada — leer sanity/README.md
+globs: sanity/**, static/imagenes/**, scripts/capture-*.mjs, src/routes/proyectos/**
+alwaysApply: false
+---
+
+# Sanity CMS — scripts y case studies
+
+Antes de crear o editar proyectos en Sanity, sembrar case studies o cambiar la portada:
+
+1. Lee **`sanity/README.md`** (inventario de scripts, flujo GitHub → CMS, portada 4 proyectos).
+2. Ejecuta scripts con `pnpm exec sanity exec sanity/<script>.ts --with-user-token` en WSL tras `sanity login`.
+3. Portada: máximo **4** (1 hero + 3 spotlight) → `sanity/patch-home-featured-projects.ts`.
+4. Nuevo proyecto desde repo: `sanity/seed-case-study-<slug>.ts` + imágenes en `static/imagenes/` + commit/push de assets.
+
+No inventes rutas de seed: usa los archivos listados en `sanity/README.md`.
