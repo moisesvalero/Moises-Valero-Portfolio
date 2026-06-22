@@ -67,6 +67,7 @@ async function main() {
 			'WinGet'
 		],
 		images: {
+			cardImagePath: '/imagenes/sideglass-landscape-dark.png',
 			principal: '/imagenes/sideglass-portrait-dark.png',
 			secondary1: '/imagenes/sideglass-landscape-dark.png',
 			secondary2: '/imagenes/sideglass-portrait-light.png'

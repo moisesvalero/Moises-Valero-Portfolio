@@ -233,6 +233,13 @@ export const caseStudy = defineType({
 					options: { hotspot: true }
 				},
 				{
+					name: 'cardImagePath',
+					type: 'string',
+					title: 'Imagen de tarjeta (ruta fallback)',
+					description:
+						'Ruta en /imagenes/... para portada y archivo. Prioridad sobre imagen principal si no subes cardImage en Sanity.'
+				},
+				{
 					name: 'principalImage',
 					type: 'image',
 					title: 'Imagen principal (subida en Sanity)',

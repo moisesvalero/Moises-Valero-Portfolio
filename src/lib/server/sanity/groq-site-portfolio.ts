@@ -38,6 +38,7 @@ export const sitePortfolioQuery = `coalesce(
       ] | order(coalesce(homeSortOrder, 999) asc, _updatedAt desc){
         "thumbnail": coalesce(images.cardImage, images.principalImage),
         "imageSrc": coalesce(
+          images.cardImagePath,
           images.principal,
           "/imagenes/captura-novakit_ember.avif"
         ),
