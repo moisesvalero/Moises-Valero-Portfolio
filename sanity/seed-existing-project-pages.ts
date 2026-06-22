@@ -141,7 +141,7 @@ async function main() {
 				'EWWW Image',
 				'Yoast SEO'
 			],
-			liveUrl: 'https://galerianova.es',
+			liveUrl: 'https://galerianova.moisesvalero.es',
 			checklistPublicacion: {
 				tituloYSlug: true,
 				contenidoPrincipal: true,
