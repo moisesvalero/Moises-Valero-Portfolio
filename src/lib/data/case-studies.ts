@@ -1,4 +1,4 @@
-import { projectLiveUrls } from '$lib/data/project-live-urls';
+import { resolveCaseStudyLiveUrl } from '$lib/data/project-live-urls';
 import type { CaseStudy } from '$lib/types/case-study';
 
 /**
@@ -54,7 +54,7 @@ const studies: Record<string, CaseStudy> = {
 				'<p>El resultado es un sitio desplegable, mantenible y alineado con cómo trabajo hoy: stack moderno, menos dependencias innecesarias y una base clara para iterar. Sirve como demo viva del tipo de interfaces y disciplina que puedo aportar en producto o en equipo de desarrollo.</p>'
 		},
 		stack: ['SvelteKit', 'TypeScript', 'CSS animations', 'Spline 3D', 'i18n', 'Vitest'],
-		liveUrl: projectLiveUrls.novakit,
+		liveUrl: resolveCaseStudyLiveUrl('novakit'),
 		repoUrl: ''
 	}
 };

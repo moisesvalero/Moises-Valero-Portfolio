@@ -1,5 +1,6 @@
 import type { CaseStudy, CaseStudyMetric, CaseStudySection } from '$lib/types/case-study';
 import type { SiteLocale } from '$lib/i18n/site-locale';
+import { resolveCaseStudyLiveUrl } from '$lib/data/project-live-urls';
 import { imageUrl } from './image-builder';
 
 /** Fila devuelta por GROQ (caseStudyBySlugQuery). */
@@ -142,7 +143,7 @@ export function mapSanityRowToCaseStudy(
 			locale === 'en' ? 'Outcome' : 'Resultado'
 		),
 		stack,
-		liveUrl: row.liveUrl?.trim() || '/',
+		liveUrl: resolveCaseStudyLiveUrl(row.slug, row.liveUrl),
 		repoUrl: row.repoUrl?.trim() || undefined
 	};
 }

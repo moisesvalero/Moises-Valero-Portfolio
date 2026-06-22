@@ -22,6 +22,32 @@ export const projectLiveUrls = {
 	recepcionistaIa: 'https://recepcionista.moisesvalero.es'
 } as const;
 
+/** Slug Sanity `caseStudy` → URL demo pública (subdominio custom). */
+export const caseStudySlugLiveUrls: Partial<Record<string, string>> = {
+	novakit: projectLiveUrls.novakit,
+	vshield: projectLiveUrls.vShield,
+	'ember-iron': projectLiveUrls.emberIron,
+	'galeria-nova': projectLiveUrls.galeriaNova,
+	'rebranding-galeria-nova': projectLiveUrls.galeriaNova,
+	'sideglass-dashboard': projectLiveUrls.sideglass,
+	agentchecker: projectLiveUrls.agentChecker,
+	'web-analyzer': projectLiveUrls.webAnalyzer,
+	scanit: projectLiveUrls.scanit,
+	'cv-generator': projectLiveUrls.cvGenerator,
+	'win95-gpt': projectLiveUrls.win95Gpt,
+	primehaus: projectLiveUrls.primeHaus,
+	fisionova: projectLiveUrls.recepcionistaIa,
+	'dev-days': projectLiveUrls.devDays
+};
+
+/** Prioriza subdominio canónico por slug; si no hay mapeo, usa CMS. */
+export function resolveCaseStudyLiveUrl(slug: string, cmsLiveUrl?: string | null): string {
+	const canonical = caseStudySlugLiveUrls[slug];
+	if (canonical) return canonical;
+	const trimmed = cmsLiveUrl?.trim();
+	return trimmed && trimmed !== '/' ? trimmed : '/';
+}
+
 export type ProjectLiveUrlKey = keyof typeof projectLiveUrls;
 
 /** Alias .vercel.app (siguen activos en Vercel; preferir subdominio custom). */
