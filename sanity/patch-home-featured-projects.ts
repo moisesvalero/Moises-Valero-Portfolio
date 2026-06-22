@@ -1,10 +1,10 @@
 import { getCliClient } from 'sanity/cli';
 
 const FEATURED = [
-	{ slug: 'fisionova', homeLayoutTier: 'hero', homeSortOrder: 1 },
-	{ slug: 'rebranding-galeria-nova', homeLayoutTier: 'spotlight', homeSortOrder: 2 },
-	{ slug: 'agentchecker', homeLayoutTier: 'spotlight', homeSortOrder: 3 },
-	{ slug: 'sideglass-dashboard', homeLayoutTier: 'spotlight', homeSortOrder: 4 }
+	{ slug: 'fisionova', homeLayoutTier: 'hero' },
+	{ slug: 'rebranding-galeria-nova', homeLayoutTier: 'spotlight' },
+	{ slug: 'agentchecker', homeLayoutTier: 'spotlight' },
+	{ slug: 'sideglass-dashboard', homeLayoutTier: 'spotlight' }
 ] as const;
 
 async function main() {
@@ -27,11 +27,10 @@ async function main() {
 			.patch(doc._id)
 			.set({
 				showOnHome: true,
-				homeLayoutTier: item.homeLayoutTier,
-				homeSortOrder: item.homeSortOrder
+				homeLayoutTier: item.homeLayoutTier
 			})
 			.commit();
-		console.log(`OK featured: ${item.slug} -> ${item.homeLayoutTier} #${item.homeSortOrder}`);
+		console.log(`OK featured: ${item.slug} -> ${item.homeLayoutTier}`);
 	}
 
 	for (const doc of all) {
@@ -40,8 +39,8 @@ async function main() {
 	}
 
 	const onHome = await client.fetch(
-		`*[_type == "caseStudy" && showOnHome == true] | order(homeSortOrder asc){
-      title, "slug": slug.current, homeLayoutTier, homeSortOrder
+		`*[_type == "caseStudy" && showOnHome == true] | order(orderRank asc){
+      title, "slug": slug.current, homeLayoutTier, orderRank
     }`
 	);
 	console.log('Portada actual:', JSON.stringify(onHome, null, 2));

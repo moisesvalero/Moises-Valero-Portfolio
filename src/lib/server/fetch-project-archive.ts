@@ -7,7 +7,7 @@ import { mapProject } from './sanity/map-site-portfolio';
 const projectArchiveQuery = `*[
   _type == "caseStudy" &&
   defined(slug.current)
-] | order(coalesce(homeSortOrder, 999) asc, _updatedAt desc){
+] | order(orderRank asc, _updatedAt desc){
   "thumbnail": coalesce(images.cardImage, images.principalImage),
   "imageSrc": coalesce(
     images.cardImagePath,

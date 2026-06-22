@@ -1,3 +1,4 @@
+import { orderRankField, orderRankOrdering } from '@sanity/orderable-document-list';
 import { defineField, defineType } from 'sanity';
 
 /** Plantilla `/proyectos/[slug]` — alineado con `$lib/types/case-study.ts` y GROQ en `groq.ts`. */
@@ -5,10 +6,11 @@ export const caseStudy = defineType({
 	name: 'caseStudy',
 	title: 'Proyecto',
 	type: 'document',
+	orderings: [orderRankOrdering],
 	initialValue: {
 		estadoInterno: 'borrador',
 		panelHelp:
-			'1) Completa General. 2) Rellena Contenido e Imagenes. 3) Revisa SEO y enlace final. 4) Marca el checklist y pulsa Publish.',
+			'1) Completa General. 2) Rellena Contenido e Imagenes. 3) Revisa SEO y enlace final. 4) Marca el checklist y pulsa Publish. 5) Ordena proyectos arrastrando en el menu Proyectos (afecta home y /proyectos).',
 		heroTag: 'Caso de estudio',
 		checklistPublicacion: {
 			tituloYSlug: false,
@@ -25,13 +27,16 @@ export const caseStudy = defineType({
 		{ name: 'seo', title: '📈 SEO y enlace final' }
 	],
 	fields: [
+		orderRankField({ type: 'caseStudy' }),
 		defineField({
 			name: 'panelHelp',
 			type: 'text',
 			title: 'Como usar este formulario',
 			readOnly: true,
 			rows: 4,
-			group: 'panel'
+			group: 'panel',
+			initialValue:
+				'1) Completa General. 2) Rellena Contenido e Imagenes. 3) Revisa SEO y enlace final. 4) Marca el checklist y pulsa Publish. 5) Ordena proyectos arrastrando en el menu Proyectos (afecta home y /proyectos).'
 		}),
 		defineField({
 			name: 'estadoInterno',
@@ -60,10 +65,10 @@ export const caseStudy = defineType({
 		defineField({
 			name: 'homeSortOrder',
 			type: 'number',
-			title: 'Orden en portada',
-			description: 'Menor numero = aparece antes en la home.',
-			initialValue: 50,
-			group: 'panel'
+			title: 'Orden legacy (obsoleto)',
+			description: 'Ya no se usa. Ordena desde el menu Proyectos con drag and drop.',
+			hidden: true,
+			readOnly: true
 		}),
 		defineField({
 			name: 'homeLayoutTier',

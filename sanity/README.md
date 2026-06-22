@@ -47,7 +47,8 @@ La ruta pública es `/proyectos/[slug]` vía `src/routes/proyectos/[slug]/` (GRO
 
 - **Límite fijo:** 4 proyectos (`src/lib/components/portfolio/PortfolioProjects.svelte` → `homeProjectCap = 4`).
 - **Layout:** 1 `hero` + hasta 3 `spotlight` (no hay fila `standard` si solo hay esos cuatro).
-- Los case studies con `showOnHome: true` se ordenan por `homeSortOrder` (GROQ en `src/lib/server/sanity/groq-site-portfolio.ts`).
+- Los case studies con `showOnHome: true` se ordenan por **`orderRank`** (drag and drop en Studio → menú **Proyectos**). Afecta home y `/proyectos`.
+- En Studio: arrastra proyectos en la lista **Proyectos** para reordenar. Si la lista no tiene orden, usa **Reset order** en el menú ⋮ de esa vista.
 
 **Configuración actual deseada** (actualizar con el script, no a mano en Studio):
 

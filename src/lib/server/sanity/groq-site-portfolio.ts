@@ -35,7 +35,7 @@ export const sitePortfolioQuery = `coalesce(
         _type == "caseStudy" &&
         defined(slug.current) &&
         coalesce(showOnHome, true) == true
-      ] | order(coalesce(homeSortOrder, 999) asc, _updatedAt desc){
+      ] | order(orderRank asc, _updatedAt desc){
         "thumbnail": coalesce(images.cardImage, images.principalImage),
         "imageSrc": coalesce(
           images.cardImagePath,

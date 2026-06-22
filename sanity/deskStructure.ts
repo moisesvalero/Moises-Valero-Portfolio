@@ -1,12 +1,13 @@
+import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
 import type { StructureResolver } from 'sanity/structure';
 
 /**
  * Estructura estilo "CPT + ACF":
  * - Sitio (singleton) con id fijo `portfolioSite`
  * - Guías (landing support articles) como lista editorial
- * - Proyectos (case studies) como lista normal
+ * - Proyectos (case studies) con drag and drop
  */
-export const deskStructure: StructureResolver = (S) =>
+export const deskStructure: StructureResolver = (S, context) =>
 	S.list()
 		.title('Contenido del sitio')
 		.items([
@@ -29,5 +30,11 @@ export const deskStructure: StructureResolver = (S) =>
 				),
 			S.divider(),
 			S.documentTypeListItem('landingSupportArticle').title('Guías / Artículos'),
-			S.documentTypeListItem('caseStudy').title('Proyectos')
+			orderableDocumentListDeskItem({
+				type: 'caseStudy',
+				title: 'Proyectos',
+				id: 'orderable-case-studies',
+				S,
+				context
+			})
 		]);
