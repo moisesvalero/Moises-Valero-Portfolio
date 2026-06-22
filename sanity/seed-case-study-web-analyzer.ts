@@ -71,19 +71,19 @@ async function main() {
 		},
 		hice: {
 			title: 'Lo que hice',
-			bodyHtml: `<p><strong>Motor de auditoría:</strong> arquitectura SvelteKit con jobs asíncronos (202 + polling), auditor de entrega HTTP y auditor visual con Chromium/Playwright: consola JS, viewports móvil/tablet/desktop, cookies y accesibilidad.</p><p><strong>Seguridad operativa:</strong> validación anti-SSRF (loopback, RFC1918, IPs codificadas), límites de bytes en respuestas (4 MB HTML / 2 MB recursos) y rate limiting por IP (10 análisis/hora) con persistencia en fichero temporal.</p><p><strong>Producto y captación:</strong> UI estilo consola técnica, modo reparación con prompts por hallazgo, envío de informes por email vía Resend, integración en <a href="https://moisesvalero.es/tools/analizador-web" rel="noopener noreferrer">moisesvalero.es/tools/analizador-web</a> y despliegue standalone en Vercel.</p>`
+			bodyHtml: `<p><strong>Motor de auditoría:</strong> arquitectura SvelteKit con jobs asíncronos (202 + polling), auditor de entrega HTTP y auditor visual con Chromium/Playwright: consola JS, viewports móvil/tablet/desktop, cookies y accesibilidad.</p><p><strong>Seguridad operativa:</strong> validación anti-SSRF (loopback, RFC1918, IPs codificadas), límites de bytes en respuestas (4 MB HTML / 2 MB recursos) y rate limiting por IP (10 análisis/hora) con persistencia en fichero temporal.</p><p><strong>Producto publicado:</strong> UI estilo consola técnica en <a href="https://web-analyzer-three.vercel.app" rel="noopener noreferrer">web-analyzer-three.vercel.app</a>, modo reparación con prompts por hallazgo, envío de informes por email vía Resend y una variante integrada en el portfolio.</p>`
 		},
 		hiceEn: {
 			title: 'What I built',
-			bodyHtml: `<p><strong>Audit engine:</strong> SvelteKit architecture with async jobs (202 + polling), HTTP delivery auditor, and visual auditor with Chromium/Playwright: JS console, mobile/tablet/desktop viewports, cookies, and accessibility.</p><p><strong>Operational security:</strong> anti-SSRF validation (loopback, RFC1918, encoded IPs), byte limits on responses (4 MB HTML / 2 MB resources), and per-IP rate limiting (10 analyses/hour) with file-based persistence.</p><p><strong>Product and leads:</strong> technical console UI, repair mode with per-finding prompts, email reports via Resend, integration at <a href="https://moisesvalero.es/tools/analizador-web" rel="noopener noreferrer">moisesvalero.es/tools/analizador-web</a>, and standalone Vercel deployment.</p>`
+			bodyHtml: `<p><strong>Audit engine:</strong> SvelteKit architecture with async jobs (202 + polling), HTTP delivery auditor, and visual auditor with Chromium/Playwright: JS console, mobile/tablet/desktop viewports, cookies, and accessibility.</p><p><strong>Operational security:</strong> anti-SSRF validation (loopback, RFC1918, encoded IPs), byte limits on responses (4 MB HTML / 2 MB resources), and per-IP rate limiting (10 analyses/hour) with file-based persistence.</p><p><strong>Shipped product:</strong> technical console UI at <a href="https://web-analyzer-three.vercel.app" rel="noopener noreferrer">web-analyzer-three.vercel.app</a>, repair mode with per-finding prompts, email reports via Resend, plus an integrated variant on the portfolio.</p>`
 		},
 		resultado: {
 			title: 'Resultado',
-			bodyHtml: `<p>Una herramienta que uso como <strong>demo interactiva en el portfolio</strong> y como auditor real antes de entregar proyectos web. No sustituye un pentest, pero condensa en minutos señales que suelen tardar horas en revisar a mano.</p><p>Proyecto personal que demuestra backend serverless serio en SvelteKit, pensamiento de seguridad y UX orientada a desarrolladores y equipos que ya trabajan con agentes de IA para corregir hallazgos.</p>`
+			bodyHtml: `<p>Una herramienta que despliego como <strong>producto standalone</strong> y reutilizo como auditor antes de entregar proyectos web. No sustituye un pentest, pero condensa en minutos señales que suelen tardar horas en revisar a mano.</p><p>Proyecto personal que demuestra backend serverless serio en SvelteKit, pensamiento de seguridad y UX orientada a desarrolladores y equipos que ya trabajan con agentes de IA para corregir hallazgos.</p>`
 		},
 		resultadoEn: {
 			title: 'Outcome',
-			bodyHtml: `<p>A tool I use as an <strong>interactive demo on my portfolio</strong> and as a real auditor before shipping web projects. It does not replace a pentest, but it compresses into minutes signals that often take hours to review manually.</p><p>A personal project that shows serious SvelteKit serverless backend work, security thinking, and UX aimed at developers and teams already using AI agents to fix findings.</p>`
+			bodyHtml: `<p>A tool I ship as a <strong>standalone product</strong> and reuse as a real auditor before delivering web projects. It does not replace a pentest, but it compresses into minutes signals that often take hours to review manually.</p><p>A personal project that shows serious SvelteKit serverless backend work, security thinking, and UX aimed at developers and teams already using AI agents to fix findings.</p>`
 		},
 		stack: [
 			'SvelteKit',
@@ -109,7 +109,7 @@ async function main() {
 			'oxlint',
 			'Zod'
 		],
-		liveUrl: 'https://moisesvalero.es/tools/analizador-web',
+		liveUrl: 'https://web-analyzer-three.vercel.app',
 		repoUrl: 'https://github.com/moisesvalero/web-analyzer',
 		checklistPublicacion: {
 			tituloYSlug: true,

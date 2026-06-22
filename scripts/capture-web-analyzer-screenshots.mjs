@@ -2,8 +2,8 @@ import { chromium } from 'playwright-core';
 import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-const BASE_URL = process.env.ANALYZER_URL ?? 'https://moisesvalero.es/tools/analizador-web';
-const TARGET_URL = process.env.ANALYZER_TARGET ?? 'https://moisesvalero.es';
+/** App standalone del repo https://github.com/moisesvalero/web-analyzer */
+const BASE_URL = process.env.ANALYZER_URL ?? 'https://web-analyzer-three.vercel.app';
 const OUT_DIR = resolve('static/imagenes');
 
 const CHROME_CANDIDATES = [
@@ -14,30 +14,36 @@ const CHROME_CANDIDATES = [
 	'/snap/bin/chromium'
 ].filter(Boolean);
 
-async function resolveExecutable() {
-	for (const path of CHROME_CANDIDATES) {
+async function launchBrowser() {
+	for (const executablePath of CHROME_CANDIDATES) {
 		try {
 			const { access } = await import('node:fs/promises');
-			await access(path);
-			return path;
+			await access(executablePath);
+			return chromium.launch({
+				headless: true,
+				executablePath,
+				args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+			});
 		} catch {
-			// siguiente candidato
+			// siguiente
 		}
-	}
-	return undefined;
-}
-
-async function launchBrowser() {
-	const executablePath = await resolveExecutable();
-	if (executablePath) {
-		return chromium.launch({
-			headless: true,
-			executablePath,
-			args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-		});
 	}
 	console.warn('Chromium del sistema no encontrado; usando binario de Playwright.');
 	return chromium.launch({ headless: true });
+}
+
+async function waitForDashboard(page) {
+	await page.getByText('WEB INTEGRITY AUDIT', { exact: false }).waitFor({
+		timeout: 60_000
+	});
+}
+
+async function runDemoAudit(page) {
+	await page.getByRole('button', { name: 'moisesvalero.es', exact: true }).click();
+	await page.getByText('RESULTADOS TÉCNICOS', { exact: false }).waitFor({
+		timeout: 180_000
+	});
+	await page.waitForTimeout(1200);
 }
 
 async function main() {
@@ -49,7 +55,7 @@ async function main() {
 
 		await page.setViewportSize({ width: 1440, height: 900 });
 		await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 60_000 });
-		await page.waitForSelector('#analyzer-url', { timeout: 15_000 });
+		await waitForDashboard(page);
 		await page.screenshot({
 			path: resolve(OUT_DIR, 'web-analyzer-home.png'),
 			fullPage: false
@@ -57,7 +63,7 @@ async function main() {
 
 		await page.setViewportSize({ width: 390, height: 844 });
 		await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 60_000 });
-		await page.waitForSelector('#analyzer-url', { timeout: 15_000 });
+		await waitForDashboard(page);
 		await page.screenshot({
 			path: resolve(OUT_DIR, 'web-analyzer-mobile.png'),
 			fullPage: false
@@ -65,16 +71,14 @@ async function main() {
 
 		await page.setViewportSize({ width: 1440, height: 900 });
 		await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 60_000 });
-		await page.fill('#analyzer-url', TARGET_URL);
-		await page.click('button[type="submit"]');
-		await page.waitForSelector('.hero-results', { timeout: 180_000 });
-		await page.waitForTimeout(1500);
+		await waitForDashboard(page);
+		await runDemoAudit(page);
 		await page.screenshot({
 			path: resolve(OUT_DIR, 'web-analyzer-report.png'),
 			fullPage: true
 		});
 
-		console.log('Capturas guardadas en static/imagenes/web-analyzer-*.png');
+		console.log('Capturas del Web Analyzer standalone guardadas en static/imagenes/web-analyzer-*.png');
 	} finally {
 		await browser.close();
 	}

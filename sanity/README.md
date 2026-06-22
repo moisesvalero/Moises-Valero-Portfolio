@@ -109,7 +109,7 @@ Editar el array `FEATURED` en ese archivo si cambia la selección.
 
 | Script | Propósito |
 |--------|-----------|
-| `scripts/capture-web-analyzer-screenshots.mjs` | Regenera PNG del analizador web (home, móvil, informe) |
+| `scripts/capture-web-analyzer-screenshots.mjs` | Capturas del **standalone** `web-analyzer-three.vercel.app` (no el del portfolio) |
 
 ---
 
