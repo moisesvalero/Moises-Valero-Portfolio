@@ -11,7 +11,7 @@
 		"build:vercel": "node scripts/vercel-build.mjs",
 		"build:studio": "sanity build",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
+		"prepare": "husky",
 		"format": "prettier --write \"*.{js,ts,json,html}\" \"src/**/*.{js,ts,svelte,css,json}\" \"sanity/**/*.{js,ts}\"",
 		"format:check": "prettier --check \"*.{js,ts,json,html}\" \"src/**/*.{js,ts,svelte,css,json}\" \"sanity/**/*.{js,ts}\"",
 		"lint": "eslint .",
@@ -23,6 +23,9 @@
 		"sanity:migrate-home-locale": "sanity exec sanity/migrate-home-locale-safe.ts --with-user-token",
 		"sanity:patch-portfolio": "sanity exec sanity/patch-portfolio-copy-i18n-safe.ts --with-user-token",
 		"dns:sync": "zsh scripts/sync-moisesvalero-dns.sh"
+	},
+	"lint-staged": {
+		"*.{ts,js,svelte}": ["eslint --fix", "prettier --write"]
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
@@ -38,6 +41,8 @@
 		"eslint-plugin-svelte": "^3.18.0",
 		"esm-env": "1.2.2",
 		"globals": "^17.6.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^17.0.8",
 		"prettier": "^3.8.4",
 		"prettier-plugin-svelte": "^4.1.1",
 		"sanity": "^5.24.0",
