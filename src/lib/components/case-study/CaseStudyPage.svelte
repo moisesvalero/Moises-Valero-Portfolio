@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { getProyectoPageLabels } from '$lib/i18n/proyecto-page-labels';
+	import { sanityDefaultSrc, sanityImageSrcSet } from '$lib/sanity-image-url';
 	import type { SiteLocale } from '$lib/i18n/site-locale';
 	import type { CaseStudy } from '$lib/types/case-study';
 
@@ -19,6 +20,25 @@
 		locale === 'en'
 			? `${study.title} — screenshot ${n}`
 			: `${study.title} — captura secundaria ${n}`;
+
+	const heroWidths = [640, 800, 960, 1200, 1600] as const;
+	const secondaryWidths = [320, 480, 640, 800, 960] as const;
+
+	const heroImg = $derived({
+		src: sanityDefaultSrc(study.images.principal, 1200),
+		srcset: sanityImageSrcSet(study.images.principal, heroWidths),
+		sizes: '(max-width: 768px) 100vw, 1000px'
+	});
+	const secondary1Img = $derived({
+		src: sanityDefaultSrc(study.images.secondary1, 720),
+		srcset: sanityImageSrcSet(study.images.secondary1, secondaryWidths),
+		sizes: '(max-width: 768px) 100vw, 500px'
+	});
+	const secondary2Img = $derived({
+		src: sanityDefaultSrc(study.images.secondary2, 720),
+		srcset: sanityImageSrcSet(study.images.secondary2, secondaryWidths),
+		sizes: '(max-width: 768px) 100vw, 500px'
+	});
 </script>
 
 <div class="case-study-root">
@@ -43,7 +63,7 @@
 				<div class="dot green"></div>
 			</div>
 			<div class="window-content">
-				<img src={study.images.principal} alt={altMain} loading="eager" decoding="async" />
+				<img src={heroImg.src} srcset={heroImg.srcset} sizes={heroImg.sizes} alt={altMain} width="1200" height="675" loading="eager" decoding="async" />
 			</div>
 		</div>
 	</div>
@@ -80,7 +100,7 @@
 				<div class="dot green"></div>
 			</div>
 			<div class="window-content-static">
-				<img src={study.images.secondary1} alt={altSec(1)} loading="lazy" decoding="async" />
+				<img src={secondary1Img.src} srcset={secondary1Img.srcset} sizes={secondary1Img.sizes} alt={altSec(1)} width="1200" height="675" loading="lazy" decoding="async" />
 			</div>
 		</div>
 		<div class="window-mockup-small">
@@ -90,7 +110,7 @@
 				<div class="dot green"></div>
 			</div>
 			<div class="window-content-static">
-				<img src={study.images.secondary2} alt={altSec(2)} loading="lazy" decoding="async" />
+				<img src={secondary2Img.src} srcset={secondary2Img.srcset} sizes={secondary2Img.sizes} alt={altSec(2)} width="1200" height="675" loading="lazy" decoding="async" />
 			</div>
 		</div>
 	</div>

@@ -1,0 +1,4 @@
+Contact: mailto:info@moisesvalero.es
+Preferred-Languages: en, es
+Canonical: https://moisesvalero.es/.well-known/security.txt
+Expires: 2027-06-27T17:53:00.000Z

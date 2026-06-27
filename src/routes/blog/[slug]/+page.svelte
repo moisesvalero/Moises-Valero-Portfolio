@@ -3,6 +3,7 @@
 	import { env } from '$env/dynamic/public';
 	import JsonLdScript from '$lib/components/JsonLdScript.svelte';
 	import { stringifyJsonLdForHtml } from '$lib/json-ld-html.js';
+	import { sanityDefaultSrc, sanityImageSrcSet } from '$lib/sanity-image-url';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -11,6 +12,23 @@
 	const relatedArticles = $derived(
 		(data.relatedArticles ?? []).filter((item) => item.slug !== article.slug).slice(0, 3)
 	);
+
+	const coverWidths = [640, 800, 960, 1200, 1600] as const;
+	const relatedWidths = [320, 480, 640, 800] as const;
+
+	const coverImg = $derived({
+		src: sanityDefaultSrc(article.coverImageSrc, 1200),
+		srcset: sanityImageSrcSet(article.coverImageSrc, coverWidths),
+		sizes: '(max-width: 768px) 100vw, 940px'
+	});
+
+	function relatedImg(url: string) {
+		return {
+			src: sanityDefaultSrc(url, 640),
+			srcset: sanityImageSrcSet(url, relatedWidths),
+			sizes: '(max-width: 820px) 100vw, 33vw'
+		};
+	}
 	const baseUrl = new URL(env.PUBLIC_SITE_URL || 'https://moisesvalero.es')
 		.toString()
 		.replace(/\/$/, '');
@@ -151,7 +169,7 @@
 			aria-label="Abrir imagen destacada"
 			onclick={() => openLightbox(article.coverImageSrc, article.coverImageAlt)}
 		>
-			<img class="cover" src={article.coverImageSrc} alt={article.coverImageAlt} loading="eager" />
+			<img class="cover" src={coverImg.src} srcset={coverImg.srcset} sizes={coverImg.sizes} alt={article.coverImageAlt} loading="eager" width="940" height="440" />
 		</button>
 
 		<div class="article-layout">
@@ -168,10 +186,15 @@
 				</div>
 				<div class="related-grid">
 					{#each relatedArticles as related (related.slug)}
+						{@const rImg = relatedImg(related.coverImageSrc)}
 						<a href={resolve(`/blog/${related.slug}`)}>
 							<img
-								src={related.coverImageSrc}
+								src={rImg.src}
+								srcset={rImg.srcset}
+								sizes={rImg.sizes}
 								alt={related.coverImageAlt}
+								width="640"
+								height="360"
 								loading="lazy"
 								decoding="async"
 							/>
@@ -259,7 +282,7 @@
 			>
 				<span aria-hidden="true">x</span>
 			</button>
-			<img src={lightboxImage.src} alt={lightboxImage.alt} />
+			<img src={lightboxImage.src} alt={lightboxImage.alt} width="1200" height="675" />
 		</div>
 	</div>
 {/if}

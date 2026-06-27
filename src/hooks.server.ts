@@ -100,6 +100,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 		transformPageChunk: ({ html }) => html.replace('lang="%lang%"', `lang="${lang}"`)
 	});
 
+	response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+	response.headers.set('Cross-Origin-Embedder-Policy', 'unsafe-none');
+	response.headers.set('Cross-Origin-Resource-Policy', 'same-origin');
 	response.headers.set('X-Frame-Options', 'SAMEORIGIN');
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
