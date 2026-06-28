@@ -32,7 +32,7 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
-		"@sanity/cli": "^6.5.1",
+		"@sanity/cli": "^7.4.0",
 		"@sanity/orderable-document-list": "^2.0.4",
 		"@sveltejs/adapter-auto": "^7.0.1",
 		"@sveltejs/adapter-vercel": "^6.3.3",
