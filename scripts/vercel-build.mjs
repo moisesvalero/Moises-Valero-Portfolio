@@ -10,6 +10,8 @@ const studioEnv = {
 };
 
 if (projectId === ADMIN_PROJECT_ID) {
+	// Sanity 6.x carga tsconfig.json (extends "./.svelte-kit/tsconfig.json"); en builds limpios de Vercel ese archivo no existe.
+	execSync('pnpm exec svelte-kit sync', { stdio: 'inherit', env: studioEnv });
 	execSync('pnpm exec sanity build', { stdio: 'inherit', env: studioEnv });
 } else {
 	execSync('pnpm run build', { stdio: 'inherit' });
