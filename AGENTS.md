@@ -37,3 +37,22 @@ node scripts/capture-agentchecker-card.mjs
 ## Portada actual (4 proyectos)
 
 `fisionova` (hero) · `rebranding-galeria-nova` · `agentchecker` · `sideglass-dashboard` (spotlight). Detalle en la guía.
+
+## Mantenimiento periódico (seguridad)
+
+Cada cierto tiempo (o si el usuario se queja de vulnerabilidades al pushear), ejecuta:
+
+```bash
+pnpm audit --audit-level=high
+```
+
+Si hay **high** en dependencias **directas** → `pnpm update <pkg>`.
+
+Si hay **high** en dependencias **transitivas** (dentro de vercel, sanity, etc.) → añade overrides en `pnpm-workspace.yaml` solo si es seguro (mismo major version). Ejemplo:
+
+```yaml
+overrides:
+  minimatch: 10.2.4
+```
+
+Luego `pnpm install && pnpm run check && pnpm test`. Si pasa todo, commit + push con mensaje `chore: bump deps and override transitive vulns`.
