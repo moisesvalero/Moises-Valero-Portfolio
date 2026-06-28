@@ -1,6 +1,8 @@
 # Sanity — scripts y flujo para agentes
 
-Documentación de los scripts CLI en esta carpeta. **Léela antes** de crear case studies, tocar la portada o sembrar contenido en el CMS.
+Documentación de los scripts CLI en esta carpeta.
+
+**Guía general de continuidad (leer primero):** [docs/GUIA-AGENTES-CASE-STUDIES.md](../docs/GUIA-AGENTES-CASE-STUDIES.md) · [AGENTS.md](../AGENTS.md)
 
 ## Requisitos
 
@@ -86,6 +88,7 @@ Editar el array `FEATURED` en ese archivo si cambia la selección.
 |--------|-----------|
 | `patch-case-study-live-urls.ts` | Actualiza `liveUrl` de demos (subdominios moisesvalero.es) |
 | `patch-sideglass-home-image.ts` | Tarjeta portada Sideglass (`images.cardImagePath`) |
+| `patch-agentchecker-home-image.ts` | Tarjeta portada agentchecker (`images.cardImagePath`) |
 | `patch-home-featured-projects.ts` | **Portada:** 4 destacados + ocultar el resto (`showOnHome: false`) |
 | `patch-portfolio-site.ts` | Parche del singleton `portfolioSite` |
 | `patch-portfolio-copy-i18n-safe.ts` | Copy i18n del portfolio (`pnpm run sanity:patch-portfolio`) |
@@ -110,6 +113,7 @@ Editar el array `FEATURED` en ese archivo si cambia la selección.
 
 | Script | Propósito |
 |--------|-----------|
+| `scripts/capture-agentchecker-card.mjs` | Card 16:9 portada agentchecker (`agentcheck-rho.vercel.app`) |
 | `scripts/capture-web-analyzer-screenshots.mjs` | Capturas del **standalone** `web-analyzer-three.vercel.app` (no el del portfolio) |
 
 ---

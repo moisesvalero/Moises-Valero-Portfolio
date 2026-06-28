@@ -10,6 +10,16 @@ Portfolio profesional de [moisesvalero.es](https://moisesvalero.es), construido 
 - **Stack principal:** SvelteKit, Svelte 5, TypeScript, Sanity, Vercel
 - **Objetivo:** portfolio personal, landings SEO locales y casos de proyecto
 
+## Trabajo con agentes IA
+
+Si usas Cursor, Claude Code u otra herramienta para **añadir case studies desde GitHub** o gestionar la portada:
+
+| Documento | Contenido |
+|-----------|-----------|
+| **[AGENTS.md](AGENTS.md)** | Entrada rápida para cualquier agente |
+| **[docs/GUIA-AGENTES-CASE-STUDIES.md](docs/GUIA-AGENTES-CASE-STUDIES.md)** | Guía completa de continuidad (flujo, errores, proyectos ya cargados) |
+| **[sanity/README.md](sanity/README.md)** | Scripts CLI Sanity (`seed-*`, `patch-*`) |
+
 ## Qué demuestra este proyecto
 
 - Interfaz moderna con modo oscuro, animaciones, microinteracciones y diseño responsive.
@@ -66,6 +76,9 @@ sanity/
 static/
   fonts/                         # fuentes autoalojadas
   imagenes/                      # assets públicos del portfolio
+docs/
+  GUIA-AGENTES-CASE-STUDIES.md   # handoff agentes: GitHub → Sanity → portada
+AGENTS.md                        # índice rápido para agentes IA
 ```
 
 ## Desarrollo local

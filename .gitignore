@@ -35,3 +35,4 @@ vite.config.ts.timestamp-*
 
 # Local agent skills
 .agents/skills/impeccable/
+

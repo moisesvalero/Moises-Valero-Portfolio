@@ -1,16 +1,20 @@
 ---
-description: Scripts Sanity CMS, case studies y portada — leer sanity/README.md
-globs: sanity/**, static/imagenes/**, scripts/capture-*.mjs, src/routes/proyectos/**
+description: Case studies Sanity y portada — leer AGENTS.md y docs/GUIA-AGENTES-CASE-STUDIES.md
+globs: sanity/**, static/imagenes/**, scripts/capture-*.mjs, src/routes/proyectos/**, AGENTS.md, docs/GUIA-AGENTES-CASE-STUDIES.md
 alwaysApply: false
 ---
 
-# Sanity CMS — scripts y case studies
+# Case studies y portada (handoff agentes)
 
-Antes de crear o editar proyectos en Sanity, sembrar case studies o cambiar la portada:
+**Antes de tocar proyectos en Sanity o la home:**
 
-1. Lee **`sanity/README.md`** (inventario de scripts, flujo GitHub → CMS, portada 4 proyectos).
-2. Ejecuta scripts con `pnpm exec sanity exec sanity/<script>.ts --with-user-token` en WSL tras `sanity login`.
-3. Portada: máximo **4** (1 hero + 3 spotlight) → `sanity/patch-home-featured-projects.ts`.
-4. Nuevo proyecto desde repo: `sanity/seed-case-study-<slug>.ts` + imágenes en `static/imagenes/` + commit/push de assets.
+1. **[AGENTS.md](../../AGENTS.md)** — resumen y comandos frecuentes.
+2. **[docs/GUIA-AGENTES-CASE-STUDIES.md](../../docs/GUIA-AGENTES-CASE-STUDIES.md)** — flujo completo, errores conocidos, proyectos ya cargados, portada.
+3. **[sanity/README.md](../../sanity/README.md)** — inventario de scripts CLI.
 
-No inventes rutas de seed: usa los archivos listados en `sanity/README.md`.
+Reglas críticas:
+
+- WSL + `pnpm exec sanity exec … --with-user-token` tras `sanity login`.
+- Imágenes en `static/imagenes/` → **commit + push**; textos Sanity → no.
+- Portada: máx. **4** (1 hero + 3 spotlight); `images.cardImagePath` en **16:9** para tarjetas.
+- Web Analyzer: capturas de `web-analyzer-three.vercel.app`, no del analizador integrado en el portfolio.
