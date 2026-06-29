@@ -9,7 +9,7 @@ const PUBLISHED_AT = '2026-06-29T12:28:00.000Z';
 
 const TITLE = 'Astro 7.0: La Era de Rolldown y Builds Ultrarrápidos';
 
-const COVER_IMAGE_SRC = '/imagenes/astro-7-cover.png';
+const COVER_IMAGE_SRC = '/imagenes/blog-post-astro-7.H_MMnwV0_Z1ICDBv.webp';
 const COVER_IMAGE_ALT =
 	'Logotipo de Astro 7.0 con un número 7 en color degradado azul y morado sobre fondo oscuro.';
 
