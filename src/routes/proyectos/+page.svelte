@@ -86,9 +86,6 @@
 							<div class="card-copy">
 								<div class="card-topline">
 									<span>{project.homeEyebrow || project.tags[0] || 'Proyecto'}</span>
-									{#if project.homeYear}
-										<time>{project.homeYear}</time>
-									{/if}
 								</div>
 								<h2>{project.title}</h2>
 								<p>{project.homeProofLine || project.description}</p>
