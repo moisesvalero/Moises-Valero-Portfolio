@@ -89,8 +89,8 @@
 	}
 
 	function metaItemsFor(project: SiteProjectCard): string[] {
-		return [project.homeRole, project.homeYear, project.homeComplexity].filter(
-			(item): item is string => Boolean(item)
+		return [project.homeRole, project.homeComplexity].filter((item): item is string =>
+			Boolean(item)
 		);
 	}
 
@@ -190,7 +190,7 @@
 							<dl class="project-meta-strip">
 								{#each metaItemsFor(heroProject) as item, index (item)}
 									<div>
-										<dt>{index === 0 ? 'Rol' : index === 1 ? 'Año' : 'Complejidad'}</dt>
+										<dt>{index === 0 ? 'Rol' : 'Complejidad'}</dt>
 										<dd>{item}</dd>
 									</div>
 								{/each}
