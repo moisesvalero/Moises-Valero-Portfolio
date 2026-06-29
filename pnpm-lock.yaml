@@ -27,8 +27,8 @@ importers:
         specifier: ^5.2.45
         version: 5.2.45
       '@sanity/client':
-        specifier: ^7.22.0
-        version: 7.22.1
+        specifier: ^7.23.0
+        version: 7.23.0
       '@sanity/image-url':
         specifier: ^2.1.1
         version: 2.1.1
@@ -2860,10 +2860,6 @@ packages:
       babel-plugin-react-compiler:
         optional: true
 
-  '@sanity/client@7.22.1':
-    resolution: {integrity: sha512-DrQqLAes7W9Ek2iKgTZ+ffY1v3DURJ6//iXJZMEQSUeRbxls2ifRTdV1gRS26v8nMkL0OCH+WCoUUseD4vhuQQ==}
-    engines: {node: '>=20'}
-
   '@sanity/client@7.23.0':
     resolution: {integrity: sha512-4VFcLeP/lD0lhe5TD102tSnoW72ERT6xD/ZLb9pdLNMbZgbOciAy3m0hAYvs1vjA6663ZjNM6SLwl1Utq97DHA==}
     engines: {node: '>=20'}
@@ -4498,10 +4494,6 @@ packages:
     resolution: {integrity: sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==}
     engines: {node: '>= 0.4'}
 
-  get-it@8.7.3:
-    resolution: {integrity: sha512-Fcv6n05iKMY/obxWb7wL0T8xOiUN/5ptBlg/Vf2WAvfs175wAV7Qf+UtWKp7Jdneu+KbUe6MIL0js2WBzoAoyg==}
-    engines: {node: '>=14.0.0'}
-
   get-it@8.8.0:
     resolution: {integrity: sha512-vRyooMBzoIdEbARGT3JcvWqMD67YzC5SKlMqofyfck1ebLh2zzlpD4hVQ3xiuuiADk4jNs0rTezVlxCMqOlZfA==}
     engines: {node: '>=14.0.0'}
@@ -5328,8 +5320,8 @@ packages:
     resolution: {integrity: sha512-zoTNyBafxG0+F5PP3T3j1PKMr7gedriSdYRhLFLRFCz0OnQfQ6BkVk9peXVF30hz633Bw0Zh5McleOrXPjWYCQ==}
     engines: {node: '>=18'}
 
-  nanoid@3.3.12:
-    resolution: {integrity: sha512-ZB9RH/39qpq5Vu6Y+NmUaFhQR6pp+M2Xt76XBnEwDaGcVAqhlvxrl3B2bKS5D3NH3QR76v3aSrKaF/Kiy7lEtQ==}
+  nanoid@3.3.15:
+    resolution: {integrity: sha512-y7Wygv/7mEOvxTuEQDB8StXdMRBWf1kR/tlhAzBRUFkB2jfcLOAxO/SHmOO2zgz1pVgK29/kyupn059/bCHdjA==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
@@ -9537,18 +9529,11 @@ snapshots:
       - vue-tsc
       - xstate
 
-  '@sanity/client@7.22.1':
-    dependencies:
-      '@sanity/eventsource': 5.0.2
-      get-it: 8.7.3
-      nanoid: 3.3.12
-      rxjs: 7.8.2
-
   '@sanity/client@7.23.0':
     dependencies:
       '@sanity/eventsource': 5.0.2
       get-it: 8.8.0
-      nanoid: 3.3.12
+      nanoid: 3.3.15
       rxjs: 7.8.2
 
   '@sanity/codegen@7.0.3(@oclif/core@4.11.11)(@sanity/cli-core@2.1.1(@noble/hashes@2.2.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(esbuild@0.28.0)(yaml@2.9.0))(react@19.2.7)':
@@ -11665,13 +11650,6 @@ snapshots:
       hasown: 2.0.4
       math-intrinsics: 1.1.0
 
-  get-it@8.7.3:
-    dependencies:
-      decompress-response: 7.0.0
-      is-retry-allowed: 2.2.0
-      through2: 4.0.2
-      tunnel-agent: 0.6.0
-
   get-it@8.8.0:
     dependencies:
       decompress-response: 7.0.0
@@ -12411,7 +12389,7 @@ snapshots:
 
   nano-pubsub@3.0.0: {}
 
-  nanoid@3.3.12: {}
+  nanoid@3.3.15: {}
 
   nanoid@5.1.16: {}
 
@@ -12736,7 +12714,7 @@ snapshots:
 
   postcss@8.5.15:
     dependencies:
-      nanoid: 3.3.12
+      nanoid: 3.3.15
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
