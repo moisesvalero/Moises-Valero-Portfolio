@@ -2,7 +2,10 @@
 
 Documentación de los scripts CLI en esta carpeta.
 
-**Guía general de continuidad (leer primero):** [docs/GUIA-AGENTES-CASE-STUDIES.md](../docs/GUIA-AGENTES-CASE-STUDIES.md) · [AGENTS.md](../AGENTS.md)
+**Guías generales de continuidad (leer primero):**
+- [docs/GUIA-AGENTES-CASE-STUDIES.md](../docs/GUIA-AGENTES-CASE-STUDIES.md) — repos GitHub → case study.
+- [docs/GUIA-AGENTES-BLOG.md](../docs/GUIA-AGENTES-BLOG.md) — tema + imagen → artículo del blog.
+- [AGENTS.md](../AGENTS.md)
 
 ## Requisitos
 
@@ -82,6 +85,14 @@ Editar el array `FEATURED` en ese archivo si cambia la selección.
 | `seed-existing-project-pages.ts` | Migración inicial: vshield, ember-iron, galeria-nova, chatbot |
 | `seed-initial-content.ts` | Documento singleton `portfolioSite` y contenido base |
 
+### Blog / artículos (seed)
+
+| Script | Propósito |
+|--------|-----------|
+| `seed-landing-support-article-TEMPLATE.ts` | **Plantilla** — copiar como `seed-landing-support-article-<slug>.ts` y rellenar |
+
+> Para crear un artículo nuevo, sigue [docs/GUIA-AGENTES-BLOG.md](../docs/GUIA-AGENTES-BLOG.md).
+
 ### Portada y sitio
 
 | Script | Propósito |
@@ -132,6 +143,7 @@ Editar el array `FEATURED` en ese archivo si cambia la selección.
 ## Esquema relevante
 
 - `sanity/schemaTypes/caseStudy.ts` — plantilla `/proyectos/[slug]`
+- `sanity/schemaTypes/landingSupportArticle.ts` — artículos `/blog/[slug]`
 - `sanity/schemaTypes/portfolioSite.ts` — textos de home y `maxHomeProjects` (default 4)
 - Mapeo front: `src/lib/server/sanity/map-sanity-case-study.ts`, `map-site-portfolio.ts`
 
@@ -144,3 +156,10 @@ Editar el array `FEATURED` en ese archivo si cambia la selección.
 - `repoUrl` y `liveUrl` cuando existan.
 - Portada/archivo: `images.cardImagePath` (ruta) o `images.cardImage` (asset Sanity); si vacío, `images.principal`.
 - `checklistPublicacion` en `true` al publicar.
+
+## Convenciones al redactar artículos del blog
+
+- Solo ES. Si en el futuro quieres EN, duplicar campos en `landingSupportArticle`.
+- `bodyHtml` con HTML simple (`<h2>`, `<h3>`, `<p>`, `<ul>`, `<strong>`, `<blockquote>`, `<pre>`). Mínimo 300 chars.
+- Portada en `static/imagenes/<slug>-cover.png` (16:9) y `coverImageSrc` apuntando a esa ruta.
+- `showOnBlog: true` solo si debe salir en "Guías recomendadas" en `/blog`; `featuredOrder` menor sale antes.

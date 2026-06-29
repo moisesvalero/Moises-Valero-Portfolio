@@ -5,11 +5,12 @@ Instrucciones para **agentes de IA** que trabajen en este repo (Cursor, Claude C
 ## Lee primero
 
 1. **[docs/GUIA-AGENTES-CASE-STUDIES.md](docs/GUIA-AGENTES-CASE-STUDIES.md)** — flujo completo: repos GitHub → Sanity → imágenes → portada. **Documento principal de continuidad.**
-2. **[sanity/README.md](sanity/README.md)** — inventario de scripts `seed-*` / `patch-*` y comandos CLI.
+2. **[docs/GUIA-AGENTES-BLOG.md](docs/GUIA-AGENTES-BLOG.md)** — flujo para artículos del blog (`/blog/[slug]`): tema + imagen → Sanity → portada recomendada.
+3. **[sanity/README.md](sanity/README.md)** — inventario de scripts `seed-*` / `patch-*` y comandos CLI.
 
 ## Contexto en una frase
 
-Portfolio SvelteKit + Sanity; el usuario añade **case studies** desde repos GitHub; tú redactas, subes a Sanity, capturas imágenes y haces commit de `static/imagenes/`.
+Portfolio SvelteKit + Sanity; el usuario añade **case studies** desde repos GitHub y **artículos de blog** con un tema e imagen adjunta; tú redactas, subes a Sanity, dejas imágenes en `static/imagenes/` y haces commit + push.
 
 ## Comandos que usarás a menudo
 
@@ -18,6 +19,7 @@ Portfolio SvelteKit + Sanity; el usuario añade **case studies** desde repos Git
 pnpm exec sanity login
 pnpm exec sanity exec sanity/check-auth.ts --with-user-token
 pnpm exec sanity exec sanity/seed-case-study-<slug>.ts --with-user-token
+pnpm exec sanity exec sanity/seed-landing-support-article-<slug>.ts --with-user-token
 pnpm exec sanity exec sanity/patch-home-featured-projects.ts --with-user-token
 node scripts/capture-web-analyzer-screenshots.mjs   # solo Web Analyzer standalone
 node scripts/capture-agentchecker-card.mjs
