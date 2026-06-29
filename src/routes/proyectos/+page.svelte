@@ -6,7 +6,13 @@
 	let { data }: { data: PageData } = $props();
 
 	const resolvePath = resolve as unknown as (href: string) => string;
-	const projects = $derived(data.projects ?? []);
+	const projects = $derived(
+		(data.projects ?? []).toSorted((a, b) => {
+			const dateA = a.createdAt ?? '';
+			const dateB = b.createdAt ?? '';
+			return dateB.localeCompare(dateA);
+		})
+	);
 	const baseUrl = $derived(
 		(data.canonicalUrl ?? 'https://moisesvalero.es/proyectos').replace(/\/$/, '')
 	);

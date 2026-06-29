@@ -401,7 +401,8 @@ export function mapProject(
 		homeValueTags,
 		homeRole: pickLocalized(o.homeRole, ctx.locale, ''),
 		homeYear: asStringOpt(o.homeYear),
-		homeComplexity: asStringOpt(o.homeComplexity)
+		homeComplexity: asStringOpt(o.homeComplexity),
+		createdAt: asStringOpt(o._createdAt)
 	};
 }
 

@@ -24,6 +24,7 @@ const projectArchiveQuery = `*[
     "es": coalesce(heroDescription, seoDescription, ""),
     "en": coalesce(heroDescriptionEn, seoDescriptionEn, "")
   },
+  _createdAt,
   "homeLayoutTier": coalesce(homeLayoutTier, "standard"),
   homeEyebrow,
   homeProofLine,

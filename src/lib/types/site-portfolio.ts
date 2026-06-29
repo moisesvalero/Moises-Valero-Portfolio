@@ -103,6 +103,8 @@ export type SiteProjectCard = {
 	homeRole?: string;
 	homeYear?: string;
 	homeComplexity?: string;
+	/** Fecha de creación en Sanity para ordenación exacta. */
+	createdAt?: string;
 };
 
 export type SiteProjectsSection = {
