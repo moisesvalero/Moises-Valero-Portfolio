@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { enqueueAnalyzeJob } from '$lib/server/web-audit-analyzer';
+import { getRedisClient } from '$lib/server/redis';
 import type { RequestHandler } from './$types';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -93,31 +94,75 @@ export const POST: RequestHandler = async ({ request, url, getClientAddress }) =
 
 	const requesterIp = getClientAddress();
 	const now = Date.now();
-	const hourlyLimit = Math.max(1, Number(env.WEB_AUDIT_RATE_LIMIT_PER_HOUR || 15));
-	const currentHits = (ipHits.get(requesterIp) || []).filter(
-		(at) => now - at < RATE_LIMIT_WINDOW_MS
-	);
-	if (currentHits.length >= hourlyLimit) {
-		return json(
-			{
-				ok: false,
-				error: 'Has superado el limite de analisis por hora. Prueba de nuevo en un rato.'
-			},
-			{ status: 429 }
-		);
-	}
-	currentHits.push(now);
-	ipHits.set(requesterIp, currentHits);
-	saveLimits();
-
 	const dayKey = new Date(now).toISOString().slice(0, 10);
+	const hourlyLimit = Math.max(1, Number(env.WEB_AUDIT_RATE_LIMIT_PER_HOUR || 15));
 	const maxCallsPerDay = Math.max(1, Number(env.WEB_AUDIT_MAX_CALLS_PER_DAY || 250));
-	const todayCalls = dailyBudget.get(dayKey) || 0;
-	if (todayCalls >= maxCallsPerDay) {
-		return json(
-			{ ok: false, error: 'El analizador ha alcanzado su cupo diario. Prueba de nuevo manana.' },
-			{ status: 429 }
+
+	const redis = getRedisClient();
+	let usingRedis = false;
+
+	if (redis) {
+		try {
+			// Límite por IP en Redis (1 hora TTL)
+			const ipHitsKey = `ratelimit:ip:${requesterIp}`;
+			const ipHitsCount = await redis.incrWithTtl(ipHitsKey, 3600);
+			if (ipHitsCount > hourlyLimit) {
+				return json(
+					{
+						ok: false,
+						error: 'Has superado el limite de analisis por hora. Prueba de nuevo en un rato.'
+					},
+					{ status: 429 }
+				);
+			}
+
+			// Límite global por día en Redis (24 horas TTL)
+			const dailyKey = `ratelimit:daily:${dayKey}`;
+			const todayCallsCount = await redis.incrWithTtl(dailyKey, 86400);
+			if (todayCallsCount > maxCallsPerDay) {
+				return json(
+					{
+						ok: false,
+						error: 'El analizador ha alcanzado su cupo diario. Prueba de nuevo manana.'
+					},
+					{ status: 429 }
+				);
+			}
+			usingRedis = true;
+		} catch (error) {
+			console.error(
+				'[Analyze API] Redis rate limit check failed, falling back to local limit:',
+				error
+			);
+		}
+	}
+
+	let localTodayCalls = 0;
+
+	if (!usingRedis) {
+		const currentHits = (ipHits.get(requesterIp) || []).filter(
+			(at) => now - at < RATE_LIMIT_WINDOW_MS
 		);
+		if (currentHits.length >= hourlyLimit) {
+			return json(
+				{
+					ok: false,
+					error: 'Has superado el limite de analisis por hora. Prueba de nuevo en un rato.'
+				},
+				{ status: 429 }
+			);
+		}
+		currentHits.push(now);
+		ipHits.set(requesterIp, currentHits);
+		saveLimits();
+
+		localTodayCalls = dailyBudget.get(dayKey) || 0;
+		if (localTodayCalls >= maxCallsPerDay) {
+			return json(
+				{ ok: false, error: 'El analizador ha alcanzado su cupo diario. Prueba de nuevo manana.' },
+				{ status: 429 }
+			);
+		}
 	}
 
 	const queued = await enqueueAnalyzeJob(inputUrl, strategy);
@@ -125,8 +170,10 @@ export const POST: RequestHandler = async ({ request, url, getClientAddress }) =
 		return json({ ok: false, error: queued.error }, { status: queued.statusCode });
 	}
 	if (queued.status === 'completed') {
-		dailyBudget.set(dayKey, todayCalls + 1);
-		saveLimits();
+		if (!usingRedis) {
+			dailyBudget.set(dayKey, localTodayCalls + 1);
+			saveLimits();
+		}
 		return json(queued.result);
 	}
 	return json({

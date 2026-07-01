@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
 import { enrichIssue, type AuditIssue } from './web-delivery-auditor.ts';
+import { isPrivateOrLocalResource } from './ip-validator.ts';
 
 export type VisualAuditSignals = {
 	visualAuditAvailable: boolean;
@@ -58,95 +59,6 @@ const VIEWPORTS = [
 	{ label: 'movil', width: 390, height: 844, isMobile: true },
 	{ label: 'desktop', width: 1440, height: 900, isMobile: false }
 ];
-
-function parseIpAddress(host: string): string | null {
-	const cleanHost = host.replace(/^\[|\]$/g, '').trim().toLowerCase();
-
-	if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(cleanHost)) {
-		return cleanHost;
-	}
-
-	if (/^(0x[0-9a-f]+|\d+)$/i.test(cleanHost)) {
-		try {
-			const val = cleanHost.startsWith('0x')
-				? parseInt(cleanHost, 16)
-				: parseInt(cleanHost, cleanHost.startsWith('0') && cleanHost.length > 1 ? 8 : 10);
-			if (Number.isFinite(val) && val >= 0 && val <= 0xffffffff) {
-				const a = (val >>> 24) & 0xff;
-				const b = (val >>> 16) & 0xff;
-				const c = (val >>> 8) & 0xff;
-				const d = val & 0xff;
-				return `${a}.${b}.${c}.${d}`;
-			}
-		} catch {
-			// ignore parsing error
-		}
-	}
-
-	const parts = cleanHost.split('.');
-	if (parts.length === 4) {
-		try {
-			const decoded = parts.map((part) => {
-				if (part.startsWith('0x') || part.startsWith('0X')) {
-					return parseInt(part, 16);
-				}
-				if (part.startsWith('0') && part.length > 1) {
-					return parseInt(part, 8);
-				}
-				return parseInt(part, 10);
-			});
-			if (decoded.every((val) => Number.isFinite(val) && val >= 0 && val <= 255)) {
-				return decoded.join('.');
-			}
-		} catch {
-			// ignore
-		}
-	}
-
-	return null;
-}
-
-export function isPrivateOrLocalResource(rawUrl: string): boolean {
-	try {
-		const parsed = new URL(rawUrl);
-		if (!['http:', 'https:'].includes(parsed.protocol)) return true;
-		const hostname = parsed.hostname.replace(/^\[|\]$/g, '').toLowerCase();
-		if (
-			hostname === 'localhost' ||
-			hostname.endsWith('.localhost') ||
-			hostname.endsWith('.local') ||
-			hostname.endsWith('.internal') ||
-			hostname.endsWith('.lan')
-		) {
-			return true;
-		}
-
-		const normalizedIp = parseIpAddress(hostname);
-		const ipToCheck = normalizedIp || hostname;
-
-		const parts = ipToCheck.split('.').map((part) => Number(part));
-		if (parts.length === 4 && parts.every((part) => Number.isInteger(part))) {
-			const [a, b] = parts;
-			return (
-				a === 0 ||
-				a === 10 ||
-				a === 127 ||
-				(a === 169 && b === 254) ||
-				(a === 172 && b >= 16 && b <= 31) ||
-				(a === 192 && b === 168) ||
-				a >= 224
-			);
-		}
-		return (
-			ipToCheck === '::1' ||
-			ipToCheck.startsWith('fc') ||
-			ipToCheck.startsWith('fd') ||
-			ipToCheck.startsWith('fe80:')
-		);
-	} catch {
-		return true;
-	}
-}
 
 function visualIssue(
 	id: string,
@@ -568,3 +480,5 @@ export async function auditVisualWebsite(
 export function visualAuditUnavailableSignals(reason: string): VisualAuditSignals {
 	return { ...DEFAULT_SIGNALS, visualAuditReason: reason };
 }
+
+export { isPrivateOrLocalResource } from './ip-validator.ts';

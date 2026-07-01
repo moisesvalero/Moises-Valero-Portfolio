@@ -1,5 +1,7 @@
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
+import { parse, HTMLElement } from 'node-html-parser';
+import { isPrivateIp, isAllowedPublicAuditUrl } from './ip-validator.ts';
 import {
 	auditVisualWebsite,
 	visualAuditUnavailableSignals,
@@ -100,24 +102,6 @@ const CATEGORY_LABELS: Record<AuditCategoryId, string> = {
 	trust: 'Claridad y confianza',
 	delivery: 'Entrega'
 };
-
-const BLOCKED_PORTS = new Set([
-	'20',
-	'21',
-	'22',
-	'23',
-	'25',
-	'53',
-	'110',
-	'143',
-	'3306',
-	'5432',
-	'6379',
-	'8000',
-	'8080',
-	'9200',
-	'27017'
-]);
 
 const SUSPICIOUS_HOST_PATTERNS = [
 	/\bcasino\b/i,
@@ -306,50 +290,6 @@ export function enrichIssue(base: AuditIssue): AuditIssue {
 
 function cleanHeader(value: string | null): string {
 	return value?.trim() ?? '';
-}
-
-function isPrivateIp(ip: string): boolean {
-	if (ip === '::1') return true;
-	if (ip.startsWith('fc') || ip.startsWith('fd') || ip.startsWith('fe80:')) return true;
-	if (ip.startsWith('::ffff:')) return isPrivateIp(ip.slice(7));
-	const parts = ip.split('.').map((part) => Number(part));
-	if (parts.length !== 4 || parts.some((part) => !Number.isFinite(part))) return false;
-	const [a, b] = parts;
-	return (
-		a === 0 ||
-		a === 10 ||
-		a === 127 ||
-		(a === 169 && b === 254) ||
-		(a === 172 && b >= 16 && b <= 31) ||
-		(a === 192 && b === 168) ||
-		a >= 224
-	);
-}
-
-function hostnameLooksLocal(hostname: string): boolean {
-	const host = hostname.toLowerCase();
-	return (
-		host === 'localhost' ||
-		host.endsWith('.localhost') ||
-		host.endsWith('.local') ||
-		host.endsWith('.internal') ||
-		host.endsWith('.lan')
-	);
-}
-
-export function isAllowedPublicAuditUrl(input: string): boolean {
-	try {
-		const parsed = new URL(input);
-		if (!['http:', 'https:'].includes(parsed.protocol)) return false;
-		if (parsed.username || parsed.password) return false;
-		if (parsed.port && BLOCKED_PORTS.has(parsed.port)) return false;
-		const hostname = parsed.hostname.replace(/^\[|\]$/g, '');
-		if (hostnameLooksLocal(hostname)) return false;
-		if (isIP(hostname) && isPrivateIp(hostname)) return false;
-		return true;
-	} catch {
-		return false;
-	}
 }
 
 async function assertPublicNetworkTarget(url: URL) {
@@ -841,58 +781,88 @@ function decodeHtmlText(value: string): string {
 }
 
 function getTags(html: string, tagName: string): string[] {
-	const matches = html.match(
-		new RegExp(`<${tagName}\\b[^>]*(?:>[\\s\\S]*?<\\/${tagName}>|\\/?>)`, 'gi')
-	);
-	return matches ?? [];
+	try {
+		const root = parse(html);
+		return root.querySelectorAll(tagName).map((el) => el.outerHTML);
+	} catch {
+		return [];
+	}
 }
 
 function getAttr(tag: string, name: string): string {
-	const escaped = name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-	const match =
-		tag.match(new RegExp(`\\s${escaped}\\s*=\\s*(["'])(.*?)\\1`, 'i')) ??
-		tag.match(new RegExp(`\\s${escaped}\\s*=\\s*([^\\s>]+)`, 'i'));
-	return (match?.[2] ?? match?.[1] ?? '').trim();
+	try {
+		const root = parse(tag);
+		const element = root.firstChild;
+		if (element instanceof HTMLElement) {
+			return (element.getAttribute(name) ?? '').trim();
+		}
+		return '';
+	} catch {
+		return '';
+	}
 }
 
 function tagHasAttr(tag: string, name: string): boolean {
-	return new RegExp(
-		`\\s${name.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}(?:\\s*=|\\s|>|/)`,
-		'i'
-	).test(tag);
+	try {
+		const root = parse(tag);
+		const element = root.firstChild;
+		if (element instanceof HTMLElement) {
+			return element.hasAttribute(name);
+		}
+		return false;
+	} catch {
+		return false;
+	}
 }
 
 function tagText(html: string, tagName: string): string {
-	const match = html.match(new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i'));
-	return match?.[1] ? decodeHtmlText(match[1]) : '';
+	try {
+		const root = parse(html);
+		const element = root.querySelector(tagName);
+		return element ? decodeHtmlText(element.textContent || '') : '';
+	} catch {
+		return '';
+	}
 }
 
 function allText(html: string): string {
-	return decodeHtmlText(
-		html
-			.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
-			.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
-			.replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript>/gi, ' ')
-	);
+	try {
+		const root = parse(html);
+		root.querySelectorAll('script, style, noscript').forEach((el) => el.remove());
+		return decodeHtmlText(root.textContent || '');
+	} catch {
+		return '';
+	}
 }
 
 function metaContent(html: string, key: 'name' | 'property', value: string): string {
-	const tag = getTags(html, 'meta').find(
-		(item) => getAttr(item, key).toLowerCase() === value.toLowerCase()
-	);
-	return tag ? getAttr(tag, 'content') : '';
+	try {
+		const root = parse(html);
+		const meta = root.querySelector(`meta[${key}="${value}" i]`);
+		return meta ? (meta.getAttribute('content') ?? '') : '';
+	} catch {
+		return '';
+	}
 }
 
 function canonicalHref(html: string): string {
-	const tag = getTags(html, 'link').find((item) => /\bcanonical\b/i.test(getAttr(item, 'rel')));
-	return tag ? getAttr(tag, 'href') : '';
+	try {
+		const root = parse(html);
+		const link = root.querySelector('link[rel="canonical" i]');
+		return link ? (link.getAttribute('href') ?? '') : '';
+	} catch {
+		return '';
+	}
 }
 
 function scriptBody(scriptTag: string): string {
-	return scriptTag
-		.replace(/^<script\b[^>]*>/i, '')
-		.replace(/<\/script>$/i, '')
-		.trim();
+	try {
+		const root = parse(scriptTag);
+		const element = root.querySelector('script');
+		return element ? (element.textContent || '').trim() : '';
+	} catch {
+		return '';
+	}
 }
 
 function isLikelyExternalUrl(value: string, base: URL): boolean {
@@ -957,18 +927,38 @@ function detectTechnologies(snapshot: FetchSnapshot): string[] {
 	const tags = [...getTags(html, 'script'), ...getTags(html, 'link')];
 	const urls = tags.map(assetUrlFromTag).join(' ');
 	const technologies = [
-		(/wordpress/i.test(generator) || /\/wp-content\/|\/wp-includes\//i.test(urls) || detectWordPress(html)) ? 'WordPress' : '',
-		(/\/plugins\/woocommerce\/|class="[^"]*\bwoocommerce\b/i.test(urls + html)) ? 'WooCommerce' : '',
-		(/\/plugins\/elementor\/|class="[^"]*\belementor\b|id="[^"]*\belementor\b|data-elementor/i.test(urls + html)) ? 'Elementor' : '',
+		/wordpress/i.test(generator) ||
+		/\/wp-content\/|\/wp-includes\//i.test(urls) ||
+		detectWordPress(html)
+			? 'WordPress'
+			: '',
+		/\/plugins\/woocommerce\/|class="[^"]*\bwoocommerce\b/i.test(urls + html) ? 'WooCommerce' : '',
+		/\/plugins\/elementor\/|class="[^"]*\belementor\b|id="[^"]*\belementor\b|data-elementor/i.test(
+			urls + html
+		)
+			? 'Elementor'
+			: '',
 		/wp-content\/themes\/kadence/i.test(urls) ? 'Kadence' : '',
-		(/_app\/immutable|svelte-announcer|id="svelte"|svelte-kit/i.test(urls + html)) ? 'SvelteKit' : '',
-		(/_next\/static|__next|__NEXT_DATA__/i.test(urls + html)) ? 'Next.js' : '',
-		(/cdn\.shopify\.com|shopify-pay/i.test(urls + html) || /shopify/i.test(urls) || /Shopify\.(shop|theme)/.test(html)) ? 'Shopify' : '',
-		(/data-wf-page|data-wf-site|w-layout-grid/i.test(html) || /webflow/i.test(generator)) ? 'Webflow' : '',
-		(/wixstatic\.com|wix\.com/i.test(urls) || /wixEmbeds|wix-config/i.test(html)) ? 'Wix' : '',
-		(/squarespace\.com/i.test(urls) || /Static\.SQUARESPACE_CONTEXT/i.test(html)) ? 'Squarespace' : '',
-		(/joomla/i.test(generator) || /\/media\/system\/js\//i.test(urls)) ? 'Joomla' : '',
-		(/drupal/i.test(generator) || /\/sites\/default\/files\/|\/core\/modules\//i.test(urls) || /data-drupal-/i.test(html)) ? 'Drupal' : '',
+		/_app\/immutable|svelte-announcer|id="svelte"|svelte-kit/i.test(urls + html) ? 'SvelteKit' : '',
+		/_next\/static|__next|__NEXT_DATA__/i.test(urls + html) ? 'Next.js' : '',
+		/cdn\.shopify\.com|shopify-pay/i.test(urls + html) ||
+		/shopify/i.test(urls) ||
+		/Shopify\.(shop|theme)/.test(html)
+			? 'Shopify'
+			: '',
+		/data-wf-page|data-wf-site|w-layout-grid/i.test(html) || /webflow/i.test(generator)
+			? 'Webflow'
+			: '',
+		/wixstatic\.com|wix\.com/i.test(urls) || /wixEmbeds|wix-config/i.test(html) ? 'Wix' : '',
+		/squarespace\.com/i.test(urls) || /Static\.SQUARESPACE_CONTEXT/i.test(html)
+			? 'Squarespace'
+			: '',
+		/joomla/i.test(generator) || /\/media\/system\/js\//i.test(urls) ? 'Joomla' : '',
+		/drupal/i.test(generator) ||
+		/\/sites\/default\/files\/|\/core\/modules\//i.test(urls) ||
+		/data-drupal-/i.test(html)
+			? 'Drupal'
+			: '',
 		poweredBy ? `X-Powered-By: ${poweredBy}` : '',
 		server ? `Server: ${server}` : ''
 	];
@@ -3371,3 +3361,5 @@ export async function auditPublicWebsite(
 		}
 	};
 }
+
+export { isAllowedPublicAuditUrl } from './ip-validator.ts';
