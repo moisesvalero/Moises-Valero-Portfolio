@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
+import { getRedisClient } from './redis';
 import { randomUUID } from 'node:crypto';
 import {
 	auditPublicWebsite,
@@ -347,12 +348,32 @@ async function processJob(jobId: string) {
 
 	try {
 		const result = await runAnalyzeWithCoalescing(job.cacheKey, job.requestedUrl, job.strategy);
+
+		const redis = getRedisClient();
+		if (redis) {
+			try {
+				await redis.setCache(job.cacheKey, result, CACHE_TTL_MS);
+			} catch (error) {
+				console.error('[Analyzer] Redis setCache failed:', error);
+			}
+		}
+
 		registerCache(job.cacheKey, result, Date.now());
 		job.status = 'completed';
 		job.result = result;
 		job.updatedAt = Date.now();
 	} catch {
-		const stale = getStaleCachedResponse(job.cacheKey, Date.now());
+		let stale: AnalyzerResponse | null = null;
+		const redis = getRedisClient();
+		if (redis) {
+			try {
+				stale = await redis.getCache<AnalyzerResponse>(job.cacheKey);
+			} catch (error) {
+				console.error('[Analyzer] Redis getCache for stale failed:', error);
+			}
+		}
+		stale ??= getStaleCachedResponse(job.cacheKey, Date.now());
+
 		if (stale) {
 			job.status = 'completed';
 			job.result = stale;
@@ -384,6 +405,23 @@ export async function enqueueAnalyzeJob(inputUrl: string, inputStrategy: unknown
 	const strategy = normalizeStrategy(inputStrategy);
 	const now = Date.now();
 	const cacheKey = cacheKeyFor(normalizedUrl, strategy);
+
+	const redis = getRedisClient();
+	if (redis) {
+		try {
+			const cachedRedis = await redis.getCache<AnalyzerResponse>(cacheKey);
+			if (cachedRedis) {
+				return {
+					ok: true as const,
+					status: 'completed' as const,
+					result: { ...cachedRedis, cached: true }
+				};
+			}
+		} catch (error) {
+			console.error('[Analyzer] Redis getCache failed:', error);
+		}
+	}
+
 	const cached = getCachedResponse(cacheKey, now);
 	if (cached) {
 		return { ok: true as const, status: 'completed' as const, result: cached };

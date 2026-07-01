@@ -9,3 +9,13 @@ overrides:
   ws: 8.21.0
   form-data: 4.0.6
   tar: 7.5.11
+  '@module-federation/dts-plugin>undici': 7.28.0
+  '@actions/http-client>undici': 6.27.0
+  'vercel>undici': 6.27.0
+  '@vercel/node>undici': 6.27.0
+  '@vercel/node>path-to-regexp': 6.3.0
+  '@vercel/backends>path-to-regexp': 8.4.0
+  '@vercel/fun>path-to-regexp': 8.4.0
+  '@vercel/remix-builder>path-to-regexp': 6.3.0
+  '@vercel/express>path-to-regexp': 8.4.0
+  '@vercel/hono>path-to-regexp': 8.4.0
