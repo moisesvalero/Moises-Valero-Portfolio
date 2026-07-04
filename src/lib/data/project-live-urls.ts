@@ -13,7 +13,7 @@ export const projectLiveUrls = {
 	galeriaNovaV2: 'https://galerianova.es',
 	soporteIt: 'https://soporte.moisesvalero.es',
 	sideglass: 'https://sideglass.moisesvalero.es',
-	webAnalyzer: 'https://analyzer.moisesvalero.es',
+	webAnalyzer: 'https://syrax-analyzer.moisesvalero.es',
 	agentChecker: 'https://agentcheck.moisesvalero.es',
 	scanit: 'https://scanit.moisesvalero.es',
 	cvGenerator: 'https://cv.moisesvalero.es',

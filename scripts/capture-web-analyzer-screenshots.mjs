@@ -3,7 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 /** App standalone del repo https://github.com/moisesvalero/web-analyzer */
-const BASE_URL = process.env.ANALYZER_URL ?? 'https://web-analyzer-three.vercel.app';
+const BASE_URL = process.env.ANALYZER_URL ?? 'https://syrax-analyzer.moisesvalero.es';
 const OUT_DIR = resolve('static/imagenes');
 
 const CHROME_CANDIDATES = [
@@ -33,14 +33,14 @@ async function launchBrowser() {
 }
 
 async function waitForDashboard(page) {
-	await page.getByText('WEB INTEGRITY AUDIT', { exact: false }).waitFor({
+	await page.locator('input[type="url"]').waitFor({
 		timeout: 60_000
 	});
 }
 
 async function runDemoAudit(page) {
 	await page.getByRole('button', { name: 'moisesvalero.es', exact: true }).click();
-	await page.getByText('RESULTADOS TÉCNICOS', { exact: false }).waitFor({
+	await page.locator('text=/Resultados del análisis|Audit results|RESULTADOS TÉCNICOS/i').first().waitFor({
 		timeout: 180_000
 	});
 	await page.waitForTimeout(1200);

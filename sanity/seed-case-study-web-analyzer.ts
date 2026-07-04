@@ -13,36 +13,38 @@ async function main() {
 		estadoInterno: 'listo',
 		showOnHome: false,
 		homeSortOrder: 15,
-		title: 'Web Analyzer',
-		titleEn: 'Web Analyzer',
+		title: 'Syrax Analyzer',
+		titleEn: 'Syrax Analyzer',
 		slug: { _type: 'slug', current: 'web-analyzer' },
 		seoDescription:
-			'Web Analyzer: auditoría web con SvelteKit y Playwright — SEO, seguridad HTTP, WCAG, cookies, CMS y prompts de reparación con IA. Anti-SSRF, rate limiting y despliegue en Vercel.',
+			'Syrax Analyzer: plataforma SaaS de auditoría web técnica con SvelteKit, Supabase y Stripe. Core Web Vitals, cabeceras de seguridad, accesibilidad WCAG, SEO técnico, AEO/GEO y prompts de reparación con IA.',
 		seoDescriptionEn:
-			'Web Analyzer: SvelteKit + Playwright web audit tool for SEO, HTTP security, WCAG, cookies, CMS fingerprinting, and AI repair prompts. Anti-SSRF, rate limiting, and Vercel deployment.',
-		heroTag: 'Proyecto personal · Herramienta SaaS-lite',
-		heroTagEn: 'Personal project · SaaS-lite tool',
+			'Syrax Analyzer: SaaS technical web audit platform built with SvelteKit, Supabase, and Stripe. Audits Core Web Vitals, security headers, WCAG accessibility, technical SEO, AEO/GEO, and provides AI repair prompts.',
+		heroTag: 'Proyecto personal · Plataforma SaaS comercial',
+		heroTagEn: 'Personal project · Commercial SaaS platform',
 		heroDescription:
-			'Consola de auditoría web con estética de laboratorio técnico: más de 30 comprobaciones en 10 bloques (SEO/AEO, cabeceras, accesibilidad, cookies, CMS, consola JS y viewports) con informe accionable y prompts listos para copiar a tu agente de IA.',
+			'Plataforma SaaS de auditoría técnica integral para páginas web. Analiza más de 120 factores en 10 categorías críticas (SEO/AEO, accesibilidad WCAG, privacidad RGPD, seguridad HTTP y velocidad) con informes visuales y prompts de corrección listos para usar en tus agentes de IA.',
 		heroDescriptionEn:
-			'A technical lab-style web audit console: 30+ checks across 10 sections (SEO/AEO, headers, accessibility, cookies, CMS, JS console, and viewports) with actionable reports and copy-ready prompts for your AI agent.',
+			'A comprehensive technical web audit SaaS platform. Scans 120+ checks across 10 critical categories (SEO/AEO, WCAG accessibility, GDPR privacy, HTTP security, and speed) with visual reports and copy-ready fix prompts for your AI agents.',
 		tags: [
 			'SvelteKit',
 			'Svelte 5',
 			'TypeScript',
-			'Playwright',
-			'SEO',
-			'WCAG',
-			'Vercel'
+			'Tailwind CSS v4',
+			'Supabase',
+			'Stripe',
+			'Upstash Redis',
+			'Playwright'
 		],
 		tagsEn: [
 			'SvelteKit',
 			'Svelte 5',
 			'TypeScript',
-			'Playwright',
-			'SEO',
-			'WCAG',
-			'Vercel'
+			'Tailwind CSS v4',
+			'Supabase',
+			'Stripe',
+			'Upstash Redis',
+			'Playwright'
 		],
 		images: {
 			principal: '/imagenes/web-analyzer-home.png',
@@ -50,66 +52,66 @@ async function main() {
 			secondary2: '/imagenes/web-analyzer-report.png'
 		},
 		metrics: [
-			metric('30+', 'comprobaciones tecnicas', 0),
-			metric('10', 'bloques de auditoria', 1),
-			metric('3', 'capas anti-abuso (SSRF/OOM/rate)', 2),
+			metric('120+', 'comprobaciones tecnicas', 0),
+			metric('10', 'categorias de auditoria', 1),
+			metric('Suscripcion', 'Stripe Billing y Portal', 2),
 			metric('IA', 'prompts de reparacion por hallazgo', 3)
 		],
 		metricsEn: [
-			metric('30+', 'technical checks', 0),
-			metric('10', 'audit sections', 1),
-			metric('3', 'abuse-protection layers (SSRF/OOM/rate)', 2),
+			metric('120+', 'technical checks', 0),
+			metric('10', 'audit categories', 1),
+			metric('Billing', 'Stripe subscription & portal', 2),
 			metric('AI', 'repair prompts per finding', 3)
 		],
 		reto: {
 			title: 'El reto',
-			bodyHtml: `<p>Quería una herramienta propia para auditar sitios reales — la mía y la de clientes potenciales — sin depender solo de Lighthouse en DevTools. Hacía falta cubrir <strong>SEO técnico, AEO, seguridad visible, WCAG, cookies pre-consentimiento y fingerprinting de CMS</strong> en un solo flujo, con resultados que un humano o una IA pudieran actuar al día siguiente.</p><p>Además, al exponerlo en Internet como API pública, el motor debía resistir SSRF, descargas gigantes y abuso por IP sin montar infraestructura pesada.</p>`
+			bodyHtml: `<p>Convertir mi analizador web en un <strong>SaaS comercial completo</strong> capaz de gestionar suscripciones reales y auditorías visuales profundas mediante un navegador real, sin disparar los costes de servidor.</p><p>Hacía falta integrar autenticación robusta, cobros de suscripción recurrentes y pasarela de facturación automática con Stripe, además de resolver la infraestructura necesaria para ejecutar Playwright/Chromium en la nube con aislamiento de procesos y protección estricta contra ataques de inyección y SSRF.</p>`
 		},
 		retoEn: {
 			title: 'The challenge',
-			bodyHtml: `<p>I wanted my own tool to audit real websites — mine and prospective clients' — without relying only on Lighthouse in DevTools. It had to cover <strong>technical SEO, AEO, visible security, WCAG, pre-consent cookies, and CMS fingerprinting</strong> in one flow, with results a human or AI could act on the next day.</p><p>Because it would be exposed on the public internet as an API, the engine also had to resist SSRF, oversized downloads, and IP abuse without heavy infrastructure.</p>`
+			bodyHtml: `<p>Transforming my web analyzer into a <strong>fully-fledged commercial SaaS</strong> capable of handling real subscriptions and deep visual audits through a headless browser, all while keeping server costs low.</p><p>The challenge was to integrate robust authentication, recurring subscription billing, and automated invoicing via Stripe, while establishing the backend infrastructure to safely run Playwright/Chromium in the cloud with process isolation and strict security guards against SSRF and injection attacks.</p>`
 		},
 		hice: {
 			title: 'Lo que hice',
-			bodyHtml: `<p><strong>Motor de auditoría:</strong> arquitectura SvelteKit con jobs asíncronos (202 + polling), auditor de entrega HTTP y auditor visual con Chromium/Playwright: consola JS, viewports móvil/tablet/desktop, cookies y accesibilidad.</p><p><strong>Seguridad operativa:</strong> validación anti-SSRF (loopback, RFC1918, IPs codificadas), límites de bytes en respuestas (4 MB HTML / 2 MB recursos) y rate limiting por IP (10 análisis/hora) con persistencia en fichero temporal.</p><p><strong>Producto publicado:</strong> UI estilo consola técnica en <a href="https://web-analyzer-three.vercel.app" rel="noopener noreferrer">web-analyzer-three.vercel.app</a>, modo reparación con prompts por hallazgo, envío de informes por email vía Resend y una variante integrada en el portfolio.</p>`
+			bodyHtml: `<p><strong>Arquitectura SaaS:</strong> Integré SvelteKit con Supabase (Auth, RLS, triggers Postgres) para la gestión segura de cuentas, y Stripe Checkout + Customer Portal para cobros recurrentes de 5€/mes y descargas de facturas automáticas.</p><p><strong>Motor de auditoría avanzado:</strong> Motor con jobs asíncronos y rate limiting en Upstash Redis. El plan Premium utiliza <strong>browserless.io</strong> para renderizar en un navegador real, capturando contraste de colores WCAG, errores de consola en runtime y cookies pre-consentimiento.</p><p><strong>UX y Corrección IA:</strong> Panel web completo en Tailwind CSS v4 con pestañas de historial de análisis, y prompts detallados y accionables por cada fallo, optimizados para copiar y pegar directamente en Cursor u otros agentes de IA.</p>`
 		},
 		hiceEn: {
 			title: 'What I built',
-			bodyHtml: `<p><strong>Audit engine:</strong> SvelteKit architecture with async jobs (202 + polling), HTTP delivery auditor, and visual auditor with Chromium/Playwright: JS console, mobile/tablet/desktop viewports, cookies, and accessibility.</p><p><strong>Operational security:</strong> anti-SSRF validation (loopback, RFC1918, encoded IPs), byte limits on responses (4 MB HTML / 2 MB resources), and per-IP rate limiting (10 analyses/hour) with file-based persistence.</p><p><strong>Shipped product:</strong> technical console UI at <a href="https://web-analyzer-three.vercel.app" rel="noopener noreferrer">web-analyzer-three.vercel.app</a>, repair mode with per-finding prompts, email reports via Resend, plus an integrated variant on the portfolio.</p>`
+			bodyHtml: `<p><strong>SaaS Architecture:</strong> Integrated SvelteKit with Supabase (Auth, RLS, Postgres triggers) for secure user profiles, and Stripe Checkout + Customer Portal for €5/month recurring subscriptions and self-serve invoice downloads.</p><p><strong>Advanced Audit Engine:</strong> Async background jobs powered by Playwright, with Upstash Redis handling distributed rate limiting. Premium tier uses <strong>browserless.io</strong> to render in a headless browser, checking WCAG color contrast, JS console errors, and pre-consent cookies.</p><p><strong>UX & AI Remediations:</strong> Implemented a technical dashboard styled with Tailwind CSS v4 featuring past audit logs, and copy-pasteable prompts optimized for Cursor or other AI coding agents to fix each specific issue.</p>`
 		},
 		resultado: {
 			title: 'Resultado',
-			bodyHtml: `<p>Una herramienta que despliego como <strong>producto standalone</strong> y reutilizo como auditor antes de entregar proyectos web. No sustituye un pentest, pero condensa en minutos señales que suelen tardar horas en revisar a mano.</p><p>Proyecto personal que demuestra backend serverless serio en SvelteKit, pensamiento de seguridad y UX orientada a desarrolladores y equipos que ya trabajan con agentes de IA para corregir hallazgos.</p>`
+			bodyHtml: `<p>Un <strong>producto SaaS real</strong> con pasarela de pago activa que automatiza auditorías técnicas completas. Ahorra horas de trabajo manual al dar un informe estructurado que los desarrolladores pueden solucionar al instante con ayuda de IA.</p><p>Proyecto personal que demuestra el desarrollo de productos SaaS de extremo a extremo: integración de pasarelas de pago (Stripe), almacenamiento y seguridad (Supabase, Redis), automatización de navegadores en la nube (browserless.io) y diseño de prompts optimizados para flujos modernos de desarrollo asistido por IA.</p>`
 		},
 		resultadoEn: {
 			title: 'Outcome',
-			bodyHtml: `<p>A tool I ship as a <strong>standalone product</strong> and reuse as a real auditor before delivering web projects. It does not replace a pentest, but it compresses into minutes signals that often take hours to review manually.</p><p>A personal project that shows serious SvelteKit serverless backend work, security thinking, and UX aimed at developers and teams already using AI agents to fix findings.</p>`
+			bodyHtml: `<p>A <strong>live SaaS product</strong> with an active payment gateway that automates complete technical site audits. It saves hours of manual work by providing a structured report developers can solve immediately using AI.</p><p>It serves as a showcase of end-to-end SaaS engineering: payment system integrations (Stripe), data persistence & security (Supabase, Redis), cloud browser automation (browserless.io), and prompt engineering for modern AI-assisted workflows.</p>`
 		},
 		stack: [
 			'SvelteKit',
 			'Svelte 5',
 			'TypeScript',
+			'Tailwind CSS v4',
+			'Supabase',
+			'Stripe',
+			'Upstash Redis',
 			'Playwright',
-			'Chromium',
-			'Vitest',
 			'Resend',
-			'Vercel Serverless',
-			'oxlint',
 			'Zod'
 		],
 		stackEn: [
 			'SvelteKit',
 			'Svelte 5',
 			'TypeScript',
+			'Tailwind CSS v4',
+			'Supabase',
+			'Stripe',
+			'Upstash Redis',
 			'Playwright',
-			'Chromium',
-			'Vitest',
 			'Resend',
-			'Vercel Serverless',
-			'oxlint',
 			'Zod'
 		],
-		liveUrl: 'https://web-analyzer-three.vercel.app',
+		liveUrl: 'https://syrax-analyzer.moisesvalero.es',
 		repoUrl: 'https://github.com/moisesvalero/web-analyzer',
 		checklistPublicacion: {
 			tituloYSlug: true,
