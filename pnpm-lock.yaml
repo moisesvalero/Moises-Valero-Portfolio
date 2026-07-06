@@ -55,8 +55,8 @@ importers:
         specifier: ^3.15.0
         version: 3.15.0
       node-html-parser:
-        specifier: ^6.1.13
-        version: 6.1.13
+        specifier: ^8.0.4
+        version: 8.0.4
       ogl:
         specifier: ^1.0.11
         version: 1.0.11
@@ -4772,11 +4772,11 @@ packages:
     resolution: {integrity: sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==}
     hasBin: true
 
-  node-html-parser@6.1.13:
-    resolution: {integrity: sha512-qIsTMOY4C/dAa5Q5vsobRpOOvPfC4pB61UVW2uSwZNUp0QU/jCekTal1vMmbO0DgdHeLUJpv/ARmDqErVxA3Sg==}
-
   node-html-parser@7.1.0:
     resolution: {integrity: sha512-iJo8b2uYGT40Y8BTyy5ufL6IVbN8rbm/1QK2xffXU/1a/v3AAa0d1YAoqBNYqaS4R/HajkWIpIfdE6KcyFh1AQ==}
+
+  node-html-parser@8.0.4:
+    resolution: {integrity: sha512-w2YxujN/TqrSIWGVNW/fVgKKfAyQeHMXCvnKZI0owLnfP0tfjdLecUoy9zhOMZGoEFk6eP5qSDyvUarjPl3bwQ==}
 
   node-releases@2.0.50:
     resolution: {integrity: sha512-J6l92tKHX6w8Jy5nO1Vuc01NoIiRGi/d6qBKVxh+IQ8Cr3b6HbVNfKiF8ZpFKufTwpwxMmce2W3iQZ861ZRyTg==}
@@ -11135,15 +11135,15 @@ snapshots:
 
   node-gyp-build@4.8.4: {}
 
-  node-html-parser@6.1.13:
-    dependencies:
-      css-select: 5.2.2
-      he: 1.2.0
-
   node-html-parser@7.1.0:
     dependencies:
       css-select: 5.2.2
       he: 1.2.0
+
+  node-html-parser@8.0.4:
+    dependencies:
+      css-select: 5.2.2
+      entities: 8.0.0
 
   node-releases@2.0.50: {}
 
