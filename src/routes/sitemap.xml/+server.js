@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/public';
 import { fetchLandingSupportArticles } from '$lib/server/fetch-landing-support-articles';
+import { getSanityServerClient } from '$lib/server/sanity/get-server-client';
 import { publicPages } from '$lib/site-pages';
 
 const DEFAULT_SITE_URL = 'https://moisesvalero.es';
@@ -53,6 +54,24 @@ export const GET = async () => {
 			lastmod: now,
 			changefreq: 'weekly',
 			priority: 0.65
+		});
+	}
+
+	const client = getSanityServerClient();
+	const projectSlugs = client
+		? /** @type {string[]} */ (
+				await client
+					.fetch(`*[_type == "caseStudy" && defined(slug.current)].slug.current`)
+					.catch(() => [])
+			)
+		: [];
+
+	for (const slug of projectSlugs) {
+		entries.push({
+			loc: `${baseUrl}/proyectos/${slug}`,
+			lastmod: now,
+			changefreq: 'monthly',
+			priority: 0.8
 		});
 	}
 
