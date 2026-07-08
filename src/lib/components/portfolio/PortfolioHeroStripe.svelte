@@ -334,17 +334,17 @@
 	}
 
 	.hero-title-wrap {
-		position: relative;
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 		justify-content: center;
+		gap: 12px;
 		margin-bottom: 13px;
 	}
 
 	.ai-pill {
-		position: absolute;
-		top: -8px;
-		right: -60px;
+		flex-shrink: 0;
+		align-self: flex-start;
+		margin-top: 6px;
 		background: linear-gradient(135deg, #0071e3 0%, #4da3ff 100%);
 		color: #fff;
 		font-family: var(--font-mono);
@@ -365,14 +365,14 @@
 	@keyframes aiPillBounce {
 		0% {
 			opacity: 0;
-			transform: translateX(-20px) scale(0.8);
+			transform: translateY(8px) scale(0.85);
 		}
 		50% {
 			opacity: 1;
 		}
 		100% {
 			opacity: 1;
-			transform: translateX(0) scale(1);
+			transform: translateY(0) scale(1);
 		}
 	}
 
@@ -815,10 +815,9 @@
 		}
 
 		.ai-pill {
-			top: -6px;
-			right: -10px;
 			font-size: 9px;
 			padding: 3px 8px;
+			margin-top: 4px;
 		}
 
 		.sub-frase {
@@ -884,6 +883,11 @@
 		.hero-stripe-pro-v2 {
 			min-height: 100svh;
 			padding-top: max(5.25rem, calc(env(safe-area-inset-top, 0px) + 4.55rem));
+		}
+
+		.hero-title-wrap {
+			flex-wrap: wrap;
+			gap: 8px;
 		}
 
 		.hero-stripe-pro-v2 h1 {
