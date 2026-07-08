@@ -19,13 +19,19 @@ async function main() {
 			en: 'Web service · Django + HTMX + Tailwind'
 		},
 		homeProofLine: {
-			es: 'Acortador de enlaces ultrarrápido con redirecciones optimizadas en caché, rate limiting atómico y detección de IP real detrás de proxies.',
-			en: 'Ultra-fast URL shortener with cache-optimized redirects, atomic rate limiting, and real IP detection behind proxies.'
+			es: 'Un acortador de enlaces moderno y súper rápido. Creado para ser ultra-eficiente en Vercel, usando caché en memoria para redirigir al instante y proteger el servicio de abusos.',
+			en: 'A modern and super-fast link shortener. Built to be ultra-efficient on Vercel, using memory caching for instant redirects and built-in abuse protection.'
 		},
-		homeValueTags: ['Django 5.2', 'HTMX 2', 'Caché en memoria', 'Rate limiting', 'Open source'],
+		homeValueTags: [
+			'Django 5.2',
+			'HTMX 2',
+			'Caché en memoria',
+			'Protección de abusos',
+			'Desarrollo ágil'
+		],
 		homeRole: {
-			es: 'Desarrollador fullstack y optimización de arquitectura',
-			en: 'Fullstack developer and architecture optimization'
+			es: 'Desarrollador fullstack potenciado por IA',
+			en: 'AI-powered fullstack developer'
 		},
 		homeYear: '2026',
 		homeComplexity: 'Media',
@@ -33,15 +39,15 @@ async function main() {
 		titleEn: 'django-url-shortener',
 		slug: { _type: 'slug', current: 'django-url-shortener' },
 		seoDescription:
-			'Acortador de URLs moderno y ultra-optimizado construido con Django 5.2, HTMX y Tailwind CSS. Implementa redirecciones ultrarrápidas con caché y rate limiting atómico.',
+			'Acortador de URLs moderno y súper rápido creado con Django 5.2, HTMX y Tailwind CSS. Redirecciones instantáneas con caché y protección contra abusos.',
 		seoDescriptionEn:
-			'Modern and ultra-optimized URL shortener built with Django 5.2, HTMX, and Tailwind CSS. Implements lightning-fast redirects with caching and atomic rate limiting.',
+			'Modern and super-fast URL shortener built with Django 5.2, HTMX, and Tailwind CSS. Instant redirects using caching and built-in abuse protection.',
 		heroTag: 'Proyecto personal · Herramienta web',
 		heroTagEn: 'Personal project · Web tool',
 		heroDescription:
-			'Un acortador de URLs moderno y altamente optimizado diseñado para despliegues serverless rápidos en Vercel, con redirecciones instantáneas mediante caché, protección contra abusos y arquitectura desacoplada de la base de datos para lecturas.',
+			'Un acortador de URLs ágil y optimizado para funcionar sin servidores en Vercel. Redirige a los usuarios en milisegundos gracias a su sistema de caché, validando cada enlace y protegiendo el sitio contra peticiones masivas.',
 		heroDescriptionEn:
-			'A modern and highly-optimized URL shortener designed for fast serverless deployments on Vercel, featuring instant redirects via caching, abuse protection, and database-decoupled reads.',
+			'A snappy and optimized URL shortener built for serverless deployment on Vercel. Redirects users in milliseconds using a smart cache, validating every link and keeping the site safe from burst requests.',
 		tags: [
 			'Django 5.2',
 			'Python 3.11',
@@ -73,40 +79,40 @@ async function main() {
 			secondary2: '/imagenes/django-url-shortener-mobile.png'
 		},
 		metrics: [
-			metric('<50ms', 'de latencia de redirección', 0),
-			metric('0', 'lecturas SQL en redirecciones', 1),
-			metric('10 req/min', 'límite de tasa por IP atómico', 2),
-			metric('100%', 'validación robusta de URLs', 3)
+			metric('<50ms', 'de latencia al redirigir', 0),
+			metric('0', 'consultas a base de datos por click', 1),
+			metric('10 req/min', 'límite inteligente de peticiones', 2),
+			metric('100%', 'validación de enlaces seguros', 3)
 		],
 		metricsEn: [
 			metric('<50ms', 'redirect latency', 0),
-			metric('0', 'SQL reads on redirection', 1),
-			metric('10 req/min', 'atomic rate limit per IP', 2),
-			metric('100%', 'robust URL validation', 3)
+			metric('0', 'database queries per click', 1),
+			metric('10 req/min', 'smart request limit', 2),
+			metric('100%', 'secure link validation', 3)
 		],
 		reto: {
 			title: 'El reto',
-			bodyHtml: `<p>La mayoría de acortadores de URLs de ejemplo hacen consultas de base de datos en cada redirección, lo que genera cuellos de botella de I/O y latencia innecesaria en picos de tráfico. Mi objetivo era construir un servicio sumamente rápido, capaz de ejecutarse en entornos serverless con latencia mínima, garantizando redirecciones por debajo de los 50ms sin sobrecargar la base de datos SQL relacional.</p><p>Además, requería resolver retos prácticos de seguridad: implementar un limitador de tasa (rate limiting) verdaderamente atómico que no sufriera de reinicios de TTL bajo ataques de ráfagas, y una detección precisa de IPs detrás de proxies inversos en Vercel para evitar bloqueos erróneos a usuarios legítimos.</p>`
+			bodyHtml: `<p>Muchos acortadores de URLs tradicionales van muy lentos porque tienen que preguntar a la base de datos en cada click. Esto no sólo tarda más, sino que puede saturar el servidor si de repente entra mucha gente. Mi meta era crear un acortador súper rápido que enviara a los usuarios a su destino en menos de 50 milisegundos.</p><p>Además, tenía que asegurar que el sistema fuera seguro: evitar que bots maliciosos abusaran del servicio haciendo miles de peticiones seguidas, y asegurarme de que el acortador supiera de qué país o dirección IP real venía el usuario, algo que suele complicarse al publicar en plataformas en la nube.</p>`
 		},
 		retoEn: {
 			title: 'The challenge',
-			bodyHtml: `<p>Most basic URL shorteners query the database on every single redirection, creating I/O bottlenecks and unnecessary latency during traffic spikes. My goal was to build an ultra-fast service capable of running in serverless environments with minimal latency, ensuring redirects under 50ms without overloading the relational SQL database.</p><p>Additionally, I needed to solve practical security challenges: implementing a truly atomic rate limiter that would not suffer from TTL resets under burst attacks, and accurate IP detection behind reverse proxies on Vercel to avoid locking out legitimate users.</p>`
+			bodyHtml: `<p>Many traditional URL shorteners are slow because they have to query the database on every single click. This is not only sluggish, but it can also crash the server if a sudden wave of visitors arrives. My goal was to create a super-fast shortener that redirects users to their destination in under 50 milliseconds.</p><p>On top of that, I needed to make the system secure: preventing malicious bots from spamming the service with thousands of requests, and ensuring the app correctly identified the user's real IP address, which is often tricky to get right in cloud deployments.</p>`
 		},
 		hice: {
 			title: 'Lo que hice',
-			bodyHtml: `<p><strong>Optimización de caché en redirecciones:</strong> Diseñé una arquitectura de lectura desacoplada de la base de datos. Al acortar una URL, se guarda en caché una tupla <code>(link_id, original_url)</code>. Cuando el usuario accede al código corto, el middleware intercepta la caché, obtiene la URL original y realiza una redirección 302 instantánea. El incremento del contador de clics se procesa de forma asíncrona mediante tareas atómicas en segundo plano, resultando en cero consultas SQL síncronas de lectura.</p><p><strong>Seguridad y rate limiting robusto:</strong> Corregí un fallo común de TTL utilizando operaciones atómicas (<code>cache.add</code> y Django <code>incr</code>) en la ventana de tiempo. Esto garantiza que cada petición sucesiva sume al contador de ráfagas pero no amplíe el TTL del bloqueo de forma abusiva. Asimismo, implementé <code>URLValidator</code> nativo para descartar inputs maliciosos y configuré validadores de seguridad en el panel de administración.</p><p><strong>Infraestructura y calidad:</strong> Configuré la detección de IPs reales usando <code>HTTP_X_FORWARDED_FOR</code> para servidores detrás de proxies. Implementé un flujo de desarrollo moderno con <code>Husky</code>, <code>Lint-staged</code> y <code>Prettier</code> para validar automáticamente el formato del código HTML/CSS/Python antes de subirlo a producción.</p>`
+			bodyHtml: `<p><strong>Redirecciones al instante con caché:</strong> Diseñé el sistema para que no tuviera que leer de la base de datos cada vez que alguien hace click en un enlace. Al acortar una URL, el enlace y su destino se guardan temporalmente en la memoria rápida (caché). Cuando alguien pincha en el enlace corto, se le redirige al momento. El contador de visitas se actualiza de forma silenciosa en segundo plano, logrando un rendimiento espectacular.</p><p><strong>Protección inteligente contra abuso:</strong> Implementé un sistema que limita las peticiones por usuario. Si alguien intenta acortar demasiadas URLs en poco tiempo, el sistema lo frena temporalmente sin afectar a los demás. También añadí una validación muy fuerte para asegurarme de que sólo se puedan acortar enlaces reales y seguros.</p><p><strong>Calidad y automatización en el desarrollo:</strong> Como desarrollador full-stack potenciado por IA (AI-powered), valoro mucho la agilidad. Automaticé la revisión del código y del diseño visual antes de cada subida a producción, asegurando que el código de Django, los componentes dinámicos de HTMX y los estilos de Tailwind estuvieran perfectos y limpios.</p>`
 		},
 		hiceEn: {
 			title: 'What I built',
-			bodyHtml: `<p><strong>Cache-optimized redirects:</strong> Designed an architecture that decouples reads from the database. When shortening a URL, a tuple of <code>(link_id, original_url)</code> is stored in cache. Upon redirection request, the middleware intercepts the cache, fetches the original URL, and performs an instant 302 redirect. Click counts are incremented asynchronously via atomic background updates, resulting in zero synchronous SQL read queries.</p><p><strong>Robust security & rate limiting:</strong> Fixed a common TTL bug by using atomic operations (<code>cache.add</code> and Django <code>incr</code>) for rate-limiting. This ensures that successive requests count towards the burst limit without resetting the block TTL. Implemented Django’s native <code>URLValidator</code> to reject malformed/insecure URLs and enforced security validators in the admin panel.</p><p><strong>Infrastructure & quality:</strong> Adjusted IP detection to parse <code>HTTP_X_FORWARDED_FOR</code> for servers behind reverse proxies. Configured a modern Git workflow using <code>Husky</code>, <code>Lint-staged</code>, and <code>Prettier</code> to auto-format and validate HTML/CSS/Python code prior to deployment.</p>`
+			bodyHtml: `<p><strong>Instant redirects using cache:</strong> I designed the system so it doesn't need to read from the database every time someone clicks a link. When a URL is shortened, the link and its destination are saved in fast memory (cache). As soon as a user clicks, they are redirected instantly. The view counter updates quietly in the background, resulting in amazing speed.</p><p><strong>Smart abuse protection:</strong> I added a request limit per user. If someone tries to shorten too many links in a short window, the system temporarily blocks them without slowing down others. I also set up strict validation to guarantee only valid and safe links are allowed.</p><p><strong>Quality & development automation:</strong> As an AI-powered fullstack developer, agility is key. I automated all code styling and checks before deploying, making sure the Django backend, dynamic HTMX components, and Tailwind styles remain clean and fast.</p>`
 		},
 		resultado: {
 			title: 'Resultado',
-			bodyHtml: `<p>El acortador es un servicio robusto y en producción en <a href="https://acortador.moisesvalero.es" target="_blank" rel="noopener noreferrer">acortador.moisesvalero.es</a> que redirecciona con una latencia mínima, optimizando al extremo el uso de recursos del servidor. Es un ejemplo práctico de cómo tomar un problema común y refinarlo mediante técnicas de caché y rate limiting de nivel empresarial.</p><p>El proyecto sirve como demostración de mis habilidades backend con Django/Python integrando patrones modernos de diseño de API, caching avanzado y frontends ligeros y dinámicos utilizando HTMX y Tailwind CSS.</p>`
+			bodyHtml: `<p>El acortador está en producción y funcionando de maravilla en <a href="https://acortador.moisesvalero.es" target="_blank" rel="noopener noreferrer">acortador.moisesvalero.es</a>. Redirige a los usuarios sin demoras y consume el mínimo de recursos. Es un ejemplo perfecto de cómo resolver un problema común (los clicks en enlaces) de forma elegante y optimizada.</p><p>Este proyecto demuestra mi enfoque práctico: combinar el poder de Django y Python para el backend con interfaces ligeras e interactivas creadas con HTMX y Tailwind CSS, apoyándome en herramientas de IA para construir de forma ágil y robusta.</p>`
 		},
 		resultadoEn: {
 			title: 'Outcome',
-			bodyHtml: `<p>The shortener is a production-grade service active at <a href="https://acortador.moisesvalero.es" target="_blank" rel="noopener noreferrer">acortador.moisesvalero.es</a>, redirecting users with minimal latency and optimized server resources. It is a practical example of taking a common utility and refining it using enterprise-grade caching and rate limiting patterns.</p><p>The project showcases my Django/Python backend capabilities, integrating advanced caching, API design patterns, and a lightweight, dynamic frontend powered by HTMX and Tailwind CSS.</p>`
+			bodyHtml: `<p>The shortener is live and running beautifully at <a href="https://acortador.moisesvalero.es" target="_blank" rel="noopener noreferrer">acortador.moisesvalero.es</a>. It redirects users with zero lag while keeping server costs to a minimum. It's a great example of taking a common task and solving it in a clean, elegant, and highly optimized way.</p><p>This project showcases my practical approach: blending the stability of Django and Python for backends with fast, interactive frontends using HTMX and Tailwind CSS, leveraging AI tools to build and iterate quickly.</p>`
 		},
 		stack: [
 			'Django 5.2',
