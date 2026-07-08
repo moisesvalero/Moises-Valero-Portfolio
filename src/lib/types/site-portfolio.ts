@@ -26,6 +26,7 @@ export type SiteHero = {
 	projectsHref?: string;
 	label: string;
 	title: string;
+	aiPill?: string;
 	subtitle: string;
 	bio: string;
 	/** CTA principal del hero (i18n). */

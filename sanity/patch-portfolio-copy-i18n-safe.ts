@@ -63,6 +63,7 @@ async function main() {
 			'hero.cvHref': site.hero.cvHref,
 			'hero.label': ls('PORTFOLIO – MOISÉS VALERO', 'PORTFOLIO — MOISÉS VALERO'),
 			'hero.title': ls(site.hero.title, en.hero.title),
+			'hero.aiPill': ls(site.hero.aiPill, en.hero.aiPill),
 			'hero.subtitle': ls(
 				'SvelteKit · Next.js · Astro · TypeScript · IA aplicada',
 				'SvelteKit · Next.js · Astro · TypeScript · applied AI'

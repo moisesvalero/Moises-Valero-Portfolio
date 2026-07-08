@@ -8,6 +8,7 @@
 		projectsHref?: string;
 		label?: string;
 		title?: string;
+		aiPill?: string;
 		subtitle?: string;
 		bio?: string;
 		ctaPrimaryLabel?: string;
@@ -18,7 +19,8 @@
 		cvHref = '/#contacto',
 		projectsHref = '#proyectos',
 		label = 'PORTFOLIO – MOISÉS VALERO',
-		title = 'AI-Powered Full Stack Developer',
+		title = 'Full Stack Developer',
+		aiPill = 'AI-Powered',
 		subtitle = 'SvelteKit | Next.js | Astro | TypeScript | IA aplicada',
 		ctaPrimaryLabel = 'Ver proyectos',
 		cvCtaLabel = 'Ver CV'
@@ -71,22 +73,27 @@
 			<div class="hero-top-row hero-entry hero-entry-1">
 				<p class="label-top">{label}</p>
 			</div>
-			<h1 class="hero-entry hero-entry-2" aria-label={title}>
-				{#each titleWords as word, index (word + index)}
-					{#if index === titleWords.length - 1}
-						<PointerHighlight
-							containerClassName="hero-pointer-highlight"
-							rectangleClassName="hero-pointer-rectangle"
-							pointerClassName="hero-pointer-cursor"
-							delay={1180}
-						>
-							<span class="hero-title-accent">{word}</span>
-						</PointerHighlight>
-					{:else}
-						<span>{word}</span>
-					{/if}
-				{/each}
-			</h1>
+			<div class="hero-title-wrap">
+				<h1 class="hero-entry hero-entry-2" aria-label={title}>
+					{#each titleWords as word, index (word + index)}
+						{#if index === titleWords.length - 1}
+							<PointerHighlight
+								containerClassName="hero-pointer-highlight"
+								rectangleClassName="hero-pointer-rectangle"
+								pointerClassName="hero-pointer-cursor"
+								delay={1180}
+							>
+								<span class="hero-title-accent">{word}</span>
+							</PointerHighlight>
+						{:else}
+							<span>{word}</span>
+						{/if}
+					{/each}
+				</h1>
+				{#if aiPill}
+					<span class="ai-pill hero-entry hero-entry-4">{aiPill}</span>
+				{/if}
+			</div>
 			<h2 class="sub-frase hero-entry hero-entry-3" aria-label={heroCapabilitiesLabel || subtitle}>
 				{#each heroCapabilities as item, index (item.label)}
 					<span
@@ -324,6 +331,56 @@
 
 	:global(html.dark) .label-top {
 		color: #94a3b8;
+	}
+
+	.hero-title-wrap {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 13px;
+	}
+
+	.ai-pill {
+		position: absolute;
+		top: -8px;
+		right: -60px;
+		background: linear-gradient(135deg, #0071e3 0%, #4da3ff 100%);
+		color: #fff;
+		font-family: var(--font-mono);
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		padding: 4px 12px;
+		border-radius: 9999px;
+		white-space: nowrap;
+		box-shadow:
+			0 4px 16px rgba(0, 113, 227, 0.24),
+			0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+		animation: aiPillBounce 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+		animation-delay: 1200ms;
+		opacity: 0;
+	}
+
+	@keyframes aiPillBounce {
+		0% {
+			opacity: 0;
+			transform: translateX(-20px) scale(0.8);
+		}
+		50% {
+			opacity: 1;
+		}
+		100% {
+			opacity: 1;
+			transform: translateX(0) scale(1);
+		}
+	}
+
+	:global(html.dark) .ai-pill {
+		background: linear-gradient(135deg, #4da3ff 0%, #7dd3fc 100%);
+		box-shadow:
+			0 4px 20px rgba(77, 163, 255, 0.32),
+			0 0 0 1px rgba(125, 211, 252, 0.16) inset;
 	}
 
 	.hero-stripe-pro-v2 h1 {
@@ -755,6 +812,13 @@
 			font-size: clamp(46px, calc((100vw - 3rem) / 12), 60px) !important;
 			letter-spacing: -0.055em;
 			line-height: 0.88;
+		}
+
+		.ai-pill {
+			top: -6px;
+			right: -10px;
+			font-size: 9px;
+			padding: 3px 8px;
 		}
 
 		.sub-frase {
