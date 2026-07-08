@@ -18,7 +18,7 @@
 		cvHref = '/#contacto',
 		projectsHref = '#proyectos',
 		label = 'PORTFOLIO – MOISÉS VALERO',
-		title = 'AI-Powered Full-Stack Developer',
+		title = 'AI-Powered Full Stack Developer',
 		subtitle = 'SvelteKit | Next.js | Astro | TypeScript | IA aplicada',
 		ctaPrimaryLabel = 'Ver proyectos',
 		cvCtaLabel = 'Ver CV'
@@ -70,11 +70,6 @@
 		<div class="contenido-hero">
 			<div class="hero-top-row hero-entry hero-entry-1">
 				<p class="label-top">{label}</p>
-				<span class="ai-badge">
-					<span class="ai-badge-glow"></span>
-					<span class="ai-badge-icon">✦</span>
-					<span class="ai-badge-text">AI-POWERED</span>
-				</span>
 			</div>
 			<h1 class="hero-entry hero-entry-2" aria-label={title}>
 				{#each titleWords as word, index (word + index)}
@@ -327,75 +322,8 @@
 		display: inline-block;
 	}
 
-	.ai-badge {
-		position: relative;
-		display: inline-flex;
-		align-items: center;
-		gap: 5px;
-		background: rgba(0, 113, 227, 0.08);
-		border: 1px solid rgba(0, 113, 227, 0.16);
-		color: #0071e3;
-		padding: 4px 10px;
-		border-radius: 9999px;
-		font-family: var(--font-mono);
-		font-size: 10px;
-		font-weight: 820;
-		letter-spacing: 0.05em;
-		box-shadow: 0 4px 12px rgba(0, 113, 227, 0.04);
-		overflow: hidden;
-		vertical-align: middle;
-	}
-
-	.ai-badge-glow {
-		position: absolute;
-		inset: 0;
-		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-		transform: translateX(-100%);
-		animation: aiGlowShine 3s infinite;
-	}
-
-	@keyframes aiGlowShine {
-		0% {
-			transform: translateX(-100%);
-		}
-		30%,
-		100% {
-			transform: translateX(100%);
-		}
-	}
-
-	.ai-badge-icon {
-		color: #0071e3;
-		font-size: 11px;
-		animation: aiPulse 2s infinite ease-in-out;
-		line-height: 1;
-	}
-
-	@keyframes aiPulse {
-		0%,
-		100% {
-			opacity: 0.7;
-			transform: scale(0.9);
-		}
-		50% {
-			opacity: 1;
-			transform: scale(1.1);
-		}
-	}
-
 	:global(html.dark) .label-top {
 		color: #94a3b8;
-	}
-
-	:global(html.dark) .ai-badge {
-		background: rgba(77, 163, 255, 0.12);
-		border-color: rgba(77, 163, 255, 0.24);
-		color: #4da3ff;
-		box-shadow: 0 4px 16px rgba(77, 163, 255, 0.08);
-	}
-
-	:global(html.dark) .ai-badge-icon {
-		color: #4da3ff;
 	}
 
 	.hero-stripe-pro-v2 h1 {
@@ -408,7 +336,7 @@
 		white-space: nowrap;
 		display: flex;
 		justify-content: center;
-		flex-wrap: wrap;
+		flex-wrap: nowrap;
 		gap: 0.08em 0.18em;
 	}
 

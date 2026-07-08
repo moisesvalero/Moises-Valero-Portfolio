@@ -32,7 +32,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 		cvHref: '/api/cv',
 		projectsHref: '#proyectos',
 		label: 'PORTFOLIO – MOISÉS VALERO',
-		title: 'Full-Stack Developer',
+		title: 'AI-Powered Full Stack Developer',
 		subtitle: 'SvelteKit | Next.js | Astro | TypeScript | IA aplicada',
 		bio: 'Desarrollo webs y web apps de alto rendimiento con SvelteKit, Next.js y Astro, con lógica TypeScript e integración de IA aplicada. Aporto soluciones resolutivas y autónomas.',
 		ctaPrimaryLabel: 'Ver proyectos',
