@@ -18,8 +18,8 @@
 		cvHref = '/#contacto',
 		projectsHref = '#proyectos',
 		label = 'PORTFOLIO – MOISÉS VALERO',
-		title = 'Desarrollador Web',
-		subtitle = 'SvelteKit | React/Next.js | APIs | IA aplicada | WordPress',
+		title = 'AI-Powered Full-Stack Developer',
+		subtitle = 'SvelteKit | Next.js | Astro | TypeScript | IA aplicada',
 		ctaPrimaryLabel = 'Ver proyectos',
 		cvCtaLabel = 'Ver CV'
 	}: Props = $props();
@@ -27,14 +27,23 @@
 	const heroCapabilities = $derived([
 		{ label: 'SvelteKit', icon: 'simple-icons:svelte', color: '#ff3e00' },
 		{
-			label: 'React/Next.js',
+			label: 'Next.js',
 			icon: 'simple-icons:nextdotjs',
 			color: '#111827',
 			darkColor: '#f8fafc'
 		},
-		{ label: 'APIs', icon: 'lucide:webhook', color: '#0ea5e9' },
-		{ label: 'IA aplicada', shortLabel: 'IA', icon: 'lucide:brain-circuit', color: '#6d5dfc' },
-		{ label: 'WordPress', shortLabel: 'WP', icon: 'simple-icons:wordpress', color: '#21759b' }
+		{
+			label: 'Astro',
+			icon: 'simple-icons:astro',
+			color: '#bc52ee',
+			darkColor: '#ff5d01'
+		},
+		{
+			label: 'TypeScript',
+			icon: 'simple-icons:typescript',
+			color: '#3178c6'
+		},
+		{ label: 'IA aplicada', shortLabel: 'IA', icon: 'lucide:brain-circuit', color: '#6d5dfc' }
 	]);
 	const heroCapabilitiesLabel = $derived(heroCapabilities.map((item) => item.label).join(' · '));
 	const titleWords = $derived(title.split(/\s+/).filter(Boolean));

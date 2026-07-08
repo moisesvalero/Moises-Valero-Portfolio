@@ -20,7 +20,7 @@ export const GET: RequestHandler = async () => {
 	const body = [
 		'# moisesvalero.es - Contenido para LLMs',
 		'',
-		'> Portfolio profesional de Moises Valero, desarrollador web orientado a SvelteKit, WordPress, rendimiento, SEO tecnico, integraciones y soporte IT.',
+		'> Portfolio profesional de Moises Valero, AI-Powered Full-Stack Developer especializado en SvelteKit, Next.js, Astro, TypeScript e integraciones de IA.',
 		`> Ultima generacion: ${new Date().toISOString()}`,
 		`> Sitio: ${baseUrl}`,
 		'',

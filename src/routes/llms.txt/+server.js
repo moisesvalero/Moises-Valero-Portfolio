@@ -36,7 +36,7 @@ export const GET = () => {
 
 	const body = `# Moisés Valero — moisesvalero.es
 
-> Portfolio profesional de Moisés Valero, desarrollador web orientado a SvelteKit, WordPress, rendimiento, SEO técnico, integraciones y soporte IT.
+> Portfolio profesional de Moisés Valero, AI-Powered Full-Stack Developer especializado en SvelteKit, Next.js, Astro, TypeScript e integraciones de IA.
 
 ## Portfolio
 ${portfolio.map(line).join('\n')}
@@ -66,7 +66,7 @@ ${legal.map(line).join('\n')}
 
 ## Datos de la entidad
 - Nombre: Moisés Valero
-- Rol: Desarrollador web
+- Rol: AI-Powered Full-Stack Developer
 - Zona principal: Alcoy, Alicante, España
 - Idiomas: español (principal), inglés
 - Áreas: desarrollo web, frontend, SvelteKit, WordPress, Sanity CMS, rendimiento, SEO técnico, integraciones, soporte IT.

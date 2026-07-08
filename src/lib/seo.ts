@@ -48,11 +48,12 @@ export type SeoState = {
 
 /** Defaults SSR-safe: los crawlers leen el HTML antes de que `$effect` actualice el store. */
 export const defaultSeo: SeoState = {
-	title: 'Moisés Valero – Desarrollador Web | SvelteKit, WordPress, Performance',
+	title: 'Moisés Valero – AI-Powered Full-Stack Developer | SvelteKit, Next.js, Astro',
 	description:
-		'Portfolio profesional de Moisés Valero, desarrollador web orientado a SvelteKit, WordPress, rendimiento, SEO técnico e integraciones.',
-	ogTitle: 'Moisés Valero – Desarrollador Web',
-	ogDescription: 'Desarrollo web con foco en rendimiento, WordPress, SvelteKit y soporte técnico.',
+		'Portfolio profesional de Moisés Valero, AI-Powered Full-Stack Developer especializado en SvelteKit, Next.js, Astro y soluciones integradas con Inteligencia Artificial.',
+	ogTitle: 'Moisés Valero – AI-Powered Full-Stack Developer',
+	ogDescription:
+		'Desarrollo web moderno con SvelteKit, Next.js, Astro, TypeScript e integraciones de IA.',
 	ogImage: `${baseUrl}/og-image-2026.png`,
 	ogType: 'website',
 	ogUrl: baseUrl,

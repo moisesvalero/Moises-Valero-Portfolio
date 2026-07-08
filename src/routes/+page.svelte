@@ -27,7 +27,7 @@
 			'@id': `${baseUrl}/#person`,
 			name: 'Moisés Valero',
 			url: `${baseUrl}/`,
-			jobTitle: 'Desarrollador Web',
+			jobTitle: 'AI-Powered Full-Stack Developer',
 			sameAs: [site.footer.githubHref, site.footer.linkedinHref, site.footer.maltHref].filter(
 				(u): u is string => typeof u === 'string' && u.length > 0
 			),

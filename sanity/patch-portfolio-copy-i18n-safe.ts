@@ -32,59 +32,6 @@ const navItems = [
 	{ _key: 'nav-guides', href: '/blog', label: ls('Guías', 'Guides') }
 ];
 
-const careerTimeline = [
-	{
-		_key: 'career-timeline-1',
-		range: '2025 – 2026',
-		role: ls('Desarrollador web', 'Web Developer'),
-		descHtml: lt(
-			`<h3>Desarrollador Web</h3>
-<ul style="list-style: none; padding: 0; margin: 0;">
-  <li><strong>Desarrollo de producto:</strong> creación y despliegue de aplicaciones web con SvelteKit, Supabase e integraciones reales.</li>
-  <li><strong>IA aplicada:</strong> uso de herramientas de IA para acelerar arquitectura, código, revisión y automatizaciones sin perder criterio técnico.</li>
-  <li><strong>Soporte técnico:</strong> base de sistemas, hosting, diagnóstico y resolución de incidencias.</li>
-</ul>`,
-			`<h3>Web Developer</h3>
-<ul style="list-style: none; padding: 0; margin: 0;">
-  <li><strong>Product development:</strong> building and deploying web apps with SvelteKit, Supabase and real integrations.</li>
-  <li><strong>Applied AI:</strong> using AI tools to speed up architecture, code, review and automation without losing technical judgement.</li>
-  <li><strong>Technical support:</strong> systems background, hosting, diagnosis and issue resolution.</li>
-</ul>`
-		),
-		span: false
-	},
-	{
-		_key: 'career-timeline-2',
-		range: '2012 – 2014',
-		role: ls('MutuaSAD', 'MutuaSAD'),
-		descHtml: lt(
-			`<h3>Diseño web y mantenimiento IT</h3>
-<ul style="list-style: none; padding: 0; margin: 0;">
-  <li><strong>CMS:</strong> administración técnica de WordPress y e-commerce con WooCommerce / PrestaShop.</li>
-  <li><strong>Infraestructura:</strong> dominios, hosting, DNS y correo corporativo.</li>
-  <li><strong>Soporte:</strong> mantenimiento de hardware, redes locales y microinformática.</li>
-</ul>`,
-			`<h3>Web design and IT maintenance</h3>
-<ul style="list-style: none; padding: 0; margin: 0;">
-  <li><strong>CMS:</strong> technical administration of WordPress and e-commerce with WooCommerce / PrestaShop.</li>
-  <li><strong>Infrastructure:</strong> domains, hosting, DNS and business email.</li>
-  <li><strong>Support:</strong> hardware, local networks and desktop support.</li>
-</ul>`
-		),
-		span: false
-	},
-	{
-		_key: 'career-timeline-3',
-		range: '2001 – 2025',
-		role: ls('Trayectoria adicional', 'Additional background'),
-		descHtml: lt(
-			`Más de dos décadas aportando <strong>madurez profesional</strong> y <strong>capacidad de liderazgo</strong> como oficial especialista en entornos industriales y en <strong>carpintería técnica</strong>, con fuerte orientación a la calidad, la coordinación y la resolución de problemas complejos.`,
-			`More than two decades bringing <strong>professional maturity</strong> and <strong>leadership</strong> as a specialist in industrial environments and <strong>technical woodworking</strong>, with a strong focus on quality, coordination and solving complex problems.`
-		),
-		span: true
-	}
-];
-
 const featuredProjects = site.projects.projects.map((project, index) => ({
 	_key: keyOf('featured-project', index),
 	sortOrder: index,
@@ -117,8 +64,8 @@ async function main() {
 			'hero.label': ls('PORTFOLIO – MOISÉS VALERO', 'PORTFOLIO — MOISÉS VALERO'),
 			'hero.title': ls(site.hero.title, en.hero.title),
 			'hero.subtitle': ls(
-				'SvelteKit · React/Next.js · APIs · IA aplicada · WordPress',
-				'SvelteKit · React/Next.js · APIs · applied AI · WordPress'
+				'SvelteKit · Next.js · Astro · TypeScript · IA aplicada',
+				'SvelteKit · Next.js · Astro · TypeScript · applied AI'
 			),
 			'hero.bio': lt(site.hero.bio, en.hero.bio),
 			'hero.ctaPrimaryLabel': ls(site.hero.ctaPrimaryLabel, en.hero.ctaPrimaryLabel),
@@ -165,23 +112,7 @@ async function main() {
 			'footer.githubHref': site.footer.githubHref,
 			'footer.linkedinHref': site.footer.linkedinHref,
 			'footer.maltHref': site.footer.maltHref,
-			'footer.emailHref': site.footer.emailHref,
-
-			'careerModal.closeAria': ls(site.careerModal.closeAria, en.careerModal.closeAria),
-			'careerModal.title': ls(site.careerModal.title, en.careerModal.title),
-			'careerModal.profileTitle': ls(site.careerModal.profileTitle, en.careerModal.profileTitle),
-			'careerModal.profileHtml': lt(site.careerModal.profileHtml, en.careerModal.profileHtml),
-			'careerModal.expTitle': ls(site.careerModal.expTitle, en.careerModal.expTitle),
-			'careerModal.timeline': careerTimeline,
-			'careerModal.stackTitle': ls(site.careerModal.stackTitle, en.careerModal.stackTitle),
-			'careerModal.pdfHide': ls(site.careerModal.pdfHide, en.careerModal.pdfHide),
-			'careerModal.pdfShow': ls(site.careerModal.pdfShow, en.careerModal.pdfShow),
-			'careerModal.pdfIframeTitle': ls(
-				site.careerModal.pdfIframeTitle,
-				en.careerModal.pdfIframeTitle
-			),
-			'careerModal.pdfHintBefore': ls(site.careerModal.pdfHintBefore, en.careerModal.pdfHintBefore),
-			'careerModal.pdfHintLink': ls(site.careerModal.pdfHintLink, en.careerModal.pdfHintLink)
+			'footer.emailHref': site.footer.emailHref
 		})
 		.commit();
 
