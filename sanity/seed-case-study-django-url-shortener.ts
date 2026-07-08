@@ -108,6 +108,30 @@ async function main() {
 			title: 'Outcome',
 			bodyHtml: `<p>The shortener is a production-grade service active at <a href="https://acortador.moisesvalero.es" target="_blank" rel="noopener noreferrer">acortador.moisesvalero.es</a>, redirecting users with minimal latency and optimized server resources. It is a practical example of taking a common utility and refining it using enterprise-grade caching and rate limiting patterns.</p><p>The project showcases my Django/Python backend capabilities, integrating advanced caching, API design patterns, and a lightweight, dynamic frontend powered by HTMX and Tailwind CSS.</p>`
 		},
+		stack: [
+			'Django 5.2',
+			'Python 3.11',
+			'HTMX 2.0.4',
+			'Tailwind CSS 3',
+			'PostgreSQL (Neon)',
+			'SQLite',
+			'Redis / Django Cache',
+			'Husky',
+			'Lint-staged',
+			'Prettier'
+		],
+		stackEn: [
+			'Django 5.2',
+			'Python 3.11',
+			'HTMX 2.0.4',
+			'Tailwind CSS 3',
+			'PostgreSQL (Neon)',
+			'SQLite',
+			'Redis / Django Cache',
+			'Husky',
+			'Lint-staged',
+			'Prettier'
+		],
 		liveUrl: 'https://acortador.moisesvalero.es',
 		repoUrl: 'https://github.com/moisesvalero/django-url-shortener',
 		checklistPublicacion: {
