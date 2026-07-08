@@ -41,7 +41,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
 		cvHref: '/api/cv',
 		projectsHref: '#proyectos',
 		label: 'PORTFOLIO — MOISÉS VALERO',
-		title: 'AI-Powered Full-Stack Developer',
+		title: 'Full-Stack Developer',
 		subtitle: 'SvelteKit | Next.js | Astro | TypeScript | applied AI',
 		bio: 'I build high-performance websites and web apps using SvelteKit, Next.js, and Astro with TypeScript and AI integrations, delivering autonomous and robust solutions.',
 		ctaPrimaryLabel: 'View projects',

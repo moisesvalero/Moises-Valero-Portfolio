@@ -68,7 +68,14 @@
 		<div class="hero-bottom-fade" aria-hidden="true"></div>
 
 		<div class="contenido-hero">
-			<p class="label-top hero-entry hero-entry-1">{label}</p>
+			<div class="hero-top-row hero-entry hero-entry-1">
+				<p class="label-top">{label}</p>
+				<span class="ai-badge">
+					<span class="ai-badge-glow"></span>
+					<span class="ai-badge-icon">✦</span>
+					<span class="ai-badge-text">AI-POWERED</span>
+				</span>
+			</div>
 			<h1 class="hero-entry hero-entry-2" aria-label={title}>
 				{#each titleWords as word, index (word + index)}
 					{#if index === titleWords.length - 1}
@@ -300,14 +307,95 @@
 		animation-delay: 590ms;
 	}
 
+	.hero-top-row {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 10px;
+		margin-bottom: 16px;
+		width: 100%;
+	}
+
 	.label-top {
-		color: #0071e3;
-		font-size: 12.5px;
+		color: #475569;
+		font-size: 12px;
 		font-weight: 700;
 		letter-spacing: 2px;
 		text-transform: uppercase;
-		margin-bottom: 14px;
-		display: block;
+		margin: 0;
+		display: inline-block;
+	}
+
+	.ai-badge {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		background: rgba(0, 113, 227, 0.08);
+		border: 1px solid rgba(0, 113, 227, 0.16);
+		color: #0071e3;
+		padding: 4px 10px;
+		border-radius: 9999px;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		font-weight: 820;
+		letter-spacing: 0.05em;
+		box-shadow: 0 4px 12px rgba(0, 113, 227, 0.04);
+		overflow: hidden;
+		vertical-align: middle;
+	}
+
+	.ai-badge-glow {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+		transform: translateX(-100%);
+		animation: aiGlowShine 3s infinite;
+	}
+
+	@keyframes aiGlowShine {
+		0% {
+			transform: translateX(-100%);
+		}
+		30%,
+		100% {
+			transform: translateX(100%);
+		}
+	}
+
+	.ai-badge-icon {
+		color: #0071e3;
+		font-size: 11px;
+		animation: aiPulse 2s infinite ease-in-out;
+		line-height: 1;
+	}
+
+	@keyframes aiPulse {
+		0%,
+		100% {
+			opacity: 0.7;
+			transform: scale(0.9);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1.1);
+		}
+	}
+
+	:global(html.dark) .label-top {
+		color: #94a3b8;
+	}
+
+	:global(html.dark) .ai-badge {
+		background: rgba(77, 163, 255, 0.12);
+		border-color: rgba(77, 163, 255, 0.24);
+		color: #4da3ff;
+		box-shadow: 0 4px 16px rgba(77, 163, 255, 0.08);
+	}
+
+	:global(html.dark) .ai-badge-icon {
+		color: #4da3ff;
 	}
 
 	.hero-stripe-pro-v2 h1 {
@@ -722,11 +810,15 @@
 			margin-top: clamp(-88px, -7svh, -48px);
 		}
 
+		.hero-top-row {
+			margin-bottom: 12px;
+		}
+
 		.label-top {
 			font-size: 11.5px;
 			letter-spacing: 0.12em;
 			line-height: 1.45;
-			margin-bottom: 14px;
+			margin: 0;
 			padding: 0 4px;
 			max-width: 100%;
 		}

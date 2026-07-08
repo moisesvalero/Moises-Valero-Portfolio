@@ -19,10 +19,10 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 		]
 	},
 	seo: {
-		title: 'Moisés Valero – AI-Powered Full-Stack Developer | SvelteKit, Next.js, Astro',
+		title: 'Moisés Valero – Full-Stack Developer | SvelteKit, Next.js, Astro',
 		description:
-			'Portfolio profesional de Moisés Valero, AI-Powered Full-Stack Developer especializado en SvelteKit, Next.js, Astro y soluciones integradas con Inteligencia Artificial.',
-		ogTitle: 'Moisés Valero – AI-Powered Full-Stack Developer',
+			'Portfolio profesional de Moisés Valero, Full-Stack Developer especializado en SvelteKit, Next.js, Astro y soluciones integradas con Inteligencia Artificial.',
+		ogTitle: 'Moisés Valero – Full-Stack Developer',
 		ogDescription:
 			'Desarrollo web moderno con SvelteKit, Next.js, Astro, TypeScript e integraciones de IA.',
 		ogImage: '/og-image-2026.png',
@@ -32,7 +32,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 		cvHref: '/api/cv',
 		projectsHref: '#proyectos',
 		label: 'PORTFOLIO – MOISÉS VALERO',
-		title: 'AI-Powered Full-Stack Developer',
+		title: 'Full-Stack Developer',
 		subtitle: 'SvelteKit | Next.js | Astro | TypeScript | IA aplicada',
 		bio: 'Desarrollo webs y web apps de alto rendimiento con SvelteKit, Next.js y Astro, con lógica TypeScript e integración de IA aplicada. Aporto soluciones resolutivas y autónomas.',
 		ctaPrimaryLabel: 'Ver proyectos',
