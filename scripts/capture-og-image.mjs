@@ -38,7 +38,10 @@ async function main() {
 
 		console.log(`Navegando a ${URL}...`);
 		await page.goto(URL, { waitUntil: 'networkidle', timeout: 60_000 });
-
+		
+		console.log('Ocultando el banner de cookies y elementos flotantes molestos...');
+		await page.addStyleTag({ content: '.cookie-banner-root { display: none !important; }' });
+		
 		console.log('Esperando 3 segundos para que se completen las animaciones de entrada...');
 		await page.waitForTimeout(3000);
 
