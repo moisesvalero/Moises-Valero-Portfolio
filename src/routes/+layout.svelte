@@ -146,20 +146,7 @@
 	}
 
 	function toggleColorTheme() {
-		const nextTheme = colorTheme === 'dark' ? 'light' : 'dark';
-
-		if (
-			typeof document === 'undefined' ||
-			!document.startViewTransition ||
-			window.matchMedia('(prefers-reduced-motion: reduce)').matches
-		) {
-			applyColorTheme(nextTheme);
-			return;
-		}
-
-		document.startViewTransition(() => {
-			applyColorTheme(nextTheme);
-		});
+		applyColorTheme(colorTheme === 'dark' ? 'light' : 'dark');
 	}
 
 	onMount(() => {
