@@ -43,7 +43,7 @@
 		"husky": "^9.1.7",
 		"lint-staged": "^17.0.8",
 		"oxlint": "^0.15.11",
-		"prettier": "^3.9.4",
+		"prettier": "^3.9.5",
 		"prettier-plugin-svelte": "^4.1.1",
 		"sanity": "^6.3.0",
 		"svelte": "^5.56.4",
