@@ -145,7 +145,7 @@
 		localStorage.setItem('mv-theme', theme);
 	}
 
-	function toggleColorTheme(event?: MouseEvent) {
+	function toggleColorTheme() {
 		const nextTheme = colorTheme === 'dark' ? 'light' : 'dark';
 
 		if (
@@ -156,26 +156,6 @@
 			applyColorTheme(nextTheme);
 			return;
 		}
-
-		// Coordenadas por defecto (centro de la pantalla)
-		let x = window.innerWidth / 2;
-		let y = window.innerHeight / 2;
-
-		if (event) {
-			x = event.clientX;
-			y = event.clientY;
-		} else {
-			// Fallback: Centro del botón toggle
-			const button = document.querySelector('.motion-theme-toggle');
-			if (button) {
-				const rect = button.getBoundingClientRect();
-				x = rect.left + rect.width / 2;
-				y = rect.top + rect.height / 2;
-			}
-		}
-
-		document.documentElement.style.setProperty('--x', `${x}px`);
-		document.documentElement.style.setProperty('--y', `${y}px`);
 
 		document.startViewTransition(() => {
 			applyColorTheme(nextTheme);
@@ -279,7 +259,7 @@
 					<button
 						class="motion-theme-toggle"
 						type="button"
-						onclick={(e) => toggleColorTheme(e)}
+						onclick={toggleColorTheme}
 						aria-label={colorTheme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'}
 						title={colorTheme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
 					>
