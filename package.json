@@ -9,7 +9,7 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"build:vercel": "node scripts/vercel-build.mjs",
-		"build:studio": "sanity build",
+		"build:studio": "sanity build && node scripts/copy-studio-robots.mjs",
 		"preview": "vite preview",
 		"prepare": "husky",
 		"format": "prettier --write \"*.{js,ts,json,html}\" \"src/**/*.{js,ts,svelte,css,json}\" \"sanity/**/*.{js,ts}\"",
