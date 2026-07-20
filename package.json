@@ -31,8 +31,8 @@
 		]
 	},
 	"devDependencies": {
-		"@sanity/cli": "^7.5.0",
-		"@sanity/orderable-document-list": "^2.0.8",
+		"@sanity/cli": "^7.10.0",
+		"@sanity/orderable-document-list": "^2.0.14",
 		"@sveltejs/adapter-auto": "^7.0.1",
 		"@sveltejs/adapter-vercel": "^6.3.4",
 		"@sveltejs/kit": "^2.70.1",
@@ -45,7 +45,7 @@
 		"oxlint": "^0.15.11",
 		"prettier": "^3.9.5",
 		"prettier-plugin-svelte": "^4.1.1",
-		"sanity": "^6.3.0",
+		"sanity": "^6.5.0",
 		"svelte": "^5.56.6",
 		"svelte-check": "^4.7.3",
 		"typescript": "^6.0.3",
@@ -57,7 +57,7 @@
 		"@fontsource-variable/geist-mono": "^5.3.0",
 		"@fontsource-variable/inter": "^5.3.0",
 		"@fontsource/material-symbols-outlined": "^5.3.0",
-		"@sanity/client": "^7.23.0",
+		"@sanity/client": "^7.23.2",
 		"@sanity/image-url": "^2.1.1",
 		"@sparticuz/chromium": "148.0.0",
 		"@vercel/analytics": "^2.0.1",
