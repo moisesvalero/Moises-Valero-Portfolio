@@ -1,5 +1,5 @@
 /**
- * Seed para el articulo del blog: Kimi K3 de Moonshot AI (Versión extendida y editorial)
+ * Seed para el articulo del blog: Kimi K3 de Moonshot AI (Versión extendida y editorial con título corto)
  */
 
 import { getCliClient } from 'sanity/cli';
@@ -7,8 +7,7 @@ import { getCliClient } from 'sanity/cli';
 const SLUG = 'kimi-k3-llm-moonshot-ai';
 const PUBLISHED_AT = '2026-07-21T08:00:00.000Z';
 
-const TITLE =
-	'Kimi K3 de Moonshot AI: El gigante de 2.8T parámetros que redefine el código y la IA abierta';
+const TITLE = 'Kimi K3: El nuevo titán MoE de Moonshot AI';
 
 const COVER_IMAGE_SRC = '/imagenes/kimi-k3-cover.png';
 const COVER_IMAGE_ALT =
@@ -22,7 +21,7 @@ const READING_MINUTES = 8;
 const SHOW_ON_BLOG = true;
 const FEATURED_ORDER: number | null = 1;
 
-const SEO_TITLE = 'Kimi K3 de Moonshot AI: 2.8T parámetros, MoE y pesos abiertos';
+const SEO_TITLE = 'Kimi K3: El nuevo titán MoE de Moonshot AI';
 const SEO_DESCRIPTION =
 	'Análisis completo de Kimi K3 de Moonshot AI: arquitectura Sparse MoE, atención KDA, #1 en Frontend Code Arena y liberación de pesos abiertos.';
 
@@ -39,7 +38,7 @@ const BODY_HTML = `
 
 <h2>Kimi Delta Attention: El fin de la barrera cuadrática en 1M de tokens</h2>
 
-<p>Uno de los mayores cuellos de botella al trabajar con contextos de 1 millón de tokens en Transformers estándar es la atención cuadrática tradicionales, cuyo consumo de memoria y computación escala exponencialmente a medida que aumenta la longitud del documento.</p>
+<p>Uno de los mayores cuellos de botella al trabajar con contextos de 1 millón de tokens en Transformers estándar es la atención cuadrática tradicional, cuyo consumo de memoria y computación escala exponencialmente a medida que aumenta la longitud del documento.</p>
 
 <p>Para solucionar esta limitación, Moonshot AI ha presentado <strong>Kimi Delta Attention (KDA)</strong>, un mecanismo híbrido de atención lineal que mantiene un estado de memoria interna compacta. A diferencia de los métodos convencionales, KDA actúa de forma similar a una memoria recurrente continua, logrando velocidades de decodificación hasta <strong>6,3 veces más rápidas</strong> en documentos extremadamente extensos sin degradar la precisión del contexto distante.</p>
 
@@ -96,7 +95,7 @@ async function main() {
 	};
 
 	await client.createOrReplace(doc);
-	console.log(`Articulo ${SLUG} actualizado en Sanity.`);
+	console.log(`Articulo ${SLUG} actualizado con nuevo titulo en Sanity.`);
 }
 
 main().catch((error) => {
