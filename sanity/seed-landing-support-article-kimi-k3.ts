@@ -1,5 +1,5 @@
 /**
- * Seed para el articulo del blog: Kimi K3 de Moonshot AI
+ * Seed para el articulo del blog: Kimi K3 de Moonshot AI (Versión extendida y editorial)
  */
 
 import { getCliClient } from 'sanity/cli';
@@ -7,61 +7,65 @@ import { getCliClient } from 'sanity/cli';
 const SLUG = 'kimi-k3-llm-moonshot-ai';
 const PUBLISHED_AT = '2026-07-21T08:00:00.000Z';
 
-const TITLE = 'Kimi K3 de Moonshot AI: 2.8T parámetros, MoE y weights abiertos';
+const TITLE =
+	'Kimi K3 de Moonshot AI: El gigante de 2.8T parámetros que redefine el código y la IA abierta';
 
 const COVER_IMAGE_SRC = '/imagenes/kimi-k3-cover.png';
-const COVER_IMAGE_ALT = 'Ilustración futurista de red neuronal representando el modelo LLM Kimi K3';
+const COVER_IMAGE_ALT =
+	'Ilustración futurista de red neuronal representando el modelo LLM Kimi K3 de Moonshot AI';
 
-const CATEGORY_LABEL = 'Inteligencia Artificial';
+const CATEGORY_LABEL = 'Análisis Técnico';
 const EXCERPT =
-	'Analizamos Kimi K3, el nuevo modelo multimodal de 2,8 billones de parámetros de Moonshot AI: arquitectura MoE, atención KDA, 1M de contexto y weights abiertos.';
+	'Analizamos en profundidad Kimi K3, la nueva bestia de 2,8 billones de parámetros de Moonshot AI: atención lineal KDA, Attention Residuals, 1M de contexto y el impacto de sus pesos abiertos.';
 
-const READING_MINUTES = 5;
+const READING_MINUTES = 8;
 const SHOW_ON_BLOG = true;
 const FEATURED_ORDER: number | null = 1;
 
-const SEO_TITLE = 'Kimi K3 de Moonshot AI: 2.8T parámetros, MoE y weights abiertos';
+const SEO_TITLE = 'Kimi K3 de Moonshot AI: 2.8T parámetros, MoE y pesos abiertos';
 const SEO_DESCRIPTION =
-	'Análisis en profundidad de Kimi K3 de Moonshot AI: 2,8 billones de parámetros, 1M de tokens, atención KDA, #1 en Frontend Code y pesos abiertos.';
+	'Análisis completo de Kimi K3 de Moonshot AI: arquitectura Sparse MoE, atención KDA, #1 en Frontend Code Arena y liberación de pesos abiertos.';
 
 const BODY_HTML = `
-<p>El panorama de la Inteligencia Artificial acaba de experimentar un avance de gran calado. <strong>Moonshot AI</strong> ha presentado oficialmente <strong>Kimi K3</strong>, su nuevo modelo de lenguaje de frontera que destaca en capacidad, eficiencia de escalado y rendimiento agéntico. Con una escala masiva de <strong>2,8 billones de parámetros (2.8 Trillion)</strong> organizada en una arquitectura Sparse Mixture-of-Experts (MoE) y una ventana de contexto de 1 millón de tokens, Kimi K3 se posiciona en la cúspide de los modelos de IA actuales.</p>
+<p>El panorama global de la Inteligencia Artificial ha vivido un hito sin precedentes. <strong>Moonshot AI</strong>, la compañía fundada por el renombrado investigador <strong>Yang Zhilin</strong>, ha lanzado oficialmente <strong>Kimi K3</strong>, un modelo de lenguaje de frontera que marca un antes y un después en escala, velocidad de inferencia y capacidad de desarrollo agéntico.</p>
 
-<h2>1. Arquitectura: La revolución de Sparse MoE y KDA</h2>
-<p>Uno de los aspectos más sobresalientes de Kimi K3 no es solo su volumen de parámetros, sino la eficiencia con la que gestiona el cómputo. A pesar de contar con 2,8 billones de parámetros totales, el modelo utiliza una aproximación rala (sparse MoE) donde solo activa <strong>16 de sus 896 expertos por token</strong>.</p>
+<p>Con una dimensión masiva de <strong>2,8 billones de parámetros (2.8 Trillion)</strong> y una ventana de contexto nativa de 1 millón de tokens, Kimi K3 no solo compite directamente con las alternativas cerradas de mayor calado en el mercado, sino que introduce soluciones arquitectónicas revolucionarias diseñadas para superar los límites físicos de los Transformers tradicionales.</p>
 
-<p>Para resolver los cuellos de botella habituales al procesar contextos masivos, Moonshot AI ha incorporado dos innovaciones de arquitectura fundamentales:</p>
+<h2>La arquitectura detrás del gigante: Sparse MoE y Stable LatentMoE</h2>
 
-<ul>
-	<li><strong>Kimi Delta Attention (KDA):</strong> Un mecanismo híbrido de atención lineal diseñado específicamente para reducir el coste computacional y el uso de memoria durante la inferencia en documentos extensos (hasta 1.000.000 de tokens).</li>
-	<li><strong>Attention Residuals (AttnRes):</strong> Una mejora en las conexiones residuales estándar que optimiza el flujo de información en redes profundas, logrando una eficiencia de escalado 2,5 veces superior a la de Kimi K2.</li>
-</ul>
+<p>Procesar cerca de 3 billones de parámetros de forma monolítica supondría un coste computacional inasumible para la mayoría de infraestructuras en producción. Para resolver este reto, Moonshot AI ha implementado una arquitectura de tipo <strong>Sparse Mixture-of-Experts (MoE)</strong> impulsada por el sistema de ruteo dinámico <strong>Stable LatentMoE</strong>.</p>
 
-<h2>2. Benchmarks: Líder en Frontend y Capacidades Agénticas</h2>
-<p>En las evaluaciones de <em>Artificial Analysis</em>, Kimi K3 ha alcanzado los puestos de cabeza en el índice global de inteligencia, compitiendo directamente con los modelos insignia de OpenAI y Anthropic.</p>
+<p>Kimi K3 integra un total de <strong>896 expertos especializados</strong> dentro de su red. Sin embargo, durante la inferencia para responder a cualquier petición, el sistema activa de forma ultra-eficiente tan solo <strong>16 expertos por token</strong>. Esto permite mantener la riqueza cognitiva de un modelo colosal mientras se opera con una latencia reducida y un consumo energético controlado.</p>
 
-<p>Donde ha causado un impacto singular entre la comunidad de desarrollo es en la generación de código y automatización agéntica. Kimi K3 se ha situado en el <strong>#1 de la Frontend Code Arena (Arena.ai)</strong>, superando a otros modelos de frontera en pruebas a ciegas de maquetación UI, desarrollo de componentes complejos e interactividad.</p>
+<h2>Kimi Delta Attention: El fin de la barrera cuadrática en 1M de tokens</h2>
 
-<pre><code>// Ficha técnica esencial de Kimi K3
-const kimiK3Specs = {
-  totalParameters: '2.8T',
-  architecture: 'Sparse MoE (16/896 active experts)',
-  contextWindow: '1,000,000 tokens',
-  modalities: ['Text', 'Vision'],
-  keyInnovations: ['Kimi Delta Attention (KDA)', 'Attention Residuals (AttnRes)'],
-  openWeightsRelease: '27 de Julio de 2026'
-};
-</code></pre>
+<p>Uno de los mayores cuellos de botella al trabajar con contextos de 1 millón de tokens en Transformers estándar es la atención cuadrática tradicionales, cuyo consumo de memoria y computación escala exponencialmente a medida que aumenta la longitud del documento.</p>
 
-<h2>3. Precios de API y Pesos Abiertos (Open Weights)</h2>
-<p>A diferencia de otras soluciones propietarias cerradas, Moonshot AI ha anunciado una medida clave para el ecosistema de código abierto: <strong>los pesos abiertos completos (Open Weights) de Kimi K3 estarán disponibles el 27 de julio de 2026</strong>.</p>
+<p>Para solucionar esta limitación, Moonshot AI ha presentado <strong>Kimi Delta Attention (KDA)</strong>, un mecanismo híbrido de atención lineal que mantiene un estado de memoria interna compacta. A diferencia de los métodos convencionales, KDA actúa de forma similar a una memoria recurrente continua, logrando velocidades de decodificación hasta <strong>6,3 veces más rápidas</strong> en documentos extremadamente extensos sin degradar la precisión del contexto distante.</p>
 
-<p>Actualmente, el modelo se encuentra accesible a través de la API oficial de Moonshot AI y plataformas integradas, con una estructura de precios fijada en aproximadamente <strong>$3,00 por millón de tokens de entrada</strong> y <strong>$15,00 por millón de tokens de salida</strong>.</p>
+<h2>Attention Residuals: Previniendo la degradación en redes ultra-profundas</h2>
 
-<blockquote>"Kimi K3 demuestra que la atención lineal híbrida y la ultra-especialización de expertos permiten operar con 1M de tokens en producción con una eficiencia inédita."</blockquote>
+<p>A medida que los modelos de lenguaje añaden más capas para ganar capacidad de razonamiento, las conexiones residuales clásicas tienden a diluir la información original que transita desde las primeras fases de la red. En Kimi K3, esto se ha resuelto mediante <strong>Attention Residuals (AttnRes)</strong>.</p>
 
-<h2>4. Conclusión</h2>
-<p>La llegada de Kimi K3 refuerza el papel de Moonshot AI como referente indiscutible en la investigación de modelos de lenguaje. Su combinación de visión nativa, destreza en código y la próxima liberación de pesos abiertos marcan un hito indispensable para el desarrollo tecnológico de este año.</p>
+<p>Esta innovación reemplaza la suma residual pasiva por un mecanismo dinámico y dependiente de la entrada, permitiendo a las capas superiores recuperar directamente representaciones clave de capas anteriores. El resultado según los informes técnicos de Moonshot AI es una <strong>eficiencia de escalado 2,5 veces superior</strong> a la de su predecesor, Kimi K2.</p>
+
+<h2>Dominio absoluto en desarrollo Frontend y agentes</h2>
+
+<p>Más allá de las cifras teóricas, el verdadero impacto de Kimi K3 se observa en la práctica diaria del desarrollo de software. En las pruebas ciegas del leaderboard <strong>Frontend Code Arena (Arena.ai)</strong>, Kimi K3 ha alcanzado el <strong>puesto #1 mundial</strong>, superando a los modelos más avanzados del sector en tareas de arquitectura de componentes, maquetación adaptativa, estado interactivo y refactorización compleja.</p>
+
+<p>Asimismo, los datos de <em>Artificial Analysis</em> sitúan a Kimi K3 de forma consistente entre los primeros puestos del índice global de inteligencia, destacando de manera especial en la resolución autónoma de tareas complejas en múltiples pasos (workflow agéntico).</p>
+
+<h2>Pesos Abiertos: Un cambio de paradigma para la comunidad</h2>
+
+<p>La noticia que ha terminado por sacudir la industria es el compromiso de Moonshot AI con la comunidad de código abierto: los <strong>pesos abiertos completos (Open Weights) de Kimi K3 se liberan el 27 de julio de 2026</strong>.</p>
+
+<p>Hasta la fecha, acceder a un modelo de esta escala requería depender exclusivamente de APIs propietarias y de las políticas de uso de plataformas cerradas. La liberación de Kimi K3 permitirá a investigadores, empresas e integradores desplegar u optimizar localmente uno de los modelos más avanzados del mundo.</p>
+
+<blockquote>"Kimi K3 demuestra que la combinación de atención lineal híbrida, enrutamiento latente de expertos y apertura de weights marca el nuevo estándar en la evolución de la Inteligencia Artificial."</blockquote>
+
+<h2>Conclusión</h2>
+
+<p>El lanzamiento de Kimi K3 representa una consolidación rotunda para Moonshot AI y el equipo liderado por Yang Zhilin. La convergencia entre su innovadora atención KDA, el rendimiento sobresaliente en código frontend y la inminente llegada de sus pesos abiertos abre una nueva etapa donde la IA de frontera se vuelve más accesible, rápida e interactiva que nunca.</p>
 `.trim();
 
 async function main() {
@@ -92,7 +96,7 @@ async function main() {
 	};
 
 	await client.createOrReplace(doc);
-	console.log(`Articulo ${SLUG} cargado en Sanity.`);
+	console.log(`Articulo ${SLUG} actualizado en Sanity.`);
 }
 
 main().catch((error) => {
