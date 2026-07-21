@@ -129,13 +129,13 @@ async function main() {
 		checklistPublicacion: {
 			tituloYSlug: true,
 			contenidoPrincipal: true,
-			imagenesCargadas: false,
+			imagenesCargadas: true,
 			seoCompletado: true
 		}
 	};
 
 	await client.createOrReplace(doc);
-	console.log('Case study supportai-usb cargado en Sanity.');
+	console.log('Case study supportai-usb cargado en Sanity con capturas reales.');
 }
 
 main().catch((error) => {
