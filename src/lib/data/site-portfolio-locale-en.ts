@@ -1,18 +1,18 @@
 import type { SitePortfolioContent } from '$lib/types/site-portfolio';
 
 const aboutHtmlEn = `<p>
-  I'm <strong>Moisés Valero</strong>. My background combines years of experience in the industrial sector
-  with modern, high-performance web development. This practical mindset allows me to approach digital
-  projects not just from the code, but from real problem solving and process optimization.
+  I'm <strong>Moisés Valero</strong>. I started out in web development earning a Level 3 Vocational Certificate (DAW)
+  and working for a while building WordPress sites, repairing hardware, and editing photo/video.
+  After that, I spent several years working in the industrial sector, which gave me strong work ethic, discipline, and professional maturity.
 </p>
 <p>
-  I build efficient web applications and sites, focusing on software architecture, user experience,
-  and the integration of advanced digital services. I apply clear methodologies to deliver scalable,
-  maintainable, and result-oriented tools.
+  A while ago I decided to return to development 100%. I wasn't starting from scratch, but I dove deep into updating my skills:
+  I've built over 20 real projects (e-commerce, dashboards, integrations) using <strong>SvelteKit</strong>, <strong>Next.js</strong>, and <strong>Astro</strong>.
 </p>
 <p>
-  Based in <strong>Alcoy (Alicante)</strong>, I'm looking to collaborate with companies or teams
-  (remote or hybrid) that value technical judgement, autonomy, and professional maturity. Let's talk!
+  While I bring the maturity of prior work experience, in software development I'm aware that I have a junior profile.
+  That's why, based in <strong>Alcoy (Alicante)</strong>, I'm looking to join a team (remote or hybrid) where I can bring hard work,
+  learn quickly from senior developers, and keep growing. Let's talk!
 </p>`;
 
 /**
@@ -39,7 +39,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
 		title: 'Web Developer',
 		aiPill: '',
 		subtitle: 'SvelteKit | Next.js | Astro | TypeScript | applied AI',
-		bio: 'I build high-performance websites and web apps using SvelteKit, Next.js, and Astro with TypeScript and AI integrations, delivering autonomous and robust solutions.',
+		bio: 'I build functional websites and web apps using SvelteKit, Next.js, and Astro. Looking to join a team where I can contribute hard work and keep learning.',
 		ctaPrimaryLabel: 'View projects',
 		cvCtaLabel: 'View CV'
 	},

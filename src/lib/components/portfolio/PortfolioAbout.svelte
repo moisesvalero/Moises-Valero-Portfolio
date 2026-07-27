@@ -10,9 +10,9 @@
 		aboutHtml?: string;
 	}
 
-	const defaultAboutHtml = `<p>Soy <strong>Moisés Valero</strong>. Tras años en el sector industrial, regresé al desarrollo tecnológico con una visión clara: construir páginas web, aplicaciones y soluciones digitales eficientes, resolutivas y orientadas al usuario.</p>
-  <p>Me especializo en metodologías de <strong>AI-Driven Development</strong> y <strong>Spec-Driven Development (SDD)</strong> para diseñar arquitecturas de software y conectar soluciones con total autonomía. Mi stack principal está enfocado en <strong>SvelteKit</strong>, <strong>Supabase</strong>, <strong>Tailwind CSS</strong> y APIs de IA (<strong>Gemini</strong>, <strong>OpenAI</strong>, <strong>Anthropic</strong>, <strong>Fal.ai</strong>), además de la gestión y mantenimiento de <strong>WordPress</strong>.</p>
-  <p>Estoy en <strong>Alcoy (Alicante)</strong> y busco incorporarme a equipos de desarrollo (remoto, híbrido o presencial). Si buscas madurez, capacidad de resolución y dominio de las herramientas del futuro, hablemos.</p>`;
+	const defaultAboutHtml = `<p>Soy <strong>Moisés Valero</strong>. Empecé en el mundo web sacándome el Certificado de Profesionalidad (DAW) y trabajando un tiempo maquetando en WordPress, reparando equipos y haciendo edición de foto y vídeo. Tras esa etapa, pasé varios años trabajando en el sector industrial, lo que me dio tablas, disciplina y madurez laboral.</p>
+  <p>Hace un tiempo decidí volver al desarrollo al 100%. No partía de cero, pero me metí a fondo a actualizarme: he construido más de 20 proyectos reales (e-commerce, dashboards, integraciones) usando <strong>SvelteKit</strong>, <strong>Next.js</strong> y <strong>Astro</strong>.</p>
+  <p>Aunque aporto la madurez de la experiencia laboral previa, en software soy consciente de que tengo perfil junior. Por eso, desde <strong>Alcoy (Alicante)</strong>, busco sumarme a un equipo (remoto o híbrido) donde aportar trabajo constante, aprender rápido de desarrolladores con más rodaje y seguir creciendo. ¿Hablamos?</p>`;
 
 	let {
 		imageSrc = '/imagenes/Moises-Valero-Sanchez.png',
