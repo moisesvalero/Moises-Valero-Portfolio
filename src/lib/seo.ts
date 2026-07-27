@@ -6,12 +6,7 @@ const DEFAULT_SITE_URL = 'https://moisesvalero.es';
 const baseUrl = new URL(env.PUBLIC_SITE_URL || DEFAULT_SITE_URL).toString().replace(/\/$/, '');
 
 export type SeoSchemaType =
-	| 'WebPage'
-	| 'Article'
-	| 'FAQPage'
-	| 'HowTo'
-	| 'CollectionPage'
-	| 'SoftwareApplication';
+	'WebPage' | 'Article' | 'FAQPage' | 'HowTo' | 'CollectionPage' | 'SoftwareApplication';
 
 export type SeoFaqItem = { question: string; answer: string };
 
@@ -48,10 +43,10 @@ export type SeoState = {
 
 /** Defaults SSR-safe: los crawlers leen el HTML antes de que `$effect` actualice el store. */
 export const defaultSeo: SeoState = {
-	title: 'Moisés Valero – Full-Stack Developer | SvelteKit, Next.js, Astro',
+	title: 'Moisés Valero – Desarrollador Web | SvelteKit, Next.js, Astro',
 	description:
-		'Portfolio profesional de Moisés Valero, Full-Stack Developer especializado en SvelteKit, Next.js, Astro y soluciones integradas con Inteligencia Artificial.',
-	ogTitle: 'Moisés Valero – Full-Stack Developer',
+		'Portfolio profesional de Moisés Valero, Desarrollador Web especializado en SvelteKit, Next.js, Astro y soluciones integradas con Inteligencia Artificial.',
+	ogTitle: 'Moisés Valero – Desarrollador Web',
 	ogDescription:
 		'Desarrollo web moderno con SvelteKit, Next.js, Astro, TypeScript e integraciones de IA.',
 	ogImage: `${baseUrl}/og-image-2026.png`,

@@ -19,7 +19,7 @@
 		cvHref = '/#contacto',
 		projectsHref = '#proyectos',
 		label = 'PORTFOLIO – MOISÉS VALERO',
-		title = 'Full Stack Developer',
+		title = 'Desarrollador Web',
 		aiPill = 'AI-Powered',
 		subtitle = 'SvelteKit | Next.js | Astro | TypeScript | IA aplicada',
 		ctaPrimaryLabel = 'Ver proyectos',
