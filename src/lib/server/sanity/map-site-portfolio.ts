@@ -74,6 +74,13 @@ function replaceCmsText(value: string, replacements: Record<string, string>): st
 	return replacements[normalized] ?? value;
 }
 
+function sanitizeFullstack(text: string): string {
+	if (!text) return text;
+	return text
+		.replace(/\bfull[- ]?stack\b/gi, 'Desarrollador Web')
+		.replace(/\bfullstack\b/gi, 'Desarrollador Web');
+}
+
 function normalizeHeroProjectCtaLabel(value: string, locale: SiteLocale): string {
 	if (locale === 'en') {
 		return replaceCmsText(value, {
@@ -244,10 +251,10 @@ function mergeSeo(
 	}
 	const ogImageRaw = resolveOgImagePath(asStringOpt(o.ogImage), d.ogImage);
 	return {
-		title: asString(o.title, d.title),
-		description: asString(o.description, d.description),
-		ogTitle: asString(o.ogTitle, d.ogTitle),
-		ogDescription: asString(o.ogDescription, d.ogDescription),
+		title: sanitizeFullstack(asString(o.title, d.title)),
+		description: sanitizeFullstack(asString(o.description, d.description)),
+		ogTitle: sanitizeFullstack(asString(o.ogTitle, d.ogTitle)),
+		ogDescription: sanitizeFullstack(asString(o.ogDescription, d.ogDescription)),
 		ogImage: absolutizeOgImage(ogImageRaw, baseUrl),
 		twitterCard: o.twitterCard === 'summary' ? 'summary' : 'summary_large_image'
 	};
