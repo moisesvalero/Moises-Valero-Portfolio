@@ -20,7 +20,7 @@
 		projectsHref = '#proyectos',
 		label = 'PORTFOLIO – MOISÉS VALERO',
 		title = 'Desarrollador Web',
-		aiPill = 'AI-Powered',
+		aiPill = '',
 		subtitle = 'SvelteKit | Next.js | Astro | TypeScript | IA aplicada',
 		ctaPrimaryLabel = 'Ver proyectos',
 		cvCtaLabel = 'Ver CV'

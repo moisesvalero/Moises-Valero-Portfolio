@@ -1,8 +1,8 @@
 import type { SitePortfolioContent } from '$lib/types/site-portfolio';
 
-const aboutHtml = `<p>Soy <strong>Moisés Valero</strong>. Tras años en el sector industrial, regresé al desarrollo tecnológico con una visión clara: construir páginas web, aplicaciones y soluciones digitales eficientes, resolutivas y orientadas al usuario.</p>
-<p>Me especializo en metodologías de <strong>AI-Driven Development</strong> y <strong>Spec-Driven Development (SDD)</strong> para diseñar arquitecturas de software y conectar soluciones con total autonomía. Mi stack principal está enfocado en <strong>SvelteKit</strong>, <strong>Supabase</strong>, <strong>Tailwind CSS</strong> y APIs de IA (<strong>Gemini</strong>, <strong>OpenAI</strong>, <strong>Anthropic</strong>, <strong>Fal.ai</strong>), además de la gestión y mantenimiento de <strong>WordPress</strong>.</p>
-<p>Estoy en <strong>Alcoy (Alicante)</strong> y busco incorporarme a equipos de desarrollo (remoto, híbrido o presencial). Si buscas madurez, capacidad de resolución y dominio de las herramientas del futuro, hablemos.</p>`;
+const aboutHtml = `<p>Soy <strong>Moisés Valero</strong>. Mi trayectoria combina años de experiencia en el sector industrial con un desarrollo web moderno y de alto rendimiento. Esta visión práctica me permite abordar los proyectos digitales no solo desde el código, sino desde la resolución real de problemas y la optimización de procesos.</p>
+<p>Construyo aplicaciones y sitios web eficientes, cuidando la arquitectura del software, la experiencia del usuario y la integración de servicios digitales avanzados. Aplico metodologías claras para desarrollar herramientas escalables, mantenibles y orientadas a resultados.</p>
+<p>Desde <strong>Alcoy (Alicante)</strong>, busco colaborar con empresas o equipos (remoto o híbrido) que valoren el criterio técnico, la autonomía y la madurez profesional. ¿Hablamos?</p>`;
 
 /** Valores actuales del portfolio; Sanity los sustituye al publicar `sitePortfolio`. */
 export const sitePortfolioDefaults: SitePortfolioContent = {
@@ -33,7 +33,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 		projectsHref: '#proyectos',
 		label: 'PORTFOLIO – MOISÉS VALERO',
 		title: 'Desarrollador Web',
-		aiPill: 'AI-Powered',
+		aiPill: '',
 		subtitle: 'SvelteKit | Next.js | Astro | TypeScript | IA aplicada',
 		bio: 'Desarrollo webs y web apps de alto rendimiento con SvelteKit, Next.js y Astro, con lógica TypeScript e integración de IA aplicada. Aporto soluciones resolutivas y autónomas.',
 		ctaPrimaryLabel: 'Ver proyectos',

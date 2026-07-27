@@ -1,23 +1,18 @@
 import type { SitePortfolioContent } from '$lib/types/site-portfolio';
 
 const aboutHtmlEn = `<p>
-  I'm <strong>Moisés Valero</strong>. After years in the industrial sector, I returned to technology
-  with a clear goal: to build efficient, practical and user-oriented websites, applications and
-  digital solutions. I hold a <strong>Level 3 Vocational Certificate in Web Development</strong>
-  and work from hands-on practice.
+  I'm <strong>Moisés Valero</strong>. My background combines years of experience in the industrial sector
+  with modern, high-performance web development. This practical mindset allows me to approach digital
+  projects not just from the code, but from real problem solving and process optimization.
 </p>
 <p>
-  I specialise in <strong>AI-Driven Development</strong> and
-  <strong>Spec-Driven Development (SDD)</strong> methodologies to design software architectures and
-  connect solutions with autonomy. My main stack focuses on <strong>SvelteKit</strong>,
-  <strong>Supabase</strong>, <strong>Tailwind CSS</strong> and AI APIs
-  (<strong>Gemini</strong>, <strong>OpenAI</strong>, <strong>Anthropic</strong>, <strong>Fal.ai</strong>),
-  plus WordPress management and maintenance.
+  I build efficient web applications and sites, focusing on software architecture, user experience,
+  and the integration of advanced digital services. I apply clear methodologies to deliver scalable,
+  maintainable, and result-oriented tools.
 </p>
 <p>
-  I'm based in <strong>Alcoy (Alicante)</strong> and looking to join development teams
-  (remote, hybrid or on-site). If you value maturity, problem-solving ability and command of the
-  tools shaping the future, let's talk.
+  Based in <strong>Alcoy (Alicante)</strong>, I'm looking to collaborate with companies or teams
+  (remote or hybrid) that value technical judgement, autonomy, and professional maturity. Let's talk!
 </p>`;
 
 /**
@@ -42,7 +37,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
 		projectsHref: '#proyectos',
 		label: 'PORTFOLIO — MOISÉS VALERO',
 		title: 'Web Developer',
-		aiPill: 'AI-Powered',
+		aiPill: '',
 		subtitle: 'SvelteKit | Next.js | Astro | TypeScript | applied AI',
 		bio: 'I build high-performance websites and web apps using SvelteKit, Next.js, and Astro with TypeScript and AI integrations, delivering autonomous and robust solutions.',
 		ctaPrimaryLabel: 'View projects',
