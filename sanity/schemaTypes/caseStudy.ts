@@ -91,7 +91,7 @@ export const caseStudy = defineType({
 			name: 'homeEyebrow',
 			type: 'localeString',
 			title: 'Etiqueta corta en portada',
-			description: 'Ej. Producto full-stack, E-commerce real, IA aplicada.',
+			description: 'Ej. Producto web, E-commerce real, IA aplicada.',
 			group: 'panel'
 		}),
 		defineField({

@@ -24,8 +24,8 @@ async function main() {
 		},
 		homeValueTags: ['Astro', 'Svelte 5', 'Google Gemini', 'Appwrite Cloud', 'PWA Offline'],
 		homeRole: {
-			es: 'Desarrollador fullstack potenciado por IA',
-			en: 'AI-powered fullstack developer'
+			es: 'Desarrollador Web',
+			en: 'Web Developer'
 		},
 		homeYear: '2026',
 		homeComplexity: 'Alta',

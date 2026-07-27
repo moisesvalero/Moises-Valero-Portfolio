@@ -30,8 +30,8 @@ async function main() {
 			'Desarrollo ágil'
 		],
 		homeRole: {
-			es: 'Desarrollador fullstack potenciado por IA',
-			en: 'AI-powered fullstack developer'
+			es: 'Desarrollador Web',
+			en: 'Web Developer'
 		},
 		homeYear: '2026',
 		homeComplexity: 'Media',
@@ -100,11 +100,11 @@ async function main() {
 		},
 		hice: {
 			title: 'Lo que hice',
-			bodyHtml: `<p><strong>Redirecciones al instante con caché:</strong> Diseñé el sistema para que no tuviera que leer de la base de datos cada vez que alguien hace click en un enlace. Al acortar una URL, el enlace y su destino se guardan temporalmente en la memoria rápida (caché). Cuando alguien pincha en el enlace corto, se le redirige al momento. El contador de visitas se actualiza de forma silenciosa en segundo plano, logrando un rendimiento espectacular.</p><p><strong>Protección inteligente contra abuso:</strong> Implementé un sistema que limita las peticiones por usuario. Si alguien intenta acortar demasiadas URLs en poco tiempo, el sistema lo frena temporalmente sin afectar a los demás. También añadí una validación muy fuerte para asegurarme de que sólo se puedan acortar enlaces reales y seguros.</p><p><strong>Calidad y automatización en el desarrollo:</strong> Como desarrollador full-stack potenciado por IA (AI-powered), valoro mucho la agilidad. Automaticé la revisión del código y del diseño visual antes de cada subida a producción, asegurando que el código de Django, los componentes dinámicos de HTMX y los estilos de Tailwind estuvieran perfectos y limpios.</p>`
+			bodyHtml: `<p><strong>Redirecciones al instante con caché:</strong> Diseñé el sistema para que no tuviera que leer de la base de datos cada vez que alguien hace click en un enlace. Al acortar una URL, el enlace y su destino se guardan temporalmente en la memoria rápida (caché). Cuando alguien pincha en el enlace corto, se le redirige al momento. El contador de visitas se actualiza de forma silenciosa en segundo plano, logrando un rendimiento espectacular.</p><p><strong>Protección inteligente contra abuso:</strong> Implementé un sistema que limita las peticiones por usuario. Si alguien intenta acortar demasiadas URLs en poco tiempo, el sistema lo frena temporalmente sin afectar a los demás. También añadí una validación muy fuerte para asegurarme de que sólo se puedan acortar enlaces reales y seguros.</p><p><strong>Calidad y automatización en el desarrollo:</strong> Como desarrollador web, valoro mucho la agilidad y la calidad. Automaticé la revisión del código y del diseño visual antes de cada subida a producción, asegurando que el código de Django, los componentes dinámicos de HTMX y los estilos de Tailwind estuvieran perfectos y limpios.</p>`
 		},
 		hiceEn: {
 			title: 'What I built',
-			bodyHtml: `<p><strong>Instant redirects using cache:</strong> I designed the system so it doesn't need to read from the database every time someone clicks a link. When a URL is shortened, the link and its destination are saved in fast memory (cache). As soon as a user clicks, they are redirected instantly. The view counter updates quietly in the background, resulting in amazing speed.</p><p><strong>Smart abuse protection:</strong> I added a request limit per user. If someone tries to shorten too many links in a short window, the system temporarily blocks them without slowing down others. I also set up strict validation to guarantee only valid and safe links are allowed.</p><p><strong>Quality & development automation:</strong> As an AI-powered fullstack developer, agility is key. I automated all code styling and checks before deploying, making sure the Django backend, dynamic HTMX components, and Tailwind styles remain clean and fast.</p>`
+			bodyHtml: `<p><strong>Instant redirects using cache:</strong> I designed the system so it doesn't need to read from the database every time someone clicks a link. When a URL is shortened, the link and its destination are saved in fast memory (cache). As soon as a user clicks, they are redirected instantly. The view counter updates quietly in the background, resulting in amazing speed.</p><p><strong>Smart abuse protection:</strong> I added a request limit per user. If someone tries to shorten too many links in a short window, the system temporarily blocks them without slowing down others. I also set up strict validation to guarantee only valid and safe links are allowed.</p><p><strong>Quality & development automation:</strong> As a web developer, agility and quality are key. I automated all code styling and checks before deploying, making sure the Django backend, dynamic HTMX components, and Tailwind styles remain clean and fast.</p>`
 		},
 		resultado: {
 			title: 'Resultado',
