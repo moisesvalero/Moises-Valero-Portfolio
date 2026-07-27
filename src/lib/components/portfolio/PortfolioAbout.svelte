@@ -10,7 +10,7 @@
 		aboutHtml?: string;
 	}
 
-	const defaultAboutHtml = `<p>Soy <strong>Moisés Valero</strong>. Empecé en el mundo web sacándome el Certificado de Profesionalidad (DAW) y trabajando un tiempo maquetando en WordPress, reparando equipos y haciendo edición de foto y vídeo. Tras esa etapa, pasé varios años trabajando en el sector industrial, lo que me dio tablas, disciplina y madurez laboral.</p>
+	const defaultAboutHtml = `<p>Soy <strong>Moisés Valero</strong>. Empecé en el mundo web sacándome el Certificado de Profesionalidad (DAW) y trabajando un tiempo maquetando en WordPress, reparando equipos y haciendo edición de foto y vídeo. Tras esa etapa, pasé varios años trabajando en el sector industrial, lo que me aportó disciplina, ética de trabajo y madurez laboral.</p>
   <p>Hace un tiempo decidí volver al desarrollo al 100%. No partía de cero, pero me metí a fondo a actualizarme: he construido más de 20 proyectos reales (e-commerce, dashboards, integraciones) usando <strong>SvelteKit</strong>, <strong>Next.js</strong> y <strong>Astro</strong>.</p>
   <p>Aunque aporto la madurez de la experiencia laboral previa, en software soy consciente de que tengo perfil junior. Por eso, desde <strong>Alcoy (Alicante)</strong>, busco sumarme a un equipo (remoto o híbrido) donde aportar trabajo constante, aprender rápido de desarrolladores con más rodaje y seguir creciendo. ¿Hablamos?</p>`;
 

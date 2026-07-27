@@ -39,7 +39,6 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
 		title: 'Web Developer',
 		aiPill: '',
 		subtitle: 'SvelteKit | Next.js | Astro | TypeScript | applied AI',
-		bio: 'I build functional websites and web apps using SvelteKit, Next.js, and Astro. Looking to join a team where I can contribute hard work and keep learning.',
 		ctaPrimaryLabel: 'View projects',
 		cvCtaLabel: 'View CV'
 	},

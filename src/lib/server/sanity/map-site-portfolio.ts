@@ -293,7 +293,7 @@ function mergeHero(
 		title: pickLocalized(o.title, locale, d.title, enUi.hero.title),
 		aiPill: d.aiPill,
 		subtitle: pickLocalized(o.subtitle, locale, d.subtitle, enUi.hero.subtitle),
-		bio: normalizeHeroBio(pickLocalized(o.bio, locale, d.bio, enUi.hero.bio), locale),
+		bio: normalizeHeroBio(pickLocalized(o.bio, locale, d.bio ?? '', enUi.hero.bio ?? ''), locale),
 		ctaPrimaryLabel,
 		cvCtaLabel
 	};

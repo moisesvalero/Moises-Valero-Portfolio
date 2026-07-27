@@ -28,7 +28,7 @@ export type SiteHero = {
 	title: string;
 	aiPill?: string;
 	subtitle: string;
-	bio: string;
+	bio?: string;
 	/** CTA principal del hero (i18n). */
 	ctaPrimaryLabel?: string;
 	/** CTA secundario del hero para abrir/descargar el CV. */

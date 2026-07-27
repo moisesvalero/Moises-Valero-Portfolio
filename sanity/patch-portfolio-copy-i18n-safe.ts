@@ -68,7 +68,6 @@ async function main() {
 				'SvelteKit · Next.js · Astro · TypeScript · IA aplicada',
 				'SvelteKit · Next.js · Astro · TypeScript · applied AI'
 			),
-			'hero.bio': lt(site.hero.bio, en.hero.bio),
 			'hero.ctaPrimaryLabel': ls(site.hero.ctaPrimaryLabel, en.hero.ctaPrimaryLabel),
 			'hero.careerCtaLabel': ls(site.hero.careerCtaLabel, en.hero.careerCtaLabel),
 

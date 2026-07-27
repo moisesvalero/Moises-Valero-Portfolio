@@ -10,7 +10,6 @@
 		title?: string;
 		aiPill?: string;
 		subtitle?: string;
-		bio?: string;
 		ctaPrimaryLabel?: string;
 		cvCtaLabel?: string;
 	}

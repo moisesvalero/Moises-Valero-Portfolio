@@ -26,8 +26,8 @@
 
 	const summary = $derived(
 		$locale === 'en'
-			? 'I build websites and web apps with modern tooling, real integrations and enough technical judgement to keep projects maintainable.'
-			: 'Trabajo desde especificaciones claras, guío la IA con criterio técnico y reviso cada resultado con foco en rendimiento y mantenibilidad.'
+			? 'I build web applications and sites with a focus on code quality, performance, maintainability, and continuous learning.'
+			: 'Desarrollo aplicaciones y sitios web cuidando la calidad del código, el rendimiento y la mantenibilidad, con un enfoque práctico y constante aprendizaje.'
 	);
 
 	const roleFacts = $derived<RoleFact[]>(
@@ -35,7 +35,10 @@
 			? [
 					{ label: 'Target role', value: 'Web Developer' },
 					{ label: 'Stack + focus', value: 'SvelteKit · TypeScript · Next.js / React · SEO' },
-					{ label: 'Development practices', value: 'Clear specs / human review / AI support' },
+					{
+						label: 'Development practices',
+						value: 'Spec-Driven Development (SDD) · Clean code · Git'
+					},
 					{ label: 'Attitude', value: 'I learn what the team needs' }
 				]
 			: [
@@ -43,7 +46,7 @@
 					{ label: 'Stack + foco', value: 'SvelteKit · TypeScript · Next.js / React · SEO' },
 					{
 						label: 'Buenas prácticas',
-						value: 'AI-Driven Dev · Spec-Driven Development'
+						value: 'Spec-Driven Development (SDD) · Código limpio · Git'
 					},
 					{ label: 'Actitud', value: 'Aprendo lo que el equipo necesite' }
 				]
