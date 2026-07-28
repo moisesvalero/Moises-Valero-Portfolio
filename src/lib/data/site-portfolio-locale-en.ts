@@ -38,7 +38,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
 		label: 'PORTFOLIO — MOISÉS VALERO',
 		title: 'Web Developer',
 		aiPill: '',
-		subtitle: 'SvelteKit | Next.js | Astro | TypeScript | applied AI',
+		subtitle: 'SvelteKit | Next.js | Astro | WordPress | applied AI',
 		ctaPrimaryLabel: 'View projects',
 		cvCtaLabel: 'View CV'
 	},

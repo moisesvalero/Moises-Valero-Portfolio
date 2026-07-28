@@ -34,7 +34,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 		label: 'PORTFOLIO – MOISÉS VALERO',
 		title: 'Desarrollador Web',
 		aiPill: '',
-		subtitle: 'SvelteKit | Next.js | Astro | TypeScript | IA aplicada',
+		subtitle: 'SvelteKit | Next.js | Astro | WordPress | IA aplicada',
 		ctaPrimaryLabel: 'Ver proyectos',
 		cvCtaLabel: 'Ver CV'
 	},

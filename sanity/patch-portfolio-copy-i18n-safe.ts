@@ -65,8 +65,8 @@ async function main() {
 			'hero.title': ls(site.hero.title, en.hero.title),
 			'hero.aiPill': ls(site.hero.aiPill, en.hero.aiPill),
 			'hero.subtitle': ls(
-				'SvelteKit · Next.js · Astro · TypeScript · IA aplicada',
-				'SvelteKit · Next.js · Astro · TypeScript · applied AI'
+				'SvelteKit · Next.js · Astro · WordPress · IA aplicada',
+				'SvelteKit · Next.js · Astro · WordPress · applied AI'
 			),
 			'hero.ctaPrimaryLabel': ls(site.hero.ctaPrimaryLabel, en.hero.ctaPrimaryLabel),
 			'hero.careerCtaLabel': ls(site.hero.careerCtaLabel, en.hero.careerCtaLabel),

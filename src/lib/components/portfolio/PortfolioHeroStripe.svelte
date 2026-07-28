@@ -20,7 +20,7 @@
 		label = 'PORTFOLIO – MOISÉS VALERO',
 		title = 'Desarrollador Web',
 		aiPill = '',
-		subtitle = 'SvelteKit | Next.js | Astro | TypeScript | IA aplicada',
+		subtitle = 'SvelteKit | Next.js | Astro | WordPress | IA aplicada',
 		ctaPrimaryLabel = 'Ver proyectos',
 		cvCtaLabel = 'Ver CV'
 	}: Props = $props();
@@ -40,9 +40,10 @@
 			darkColor: '#ff5d01'
 		},
 		{
-			label: 'TypeScript',
-			icon: 'simple-icons:typescript',
-			color: '#3178c6'
+			label: 'WordPress',
+			icon: 'simple-icons:wordpress',
+			color: '#21759b',
+			darkColor: '#0073aa'
 		},
 		{ label: 'IA aplicada', shortLabel: 'IA', icon: 'lucide:brain-circuit', color: '#6d5dfc' }
 	]);
