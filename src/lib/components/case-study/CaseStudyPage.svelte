@@ -63,7 +63,16 @@
 				<div class="dot green"></div>
 			</div>
 			<div class="window-content">
-				<img src={heroImg.src} srcset={heroImg.srcset} sizes={heroImg.sizes} alt={altMain} width="1200" height="675" loading="eager" decoding="async" />
+				<img
+					src={heroImg.src}
+					srcset={heroImg.srcset}
+					sizes={heroImg.sizes}
+					alt={altMain}
+					width="1200"
+					height="675"
+					loading="eager"
+					decoding="async"
+				/>
 			</div>
 		</div>
 	</div>
@@ -100,7 +109,16 @@
 				<div class="dot green"></div>
 			</div>
 			<div class="window-content-static">
-				<img src={secondary1Img.src} srcset={secondary1Img.srcset} sizes={secondary1Img.sizes} alt={altSec(1)} width="1200" height="675" loading="lazy" decoding="async" />
+				<img
+					src={secondary1Img.src}
+					srcset={secondary1Img.srcset}
+					sizes={secondary1Img.sizes}
+					alt={altSec(1)}
+					width="1200"
+					height="675"
+					loading="lazy"
+					decoding="async"
+				/>
 			</div>
 		</div>
 		<div class="window-mockup-small">
@@ -110,7 +128,16 @@
 				<div class="dot green"></div>
 			</div>
 			<div class="window-content-static">
-				<img src={secondary2Img.src} srcset={secondary2Img.srcset} sizes={secondary2Img.sizes} alt={altSec(2)} width="1200" height="675" loading="lazy" decoding="async" />
+				<img
+					src={secondary2Img.src}
+					srcset={secondary2Img.srcset}
+					sizes={secondary2Img.sizes}
+					alt={altSec(2)}
+					width="1200"
+					height="675"
+					loading="lazy"
+					decoding="async"
+				/>
 			</div>
 		</div>
 	</div>

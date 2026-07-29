@@ -2,7 +2,12 @@ import { getCliClient } from 'sanity/cli';
 import { caseStudySlugLiveUrls } from '../src/lib/data/project-live-urls';
 
 /** Slugs que no deben tocarse (plantillas, enlaces externos). */
-const SKIP_SLUGS = new Set(['sveltekit-starter', 'next-agent-template', 'planificador-de-instagram', 'chatbot']);
+const SKIP_SLUGS = new Set([
+	'sveltekit-starter',
+	'next-agent-template',
+	'planificador-de-instagram',
+	'chatbot'
+]);
 
 async function main() {
 	const client = getCliClient({ apiVersion: '2025-01-01' });

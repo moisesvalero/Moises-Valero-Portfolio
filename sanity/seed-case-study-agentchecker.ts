@@ -22,13 +22,7 @@ async function main() {
 			es: 'Un comando para detectar contradicciones entre Cursor, Claude Code, Copilot y AGENTS.md — y corregirlas antes de que cuesten tokens.',
 			en: 'One command to detect contradictions across Cursor, Claude Code, Copilot, and AGENTS.md — and fix them before they waste tokens.'
 		},
-		homeValueTags: [
-			'Developer tools',
-			'CLI',
-			'Agentes IA',
-			'DX',
-			'CI/CD'
-		],
+		homeValueTags: ['Developer tools', 'CLI', 'Agentes IA', 'DX', 'CI/CD'],
 		homeRole: {
 			es: 'Producto, CLI TypeScript, landing Svelte y CI',
 			en: 'Product, TypeScript CLI, Svelte landing, and CI'
@@ -48,24 +42,8 @@ async function main() {
 			'Herramienta zero-dependency que unifica las instrucciones de todos tus agentes de IA: escanea archivos locales y configs globales, señala el rule drift y propone fixes interactivos o en modo CI con --check-only.',
 		heroDescriptionEn:
 			'A zero-dependency tool that unifies instructions across all your AI agents: scans local files and global configs, flags rule drift, and offers interactive fixes or CI mode with --check-only.',
-		tags: [
-			'TypeScript',
-			'CLI',
-			'Node.js',
-			'Svelte',
-			'Cursor',
-			'Claude Code',
-			'GitHub Actions'
-		],
-		tagsEn: [
-			'TypeScript',
-			'CLI',
-			'Node.js',
-			'Svelte',
-			'Cursor',
-			'Claude Code',
-			'GitHub Actions'
-		],
+		tags: ['TypeScript', 'CLI', 'Node.js', 'Svelte', 'Cursor', 'Claude Code', 'GitHub Actions'],
+		tagsEn: ['TypeScript', 'CLI', 'Node.js', 'Svelte', 'Cursor', 'Claude Code', 'GitHub Actions'],
 		images: {
 			cardImagePath: '/imagenes/agentchecker-card.png',
 			principal: '/imagenes/agentchecker-screen.png',

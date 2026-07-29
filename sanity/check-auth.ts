@@ -12,7 +12,10 @@ async function main() {
 	const config = client.config();
 
 	const [user, caseStudyCount, sampleTitles] = await Promise.all([
-		client.request<{ id: string; name: string; email: string }>({ uri: '/users/me', withCredentials: true }),
+		client.request<{ id: string; name: string; email: string }>({
+			uri: '/users/me',
+			withCredentials: true
+		}),
 		client.fetch<number>(`count(*[_type == "caseStudy"])`),
 		client.fetch<Array<{ title?: string; slug?: { current?: string } }>>(
 			`*[_type == "caseStudy"] | order(_updatedAt desc)[0...5]{ title, slug }`

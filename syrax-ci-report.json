@@ -1,0 +1,155 @@
+{
+	"score": 86,
+	"totalIssues": {
+		"critical": 1,
+		"warning": 9,
+		"info": 14
+	},
+	"issues": [
+		{
+			"id": "seo.title-length",
+			"severity": "warning",
+			"title": "Title poco equilibrado",
+			"category": "seo"
+		},
+		{
+			"id": "seo.description",
+			"severity": "warning",
+			"title": "Falta meta description",
+			"category": "seo"
+		},
+		{
+			"id": "seo.json-ld",
+			"severity": "info",
+			"title": "No hay JSON-LD",
+			"category": "seo"
+		},
+		{
+			"id": "seo.canonical",
+			"severity": "warning",
+			"title": "Falta canonical",
+			"category": "seo"
+		},
+		{
+			"id": "seo.noindex",
+			"severity": "critical",
+			"title": "La pagina esta marcada como noindex",
+			"category": "seo"
+		},
+		{
+			"id": "seo.heading-depth",
+			"severity": "info",
+			"title": "Faltan H2/H3 descriptivos",
+			"category": "seo"
+		},
+		{
+			"id": "seo.open-graph",
+			"severity": "warning",
+			"title": "Metadatos sociales incompletos",
+			"category": "seo"
+		},
+		{
+			"id": "seo.hreflang",
+			"severity": "info",
+			"title": "No se detecta hreflang",
+			"category": "seo"
+		},
+		{
+			"id": "ai.thin-content",
+			"severity": "warning",
+			"title": "Poco contenido legible para IA",
+			"category": "ai"
+		},
+		{
+			"id": "ai.heading-context",
+			"severity": "info",
+			"title": "Pocos encabezados semanticos",
+			"category": "ai"
+		},
+		{
+			"id": "ai.structured-data",
+			"severity": "warning",
+			"title": "Sin datos estructurados para IA/buscadores",
+			"category": "ai"
+		},
+		{
+			"id": "ai.faq",
+			"severity": "info",
+			"title": "No se detecta bloque de preguntas frecuentes",
+			"category": "ai"
+		},
+		{
+			"id": "ai.author",
+			"severity": "info",
+			"title": "Autor o entidad poco clara",
+			"category": "ai"
+		},
+		{
+			"id": "ai.contact-context",
+			"severity": "info",
+			"title": "Contacto poco visible",
+			"category": "ai"
+		},
+		{
+			"id": "performance.blocking-scripts",
+			"severity": "warning",
+			"title": "Scripts potencialmente bloqueantes en el head",
+			"category": "performance"
+		},
+		{
+			"id": "performance.cache-control",
+			"severity": "info",
+			"title": "Falta Cache-Control en HTML",
+			"category": "performance"
+		},
+		{
+			"id": "privacy.policy",
+			"severity": "warning",
+			"title": "No se detecta politica de privacidad",
+			"category": "privacy"
+		},
+		{
+			"id": "privacy.cookies",
+			"severity": "info",
+			"title": "No se detecta enlace a la política de cookies",
+			"category": "privacy"
+		},
+		{
+			"id": "privacy.legal-notice",
+			"severity": "info",
+			"title": "No se detecta aviso legal o terminos",
+			"category": "privacy"
+		},
+		{
+			"id": "trust.contact",
+			"severity": "warning",
+			"title": "Contacto poco claro",
+			"category": "trust"
+		},
+		{
+			"id": "trust.cta",
+			"severity": "info",
+			"title": "No se detecta accion principal clara",
+			"category": "trust"
+		},
+		{
+			"id": "trust.social-proof-links",
+			"severity": "info",
+			"title": "No se detectan enlaces sociales/profesionales",
+			"category": "trust"
+		},
+		{
+			"id": "trust.proof",
+			"severity": "info",
+			"title": "Pocas senales de prueba o trabajos",
+			"category": "trust"
+		},
+		{
+			"id": "trust.location",
+			"severity": "info",
+			"title": "Ubicacion o ambito poco claro",
+			"category": "trust"
+		}
+	],
+	"passed": false
+}

@@ -22,13 +22,7 @@ async function main() {
 			es: 'Starter listo para producción con verificación automática, SEO/AEO y flujo pensado para Cursor, Claude Code o Windsurf.',
 			en: 'Production-ready starter with automated verification, SEO/AEO setup, and a workflow built for Cursor, Claude Code, or Windsurf.'
 		},
-		homeValueTags: [
-			'Open source',
-			'DX',
-			'Agentes IA',
-			'Next.js 16',
-			'TypeScript estricto'
-		],
+		homeValueTags: ['Open source', 'DX', 'Agentes IA', 'Next.js 16', 'TypeScript estricto'],
 		homeRole: {
 			es: 'Diseño de arquitectura, tooling y documentación para agentes',
 			en: 'Architecture, tooling, and agent-first documentation'

@@ -22,13 +22,7 @@ async function main() {
 			es: 'Dashboard premium para el segundo monitor en Windows: clima, calendario, hardware en vivo, YouTube embebido y dock de IAs — con instalador firmado y auto-actualización.',
 			en: 'Premium second-monitor dashboard for Windows: weather, calendar, live hardware stats, embedded YouTube, and an AI dock — with a signed installer and auto-updates.'
 		},
-		homeValueTags: [
-			'Producto real',
-			'Tauri v2',
-			'Rust nativo',
-			'WinGet',
-			'Open source'
-		],
+		homeValueTags: ['Producto real', 'Tauri v2', 'Rust nativo', 'WinGet', 'Open source'],
 		homeRole: {
 			es: 'Producto, UI, Rust/Tauri, releases y landing',
 			en: 'Product, UI, Rust/Tauri, releases, and marketing site'
@@ -48,24 +42,8 @@ async function main() {
 			'Aplicación source-available para Windows que unifica widgets redimensionables, telemetría de sistema en Rust, ventana frameless con bandeja del sistema, actualizaciones automáticas y una landing bilingüe — todo construido con Tauri v2 y Next.js 16.',
 		heroDescriptionEn:
 			'A source-available Windows app that combines resizable widgets, Rust system telemetry, a frameless window with system tray, automatic updates, and a bilingual landing site — all built with Tauri v2 and Next.js 16.',
-		tags: [
-			'Tauri v2',
-			'Next.js 16',
-			'React 19',
-			'Rust',
-			'TypeScript',
-			'Windows',
-			'WinGet'
-		],
-		tagsEn: [
-			'Tauri v2',
-			'Next.js 16',
-			'React 19',
-			'Rust',
-			'TypeScript',
-			'Windows',
-			'WinGet'
-		],
+		tags: ['Tauri v2', 'Next.js 16', 'React 19', 'Rust', 'TypeScript', 'Windows', 'WinGet'],
+		tagsEn: ['Tauri v2', 'Next.js 16', 'React 19', 'Rust', 'TypeScript', 'Windows', 'WinGet'],
 		images: {
 			cardImagePath: '/imagenes/sideglass-landscape-dark.png',
 			principal: '/imagenes/sideglass-portrait-dark.png',
