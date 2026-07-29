@@ -81,6 +81,14 @@ function sanitizeFullstack(text: string): string {
 		.replace(/\bfullstack\b/gi, 'Desarrollador Web');
 }
 
+function sanitizeSpanishPortfolioText(text: string, locale: SiteLocale): string {
+	if (!text || locale === 'en') return text;
+	return text
+		.replace(/\bPORTFOLIO\b/g, 'PORTAFOLIO')
+		.replace(/\bPortfolio\b/g, 'Portafolio')
+		.replace(/\bportfolio\b/g, 'portafolio');
+}
+
 function normalizeHeroProjectCtaLabel(value: string, locale: SiteLocale): string {
 	if (locale === 'en') {
 		return replaceCmsText(value, {
@@ -296,7 +304,10 @@ function mergeHero(
 	return {
 		cvHref: resolveHeroCvHref(asString(o.cvHref, d.cvHref), cvCtaLabel, d.cvHref),
 		projectsHref: asString(o.projectsHref, d.projectsHref ?? '#proyectos'),
-		label: pickLocalized(o.label, locale, d.label, enUi.hero.label),
+		label: sanitizeSpanishPortfolioText(
+			pickLocalized(o.label, locale, d.label, enUi.hero.label),
+			locale
+		),
 		title: pickLocalized(o.title, locale, d.title, enUi.hero.title),
 		aiPill: d.aiPill,
 		subtitle: pickLocalized(o.subtitle, locale, d.subtitle, enUi.hero.subtitle),

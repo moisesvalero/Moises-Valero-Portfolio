@@ -45,7 +45,7 @@ export type SeoState = {
 export const defaultSeo: SeoState = {
 	title: 'Moisés Valero – Desarrollador Web | SvelteKit, Next.js, Astro',
 	description:
-		'Portfolio profesional de Moisés Valero, Desarrollador Web especializado en SvelteKit, Next.js, Astro y soluciones integradas con Inteligencia Artificial.',
+		'Portafolio profesional de Moisés Valero, Desarrollador Web especializado en SvelteKit, Next.js, Astro y soluciones integradas con Inteligencia Artificial.',
 	ogTitle: 'Moisés Valero – Desarrollador Web',
 	ogDescription:
 		'Desarrollo web moderno con SvelteKit, Next.js, Astro, TypeScript e integraciones de IA.',
