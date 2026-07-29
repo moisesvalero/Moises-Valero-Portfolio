@@ -1,14 +1,14 @@
-# Moises Valero Portfolio
+# Moises Valero Portafolio
 
-Portfolio profesional de [moisesvalero.es](https://moisesvalero.es), construido con **SvelteKit 2**, **Svelte 5**, **TypeScript** y **Sanity**. El proyecto combina una experiencia visual cuidada con SEO técnico, contenido editable desde CMS y endpoints server-side para captación de leads.
+Portafolio profesional de [moisesvalero.es](https://moisesvalero.es), construido con **SvelteKit 2**, **Svelte 5**, **TypeScript** y **Sanity**. El proyecto combina una experiencia visual cuidada con SEO técnico, contenido editable desde CMS y endpoints server-side para captación de leads.
 
-![Captura del portfolio](./static/imagenes/readme-portfolio-captura.png)
+![Captura del portafolio](./static/imagenes/readme-portfolio-captura.png)
 
 ## Enlaces
 
 - **Web:** [moisesvalero.es](https://moisesvalero.es)
 - **Stack principal:** SvelteKit, Svelte 5, TypeScript, Sanity, Vercel
-- **Objetivo:** portfolio personal, landings SEO locales y casos de proyecto
+- **Objetivo:** portafolio personal, landings SEO locales y casos de proyecto
 
 ## Trabajo con agentes IA
 
@@ -42,7 +42,7 @@ Si usas Cursor, Claude Code u otra herramienta para **añadir case studies desde
 
 ## Funcionalidades principales
 
-- Home portfolio con presentación, stack, trayectoria, servicios y proyectos.
+- Home portafolio con presentación, stack, trayectoria, servicios y proyectos.
 - Páginas de proyecto en `/proyectos/*`.
 - Landings SEO para servicios web en `/diseno-web` y `/diseno-web-alcoy`.
 - Blog/artículos por slug desde Sanity.
@@ -75,7 +75,7 @@ sanity/
   seed-*.ts / patch-*.ts         # scripts de seed/migración
 static/
   fonts/                         # fuentes autoalojadas
-  imagenes/                      # assets públicos del portfolio
+  imagenes/                      # assets públicos del portafolio
 docs/
   GUIA-AGENTES-CASE-STUDIES.md   # handoff agentes: GitHub → Sanity → portada
 AGENTS.md                        # índice rápido para agentes IA

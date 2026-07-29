@@ -22,7 +22,7 @@
 	>
 		<path fill="#1d1d1f" d={MV_PATH} />
 	</svg>
-	<span class="header-brand-tag">PORTFOLIO</span>
+	<span class="header-brand-tag">PORTAFOLIO</span>
 </a>
 
 <style>

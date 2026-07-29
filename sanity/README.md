@@ -125,7 +125,7 @@ Editar el array `FEATURED` en ese archivo si cambia la selección.
 | Script | Propósito |
 |--------|-----------|
 | `scripts/capture-agentchecker-card.mjs` | Card 16:9 portada agentchecker (`agentcheck-rho.vercel.app`) |
-| `scripts/capture-web-analyzer-screenshots.mjs` | Capturas del **standalone** `web-analyzer-three.vercel.app` (no el del portfolio) |
+| `scripts/capture-web-analyzer-screenshots.mjs` | Capturas del **standalone** `web-analyzer-three.vercel.app` (no el del portafolio) |
 
 ---
 

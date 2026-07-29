@@ -1,6 +1,6 @@
 # Arquitectura de Vercel y Sanity
 
-Documento de **continuidad** para agentes: explica cómo se relacionan el portfolio, el Sanity Studio y los deploys en Vercel.
+Documento de **continuidad** para agentes: explica cómo se relacionan el portafolio, el Sanity Studio y los deploys en Vercel.
 
 ---
 
@@ -24,7 +24,7 @@ Un único repo (`Moises-Valero-Portfolio`) despliega a **dos proyectos Vercel** 
 
 | Proyecto Vercel | URL pública | Qué es | Build |
 |------------------|-------------|--------|------|
-| `migracion-portfolio-sveltekit` | `moisesvalero.es` | Portfolio público (SvelteKit) | `vite build` (adapter-vercel) |
+| `migracion-portfolio-sveltekit` | `moisesvalero.es` | Portafolio público (SvelteKit) | `vite build` (adapter-vercel) |
 | `moisesvalero-admin-sanity` | `admin.moisesvalero.es` | Sanity Studio (CMS privado) | `pnpm exec sanity build` |
 
 ---
@@ -53,7 +53,7 @@ if (projectId === ADMIN_PROJECT_ID) {
 
 ## Configuración de cada proyecto en Vercel
 
-| Setting | Portfolio (`moisesvalero.es`) | Admin Studio (`admin.moisesvalero.es`) |
+| Setting | Portafolio (`moisesvalero.es`) | Admin Studio (`admin.moisesvalero.es`) |
 |---------|------------------------------|----------------------------------------|
 | Framework | `sveltekit-1` | `sveltekit-1` (heredado, no afecta) |
 | Build command | `pnpm run build:vercel` (del `vercel.json`) | `pnpm run build:vercel` (del `vercel.json`) |
@@ -78,7 +78,7 @@ if (projectId === ADMIN_PROJECT_ID) {
 - Proyecto: `5zhz6irf` · dataset: `production`.
 - Esquemas en `sanity/schemaTypes/` (`caseStudy`, `portfolioSite`, `landingSupportArticle`, `locale`, `analyzerLead`).
 - Seeds y parches en `sanity/seed-*.ts` y `sanity/patch-*.ts` (ver `sanity/README.md`).
-- El portfolio lee Sanity por GROQ (`src/lib/server/sanity/groq.ts`, `groq-site-portfolio.ts`).
+- El portafolio lee Sanity por GROQ (`src/lib/server/sanity/groq.ts`, `groq-site-portfolio.ts`).
 
 ---
 
@@ -88,20 +88,20 @@ if (projectId === ADMIN_PROJECT_ID) {
 2. **Preview deployments acumulados** → Vercel crea un preview por cada push a cada rama. Si no se usan, desactivar en Vercel → Settings → Git → Preview deployments.
 3. **Husky `prepare` falla en Vercel** → `. prepare: .git can't be found` es un warning esperado, no rompe el build.
 4. **El admin project no tiene env vars** → Los fallbacks de `vercel-build.mjs` cubren `projectId` y `dataset`. No añadir env vars al admin a menos que se necesiten tokens nuevos.
-5. **Deployar al proyecto equivocado desde CLI** → `vercel deploy` usa el proyecto linkeado en `.vercel/`. Para cambiar: `pnpm exec vercel link --project <nombre> --yes`. Volver a linkear el portfolio después.
+5. **Deployar al proyecto equivocado desde CLI** → `vercel deploy` usa el proyecto linkeado en `.vercel/`. Para cambiar: `pnpm exec vercel link --project <nombre> --yes`. Volver a linkear el portafolio después.
 
 ---
 
 ## Comandos útiles
 
 ```bash
-# Deploy manual del portfolio (moisesvalero.es)
+# Deploy manual del portafolio (moisesvalero.es)
 pnpm exec vercel deploy --prod --yes
 
 # Deploy manual del Sanity Studio (admin.moisesvalero.es)
 pnpm exec vercel link --project moisesvalero-admin-sanity --yes
 pnpm exec vercel deploy --prod --yes
-pnpm exec vercel link --project migracion-portfolio-sveltekit --yes   # volver al portfolio
+pnpm exec vercel link --project migracion-portfolio-sveltekit --yes   # volver al portafolio
 
 # Deploy del Studio a Sanity hosting (alternativa sin Vercel)
 pnpm exec sanity deploy
@@ -124,4 +124,4 @@ pnpm exec vercel list <nombre-proyecto>
 | `sanity.config.ts` | Config del Studio (projectId, dataset, schema, plugins) |
 | `sanity.cli.ts` | Config CLI de Sanity (projectId, dataset, autoUpdates, appId) |
 | `sanity/schemaTypes/caseStudy.ts` | Esquema del case study en Sanity |
-| `src/lib/server/sanity/groq.ts` | Queries GROQ del portfolio a Sanity |
+| `src/lib/server/sanity/groq.ts` | Queries GROQ del portafolio a Sanity |

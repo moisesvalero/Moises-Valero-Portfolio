@@ -21,7 +21,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 	seo: {
 		title: 'Moisés Valero – Desarrollador Web | SvelteKit, Next.js, Astro',
 		description:
-			'Portfolio profesional de Moisés Valero, Desarrollador Web especializado en SvelteKit, Next.js, Astro y soluciones integradas con Inteligencia Artificial.',
+			'Portafolio profesional de Moisés Valero, Desarrollador Web especializado en SvelteKit, Next.js, Astro y soluciones integradas con Inteligencia Artificial.',
 		ogTitle: 'Moisés Valero – Desarrollador Web',
 		ogDescription:
 			'Desarrollo web moderno con SvelteKit, Next.js, Astro, TypeScript e integraciones de IA.',
@@ -31,7 +31,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 	hero: {
 		cvHref: '/api/cv',
 		projectsHref: '#proyectos',
-		label: 'PORTFOLIO – MOISÉS VALERO',
+		label: 'PORTAFOLIO – MOISÉS VALERO',
 		title: 'Desarrollador Web',
 		aiPill: '',
 		subtitle: 'SvelteKit | Next.js | Astro | WordPress | IA aplicada',
@@ -182,7 +182,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 		]
 	},
 	projects: {
-		meta: 'PORTFOLIO SELECCIONADO',
+		meta: 'PORTAFOLIO SELECCIONADO',
 		title: 'Proyectos Destacados',
 		intro:
 			'Una seleccion breve de proyectos que resumen mi forma de trabajar: criterio tecnico, producto, rendimiento e integraciones reales.',
@@ -240,7 +240,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 				href: '/proyectos/chatbot',
 				external: false,
 				linkLabel: 'Ver Proyecto',
-				title: 'Chatbot IA | Asistente de Portfolio',
+				title: 'Chatbot IA | Asistente de Portafolio',
 				description:
 					'Asistente conversacional con Llama 3.3 vía Groq API, entrenado con mi perfil profesional. Automatización Make.com + Telegram para notificaciones en tiempo real.',
 				tags: ['Typebot', 'Groq API', 'Make.com', 'Llama 3.3']

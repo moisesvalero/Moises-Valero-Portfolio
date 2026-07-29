@@ -232,7 +232,7 @@ export const caseStudy = defineType({
 				{
 					name: 'cardImage',
 					type: 'image',
-					title: 'Imagen de tarjeta en portfolio',
+					title: 'Imagen de tarjeta en portafolio',
 					description:
 						'Opcional. Se usa en las tarjetas de la home y en /proyectos. Si lo dejas vacio, se usa la imagen principal.',
 					options: { hotspot: true }

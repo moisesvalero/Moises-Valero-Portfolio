@@ -39,7 +39,7 @@ export const sitePages: SitePage[] = [
 		titleEs: 'Moisés Valero — Desarrollador Web',
 		titleEn: 'Moisés Valero — Web Developer',
 		descEs:
-			'Portfolio profesional de Moisés Valero. Desarrollo web con SvelteKit y WordPress, SEO técnico, rendimiento e integraciones.',
+			'Portafolio profesional de Moisés Valero. Desarrollo web con SvelteKit y WordPress, SEO técnico, rendimiento e integraciones.',
 		descEn:
 			'Moisés Valero portfolio. Web development with SvelteKit and WordPress, technical SEO, performance and IT support.',
 		changefreq: 'weekly',
@@ -60,7 +60,7 @@ export const sitePages: SitePage[] = [
 	},
 	{
 		path: '/proyectos',
-		titleEs: 'Proyectos - Archivo de portfolio',
+		titleEs: 'Proyectos - Archivo de portafolio',
 		titleEn: 'Projects - Portfolio archive',
 		descEs:
 			'Archivo de proyectos web, aplicaciones, integraciones e interfaces desarrolladas por MoisÃ©s Valero.',

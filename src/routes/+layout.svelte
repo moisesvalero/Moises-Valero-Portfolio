@@ -98,7 +98,7 @@
 	const floatingMenuGroups = $derived(
 		[
 			{
-				title: 'Portfolio',
+				title: data.locale === 'en' ? 'Portfolio' : 'Portafolio',
 				variant: 'default',
 				items: headerNavItems.slice(0, 2)
 			},
@@ -235,7 +235,7 @@
 				<div class="motion-header-logo">
 					<HeaderBrand
 						href={site.header.logoHref}
-						ariaLabel={`${site.header.logoText} — Portfolio`}
+						ariaLabel={`${site.header.logoText} — ${data.locale === 'en' ? 'Portfolio' : 'Portafolio'}`}
 					/>
 				</div>
 

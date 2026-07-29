@@ -58,7 +58,7 @@
 <div class="galeria-nova-page">
 	<section class="hero">
 		<div class="hero-inner">
-			<span class="hero-tag">Proyecto de Portfolio · E-commerce</span>
+			<span class="hero-tag">Proyecto de Portafolio · E-commerce</span>
 			<h1>Galería Nova</h1>
 			<p class="hero-sub">
 				E-commerce de arte digital generado con IA, optimizado para impresión en alta resolución.

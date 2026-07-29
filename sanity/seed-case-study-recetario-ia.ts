@@ -98,7 +98,7 @@ async function main() {
 		},
 		resultado: {
 			title: 'Resultado',
-			bodyHtml: `<p>Recetario IA está publicado y listo para usar en <a href="https://recetario.moisesvalero.es" target="_blank" rel="noopener noreferrer">recetario.moisesvalero.es</a> (con el nombre de marca "Umami"). Es una de mis aplicaciones favoritas porque resuelve una molestia diaria de forma visual y divertida, con una estética de cuaderno físico que entra por los ojos.</p><p>Para mi portfolio, demuestra cómo puedo unir inteligencia artificial generativa con interfaces de usuario súper interactivas, utilizando tecnologías modernas de frontend y logrando un producto terminado, usable y optimizado para móviles.</p>`
+			bodyHtml: `<p>Recetario IA está publicado y listo para usar en <a href="https://recetario.moisesvalero.es" target="_blank" rel="noopener noreferrer">recetario.moisesvalero.es</a> (con el nombre de marca "Umami"). Es una de mis aplicaciones favoritas porque resuelve una molestia diaria de forma visual y divertida, con una estética de cuaderno físico que entra por los ojos.</p><p>Para mi portafolio, demuestra cómo puedo unir inteligencia artificial generativa con interfaces de usuario súper interactivas, utilizando tecnologías modernas de frontend y logrando un producto terminado, usable y optimizado para móviles.</p>`
 		},
 		resultadoEn: {
 			title: 'Outcome',

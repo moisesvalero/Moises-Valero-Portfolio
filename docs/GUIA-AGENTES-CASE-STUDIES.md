@@ -1,6 +1,6 @@
 # Guía para agentes — Case studies y portada
 
-Documento de **continuidad**: si cambias de agente, IDE o herramienta, lee esto antes de tocar proyectos en Sanity o la home del portfolio.
+Documento de **continuidad**: si cambias de agente, IDE o herramienta, lee esto antes de tocar proyectos en Sanity o la home del portafolio.
 
 **Índice técnico de scripts:** [sanity/README.md](../sanity/README.md)
 
@@ -88,12 +88,12 @@ Si `cardImagePath` está vacío, la portada usa `images.principal` → suele ver
 
 | Script | URL correcta | Notas |
 |--------|--------------|-------|
-| `scripts/capture-web-analyzer-screenshots.mjs` | `https://web-analyzer-three.vercel.app` | **No** usar `moisesvalero.es/tools/analizador-web` (es otra UI integrada en el portfolio) |
+| `scripts/capture-web-analyzer-screenshots.mjs` | `https://web-analyzer-three.vercel.app` | **No** usar `moisesvalero.es/tools/analizador-web` (es otra UI integrada en el portafolio) |
 | `scripts/capture-agentchecker-card.mjs` | `https://agentcheck-rho.vercel.app` | Card 16:9 para portada; case study sigue con `agentchecker-screen.png` |
 
 ### Errores que ya cometimos (no repetir)
 
-1. **Capturas del producto equivocado** — Web Analyzer del repo ≠ analizador embebido en el portfolio.
+1. **Capturas del producto equivocado** — Web Analyzer del repo ≠ analizador embebido en el portafolio.
 2. **Imagen vertical en portada** — `agentchecker-screen.png` (1280×1555) se veía mini; solución: `cardImagePath` → `agentchecker-card.png` (16:9).
 3. **Tres PNG idénticos** — validar con `stat -c '%n %s' static/imagenes/...` que los bytes difieren.
 4. **Olvidar push** — el case study se ve sin imágenes hasta que Vercel despliega `static/`.
@@ -144,7 +144,7 @@ Reordenar en Studio arrastrando en **Proyectos**, o con **Reset order** si hace 
 
 - Campos ES obligatorios; EN en `*En` (`titleEn`, `heroDescriptionEn`, `retoEn`, …).
 - Proyectos **personales** — tono honesto; métricas creíbles o cualitativas si el usuario lo pide.
-- `repoUrl` + `liveUrl` del **repo desplegado**, no confundir con variantes integradas en el portfolio.
+- `repoUrl` + `liveUrl` del **repo desplegado**, no confundir con variantes integradas en el portafolio.
 - Bloques: `reto`, `hice`, `resultado`, 4 `metrics`, `stack`, `tags`, `seoDescription`.
 - `checklistPublicacion` todo a `true` al publicar.
 
@@ -168,7 +168,7 @@ Plantilla de referencia: `sanity/seed-case-study-sideglass-dashboard.ts`.
 
 - [ ] Leí esta guía y `sanity/README.md`
 - [ ] `sanity login` OK (`check-auth.ts`)
-- [ ] `liveUrl` apunta al deploy del **repo**, no a una copia en el portfolio
+- [ ] `liveUrl` apunta al deploy del **repo**, no a una copia en el portafolio
 - [ ] `cardImagePath` en 16:9 si va a portada
 - [ ] Seed ejecutado con `--with-user-token`
 - [ ] Imágenes en git + push

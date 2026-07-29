@@ -203,7 +203,7 @@ El orden por defecto (sin `featuredOrder`) es por fecha de publicación descende
 | Imágenes | 3 (cover 16:9, principal, secundarias) | 1 (cover 16:9) |
 | Body | Bloques estructurados | HTML simple en `bodyHtml` |
 | Destacado | `showOnHome` + `homeLayoutTier` | `showOnBlog` + `featuredOrder` |
-| Orden en home | `orderRank` (drag & drop en Studio) | No aplica (no sale en home de portfolio) |
+| Orden en home | `orderRank` (drag & drop en Studio) | No aplica (no sale en home de portafolio) |
 | Validación body | Sin mínimo explícito | `bodyHtml` ≥ 300 chars |
 | Listado scripts | `seed-case-study-*.ts` | `seed-landing-support-article-*.ts` |
 

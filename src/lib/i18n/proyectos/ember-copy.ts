@@ -36,7 +36,7 @@ const es: EmberPageCopy = {
 	headTitle: 'Ember & Iron — Caso de Estudio | Moisés Valero',
 	headDescription:
 		'Web corporativa para asador premium: vídeo de fondo optimizado, flujo Figma → WordPress, Kadence, AVIF y PageSpeed 80+ en móvil.',
-	heroTag: 'Proyecto de Portfolio · Web Corporativa',
+	heroTag: 'Proyecto de Portafolio · Web Corporativa',
 	heroTitle: 'Ember & Iron',
 	heroSub:
 		'Web de alto impacto visual para restaurante asador premium, con vídeo de fondo optimizado y flujo profesional Figma → desarrollo.',

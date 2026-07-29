@@ -40,9 +40,9 @@ export type ChatbotPageCopy = {
 const es: ChatbotPageCopy = {
 	headTitle: 'Chatbot IA — Caso de Estudio | Moisés Valero',
 	headDescription:
-		'Asistente con Typebot, Llama 3.3 via Groq, Make.com y alertas Telegram. Caso de estudio del chatbot del portfolio.',
+		'Asistente con Typebot, Llama 3.3 via Groq, Make.com y alertas Telegram. Caso de estudio del chatbot del portafolio.',
 	heroTag: 'Proyecto en Producción · IA + Automatización',
-	heroTitleHtml: 'Chatbot IA<br />Portfolio',
+	heroTitleHtml: 'Chatbot IA<br />Portafolio',
 	heroSub:
 		'Asistente conversacional con IA entrenado con mi perfil profesional y notificaciones en tiempo real vía Telegram.',
 	stat1Num: '<1d',
@@ -52,15 +52,15 @@ const es: ChatbotPageCopy = {
 	stat3Num: 'Live',
 	stat3Label: 'En producción ahora',
 	stat4Label: 'Alertas Telegram',
-	imgMainAlt: 'Chatbot IA en el portfolio',
-	retoTitle: 'Un portfolio que responde por sí solo',
+	imgMainAlt: 'Chatbot IA en el portafolio',
+	retoTitle: 'Un portafolio que responde por sí solo',
 	retoP:
-		'Añadir al portfolio un asistente inteligente capaz de responder preguntas sobre mi experiencia y habilidades, y notificarme en tiempo real cuando alguien interactúa con él — sin infraestructura compleja ni servicios de pago.',
+		'Añadir al portafolio un asistente inteligente capaz de responder preguntas sobre mi experiencia y habilidades, y notificarme en tiempo real cuando alguien interactúa con él — sin infraestructura compleja ni servicios de pago.',
 	hiceTitle: 'IA conversacional + automatización real',
 	hiceP1:
 		'Desarrollé el chatbot con Typebot, integrando el modelo Llama 3.3 a través de la API de Groq para respuestas ultrarrápidas. Entrené el asistente con mi perfil profesional, CV y proyectos para que responda preguntas de reclutadores de forma autónoma.',
 	hiceHighlightHtml:
-		'<p><strong>Automatización:</strong> Cada conversación dispara un webhook en Make.com que envía el mensaje instantáneamente a un bot de Telegram — sé en tiempo real quién visita mi portfolio y qué pregunta.</p>',
+		'<p><strong>Automatización:</strong> Cada conversación dispara un webhook en Make.com que envía el mensaje instantáneamente a un bot de Telegram — sé en tiempo real quién visita mi portafolio y qué pregunta.</p>',
 	flowTitle: 'Flujo técnico completo',
 	flowL1: 'Visitante<br />escribe',
 	flowL2: 'Typebot<br />procesa',
@@ -70,11 +70,11 @@ const es: ChatbotPageCopy = {
 	chatTitle: 'Ejemplo de conversación real',
 	chatUser1: '¿Tienes experiencia con WooCommerce?',
 	chatBot1:
-		'Sí, he desarrollado tiendas con WooCommerce incluyendo configuración de productos, pasarelas de pago como PayPal, y optimización de rendimiento. Puedes ver el proyecto Galería Nova en mi portfolio como ejemplo.',
+		'Sí, he desarrollado tiendas con WooCommerce incluyendo configuración de productos, pasarelas de pago como PayPal, y optimización de rendimiento. Puedes ver el proyecto Galería Nova en mi portafolio como ejemplo.',
 	chatUser2: '¿Y con automatizaciones?',
 	chatBot2:
 		'Sí, este mismo chatbot es un ejemplo — integra Typebot, Groq API y Make.com para notificarme en Telegram cada vez que alguien escribe aquí.',
-	ctaTitle: 'Pruébalo en vivo en mi portfolio',
+	ctaTitle: 'Pruébalo en vivo en mi portafolio',
 	ctaLead: 'El chatbot está activo ahora mismo. Escríbele y te responderá al instante.',
 	ctaBtn: 'Probar el Chatbot',
 	ctaBack: '← Volver'

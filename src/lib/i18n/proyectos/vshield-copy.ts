@@ -35,7 +35,7 @@ const es: VshieldPageCopy = {
 	headTitle: 'V-Shield — Caso de Estudio | Moisés Valero',
 	headDescription:
 		'Landing de ciberseguridad con terminal interactiva en JavaScript, WordPress, Elementor y alto PageSpeed en móvil.',
-	heroTag: 'Proyecto de Portfolio · Landing Page',
+	heroTag: 'Proyecto de Portafolio · Landing Page',
 	heroTitle: 'V-Shield',
 	heroSub:
 		'Landing page de alto impacto para empresa de ciberseguridad, con terminal interactiva funcional desarrollada en JavaScript.',
@@ -60,7 +60,7 @@ const es: VshieldPageCopy = {
 		'El formulario de contacto está desarrollado íntegramente con código propio sin plugins, integrado con Formspree.io. Todos los iconos en SVG para máximo rendimiento. SEO on-page con Yoast, optimización con Autoptimize y seguridad con WPS Hide Login.',
 	imgTerminalAlt: 'Terminal interactiva',
 	imgFormAlt: 'Formulario de contacto',
-	resultadoTitle: 'El mejor rendimiento del portfolio',
+	resultadoTitle: 'El mejor rendimiento del portafolio',
 	resultadoP:
 		'Puntuación PageSpeed cercana a 100 en móvil — el mejor resultado de todos los proyectos. Landing funcional con terminal operativa, formulario sin plugins y carga ultrarrápida.',
 	ctaTitle: '¿Quieres ver el proyecto en vivo?',

@@ -169,7 +169,16 @@
 			aria-label="Abrir imagen destacada"
 			onclick={() => openLightbox(article.coverImageSrc, article.coverImageAlt)}
 		>
-			<img class="cover" src={coverImg.src} srcset={coverImg.srcset} sizes={coverImg.sizes} alt={article.coverImageAlt} loading="eager" width="940" height="440" />
+			<img
+				class="cover"
+				src={coverImg.src}
+				srcset={coverImg.srcset}
+				sizes={coverImg.sizes}
+				alt={article.coverImageAlt}
+				loading="eager"
+				width="940"
+				height="440"
+			/>
 		</button>
 
 		<div class="article-layout">
@@ -259,7 +268,7 @@
 					</button>
 				</div>
 			</div>
-			<a class="back-portfolio" href={resolve('/')}>Volver al Portfolio</a>
+			<a class="back-portfolio" href={resolve('/')}>Volver al Portafolio</a>
 		</div>
 	</section>
 </article>

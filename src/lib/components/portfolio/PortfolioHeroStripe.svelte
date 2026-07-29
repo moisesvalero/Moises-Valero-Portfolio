@@ -17,7 +17,7 @@
 	let {
 		cvHref = '/#contacto',
 		projectsHref = '#proyectos',
-		label = 'PORTFOLIO – MOISÉS VALERO',
+		label = 'PORTAFOLIO – MOISÉS VALERO',
 		title = 'Desarrollador Web',
 		aiPill = '',
 		subtitle = 'SvelteKit | Next.js | Astro | WordPress | IA aplicada',

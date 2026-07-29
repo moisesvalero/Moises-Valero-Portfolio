@@ -604,7 +604,7 @@
 
 <main class="tool-page">
 	<section class="tool-hero">
-		<a class="back-link" href={resolve('/#proyectos')}>Portfolio</a>
+		<a class="back-link" href={resolve('/#proyectos')}>Portafolio</a>
 		<p class="eyebrow">Herramienta propia</p>
 		<h1>Analizador web</h1>
 		<p class="lead">

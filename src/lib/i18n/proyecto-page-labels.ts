@@ -23,7 +23,7 @@ export function getProyectoPageLabels(locale: SiteLocale) {
 		verProyectoVivo: 'Ver proyecto en vivo',
 		verRepositorio: 'Ver repo en GitHub',
 		volver: '← Volver',
-		volverPortfolio: '← Volver al portfolio',
+		volverPortfolio: '← Volver al portafolio',
 		caseStudySuffix: 'Caso de Estudio'
 	};
 }

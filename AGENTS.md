@@ -1,4 +1,4 @@
-# AGENTS.md — Portfolio Moisés Valero
+# AGENTS.md — Portafolio Moisés Valero
 
 Instrucciones para **agentes de IA** que trabajen en este repo (Cursor, Claude Code, Copilot, etc.).
 
@@ -10,7 +10,7 @@ Instrucciones para **agentes de IA** que trabajen en este repo (Cursor, Claude C
 
 ## Contexto en una frase
 
-Portfolio SvelteKit + Sanity; el usuario añade **case studies** desde repos GitHub y **artículos de blog** con un tema e imagen adjunta; tú redactas, subes a Sanity, dejas imágenes en `static/imagenes/` y haces commit + push.
+Portafolio SvelteKit + Sanity; el usuario añade **case studies** desde repos GitHub y **artículos de blog** con un tema e imagen adjunta; tú redactas, subes a Sanity, dejas imágenes en `static/imagenes/` y haces commit + push.
 
 ## Comandos que usarás a menudo
 

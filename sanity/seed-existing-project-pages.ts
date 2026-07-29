@@ -155,7 +155,7 @@ async function main() {
 			estadoInterno: 'listo',
 			showOnHome: true,
 			homeSortOrder: 40,
-			title: 'Chatbot IA Portfolio',
+			title: 'Chatbot IA Portafolio',
 			slug: { _type: 'slug', current: 'chatbot' },
 			seoDescription: c.headDescription,
 			heroTag: c.heroTag,

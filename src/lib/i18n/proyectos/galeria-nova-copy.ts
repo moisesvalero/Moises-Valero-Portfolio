@@ -35,7 +35,7 @@ const es: GaleriaNovaPageCopy = {
 	headTitle: 'Galería Nova — Caso de Estudio | Moisés Valero',
 	headDescription:
 		'E-commerce de arte digital con IA, WordPress, Kadence, WooCommerce y rendimiento optimizado (WebP, Cloudflare).',
-	heroTag: 'Proyecto de Portfolio · E-commerce',
+	heroTag: 'Proyecto de Portafolio · E-commerce',
 	heroTitle: 'Galería Nova',
 	heroSub:
 		'E-commerce de arte digital generado con IA, optimizado para impresión en alta resolución.',

@@ -36,9 +36,9 @@ export const GET = () => {
 
 	const body = `# Moisés Valero — moisesvalero.es
 
-> Portfolio profesional de Moisés Valero, Desarrollador Web especializado en SvelteKit, Next.js, Astro, TypeScript e integraciones de IA.
+> Portafolio profesional de Moisés Valero, Desarrollador Web especializado en SvelteKit, Next.js, Astro, TypeScript e integraciones de IA.
 
-## Portfolio
+## Portafolio
 ${portfolio.map(line).join('\n')}
 
 ## Blog técnico
@@ -57,7 +57,7 @@ ${legal.map(line).join('\n')}
 - [Robots](${baseUrl}/robots.txt)
 
 ## Canonicalización
-- Portfolio principal: ${baseUrl}/
+- Portafolio principal: ${baseUrl}/
 
 ## Contacto
 - Web: ${baseUrl}/

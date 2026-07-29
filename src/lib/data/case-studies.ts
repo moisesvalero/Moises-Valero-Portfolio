@@ -40,7 +40,7 @@ const studies: Record<string, CaseStudy> = {
 		reto: {
 			title: 'Demostrar dominio real de SvelteKit sin un cliente detrás',
 			bodyHtml:
-				'<p>Necesitaba una pieza de portfolio que fuera más que una web estática: algo que mostrara arquitectura de componentes, estado, rendimiento y criterio de producto. Sin brief de cliente, el reto era imponerme un estándar alto y que la landing hablara por sí sola ante reclutadores o equipos técnicos.</p>'
+				'<p>Necesitaba una pieza de portafolio que fuera más que una web estática: algo que mostrara arquitectura de componentes, estado, rendimiento y criterio de producto. Sin brief de cliente, el reto era imponerme un estándar alto y que la landing hablara por sí sola ante reclutadores o equipos técnicos.</p>'
 		},
 		hice: {
 			title:

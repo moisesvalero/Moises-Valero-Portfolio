@@ -38,7 +38,7 @@ export function buildProjectMarkdown(path: string, locale: SiteLocale): string {
 		lines.push(copy.summary);
 	}
 	lines.push('');
-	lines.push(`## ${locale === 'en' ? 'Portfolio' : 'Portfolio'}`);
+	lines.push(`## ${locale === 'en' ? 'Portfolio' : 'Portafolio'}`);
 	lines.push(`${getAeoBaseUrl()}/`);
 	return lines.join('\n');
 }

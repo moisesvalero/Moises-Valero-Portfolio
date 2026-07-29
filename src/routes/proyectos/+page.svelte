@@ -43,7 +43,9 @@
 <main class="projects-page">
 	<section class="projects-hero" aria-labelledby="projects-title">
 		<div>
-			<a class="back-link" href={resolve('/#proyectos')}>Portfolio</a>
+			<a class="back-link" href={resolve('/#proyectos')}
+				>{data.locale === 'en' ? 'Portfolio' : 'Portafolio'}</a
+			>
 			<p class="eyebrow">Archivo de proyectos</p>
 			<h1 id="projects-title">Proyectos</h1>
 			<p class="hero-copy">
