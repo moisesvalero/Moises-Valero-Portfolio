@@ -11,6 +11,7 @@
 	import HeaderBrand from '$lib/components/HeaderBrand.svelte';
 	import { setCvModalControls } from '$lib/cv-modal-context';
 	import { onMount } from 'svelte';
+	import { afterNavigate } from '$app/navigation';
 	import type { LayoutData } from './$types';
 
 	let {
@@ -159,18 +160,32 @@
 
 	const toggleMenu = () => {
 		menuOpen = !menuOpen;
-		// Bloquea scroll del body cuando el menu esta abierto
-		if (menuOpen) {
-			document.body.style.overflow = 'hidden';
-		} else {
-			document.body.style.overflow = '';
+		if (typeof document !== 'undefined') {
+			if (menuOpen) {
+				document.body.style.overflow = 'hidden';
+			} else {
+				document.body.style.overflow = '';
+			}
 		}
 	};
 
 	const closeMenu = () => {
 		menuOpen = false;
-		document.body.style.overflow = '';
+		if (typeof document !== 'undefined') {
+			document.body.style.overflow = '';
+		}
 	};
+
+	afterNavigate(() => {
+		closeMenu();
+		cvModalOpen = false;
+	});
+
+	function handleLayoutKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Escape' && menuOpen) {
+			closeMenu();
+		}
+	}
 
 	let linkMoveRaf = 0;
 	let pendingLinkMove: { el: HTMLElement; cx: number; cy: number } | null = null;
@@ -191,6 +206,8 @@
 		});
 	};
 </script>
+
+<svelte:window onkeydown={handleLayoutKeyDown} />
 
 <svelte:head>
 	<link rel="canonical" href={data.canonicalUrl} />
@@ -214,6 +231,15 @@
 </svelte:head>
 
 {#if !hideSiteChrome}
+	{#if menuOpen}
+		<button
+			class="motion-menu-overlay"
+			type="button"
+			aria-label={data.locale === 'en' ? 'Close menu' : 'Cerrar menu'}
+			onclick={closeMenu}
+		></button>
+	{/if}
+
 	<header class="motion-header" class:menu-open={menuOpen}>
 		<div class="motion-header-shell">
 			<div class="motion-header-bar">
@@ -339,15 +365,6 @@
 				</nav>
 			{/if}
 		</div>
-
-		{#if menuOpen}
-			<button
-				class="motion-menu-overlay"
-				type="button"
-				aria-label={data.locale === 'en' ? 'Close menu' : 'Cerrar menu'}
-				onclick={closeMenu}
-			></button>
-		{/if}
 	</header>
 {/if}
 
@@ -451,6 +468,9 @@
 		border-radius: 7px;
 		background: transparent;
 		color: var(--motion-text);
+		pointer-events: auto !important;
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: transparent;
 		transition:
 			background-color 0.4s cubic-bezier(0.625, 0.05, 0, 1),
 			color 0.4s cubic-bezier(0.625, 0.05, 0, 1),
@@ -467,6 +487,8 @@
 		font-size: 0.78rem;
 		font-weight: 600;
 		letter-spacing: 0;
+		pointer-events: auto !important;
+		touch-action: manipulation;
 	}
 
 	.motion-menu-toggle:hover,
@@ -604,10 +626,13 @@
 	.motion-menu-overlay {
 		position: fixed;
 		inset: 0;
-		z-index: 1;
+		z-index: 90;
 		border: 0;
 		background: rgba(248, 250, 252, 0.78);
 		pointer-events: auto;
+		cursor: pointer;
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: transparent;
 		animation: motionOverlayIn 0.5s cubic-bezier(0.625, 0.05, 0, 1) both;
 	}
 
@@ -694,6 +719,9 @@
 		text-align: left;
 		text-decoration: none;
 		cursor: pointer;
+		pointer-events: auto !important;
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: transparent;
 		transition: color 0.4s cubic-bezier(0.625, 0.05, 0, 1);
 	}
 

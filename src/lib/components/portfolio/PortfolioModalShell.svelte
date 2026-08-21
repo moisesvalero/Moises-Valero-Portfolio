@@ -37,14 +37,10 @@
 		open = false;
 	}
 
-	function portal(node: HTMLElement) {
-		if (typeof document === 'undefined') return;
-		document.body.appendChild(node);
-		return {
-			destroy() {
-				node.remove();
-			}
-		};
+	function handleBackdropClick(event: MouseEvent) {
+		if (event.target === event.currentTarget) {
+			close();
+		}
 	}
 
 	function handleKeyDown(event: KeyboardEvent) {
@@ -60,7 +56,12 @@
 			reduceMotion = media.matches;
 		};
 		media.addEventListener('change', handleChange);
-		return () => media.removeEventListener('change', handleChange);
+		return () => {
+			media.removeEventListener('change', handleChange);
+			if (typeof document !== 'undefined' && previousOverflow !== '') {
+				document.body.style.overflow = previousOverflow;
+			}
+		};
 	});
 
 	$effect(() => {
@@ -74,6 +75,7 @@
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown);
 			document.body.style.overflow = previousOverflow;
+			previousOverflow = '';
 		};
 	});
 </script>
@@ -81,10 +83,9 @@
 {#if open}
 	<div
 		class="portfolio-modal-layer"
-		use:portal
 		role="presentation"
 		transition:fade={fadeParams}
-		onmousedown={close}
+		onclick={handleBackdropClick}
 	>
 		<div
 			bind:this={panel}
@@ -95,7 +96,6 @@
 			tabindex="-1"
 			in:fly={flyInParams}
 			out:fly={flyOutParams}
-			onmousedown={(event) => event.stopPropagation()}
 		>
 			<div class="portfolio-modal-scale" in:scale={scaleParams} out:scale={scaleParams}>
 				{@render children()}
@@ -118,6 +118,9 @@
 		-webkit-backdrop-filter: blur(8px) saturate(1.08);
 		backdrop-filter: blur(8px) saturate(1.08);
 		box-sizing: border-box;
+		cursor: pointer;
+		pointer-events: auto;
+		touch-action: manipulation;
 	}
 
 	.portfolio-modal-panel {
@@ -133,6 +136,8 @@
 		color: #111827;
 		outline: none;
 		text-align: left;
+		cursor: auto;
+		pointer-events: auto;
 	}
 
 	.portfolio-modal-panel:focus-visible {
