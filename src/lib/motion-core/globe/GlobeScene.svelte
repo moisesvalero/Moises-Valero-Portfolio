@@ -305,136 +305,104 @@
 		syncFocusTarget(focusOn);
 	});
 
-	let webGlSupported = $state(true);
-
 	onMount(() => {
 		const targetCanvas = canvas;
 		if (!targetCanvas) return;
 
-		let renderer: Renderer | undefined;
-		const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 1;
-
-		try {
-			renderer = new Renderer({
-				canvas: targetCanvas,
-				alpha: true,
-				antialias: true,
-				dpr
-			});
-		} catch {
-			try {
-				renderer = new Renderer({
-					canvas: targetCanvas,
-					alpha: true,
-					antialias: false,
-					depth: false,
-					dpr
-				});
-			} catch (err) {
-				console.warn('[GlobeScene] WebGL initialization failed:', err);
-				webGlSupported = false;
-				return;
-			}
-		}
-
-		if (!renderer || !renderer.gl) {
-			console.warn('[GlobeScene] WebGL context is null');
-			webGlSupported = false;
-			return;
-		}
-
+		const renderer = new Renderer({
+			canvas: targetCanvas,
+			alpha: true,
+			antialias: true,
+			dpr: typeof window !== 'undefined' ? window.devicePixelRatio : 1
+		});
 		const gl = renderer.gl;
+		gl.clearColor(0, 0, 0, 0);
 
-		try {
-			gl.clearColor(0, 0, 0, 0);
+		targetCanvas.style.width = '100%';
+		targetCanvas.style.height = '100%';
 
-			targetCanvas.style.width = '100%';
-			targetCanvas.style.height = '100%';
+		const camera = new Camera(gl);
+		camera.position.z = 1;
 
-			const camera = new Camera(gl);
-			camera.position.z = 1;
+		const globeScene = new Transform();
+		const atmosphereScene = new Transform();
+		const geometry = new Triangle(gl);
+		const markerData = new Array<number>(MAX_SHADER_MARKERS * 4).fill(0);
+		const markerColorData = new Array<number>(MAX_SHADER_MARKERS * 3).fill(0);
+		const landTexture = new Texture(gl, {
+			image: new Uint8Array([0, 0, 0, 255]),
+			width: 1,
+			height: 1,
+			format: gl.RGBA,
+			type: gl.UNSIGNED_BYTE,
+			minFilter: gl.NEAREST,
+			magFilter: gl.NEAREST,
+			generateMipmaps: false,
+			wrapS: gl.REPEAT,
+			wrapT: gl.REPEAT
+		});
 
-			const globeScene = new Transform();
-			const atmosphereScene = new Transform();
-			const geometry = new Triangle(gl);
-			const markerData = new Float32Array(MAX_SHADER_MARKERS * 4);
-			const markerColorData = new Float32Array(MAX_SHADER_MARKERS * 3);
-			const landTexture = new Texture(gl, {
-				image: new Uint8Array([0, 0, 0, 255]),
-				width: 1,
-				height: 1,
-				format: gl.RGBA,
-				type: gl.UNSIGNED_BYTE,
-				minFilter: gl.NEAREST,
-				magFilter: gl.NEAREST,
-				generateMipmaps: false,
-				wrapS: gl.REPEAT,
-				wrapT: gl.REPEAT
-			});
+		const uniforms = {
+			uResolution: { value: new Vec2(1, 1) },
+			uRotation: { value: new Vec2(0, clampTheta(0, lockedPolarAngle)) },
+			uScale: { value: toScale(radius) },
+			uDots: { value: Math.max(1, Math.floor(pointCount)) },
+			uPointRadius: { value: toPointRadius(pointSize) },
+			uBaseColor: { value: new Vec3(0, 0, 0) },
+			uRimColor: { value: new Vec3(0, 0, 0) },
+			uRimPower: { value: resolvedFresnelConfig.rimPower },
+			uRimIntensity: { value: resolvedFresnelConfig.rimIntensity },
+			uAtmosphereColor: { value: new Vec3(0, 0, 0) },
+			uAtmosphereScale: { value: resolvedAtmosphereConfig.scale },
+			uAtmospherePower: { value: resolvedAtmosphereConfig.power },
+			uAtmosphereCoefficient: { value: resolvedAtmosphereConfig.coefficient },
+			uAtmosphereIntensity: { value: resolvedAtmosphereConfig.intensity },
+			uLandPointColor: { value: new Vec3(0, 0, 0) },
+			uLandTexture: { value: landTexture },
+			uMarkerCount: { value: 0 },
+			uMarkerData: { value: markerData },
+			uMarkerColor: { value: markerColorData }
+		};
 
-			const uniforms = {
-				uResolution: { value: new Vec2(1, 1) },
-				uRotation: { value: new Vec2(0, clampTheta(0, lockedPolarAngle)) },
-				uScale: { value: toScale(radius) },
-				uDots: { value: Math.max(1, Math.floor(pointCount)) },
-				uPointRadius: { value: toPointRadius(pointSize) },
-				uBaseColor: { value: new Vec3(0, 0, 0) },
-				uRimColor: { value: new Vec3(0, 0, 0) },
-				uRimPower: { value: resolvedFresnelConfig.rimPower },
-				uRimIntensity: { value: resolvedFresnelConfig.rimIntensity },
-				uAtmosphereColor: { value: new Vec3(0, 0, 0) },
-				uAtmosphereScale: { value: resolvedAtmosphereConfig.scale },
-				uAtmospherePower: { value: resolvedAtmosphereConfig.power },
-				uAtmosphereCoefficient: { value: resolvedAtmosphereConfig.coefficient },
-				uAtmosphereIntensity: { value: resolvedAtmosphereConfig.intensity },
-				uLandPointColor: { value: new Vec3(0, 0, 0) },
-				uLandTexture: { value: landTexture },
-				uMarkerCount: { value: 0 },
-				uMarkerData: { value: markerData },
-				uMarkerColor: { value: markerColorData }
-			};
+		const vertexShader = `
+			attribute vec2 uv;
+			attribute vec2 position;
+			varying vec2 vUv;
 
-			const vertexShader = `
-				attribute vec2 uv;
-				attribute vec2 position;
-				varying vec2 vUv;
+			void main() {
+				vUv = uv;
+				gl_Position = vec4(position, 0.0, 1.0);
+			}
+		`;
 
-				void main() {
-					vUv = uv;
-					gl_Position = vec4(position, 0.0, 1.0);
-				}
-			`;
+		const globeFragmentShader = `
+			precision highp float;
 
-			const globeFragmentShader = `
-				#ifdef GL_FRAGMENT_PRECISION_HIGH
-				precision highp float;
-				#else
-				precision mediump float;
-				#endif
+			varying vec2 vUv;
 
-				varying vec2 vUv;
+			uniform vec2 uResolution;
+			uniform vec2 uRotation;
+			uniform float uScale;
+			uniform float uDots;
+			uniform float uPointRadius;
+			uniform vec3 uBaseColor;
+			uniform vec3 uRimColor;
+			uniform float uRimPower;
+			uniform float uRimIntensity;
+			uniform vec3 uLandPointColor;
+			uniform sampler2D uLandTexture;
+			uniform float uMarkerCount;
+			uniform vec4 uMarkerData[${MAX_SHADER_MARKERS}];
+			uniform vec3 uMarkerColor[${MAX_SHADER_MARKERS}];
 
-				uniform vec2 uResolution;
-				uniform vec2 uRotation;
-				uniform float uScale;
-				uniform float uDots;
-				uniform float uPointRadius;
-				uniform vec3 uBaseColor;
-				uniform vec3 uRimColor;
-				uniform float uRimPower;
-				uniform float uRimIntensity;
-				uniform vec3 uLandPointColor;
-				uniform sampler2D uLandTexture;
-				uniform float uMarkerCount;
-				uniform vec4 uMarkerData[${MAX_SHADER_MARKERS}];
-				uniform vec3 uMarkerColor[${MAX_SHADER_MARKERS}];
+			const float kPi = 3.141592653589793;
+			const float kTau = 6.283185307179586;
+			const float kPhi = 1.618033988749895;
+			const float kSqrt5 = 2.23606797749979;
+			const float kSphereRadius = 0.8;
+			const int kMaxMarkers = ${MAX_SHADER_MARKERS};
 
-				const float kPi = 3.141592653589793;
-				const float kTau = 6.283185307179586;
-				const float kPhi = 1.618033988749895;
-				const float kSqrt5 = 2.23606797749979;
-				const float kSphereRadius = 0.8;
-				const int kMaxMarkers = ${MAX_SHADER_MARKERS};
+			float byDots;
 
 			mat3 rotate(float theta, float phi) {
 				float cx = cos(theta);
@@ -451,8 +419,7 @@
 			vec3 nearestFibonacciLattice(vec3 p, out float m) {
 				p = p.xzy;
 
-				float byDots = 1.0 / max(1.0, uDots);
-				float k = max(2.0, floor(log2(max(1e-5, kSqrt5 * uDots * kPi * (1.0 - p.z * p.z))) * 0.72021));
+				float k = max(2.0, floor(log2(kSqrt5 * uDots * kPi * (1.0 - p.z * p.z)) * 0.72021));
 				vec2 f = floor(pow(kPhi, k) / kSqrt5 * vec2(1.0, kPhi) + 0.5);
 				vec2 br1 = fract((f + 1.0) * (kPhi - 1.0)) * kTau - 3.883222;
 				vec2 br2 = -2.0 * f;
@@ -465,8 +432,8 @@
 				float mindist = kPi;
 				vec3 minip = vec3(0.0, 0.0, 1.0);
 
-				for (int s = 0; s < 4; s++) {
-					vec2 o = vec2(mod(float(s), 2.0), floor(float(s) * 0.5));
+				for (float s = 0.0; s < 4.0; s += 1.0) {
+					vec2 o = vec2(mod(s, 2.0), floor(s * 0.5));
 					float idx = dot(f, c + o);
 					if (idx > uDots) continue;
 
@@ -543,6 +510,8 @@
 			}
 
 			void main() {
+				byDots = 1.0 / max(1.0, uDots);
+
 				vec2 uv = vUv * 2.0 - 1.0;
 				uv.x *= uResolution.x / max(1.0, uResolution.y);
 				uv /= max(0.0001, uScale);
@@ -607,12 +576,8 @@
 			}
 		`;
 
-			const atmosphereFragmentShader = `
-			#ifdef GL_FRAGMENT_PRECISION_HIGH
+		const atmosphereFragmentShader = `
 			precision highp float;
-			#else
-			precision mediump float;
-			#endif
 
 			varying vec2 vUv;
 
@@ -666,318 +631,295 @@
 			}
 		`;
 
-			const globeProgram = new Program(gl, {
-				vertex: vertexShader,
-				fragment: globeFragmentShader,
-				uniforms,
-				transparent: true,
-				depthTest: false,
-				depthWrite: false
-			});
+		const globeProgram = new Program(gl, {
+			vertex: vertexShader,
+			fragment: globeFragmentShader,
+			uniforms,
+			transparent: true,
+			depthTest: false,
+			depthWrite: false
+		});
 
-			const atmosphereProgram = new Program(gl, {
-				vertex: vertexShader,
-				fragment: atmosphereFragmentShader,
-				uniforms,
-				transparent: true,
-				depthTest: false,
-				depthWrite: false
-			});
-			atmosphereProgram.setBlendFunc(gl.SRC_ALPHA, gl.ONE);
+		const atmosphereProgram = new Program(gl, {
+			vertex: vertexShader,
+			fragment: atmosphereFragmentShader,
+			uniforms,
+			transparent: true,
+			depthTest: false,
+			depthWrite: false
+		});
+		atmosphereProgram.setBlendFunc(gl.SRC_ALPHA, gl.ONE);
 
-			const globeMesh = new Mesh(gl, {
-				geometry,
-				program: globeProgram,
-				frustumCulled: false
-			});
-			globeMesh.setParent(globeScene);
+		const globeMesh = new Mesh(gl, {
+			geometry,
+			program: globeProgram,
+			frustumCulled: false
+		});
+		globeMesh.setParent(globeScene);
 
-			const atmosphereMesh = new Mesh(gl, {
-				geometry,
-				program: atmosphereProgram,
-				frustumCulled: false
-			});
-			atmosphereMesh.setParent(atmosphereScene);
+		const atmosphereMesh = new Mesh(gl, {
+			geometry,
+			program: atmosphereProgram,
+			frustumCulled: false
+		});
+		atmosphereMesh.setParent(atmosphereScene);
 
-			let currentScale = toScale(radius);
-			const tempColor = new Vec3();
-			const setColor = (
-				target: Vec3,
-				value: ColorRepresentation,
-				fallback: [number, number, number]
-			) => {
-				const [r, g, b] = toLinearRgb(value, fallback);
-				target.set(r, g, b);
-			};
+		let currentScale = toScale(radius);
+		const tempColor = new Vec3();
+		const setColor = (
+			target: Vec3,
+			value: ColorRepresentation,
+			fallback: [number, number, number]
+		) => {
+			const [r, g, b] = toLinearRgb(value, fallback);
+			target.set(r, g, b);
+		};
 
-			updateUniforms = (state) => {
-				currentScale = toScale(state.radius);
-				uniforms.uScale.value = currentScale;
-				uniforms.uDots.value = Math.max(1, Math.floor(state.pointCount));
-				uniforms.uPointRadius.value = toPointRadius(state.pointSize);
+		updateUniforms = (state) => {
+			currentScale = toScale(state.radius);
+			uniforms.uScale.value = currentScale;
+			uniforms.uDots.value = Math.max(1, Math.floor(state.pointCount));
+			uniforms.uPointRadius.value = toPointRadius(state.pointSize);
 
-				setColor(uniforms.uBaseColor.value, state.fresnelConfig.color, [
-					17 / 255,
-					17 / 255,
-					19 / 255
-				]);
-				setColor(uniforms.uRimColor.value, state.fresnelConfig.rimColor, [1, 105 / 255, 0]);
-				uniforms.uRimPower.value = Math.max(0.0001, state.fresnelConfig.rimPower);
-				uniforms.uRimIntensity.value = Math.max(0, state.fresnelConfig.rimIntensity);
+			setColor(uniforms.uBaseColor.value, state.fresnelConfig.color, [
+				17 / 255,
+				17 / 255,
+				19 / 255
+			]);
+			setColor(uniforms.uRimColor.value, state.fresnelConfig.rimColor, [1, 105 / 255, 0]);
+			uniforms.uRimPower.value = Math.max(0.0001, state.fresnelConfig.rimPower);
+			uniforms.uRimIntensity.value = Math.max(0, state.fresnelConfig.rimIntensity);
 
-				setColor(uniforms.uAtmosphereColor.value, state.atmosphereConfig.color, [1, 105 / 255, 0]);
-				uniforms.uAtmosphereScale.value = Math.max(1, state.atmosphereConfig.scale);
-				uniforms.uAtmospherePower.value = Math.max(0.0001, state.atmosphereConfig.power);
-				uniforms.uAtmosphereCoefficient.value = Math.max(0, state.atmosphereConfig.coefficient);
-				uniforms.uAtmosphereIntensity.value = Math.max(0, state.atmosphereConfig.intensity);
+			setColor(uniforms.uAtmosphereColor.value, state.atmosphereConfig.color, [1, 105 / 255, 0]);
+			uniforms.uAtmosphereScale.value = Math.max(1, state.atmosphereConfig.scale);
+			uniforms.uAtmospherePower.value = Math.max(0.0001, state.atmosphereConfig.power);
+			uniforms.uAtmosphereCoefficient.value = Math.max(0, state.atmosphereConfig.coefficient);
+			uniforms.uAtmosphereIntensity.value = Math.max(0, state.atmosphereConfig.intensity);
 
-				setColor(tempColor, state.landPointColor, [247 / 255, 113 / 255, 20 / 255]);
-				uniforms.uLandPointColor.value.set(tempColor.x, tempColor.y, tempColor.z);
-			};
+			setColor(tempColor, state.landPointColor, [247 / 255, 113 / 255, 20 / 255]);
+			uniforms.uLandPointColor.value.set(tempColor.x, tempColor.y, tempColor.z);
+		};
 
-			updateUniforms({
-				radius,
-				pointCount,
-				pointSize,
-				landPointColor,
-				fresnelConfig: resolvedFresnelConfig,
-				atmosphereConfig: resolvedAtmosphereConfig
-			});
+		updateUniforms({
+			radius,
+			pointCount,
+			pointSize,
+			landPointColor,
+			fresnelConfig: resolvedFresnelConfig,
+			atmosphereConfig: resolvedAtmosphereConfig
+		});
 
-			let width = 1;
-			let height = 1;
+		let width = 1;
+		let height = 1;
 
-			const startTheta = clampTheta(0, lockedPolarAngle);
-			let phi = 0;
-			let theta = startTheta;
-			let targetPhi = phi;
-			let targetTheta = startTheta;
+		const startTheta = clampTheta(0, lockedPolarAngle);
+		let phi = 0;
+		let theta = startTheta;
+		let targetPhi = phi;
+		let targetTheta = startTheta;
 
-			const syncMarkers = (currentPhi: number, currentTheta: number, currentScaleValue: number) => {
-				const markerRadius = COBE_GLOBE_RADIUS;
-				const aspect = width / Math.max(1, height);
-				const markerCount = Math.min(markers.length, MAX_SHADER_MARKERS);
-				markerData.fill(0);
-				markerColorData.fill(0);
-				uniforms.uMarkerCount.value = markerCount;
+		const syncMarkers = (currentPhi: number, currentTheta: number, currentScaleValue: number) => {
+			const markerRadius = COBE_GLOBE_RADIUS;
+			const aspect = width / Math.max(1, height);
+			const markerCount = Math.min(markers.length, MAX_SHADER_MARKERS);
+			markerData.fill(0);
+			markerColorData.fill(0);
+			uniforms.uMarkerCount.value = markerCount;
 
-				const nextMarkers: ProjectedMarker[] = [];
-				for (let index = 0; index < markers.length; index++) {
-					const marker = markers[index];
-					const pos = lonLatToCartesian(marker.location[1], marker.location[0], markerRadius);
-					const rotated = applyRotation(pos.x, pos.y, pos.z, currentPhi, currentTheta);
+			const nextMarkers: ProjectedMarker[] = [];
+			for (let index = 0; index < markers.length; index++) {
+				const marker = markers[index];
+				const pos = lonLatToCartesian(marker.location[1], marker.location[0], markerRadius);
+				const rotated = applyRotation(pos.x, pos.y, pos.z, currentPhi, currentTheta);
 
-					const ndcX = (rotated.rx / aspect) * currentScaleValue;
-					const ndcY = -rotated.ry * currentScaleValue;
-					const screenX = (ndcX + 1) * 0.5;
-					const screenY = (ndcY + 1) * 0.5;
+				const ndcX = (rotated.rx / aspect) * currentScaleValue;
+				const ndcY = -rotated.ry * currentScaleValue;
+				const screenX = (ndcX + 1) * 0.5;
+				const screenY = (ndcY + 1) * 0.5;
 
-					const frontDot = rotated.rz / markerRadius;
-					const rawVisibility = smoothstep(frontDot, VISIBILITY_MIN_DOT, VISIBILITY_MAX_DOT);
-					const visibility = dynamicEase(rawVisibility);
+				const frontDot = rotated.rz / markerRadius;
+				const rawVisibility = smoothstep(frontDot, VISIBILITY_MIN_DOT, VISIBILITY_MAX_DOT);
+				const visibility = dynamicEase(rawVisibility);
 
-					nextMarkers.push({
-						marker,
-						index,
-						screenX,
-						screenY,
-						visibility
-					});
+				nextMarkers.push({
+					marker,
+					index,
+					screenX,
+					screenY,
+					visibility
+				});
 
-					if (index >= markerCount) continue;
+				if (index >= markerCount) continue;
 
-					const unitPos = lonLatToCartesian(marker.location[1], marker.location[0], 1);
-					const markerDataOffset = index * 4;
-					markerData[markerDataOffset] = unitPos.x;
-					markerData[markerDataOffset + 1] = unitPos.y;
-					markerData[markerDataOffset + 2] = unitPos.z;
-					markerData[markerDataOffset + 3] = clamp(
-						(marker.size ?? 0.05) * SHADER_MARKER_SIZE_SCALE,
-						MIN_SHADER_MARKER_SIZE,
-						MAX_SHADER_MARKER_SIZE
-					);
-
-					const [r, g, b] = toLinearRgb(marker.color ?? '#ffffff', [1, 1, 1]);
-					const markerColorOffset = index * 3;
-					markerColorData[markerColorOffset] = r;
-					markerColorData[markerColorOffset + 1] = g;
-					markerColorData[markerColorOffset + 2] = b;
-				}
-
-				projectedMarkers = nextMarkers;
-			};
-
-			syncFocusTarget = (target) => {
-				focusTween?.kill();
-				focusTween = null;
-
-				if (!target) return;
-
-				const [lat, lon] = target;
-				const nextDirection = lonLatToCartesian(lon, lat, 1);
-				const targetRotation = cartesianToRotation(
-					nextDirection.x,
-					nextDirection.y,
-					nextDirection.z
+				const unitPos = lonLatToCartesian(marker.location[1], marker.location[0], 1);
+				const markerDataOffset = index * 4;
+				markerData[markerDataOffset] = unitPos.x;
+				markerData[markerDataOffset + 1] = unitPos.y;
+				markerData[markerDataOffset + 2] = unitPos.z;
+				markerData[markerDataOffset + 3] = clamp(
+					(marker.size ?? 0.05) * SHADER_MARKER_SIZE_SCALE,
+					MIN_SHADER_MARKER_SIZE,
+					MAX_SHADER_MARKER_SIZE
 				);
 
-				const desiredTheta = clampTheta(targetRotation.theta, lockedPolarAngle);
-				const desiredPhi = shortestAngleTarget(targetPhi, targetRotation.phi);
+				const [r, g, b] = toLinearRgb(marker.color ?? '#ffffff', [1, 1, 1]);
+				const markerColorOffset = index * 3;
+				markerColorData[markerColorOffset] = r;
+				markerColorData[markerColorOffset + 1] = g;
+				markerColorData[markerColorOffset + 2] = b;
+			}
 
-				const tweenState = { phi: targetPhi, theta: targetTheta };
-				focusTween = gsap.to(tweenState, {
-					phi: desiredPhi,
-					theta: desiredTheta,
-					duration: 1.5,
-					ease: 'power2.inOut',
-					onUpdate: () => {
-						targetPhi = tweenState.phi;
-						targetTheta = clampTheta(tweenState.theta, lockedPolarAngle);
-					},
-					overwrite: true
-				});
-			};
+			projectedMarkers = nextMarkers;
+		};
 
-			syncFocusTarget(focusOn);
+		syncFocusTarget = (target) => {
+			focusTween?.kill();
+			focusTween = null;
 
-			let dragging = false;
-			let activePointerId = -1;
-			let lastPointerX = 0;
-			let lastPointerY = 0;
+			if (!target) return;
 
-			const onPointerDown = (event: PointerEvent) => {
-				if (event.button !== 0) return;
-				dragging = true;
-				activePointerId = event.pointerId;
-				lastPointerX = event.clientX;
-				lastPointerY = event.clientY;
-				targetCanvas.setPointerCapture(event.pointerId);
-				focusTween?.kill();
-				focusTween = null;
-			};
+			const [lat, lon] = target;
+			const nextDirection = lonLatToCartesian(lon, lat, 1);
+			const targetRotation = cartesianToRotation(nextDirection.x, nextDirection.y, nextDirection.z);
 
-			const onPointerMove = (event: PointerEvent) => {
-				if (!dragging || event.pointerId !== activePointerId) return;
-				const dx = event.clientX - lastPointerX;
-				const dy = event.clientY - lastPointerY;
-				lastPointerX = event.clientX;
-				lastPointerY = event.clientY;
+			const desiredTheta = clampTheta(targetRotation.theta, lockedPolarAngle);
+			const desiredPhi = shortestAngleTarget(targetPhi, targetRotation.phi);
 
-				targetPhi += dx * ROTATE_SENSITIVITY;
-				targetTheta = clampTheta(targetTheta + dy * ROTATE_SENSITIVITY, lockedPolarAngle);
-			};
+			const tweenState = { phi: targetPhi, theta: targetTheta };
+			focusTween = gsap.to(tweenState, {
+				phi: desiredPhi,
+				theta: desiredTheta,
+				duration: 1.5,
+				ease: 'power2.inOut',
+				onUpdate: () => {
+					targetPhi = tweenState.phi;
+					targetTheta = clampTheta(tweenState.theta, lockedPolarAngle);
+				},
+				overwrite: true
+			});
+		};
 
-			const stopDragging = (event: PointerEvent) => {
-				if (event.pointerId !== activePointerId) return;
-				dragging = false;
-				activePointerId = -1;
-			};
+		syncFocusTarget(focusOn);
 
-			targetCanvas.addEventListener('pointerdown', onPointerDown);
-			targetCanvas.addEventListener('pointermove', onPointerMove);
-			targetCanvas.addEventListener('pointerup', stopDragging);
-			targetCanvas.addEventListener('pointercancel', stopDragging);
-			targetCanvas.addEventListener('lostpointercapture', stopDragging);
+		let dragging = false;
+		let activePointerId = -1;
+		let lastPointerX = 0;
+		let lastPointerY = 0;
 
-			let disposed = false;
-			const image = new Image();
-			image.onload = () => {
-				if (disposed) return;
-				landTexture.image = image;
-				landTexture.generateMipmaps = true;
-				landTexture.minFilter = gl.NEAREST_MIPMAP_NEAREST;
-				landTexture.magFilter = gl.NEAREST;
-				landTexture.needsUpdate = true;
-			};
-			image.onerror = (error) => {
-				console.warn('GlobeScene: failed to load land mask texture', error);
-			};
-			image.src = landTextureUrl;
+		const onPointerDown = (event: PointerEvent) => {
+			if (event.button !== 0) return;
+			dragging = true;
+			activePointerId = event.pointerId;
+			lastPointerX = event.clientX;
+			lastPointerY = event.clientY;
+			targetCanvas.setPointerCapture(event.pointerId);
+			focusTween?.kill();
+			focusTween = null;
+		};
 
-			let raf = 0;
-			let previous = 0;
-			const tick = (now: number) => {
-				if (disposed || !renderer) return;
-				try {
-					const w = Math.max(1, targetCanvas.clientWidth);
-					const h = Math.max(1, targetCanvas.clientHeight);
-					const bufW = Math.round(w * renderer.dpr);
-					const bufH = Math.round(h * renderer.dpr);
-					if (targetCanvas.width !== bufW || targetCanvas.height !== bufH) {
-						targetCanvas.width = bufW;
-						targetCanvas.height = bufH;
-						renderer.width = w;
-						renderer.height = h;
-						renderer.state.viewport = { x: 0, y: 0, width: null, height: null };
-						width = w;
-						height = h;
-						uniforms.uResolution.value.set(w, h);
-					}
-					const delta = previous ? (now - previous) / 1000 : 0;
-					previous = now;
+		const onPointerMove = (event: PointerEvent) => {
+			if (!dragging || event.pointerId !== activePointerId) return;
+			const dx = event.clientX - lastPointerX;
+			const dy = event.clientY - lastPointerY;
+			lastPointerX = event.clientX;
+			lastPointerY = event.clientY;
 
-					if (autoRotate) {
-						targetPhi -= AUTO_ROTATE_SPEED * delta;
-					}
-					targetTheta = clampTheta(targetTheta, lockedPolarAngle);
+			targetPhi += dx * ROTATE_SENSITIVITY;
+			targetTheta = clampTheta(targetTheta + dy * ROTATE_SENSITIVITY, lockedPolarAngle);
+		};
 
-					const easing = 1 - Math.exp(-delta * SMOOTHING_STRENGTH);
-					phi += (targetPhi - phi) * easing;
-					theta += (targetTheta - theta) * easing;
+		const stopDragging = (event: PointerEvent) => {
+			if (event.pointerId !== activePointerId) return;
+			dragging = false;
+			activePointerId = -1;
+		};
 
-					uniforms.uRotation.value.set(phi, theta);
+		targetCanvas.addEventListener('pointerdown', onPointerDown);
+		targetCanvas.addEventListener('pointermove', onPointerMove);
+		targetCanvas.addEventListener('pointerup', stopDragging);
+		targetCanvas.addEventListener('pointercancel', stopDragging);
+		targetCanvas.addEventListener('lostpointercapture', stopDragging);
 
-					syncMarkers(phi, theta, currentScale);
-					renderer.render({ scene: globeScene, camera, clear: true });
-					renderer.render({ scene: atmosphereScene, camera, clear: false });
-					raf = window.requestAnimationFrame(tick);
-				} catch (err) {
-					console.warn('[GlobeScene] WebGL render error:', err);
-				}
-			};
+		let disposed = false;
+		const image = new Image();
+		image.onload = () => {
+			if (disposed) return;
+			landTexture.image = image;
+			landTexture.generateMipmaps = true;
+			landTexture.minFilter = gl.NEAREST_MIPMAP_NEAREST;
+			landTexture.magFilter = gl.NEAREST;
+			landTexture.needsUpdate = true;
+		};
+		image.onerror = (error) => {
+			console.warn('GlobeScene: failed to load land mask texture', error);
+		};
+		image.src = landTextureUrl;
 
+		let raf = 0;
+		let previous = 0;
+		const tick = (now: number) => {
+			const w = Math.max(1, targetCanvas.clientWidth);
+			const h = Math.max(1, targetCanvas.clientHeight);
+			const bufW = Math.round(w * renderer.dpr);
+			const bufH = Math.round(h * renderer.dpr);
+			if (targetCanvas.width !== bufW || targetCanvas.height !== bufH) {
+				targetCanvas.width = bufW;
+				targetCanvas.height = bufH;
+				renderer.width = w;
+				renderer.height = h;
+				renderer.state.viewport = { x: 0, y: 0, width: null, height: null };
+				width = w;
+				height = h;
+				uniforms.uResolution.value.set(w, h);
+			}
+			const delta = previous ? (now - previous) / 1000 : 0;
+			previous = now;
+
+			if (autoRotate) {
+				targetPhi -= AUTO_ROTATE_SPEED * delta;
+			}
+			targetTheta = clampTheta(targetTheta, lockedPolarAngle);
+
+			const easing = 1 - Math.exp(-delta * SMOOTHING_STRENGTH);
+			phi += (targetPhi - phi) * easing;
+			theta += (targetTheta - theta) * easing;
+
+			uniforms.uRotation.value.set(phi, theta);
+
+			syncMarkers(phi, theta, currentScale);
+			renderer.render({ scene: globeScene, camera, clear: true });
+			renderer.render({ scene: atmosphereScene, camera, clear: false });
 			raf = window.requestAnimationFrame(tick);
+		};
 
-			return () => {
-				disposed = true;
-				focusTween?.kill();
-				focusTween = null;
-				window.cancelAnimationFrame(raf);
-				targetCanvas.removeEventListener('pointerdown', onPointerDown);
-				targetCanvas.removeEventListener('pointermove', onPointerMove);
-				targetCanvas.removeEventListener('pointerup', stopDragging);
-				targetCanvas.removeEventListener('pointercancel', stopDragging);
-				targetCanvas.removeEventListener('lostpointercapture', stopDragging);
+		raf = window.requestAnimationFrame(tick);
 
-				try {
-					globeMesh.setParent(null);
-					atmosphereMesh.setParent(null);
-					geometry.remove();
-					globeProgram.remove();
-					atmosphereProgram.remove();
-				} catch {
-					/* ignore */
-				}
-			};
-		} catch (err) {
-			console.warn('[GlobeScene] Scene setup failed, falling back:', err);
-			webGlSupported = false;
-		}
+		return () => {
+			disposed = true;
+			focusTween?.kill();
+			focusTween = null;
+			window.cancelAnimationFrame(raf);
+			targetCanvas.removeEventListener('pointerdown', onPointerDown);
+			targetCanvas.removeEventListener('pointermove', onPointerMove);
+			targetCanvas.removeEventListener('pointerup', stopDragging);
+			targetCanvas.removeEventListener('pointercancel', stopDragging);
+			targetCanvas.removeEventListener('lostpointercapture', stopDragging);
+
+			globeMesh.setParent(null);
+			atmosphereMesh.setParent(null);
+			geometry.remove();
+			globeProgram.remove();
+			atmosphereProgram.remove();
+		};
 	});
 </script>
 
-{#if webGlSupported}
-	<canvas
-		bind:this={canvas}
-		class="absolute inset-0 block h-full w-full"
-		style="width:100%;height:100%;touch-action:none;"
-		aria-hidden="true"
-	></canvas>
-{:else}
-	<div class="globe-fallback-wrap" aria-hidden="true">
-		<div class="globe-fallback-sphere"></div>
-	</div>
-{/if}
+<canvas
+	bind:this={canvas}
+	class="absolute inset-0 block h-full w-full"
+	style="width:100%;height:100%;touch-action:none;"
+	aria-hidden="true"
+></canvas>
 
 <div class="pointer-events-none absolute inset-0 overflow-hidden">
 	{#each projectedMarkers as projected, i (projected.marker.label || i)}
@@ -991,25 +933,3 @@
 		/>
 	{/each}
 </div>
-
-<style>
-	.globe-fallback-wrap {
-		position: absolute;
-		inset: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		pointer-events: none;
-	}
-
-	.globe-fallback-sphere {
-		width: 72%;
-		aspect-ratio: 1;
-		border-radius: 50%;
-		background: radial-gradient(circle at 35% 30%, #4da3ff 0%, #005fcf 45%, #07101d 85%);
-		box-shadow:
-			0 0 45px rgba(77, 163, 255, 0.35),
-			inset -12px -12px 30px rgba(0, 0, 0, 0.85);
-		opacity: 0.88;
-	}
-</style>
