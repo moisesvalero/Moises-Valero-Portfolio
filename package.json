@@ -42,7 +42,7 @@
 		"globals": "^17.11.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^17.3.0",
-		"oxlint": "^0.15.11",
+		"oxlint": "^1.79.0",
 		"prettier": "^3.9.6",
 		"prettier-plugin-svelte": "^4.1.1",
 		"sanity": "^6.9.2",
