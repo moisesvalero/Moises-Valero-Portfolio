@@ -311,26 +311,39 @@
 		const targetCanvas = canvas;
 		if (!targetCanvas) return;
 
-		let renderer: Renderer;
+		let renderer: Renderer | undefined;
+		const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 1;
+
 		try {
 			renderer = new Renderer({
 				canvas: targetCanvas,
 				alpha: true,
 				antialias: true,
-				dpr: typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 1
+				dpr
 			});
-		} catch (err) {
-			console.warn('[GlobeScene] WebGL initialization failed:', err);
+		} catch {
+			try {
+				renderer = new Renderer({
+					canvas: targetCanvas,
+					alpha: true,
+					antialias: false,
+					depth: false,
+					dpr
+				});
+			} catch (err) {
+				console.warn('[GlobeScene] WebGL initialization failed:', err);
+				webGlSupported = false;
+				return;
+			}
+		}
+
+		if (!renderer || !renderer.gl) {
+			console.warn('[GlobeScene] WebGL context is null');
 			webGlSupported = false;
 			return;
 		}
 
 		const gl = renderer.gl;
-		if (!gl) {
-			console.warn('[GlobeScene] WebGL context is null');
-			webGlSupported = false;
-			return;
-		}
 
 		try {
 			gl.clearColor(0, 0, 0, 0);
@@ -423,8 +436,6 @@
 				const float kSphereRadius = 0.8;
 				const int kMaxMarkers = ${MAX_SHADER_MARKERS};
 
-			float byDots;
-
 			mat3 rotate(float theta, float phi) {
 				float cx = cos(theta);
 				float cy = cos(phi);
@@ -440,7 +451,8 @@
 			vec3 nearestFibonacciLattice(vec3 p, out float m) {
 				p = p.xzy;
 
-				float k = max(2.0, floor(log2(kSqrt5 * uDots * kPi * (1.0 - p.z * p.z)) * 0.72021));
+				float byDots = 1.0 / max(1.0, uDots);
+				float k = max(2.0, floor(log2(max(1e-5, kSqrt5 * uDots * kPi * (1.0 - p.z * p.z))) * 0.72021));
 				vec2 f = floor(pow(kPhi, k) / kSqrt5 * vec2(1.0, kPhi) + 0.5);
 				vec2 br1 = fract((f + 1.0) * (kPhi - 1.0)) * kTau - 3.883222;
 				vec2 br2 = -2.0 * f;
@@ -453,8 +465,8 @@
 				float mindist = kPi;
 				vec3 minip = vec3(0.0, 0.0, 1.0);
 
-				for (float s = 0.0; s < 4.0; s += 1.0) {
-					vec2 o = vec2(mod(s, 2.0), floor(s * 0.5));
+				for (int s = 0; s < 4; s++) {
+					vec2 o = vec2(mod(float(s), 2.0), floor(float(s) * 0.5));
 					float idx = dot(f, c + o);
 					if (idx > uDots) continue;
 
@@ -531,8 +543,6 @@
 			}
 
 			void main() {
-				byDots = 1.0 / max(1.0, uDots);
-
 				vec2 uv = vUv * 2.0 - 1.0;
 				uv.x *= uResolution.x / max(1.0, uResolution.y);
 				uv /= max(0.0001, uScale);
