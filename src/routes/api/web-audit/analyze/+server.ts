@@ -63,12 +63,35 @@ function toCleanString(value: unknown): string {
 
 function hasInvalidOrigin(request: Request, url: URL): boolean {
 	const origin = request.headers.get('origin');
-	if (!origin) return false;
-	try {
-		return new URL(origin).origin !== url.origin;
-	} catch {
+	const referer = request.headers.get('referer');
+	const secFetchSite = request.headers.get('sec-fetch-site');
+
+	if (secFetchSite === 'cross-site') {
 		return true;
 	}
+
+	if (origin) {
+		try {
+			return new URL(origin).origin !== url.origin;
+		} catch {
+			return true;
+		}
+	}
+
+	if (referer) {
+		try {
+			return new URL(referer).origin !== url.origin;
+		} catch {
+			return true;
+		}
+	}
+
+	const isProd = env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+	if (isProd && !origin && !referer) {
+		return true;
+	}
+
+	return false;
 }
 
 export const POST: RequestHandler = async ({ request, url, getClientAddress }) => {

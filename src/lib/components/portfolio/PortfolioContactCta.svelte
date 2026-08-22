@@ -43,6 +43,8 @@
 	let isFormModalOpen = $state(false);
 	let formStatus = $state<'idle' | 'sending' | 'success' | 'error'>('idle');
 	let formError = $state('');
+	let honeypot = $state('');
+	let mountTime = $state(0);
 	let form = $state({
 		name: '',
 		email: '',
@@ -55,6 +57,8 @@
 		isFormModalOpen = true;
 		formStatus = 'idle';
 		formError = '';
+		honeypot = '';
+		mountTime = Date.now();
 	}
 
 	function closeFormModal() {
@@ -70,7 +74,11 @@
 		const response = await fetch('/api/contact/form', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(form)
+			body: JSON.stringify({
+				...form,
+				website: honeypot,
+				_t: mountTime
+			})
 		});
 		const data = (await response.json().catch(() => null)) as {
 			ok?: boolean;
@@ -83,6 +91,7 @@
 		}
 		formStatus = 'success';
 		form = { name: '', email: '', phone: '', message: '', privacyAccepted: false };
+		honeypot = '';
 	}
 </script>
 
@@ -165,6 +174,23 @@
 			</button>
 		</div>
 		<form class="modal-form" onsubmit={submitForm}>
+			<!-- Honeypot anti-spam -->
+			<div
+				aria-hidden="true"
+				style="position: absolute; width: 0; height: 0; overflow: hidden; opacity: 0; pointer-events: none;"
+				tabindex="-1"
+			>
+				<label for="portfolio-hp-website">Website</label>
+				<input
+					id="portfolio-hp-website"
+					type="text"
+					name="website"
+					bind:value={honeypot}
+					tabindex="-1"
+					autocomplete="off"
+				/>
+			</div>
+
 			<label>
 				<span>Nombre *</span>
 				<input required bind:value={form.name} maxlength="100" />
