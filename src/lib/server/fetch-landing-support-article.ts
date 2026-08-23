@@ -9,6 +9,7 @@ type LandingSupportArticleRow = Partial<LandingSupportArticle> & {
 	excerpt?: string | null;
 	bodyHtml?: string | null;
 	image?: unknown;
+	dateModified?: string | null;
 };
 
 function asString(value: unknown, fallback = ''): string {
@@ -36,12 +37,15 @@ function mapRow(
 			? imageUrl(ctx.projectId, ctx.dataset, row.image, 1400)
 			: undefined;
 
+	const publishedAt = asString(row.publishedAt, new Date().toISOString());
+
 	return {
 		slug,
 		title,
 		categoryLabel: asString(row.categoryLabel, 'Guia local'),
 		excerpt,
-		publishedAt: asString(row.publishedAt, new Date().toISOString()),
+		publishedAt,
+		dateModified: asString(row.dateModified, publishedAt),
 		readingMinutes: asNumber(row.readingMinutes, 5),
 		coverImageSrc: imageFromAsset || asString(row.coverImageSrc, '/og-image-2026.png'),
 		coverImageAlt: asString(row.coverImageAlt, title),

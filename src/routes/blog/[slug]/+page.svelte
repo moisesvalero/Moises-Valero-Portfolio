@@ -54,6 +54,7 @@
 			headline: article.title,
 			description: seoDescription,
 			datePublished: article.publishedAt,
+			dateModified: article.dateModified ?? article.publishedAt,
 			author: { '@type': 'Person', name: 'Moisés Valero' },
 			publisher: { '@type': 'Person', name: 'Moisés Valero' },
 			image: [ogImage],

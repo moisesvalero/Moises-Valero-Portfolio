@@ -4,6 +4,7 @@ export type LandingSupportArticle = {
 	categoryLabel: string;
 	excerpt: string;
 	publishedAt: string;
+	dateModified?: string;
 	readingMinutes: number;
 	coverImageSrc: string;
 	coverImageAlt: string;

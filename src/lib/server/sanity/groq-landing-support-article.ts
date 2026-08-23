@@ -7,6 +7,7 @@ export const landingSupportArticleBySlugQuery = `*[
   categoryLabel,
   excerpt,
   publishedAt,
+  "dateModified": _updatedAt,
   readingMinutes,
   image,
   coverImageSrc,
