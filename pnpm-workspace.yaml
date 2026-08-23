@@ -8,11 +8,18 @@ overrides:
   minimatch: 10.2.4
   ws: 8.21.0
   form-data: 4.0.6
-  tar: 7.5.11
-  '@module-federation/dts-plugin>undici': 7.28.0
-  '@actions/http-client>undici': 6.27.0
-  'vercel>undici': 6.27.0
-  '@vercel/node>undici': 6.27.0
+  tar: 7.5.21
+  ajv: 8.18.0
+  cookie: 0.7.0
+  smol-toml: 1.7.1
+  '@tootallnate/once': 2.0.1
+  'typeid-js>uuid': 11.1.1
+  '@module-federation/dts-plugin>undici': 7.29.0
+  '@actions/http-client>undici': 6.28.0
+  'vercel>undici': 6.28.0
+  '@vercel/node>undici': 6.28.0
+  '@vercel/frameworks>js-yaml': 3.15.1
+  '@vercel/python-analysis>js-yaml': 4.3.1
   '@vercel/node>path-to-regexp': 6.3.0
   '@vercel/backends>path-to-regexp': 8.4.0
   '@vercel/fun>path-to-regexp': 8.4.0
