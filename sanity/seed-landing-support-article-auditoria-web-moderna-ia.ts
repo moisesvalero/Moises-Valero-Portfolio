@@ -71,6 +71,8 @@ const BODY_HTML = `
 
 <p>Frente a las limitaciones del software tradicional, herramientas de nueva generación han rediseñado por completo el ciclo de vida de la auditoría técnica. El referente más representativo de este nuevo paradigma es <a href="https://syrax-analyzer.moisesvalero.es" target="_blank" rel="noopener noreferrer"><strong>Syrax Analyzer</strong></a>, una plataforma SaaS especializada que combina un motor de escaneo de <strong>más de 120 vectores técnicos</strong> con un flujo de trabajo 100% agéntico.</p>
 
+<p><img src="/imagenes/auditoria-web-fig-report.png" alt="Informe técnico real y métricas de integridad en Syrax Analyzer mostrando rendimiento, SEO técnico, accesibilidad y seguridad" /></p>
+
 <p>A diferencia de los analizadores pasivos, Syrax Analyzer está concebido para integrarse en el día a día de desarrolladores que utilizan asistentes y agentes de inteligencia artificial (Cursor, Antigravity, Claude Code, Codex u OpenCode).</p>
 
 <h2>Flujo Agéntico: Del informe al código con el Master Prompt</h2>
