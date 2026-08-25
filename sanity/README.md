@@ -82,6 +82,7 @@ Editar el array `FEATURED` en ese archivo si cambia la selección.
 | `seed-case-study-sideglass-dashboard.ts` | Sideglass |
 | `seed-case-study-agentchecker.ts` | agentchecker |
 | `seed-case-study-web-analyzer.ts` | Web Analyzer |
+| `seed-case-study-novatab.ts` | NovaTab (Startpage & New Tab) |
 | `seed-existing-project-pages.ts` | Migración inicial: vshield, ember-iron, galeria-nova, chatbot |
 | `seed-initial-content.ts` | Documento singleton `portfolioSite` y contenido base |
 
@@ -126,6 +127,7 @@ Editar el array `FEATURED` en ese archivo si cambia la selección.
 |--------|-----------|
 | `scripts/capture-agentchecker-card.mjs` | Card 16:9 portada agentchecker (`agentcheck-rho.vercel.app`) |
 | `scripts/capture-web-analyzer-screenshots.mjs` | Capturas del **standalone** `web-analyzer-three.vercel.app` (no el del portafolio) |
+| `scripts/capture-novatab-screenshots.mjs` | Capturas Desktop, Card 16:9 y Mobile de NovaTab (`start.moisesvalero.es`) |
 
 ---
 

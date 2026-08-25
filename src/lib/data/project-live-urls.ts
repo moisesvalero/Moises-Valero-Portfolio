@@ -20,7 +20,8 @@ export const projectLiveUrls = {
 	win95Gpt: 'https://win95.moisesvalero.es',
 	devDays: 'https://devdays.moisesvalero.es',
 	primeHaus: 'https://prime.moisesvalero.es',
-	recepcionistaIa: 'https://recepcionista.moisesvalero.es'
+	recepcionistaIa: 'https://recepcionista.moisesvalero.es',
+	novatab: 'https://start.moisesvalero.es'
 } as const;
 
 /** Slug Sanity `caseStudy` → URL demo pública (subdominio custom). */
@@ -38,7 +39,8 @@ export const caseStudySlugLiveUrls: Partial<Record<string, string>> = {
 	'win95-gpt': projectLiveUrls.win95Gpt,
 	primehaus: projectLiveUrls.primeHaus,
 	fisionova: projectLiveUrls.recepcionistaIa,
-	'dev-days': projectLiveUrls.devDays
+	'dev-days': projectLiveUrls.devDays,
+	novatab: projectLiveUrls.novatab
 };
 
 /** Prioriza subdominio canónico por slug; si no hay mapeo, usa CMS. */
@@ -60,5 +62,6 @@ export const projectLegacyVercelUrls = {
 	win95Gpt: 'https://win95-gpt-eight.vercel.app',
 	devDays: 'https://dev-days-two.vercel.app',
 	primeHaus: 'https://prime-haus.vercel.app',
-	recepcionistaIa: 'https://proyecto-ia-recepcionista.vercel.app'
+	recepcionistaIa: 'https://proyecto-ia-recepcionista.vercel.app',
+	novatab: 'https://novatab-five.vercel.app'
 } as const;
