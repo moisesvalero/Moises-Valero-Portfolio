@@ -191,7 +191,10 @@ El orden por defecto (sin `featuredOrder`) es por fecha de publicación descende
 
 | Título | Slug | Portada | Seed |
 |--------|------|---------|------|
-| — | — | — | — |
+| Kimi K3: El nuevo titán MoE de Moonshot AI | `kimi-k3-llm-moonshot-ai` | `kimi-k3-cover.png` | `seed-landing-support-article-kimi-k3.ts` |
+| Frameworks web en la era de los agentes de IA | `frameworks-web-era-ia` | `frameworks-web-era-ia-cover.png` | `seed-landing-support-article-frameworks-web-era-ia.ts` |
+| Auditoría web en 2026: Por qué Lighthouse ya no es suficiente | `auditoria-web-moderna-ia` | `auditoria-web-moderna-ia-cover.png` | `seed-landing-support-article-auditoria-web-moderna-ia.ts` |
+| Astro 7.0: La Era de Rolldown y Builds Ultrarrápidos | `astro-7` | `blog-post-astro-7.H_MMnwV0_Z1ICDBv.webp` | `seed-landing-support-article-astro-7.ts` |
 
 ---
 
