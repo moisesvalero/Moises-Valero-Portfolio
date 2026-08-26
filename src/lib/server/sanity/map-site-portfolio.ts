@@ -157,12 +157,21 @@ function normalizeFooterCopyright(value: string): string {
 	return value
 		.replace(
 			'SvelteKit, WordPress, Sanity CMS y SEO técnico',
-			'SvelteKit, React/Next.js, WordPress, Sanity CMS y SEO técnico'
+			'SvelteKit, React/Next.js, WordPress, Astro y SEO técnico'
+		)
+		.replace(
+			'SvelteKit, React/Next.js, WordPress, Sanity CMS y SEO técnico',
+			'SvelteKit, React/Next.js, WordPress, Astro y SEO técnico'
 		)
 		.replace(
 			'SvelteKit, WordPress, Sanity CMS and technical SEO',
-			'SvelteKit, React/Next.js, WordPress, Sanity CMS and technical SEO'
-		);
+			'SvelteKit, React/Next.js, WordPress, Astro and technical SEO'
+		)
+		.replace(
+			'SvelteKit, React/Next.js, WordPress, Sanity CMS and technical SEO',
+			'SvelteKit, React/Next.js, WordPress, Astro and technical SEO'
+		)
+		.replace(/Sanity CMS/gi, 'Astro');
 }
 
 function normalizeAboutHtml(value: string, locale: SiteLocale): string {

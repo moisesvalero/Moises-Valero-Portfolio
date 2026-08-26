@@ -257,7 +257,7 @@ export const portfolioEnglishDemo: Omit<SitePortfolioContent, 'seo'> = {
 	},
 	footer: {
 		copyrightTemplate:
-			'Moisés Valero © {{year}} | Web developer focused on product, performance and integrations | SvelteKit, React/Next.js, WordPress, Sanity CMS and technical SEO.',
+			'Moisés Valero © {{year}} | Web developer focused on product, performance and integrations | SvelteKit, React/Next.js, WordPress, Astro and technical SEO.',
 		githubHref: 'https://github.com/moisesvalero',
 		linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
 		youtubeHref: 'https://www.youtube.com/@moisesvaleroES',

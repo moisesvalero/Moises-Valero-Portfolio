@@ -15,7 +15,7 @@
 	const resolvePath = resolve as unknown as (href: string) => string;
 
 	let {
-		copyrightTemplate = 'Desarrollo web a medida, rendimiento y SEO para empresas y profesionales | Proyectos en remoto y presenciales. Moisés Valero © {{year}} | Especialista en SvelteKit, WordPress y Sanity CMS.',
+		copyrightTemplate = 'Moisés Valero © {{year}} | Desarrollador web orientado a producto, rendimiento e integraciones | SvelteKit, React/Next.js, WordPress, Astro y SEO técnico.',
 		githubHref = 'https://github.com/moisesvalero',
 		linkedinHref = 'https://www.linkedin.com/in/moisesvalero',
 		youtubeHref = 'https://www.youtube.com/@moisesvaleroES',
