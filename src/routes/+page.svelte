@@ -28,9 +28,12 @@
 			name: 'Moisés Valero',
 			url: `${baseUrl}/`,
 			jobTitle: 'Desarrollador Web',
-			sameAs: [site.footer.githubHref, site.footer.linkedinHref, site.footer.maltHref].filter(
-				(u): u is string => typeof u === 'string' && u.length > 0
-			),
+			sameAs: [
+				site.footer.githubHref,
+				site.footer.linkedinHref,
+				site.footer.youtubeHref,
+				site.footer.maltHref
+			].filter((u): u is string => typeof u === 'string' && u.length > 0),
 			worksFor: {
 				'@id': `${baseUrl}/#organization`
 			},
@@ -70,9 +73,12 @@
 			founder: {
 				'@id': `${baseUrl}/#person`
 			},
-			sameAs: [site.footer.githubHref, site.footer.linkedinHref, site.footer.maltHref].filter(
-				(u): u is string => typeof u === 'string' && u.length > 0
-			),
+			sameAs: [
+				site.footer.githubHref,
+				site.footer.linkedinHref,
+				site.footer.youtubeHref,
+				site.footer.maltHref
+			].filter((u): u is string => typeof u === 'string' && u.length > 0),
 			areaServed: [
 				{ '@type': 'Country', name: 'Espana' },
 				{ '@type': 'City', name: 'Alcoy' },

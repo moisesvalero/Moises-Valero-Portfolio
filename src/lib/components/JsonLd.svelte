@@ -38,7 +38,11 @@
 			name: 'Moisés Valero',
 			url: `${SITE_BASE_URL}/`,
 			logo: `${SITE_BASE_URL}/apple-touch-icon.png`,
-			sameAs: ['https://github.com/Moises2104', 'https://www.linkedin.com/in/moises-valero-sanchez']
+			sameAs: [
+				'https://github.com/moisesvalero',
+				'https://www.linkedin.com/in/moisesvalero',
+				'https://www.youtube.com/@moisesvaleroES'
+			]
 		})
 	);
 

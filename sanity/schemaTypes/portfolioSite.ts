@@ -304,6 +304,7 @@ export const portfolioSite = defineType({
 				},
 				{ name: 'githubHref', type: 'url' },
 				{ name: 'linkedinHref', type: 'url' },
+				{ name: 'youtubeHref', type: 'url', title: 'YouTube' },
 				{ name: 'maltHref', type: 'url', title: 'Malt (perfil)' },
 				{ name: 'emailHref', type: 'string', title: 'mailto:…' }
 			]

@@ -528,6 +528,7 @@ function mergeFooter(
 		),
 		githubHref: asString(o.githubHref, d.githubHref),
 		linkedinHref: asString(o.linkedinHref, d.linkedinHref),
+		youtubeHref: asString(o.youtubeHref, d.youtubeHref),
 		maltHref: asString(o.maltHref, d.maltHref),
 		emailHref: asString(o.emailHref, d.emailHref)
 	};

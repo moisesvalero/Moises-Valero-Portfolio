@@ -261,6 +261,7 @@ export const sitePortfolioDefaults: SitePortfolioContent = {
 			'Moisés Valero © {{year}} | Desarrollador web orientado a producto, rendimiento e integraciones | SvelteKit, React/Next.js, WordPress, Sanity CMS y SEO técnico.',
 		githubHref: 'https://github.com/moisesvalero',
 		linkedinHref: 'https://www.linkedin.com/in/moisesvalero',
+		youtubeHref: 'https://www.youtube.com/@moisesvaleroES',
 		maltHref: '',
 		emailHref: 'mailto:info@moisesvalero.es'
 	}

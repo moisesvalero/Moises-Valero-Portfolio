@@ -134,6 +134,7 @@ export type SiteFooter = {
 	githubHref: string;
 	linkedinHref: string;
 	maltHref: string;
+	youtubeHref: string;
 	emailHref: string;
 };
 
