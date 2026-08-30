@@ -104,20 +104,27 @@
 				items: headerNavItems.slice(0, 2)
 			},
 			{
-				title: data.locale === 'en' ? 'Work' : 'Trabajo',
+				title: data.locale === 'en' ? 'Tools & AI' : 'Herramientas & IA',
 				variant: 'muted',
 				items: headerNavItems.slice(2, 4)
 			},
 			{
-				title: data.locale === 'en' ? 'More' : 'Más',
+				title: data.locale === 'en' ? 'Resources & Contact' : 'Recursos & Contacto',
 				variant: 'default',
-				items: headerNavItems.slice(4, 6)
+				items: [
+					headerNavItems[4],
+					...(site.footer.youtubeHref
+						? [
+								{
+									label: data.locale === 'en' ? 'YouTube Channel' : 'Canal YouTube',
+									href: site.footer.youtubeHref
+								}
+							]
+						: []),
+					headerNavItems[5]
+				].filter(Boolean)
 			}
-		]
-			.map((group, index) =>
-				index === 2 ? { ...group, title: data.locale === 'en' ? 'Resources' : 'Recursos' } : group
-			)
-			.filter((group) => group.items.length > 0)
+		].filter((group) => group.items.length > 0)
 	);
 
 	$effect(() => {
@@ -365,6 +372,8 @@
 											class="motion-menu-link"
 											style={`--stagger:${groupIndex * 3 + itemIndex}`}
 											href={item.href.startsWith('/') ? resolve(item.href as '/blog') : item.href}
+											target={item.href.startsWith('http') ? '_blank' : undefined}
+											rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
 											data-sveltekit-reload={shouldForceDocumentNavigation(item.href)
 												? 'true'
 												: undefined}
@@ -1018,19 +1027,30 @@
 			font-size: 0.64rem;
 		}
 
+		.motion-menu-panel {
+			max-height: calc(85vh - 60px);
+			overflow-y: auto;
+			-webkit-overflow-scrolling: touch;
+			overscroll-behavior: contain;
+			padding-bottom: 2rem;
+		}
+
 		.motion-menu-grid {
 			grid-template-columns: 1fr;
-			gap: 1rem;
+			gap: 0.75rem;
+			max-height: none;
+			overflow-y: visible;
 		}
 
 		.motion-menu-link {
-			font-size: 1.6rem;
+			font-size: 1.5rem;
 		}
 
 		.motion-menu-footer {
 			flex-direction: column;
 			align-items: flex-start;
 			gap: 0.75rem;
+			margin-top: 1rem;
 		}
 
 		.motion-menu-socials {
