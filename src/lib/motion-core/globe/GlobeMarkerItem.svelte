@@ -49,7 +49,8 @@
 >
 	{#if tooltip || marker.label}
 		<div
-			class="pointer-events-none absolute top-0 left-1/2 inline-flex -translate-x-1/2 -translate-y-8 flex-col items-center transition-[opacity,filter] duration-200 ease-out will-change-transform"
+			class="pointer-events-none absolute top-0 left-1/2 inline-flex flex-col items-center transition-[opacity,filter] duration-200 ease-out will-change-transform"
+			style="transform: translate(-50%, -2rem);"
 			style:opacity={visibility}
 			style:filter={`blur(${tooltipBlur}px)`}
 		>
@@ -57,7 +58,7 @@
 				{@render tooltip(tooltipContext)}
 			{:else}
 				<div
-					class="bg-fixed-dark/80 rounded-xs px-2 py-1 text-xs whitespace-nowrap text-fixed-light backdrop-blur-sm"
+					style="background: rgba(17, 24, 39, 0.85); border-radius: 4px; padding: 4px 8px; font-size: 0.75rem; white-space: nowrap; color: #f8fafc; backdrop-filter: blur(4px);"
 				>
 					{marker.label}
 				</div>
