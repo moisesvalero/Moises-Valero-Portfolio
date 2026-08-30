@@ -301,6 +301,7 @@
 						</button>
 					{/if}
 					<a
+						class="motion-header-social"
 						href={site.footer.githubHref.startsWith('/')
 							? resolve(site.footer.githubHref as '/blog')
 							: site.footer.githubHref}
@@ -315,6 +316,7 @@
 						</svg>
 					</a>
 					<a
+						class="motion-header-social"
 						href={site.footer.linkedinHref.startsWith('/')
 							? resolve(site.footer.linkedinHref as '/blog')
 							: site.footer.linkedinHref}
@@ -330,6 +332,7 @@
 					</a>
 					{#if site.footer.youtubeHref}
 						<a
+							class="motion-header-social"
 							href={site.footer.youtubeHref.startsWith('/')
 								? resolve(site.footer.youtubeHref as '/blog')
 								: site.footer.youtubeHref}
@@ -377,6 +380,61 @@
 								</div>
 							</div>
 						{/each}
+					</div>
+
+					<div class="motion-menu-footer">
+						<span class="motion-menu-footer-label">
+							{data.locale === 'en' ? 'Channels & Social' : 'Redes y Canales'}
+						</span>
+						<div class="motion-menu-socials">
+							<a
+								href={site.footer.githubHref.startsWith('/')
+									? resolve(site.footer.githubHref as '/blog')
+									: site.footer.githubHref}
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="GitHub"
+							>
+								<svg viewBox="0 0 24 24" aria-hidden="true">
+									<path
+										d="M12 .9a11.2 11.2 0 0 0-3.54 21.82c.56.1.77-.24.77-.54v-2c-3.13.68-3.79-1.34-3.79-1.34-.51-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 .1 2.63.72 3.28.55.1-.73.39-1.23.71-1.51-2.5-.28-5.13-1.25-5.13-5.58 0-1.23.44-2.24 1.16-3.03-.12-.29-.5-1.43.11-2.99 0 0 .95-.3 3.1 1.16.9-.25 1.86-.38 2.82-.38.96 0 1.92.13 2.82.38 2.15-1.46 3.1-1.16 3.1-1.16.61 1.56.23 2.7.11 2.99.72.79 1.16 1.8 1.16 3.03 0 4.34-2.64 5.29-5.15 5.57.4.35.76 1.03.76 2.08v3.09c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .9Z"
+									/>
+								</svg>
+								<span>GitHub</span>
+							</a>
+							<a
+								href={site.footer.linkedinHref.startsWith('/')
+									? resolve(site.footer.linkedinHref as '/blog')
+									: site.footer.linkedinHref}
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="LinkedIn"
+							>
+								<svg viewBox="0 0 24 24" aria-hidden="true">
+									<path
+										d="M4.98 3.5a2.5 2.5 0 1 1 0 5.01 2.5 2.5 0 0 1 0-5.01ZM3 9.82h3.96V21H3V9.82Zm6.18 0h3.8v1.53h.05c.53-1 1.82-1.84 3.75-1.84 4.01 0 4.75 2.64 4.75 6.07V21h-3.96v-4.8c0-1.14-.02-2.62-1.6-2.62-1.6 0-1.84 1.25-1.84 2.54V21H9.18V9.82Z"
+									/>
+								</svg>
+								<span>LinkedIn</span>
+							</a>
+							{#if site.footer.youtubeHref}
+								<a
+									href={site.footer.youtubeHref.startsWith('/')
+										? resolve(site.footer.youtubeHref as '/blog')
+										: site.footer.youtubeHref}
+									target="_blank"
+									rel="noopener noreferrer"
+									aria-label="YouTube"
+								>
+									<svg viewBox="0 0 24 24" aria-hidden="true">
+										<path
+											d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+										/>
+									</svg>
+									<span>YouTube</span>
+								</a>
+							{/if}
+						</div>
 					</div>
 				</nav>
 			{/if}
@@ -787,7 +845,76 @@
 			transform-origin 0s;
 	}
 
+	.motion-menu-footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-top: 1.25rem;
+		padding-top: 1rem;
+		border-top: 1px solid rgba(29, 29, 31, 0.08);
+	}
+
+	:global(html.dark) .motion-menu-footer {
+		border-top-color: rgba(255, 255, 255, 0.08);
+	}
+
+	.motion-menu-footer-label {
+		font-size: 0.7rem;
+		font-weight: 650;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--motion-muted);
+	}
+
+	.motion-menu-socials {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.motion-menu-socials a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.4rem 0.75rem;
+		border-radius: 7px;
+		border: 1px solid rgba(29, 29, 31, 0.08);
+		background: rgba(255, 255, 255, 0.6);
+		color: var(--motion-text);
+		font-size: 0.78rem;
+		font-weight: 600;
+		text-decoration: none;
+		transition:
+			background-color 0.2s ease,
+			color 0.2s ease,
+			border-color 0.2s ease;
+	}
+
+	.motion-menu-socials a:hover {
+		background: var(--motion-hover);
+		color: #0071e3;
+		border-color: rgba(0, 113, 227, 0.2);
+	}
+
+	:global(html.dark) .motion-menu-socials a {
+		border-color: rgba(255, 255, 255, 0.08);
+		background: rgba(255, 255, 255, 0.05);
+	}
+
+	:global(html.dark) .motion-menu-socials a:hover {
+		color: #ffffff;
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	.motion-menu-socials svg {
+		width: 14px;
+		height: 14px;
+		fill: currentColor;
+	}
+
 	.motion-menu-link:focus-visible,
+	.motion-menu-socials a:focus-visible,
 	.motion-menu-toggle:focus-visible,
 	.motion-header-actions a:focus-visible,
 	.motion-theme-toggle:focus-visible,
@@ -882,6 +1009,10 @@
 			width: 34px;
 		}
 
+		.motion-header-actions .motion-header-social {
+			display: none;
+		}
+
 		.motion-locale-toggle {
 			width: 32px;
 			font-size: 0.64rem;
@@ -894,6 +1025,24 @@
 
 		.motion-menu-link {
 			font-size: 1.6rem;
+		}
+
+		.motion-menu-footer {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.75rem;
+		}
+
+		.motion-menu-socials {
+			width: 100%;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+		}
+
+		.motion-menu-socials a {
+			flex: 1 1 auto;
+			justify-content: center;
+			padding: 0.5rem 0.75rem;
 		}
 	}
 </style>
