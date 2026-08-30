@@ -111,18 +111,7 @@
 			{
 				title: data.locale === 'en' ? 'Resources & Contact' : 'Recursos & Contacto',
 				variant: 'default',
-				items: [
-					headerNavItems[4],
-					...(site.footer.youtubeHref
-						? [
-								{
-									label: data.locale === 'en' ? 'YouTube Channel' : 'Canal YouTube',
-									href: site.footer.youtubeHref
-								}
-							]
-						: []),
-					headerNavItems[5]
-				].filter(Boolean)
+				items: headerNavItems.slice(4, 6)
 			}
 		].filter((group) => group.items.length > 0)
 	);
