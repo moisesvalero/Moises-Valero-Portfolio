@@ -41,8 +41,8 @@ importers:
         specifier: ^5.3.0
         version: 5.3.0
       '@fontsource/material-symbols-outlined':
-        specifier: ^5.3.2
-        version: 5.3.2
+        specifier: ^5.3.3
+        version: 5.3.3
       '@sanity/client':
         specifier: ^7.26.2
         version: 7.26.2
@@ -1400,8 +1400,8 @@ packages:
   '@fontsource-variable/inter@5.3.0':
     resolution: {integrity: sha512-OupL48va4JNofb97w6NYeF9S7W/kHNKM0Er8Dem5nqi4jeOLrVJDoE8tZEpnMJmtkvNbB1EIPPwHcdkF6b1oUA==}
 
-  '@fontsource/material-symbols-outlined@5.3.2':
-    resolution: {integrity: sha512-yHGq5aOBpvNntjlQVMWmZibX1FwnCdRrHesW3T+N/TEVUHFb5CAj8FhJtQI9BeXikIS2etiOpXf1qvuqyny+vQ==}
+  '@fontsource/material-symbols-outlined@5.3.3':
+    resolution: {integrity: sha512-iYMXlu9itXnpSYk3A420Jsos/vetyAQ2Scwgb3MTaYF0Y82m7t2gAvc85xocokmLd5ZHdVnxHUoSOZLc7WE4wA==}
 
   '@hello-pangea/dnd@18.0.1':
     resolution: {integrity: sha512-xojVWG8s/TGrKT1fC8K2tIWeejJYTAeJuj36zM//yEm/ZrnZUSFGS15BpO+jGZT1ybWvyXmeDJwPYb4dhWlbZQ==}
@@ -7400,7 +7400,7 @@ snapshots:
 
   '@fontsource-variable/inter@5.3.0': {}
 
-  '@fontsource/material-symbols-outlined@5.3.2': {}
+  '@fontsource/material-symbols-outlined@5.3.3': {}
 
   '@hello-pangea/dnd@18.0.1(@types/react@19.2.17)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
