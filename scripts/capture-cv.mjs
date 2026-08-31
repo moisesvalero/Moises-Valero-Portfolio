@@ -8,6 +8,10 @@ const OUT_PATH = resolve('static/imagenes/cv/moises-valero-cv-1.png');
 async function launchBrowser() {
 	const candidates = [
 		process.env.CHROME_PATH,
+		'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+		'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+		'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+		'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
 		'/usr/bin/chromium-browser',
 		'/usr/bin/chromium',
 		'/usr/bin/google-chrome'
