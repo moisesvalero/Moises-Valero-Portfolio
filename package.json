@@ -31,7 +31,7 @@
 		]
 	},
 	"devDependencies": {
-		"@sanity/cli": "^7.18.0",
+		"@sanity/cli": "^8.4.2",
 		"@sanity/orderable-document-list": "^2.0.23",
 		"@sveltejs/adapter-auto": "^7.0.1",
 		"@sveltejs/adapter-vercel": "^6.3.4",
