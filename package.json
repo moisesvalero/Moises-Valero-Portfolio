@@ -49,7 +49,7 @@
 		"svelte": "^5.57.0",
 		"svelte-check": "^4.7.6",
 		"typescript": "^6.0.3",
-		"vercel": "^59.9.1",
+		"vercel": "^59.11.2",
 		"vite": "^8.2.2"
 	},
 	"dependencies": {
