@@ -41,8 +41,8 @@ importers:
         specifier: ^5.3.0
         version: 5.3.0
       '@fontsource/material-symbols-outlined':
-        specifier: ^5.3.4
-        version: 5.3.4
+        specifier: ^5.3.6
+        version: 5.3.6
       '@sanity/client':
         specifier: ^7.26.2
         version: 7.26.2
@@ -1408,8 +1408,8 @@ packages:
   '@fontsource-variable/inter@5.3.0':
     resolution: {integrity: sha512-OupL48va4JNofb97w6NYeF9S7W/kHNKM0Er8Dem5nqi4jeOLrVJDoE8tZEpnMJmtkvNbB1EIPPwHcdkF6b1oUA==}
 
-  '@fontsource/material-symbols-outlined@5.3.4':
-    resolution: {integrity: sha512-A66+Q+051De4cJMCdeL0Yc+ZHUsCac4gZKyubmiOs6VEmOgB+XlfvZnBYk2JUn7dAu5DpQmsxGkERQj/JopN/g==}
+  '@fontsource/material-symbols-outlined@5.3.6':
+    resolution: {integrity: sha512-caCq6ogVILQpZ2TbCFojg9CTYEXvy9vInakLQCXM+fUET2uVxH9SK4YRECCx41aOIE41yubSjFgXlhNhDVTrrQ==}
 
   '@hello-pangea/dnd@18.0.1':
     resolution: {integrity: sha512-xojVWG8s/TGrKT1fC8K2tIWeejJYTAeJuj36zM//yEm/ZrnZUSFGS15BpO+jGZT1ybWvyXmeDJwPYb4dhWlbZQ==}
@@ -6119,6 +6119,7 @@ packages:
   sanity@6.15.0:
     resolution: {integrity: sha512-0xe69dXoVlkZAG1uVliOrdrYTbYgYypq3gJmMo3j5mq5dvSJQmofY+DF3yccwjpeBcg4kbG4A4NMFkm+l0ckZA==}
     engines: {node: '>=22.12'}
+    deprecated: 'This version of Sanity Studio has a potential data-loss bug when working with Portable Text fields. This issue is resolved in 6.14.1. Upgrade with: npm install sanity@latest. See https://www.sanity.io/docs/studio/upgrade'
     hasBin: true
     peerDependencies:
       react: ^19.2.2
@@ -8173,7 +8174,7 @@ snapshots:
 
   '@fontsource-variable/inter@5.3.0': {}
 
-  '@fontsource/material-symbols-outlined@5.3.4': {}
+  '@fontsource/material-symbols-outlined@5.3.6': {}
 
   '@hello-pangea/dnd@18.0.1(@types/react@19.2.17)(react-dom@19.2.8(react@19.3.0))(react@19.3.0)':
     dependencies:
