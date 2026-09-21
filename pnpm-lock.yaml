@@ -50,8 +50,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       '@sparticuz/chromium':
-        specifier: 148.0.0
-        version: 148.0.0
+        specifier: 153.0.0
+        version: 153.0.0
       '@vercel/analytics':
         specifier: ^2.0.1
         version: 2.0.1(@sveltejs/kit@2.70.3(@sveltejs/vite-plugin-svelte@7.3.0(svelte@5.57.0)(vite@8.3.0(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.1)))(svelte@5.57.0)(typescript@6.0.3)(vite@8.3.0(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.1)))(react@19.3.0)(svelte@5.57.0)
@@ -3297,9 +3297,9 @@ packages:
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
 
-  '@sparticuz/chromium@148.0.0':
-    resolution: {integrity: sha512-na5beDSZkrlcEWEMt+eHu4Xe+MLUgCtHBjHaXGsNaQu5tJWwXE+McxAcMtyumEM/JzXrxGpkO5vAPD9TWhil3g==}
-    engines: {node: '>=22.17.0'}
+  '@sparticuz/chromium@153.0.0':
+    resolution: {integrity: sha512-jiGWqSvPMdu4+P9TilYqAR7yEGPEHINx+lCvE/NqNO/EHYzF/x1hUiI5T6ioVIt7dEy7n88byyT0vk+dnsgQwA==}
+    engines: {node: ^22.17.0 || >=24.0.0}
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -3891,9 +3891,6 @@ packages:
     peerDependenciesMeta:
       bare-buffer:
         optional: true
-
-  bare-path@3.1.1:
-    resolution: {integrity: sha512-JprUlveX3QjApC1cTpsUOiscADftCGVWkzitbHsRqv84hzYwYHw2mbluddsq5TvI8mH/8Ov1f4BiMAdcB0oYnQ==}
 
   bare-path@3.1.2:
     resolution: {integrity: sha512-ZyKbsuuqK6Ag0K8pX6V5Txq6XeJRvY+wXucnFGRjiyVYP9YWDpIQugk/b+enRYrEYBJaqLzghRQpXPMR7341Nw==}
@@ -10571,7 +10568,7 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
-  '@sparticuz/chromium@148.0.0':
+  '@sparticuz/chromium@153.0.0':
     dependencies:
       tar-fs: 3.1.3
     transitivePeerDependencies:
@@ -11297,7 +11294,7 @@ snapshots:
   bare-fs@4.8.0:
     dependencies:
       bare-events: 2.9.1
-      bare-path: 3.1.1
+      bare-path: 3.1.2
       bare-stream: 2.13.3(bare-events@2.9.1)
       bare-url: 2.5.1
       fast-fifo: 1.3.2
@@ -11316,14 +11313,12 @@ snapshots:
       - bare-abort-controller
       - react-native-b4a
 
-  bare-path@3.1.1: {}
-
   bare-path@3.1.2: {}
 
   bare-stream@2.13.3(bare-events@2.9.1):
     dependencies:
-      b4a: 1.9.0
-      streamx: 2.28.1
+      b4a: 1.8.1
+      streamx: 2.28.0
       teex: 1.0.1
     optionalDependencies:
       bare-events: 2.9.1
@@ -11342,7 +11337,7 @@ snapshots:
 
   bare-url@2.5.1:
     dependencies:
-      bare-path: 3.1.1
+      bare-path: 3.1.2
 
   bare-url@2.5.4:
     dependencies:
@@ -11891,7 +11886,7 @@ snapshots:
 
   events-universal@1.0.1:
     dependencies:
-      bare-events: 2.9.1
+      bare-events: 2.9.2
     transitivePeerDependencies:
       - bare-abort-controller
 
@@ -13786,10 +13781,10 @@ snapshots:
   tar-fs@3.1.3:
     dependencies:
       pump: 3.0.4
-      tar-stream: 3.2.0
+      tar-stream: 3.2.1
     optionalDependencies:
-      bare-fs: 4.8.0
-      bare-path: 3.1.1
+      bare-fs: 4.8.1
+      bare-path: 3.1.2
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
