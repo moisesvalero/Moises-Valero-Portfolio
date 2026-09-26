@@ -129,6 +129,7 @@ Editar el array `FEATURED` en ese archivo si cambia la selección.
 | `scripts/capture-agentchecker-card.mjs` | Card 16:9 portada agentchecker (`agentcheck-rho.vercel.app`) |
 | `scripts/capture-web-analyzer-screenshots.mjs` | Capturas del **standalone** `web-analyzer-three.vercel.app` (no el del portafolio) |
 | `scripts/capture-novatab-screenshots.mjs` | Capturas Desktop, Card 16:9 y Mobile de NovaTab (`start.moisesvalero.es`) |
+| `scripts/capture-android-home-server.mjs` | Capturas reales del Dashboard Web de Android Home Server (1440x810) |
 
 ---
 
