@@ -179,10 +179,13 @@ async function main() {
 		// Esperar a que se apliquen los datos de telemetría y animaciones
 		await page.waitForTimeout(2000);
 
-		// 1. Captura de la vista principal del Dashboard (16:9)
-		const outDashboard = resolve('static/imagenes/android-home-server-secundaria1.png');
-		await page.screenshot({ path: outDashboard });
-		console.log('✅ Captura real del Dashboard guardada en: ' + outDashboard);
+		// 1. Captura de la vista principal del Dashboard (16:9) -> IMAGEN PRINCIPAL DEL CASE STUDY Y CARD
+		const outPrincipal = resolve('static/imagenes/android-home-server-principal.png');
+		const outCard = resolve('static/imagenes/android-home-server-card.png');
+		await page.screenshot({ path: outPrincipal });
+		await page.screenshot({ path: outCard });
+		console.log('✅ Captura real del Dashboard guardada como PRINCIPAL: ' + outPrincipal);
+		console.log('✅ Captura real del Dashboard guardada como CARD: ' + outCard);
 
 		// Guardar también copia en el repositorio android-home-server
 		const outRepoDashboard =
@@ -190,14 +193,16 @@ async function main() {
 		await page.screenshot({ path: outRepoDashboard });
 		console.log('✅ Captura guardada en assets de android-home-server: ' + outRepoDashboard);
 
-		// 2. Abrir la Biblioteca y capturar el explorador VisionOS/macOS modal
-		console.log('Abriendo modal de la Biblioteca para captura adicional...');
+		// 2. Abrir la Biblioteca y capturar el explorador VisionOS/macOS modal -> SECUNDARIA 1
+		console.log('Abriendo modal de la Biblioteca para captura secundaria...');
 		await page.click('button[onclick*="openLibraryModal(\'all\')"]');
 		await page.waitForTimeout(1000);
 
+		const outSecondary1 = resolve('static/imagenes/android-home-server-secundaria1.png');
 		const outLibrary = resolve('static/imagenes/android-home-server-dashboard-library.png');
+		await page.screenshot({ path: outSecondary1 });
 		await page.screenshot({ path: outLibrary });
-		console.log('✅ Captura de la Biblioteca guardada en: ' + outLibrary);
+		console.log('✅ Captura de la Biblioteca guardada como SECUNDARIA 1: ' + outSecondary1);
 	} finally {
 		await browser.close();
 		server.close();
