@@ -1,5 +1,5 @@
 /**
- * Seed para el artículo del blog: Servidor doméstico 24/7 con un móvil viejo (POCO X3), Hermes IA, Crons y DLNA
+ * Seed para el artículo del blog: Servidor doméstico 24/7 con un smartphone Android (POCO X3), Hermes IA, Crons y DLNA
  * Repo público: https://github.com/moisesvalero/android-home-server
  */
 
@@ -9,7 +9,7 @@ import { createClient } from '@sanity/client';
 const SLUG = 'servidor-domestico-movil-viejo';
 const PUBLISHED_AT = '2026-09-25T12:00:00.000Z';
 
-const TITLE = 'Cómo convertí un móvil viejo en un servidor doméstico 24/7 con IA y DLNA';
+const TITLE = 'Cómo convertí un smartphone Android en un servidor doméstico 24/7 con IA y DLNA';
 
 const COVER_IMAGE_SRC = '/imagenes/servidor-domestico-movil-viejo-cover.png';
 const COVER_IMAGE_ALT =
@@ -17,15 +17,15 @@ const COVER_IMAGE_ALT =
 
 const CATEGORY_LABEL = 'Guía técnica';
 const EXCERPT =
-	'Guía paso a paso para transformar un smartphone Android en desuso en un servidor doméstico 24/7: agente de IA Hermes, crons de empleo y chollos, y servidor DLNA con dashboard web para tu Smart TV con 0€ al mes.';
+	'Guía paso a paso para transformar un smartphone Android en un servidor doméstico 24/7: agente de IA Hermes, crons de empleo y chollos, y servidor DLNA con dashboard web para tu Smart TV con 0€ al mes.';
 
 const READING_MINUTES = 13;
 const SHOW_ON_BLOG = true;
 const FEATURED_ORDER: number | null = 1;
 
-const SEO_TITLE = 'Servidor doméstico con un móvil viejo: IA autónoma, crons y DLNA';
+const SEO_TITLE = 'Servidor doméstico con un smartphone Android: IA autónoma, crons y DLNA';
 const SEO_DESCRIPTION =
-	'Aprende a transformar un móvil viejo en un servidor doméstico 24/7: agente de IA con Hermes, crons de empleo y chollos por Telegram, y streaming a tu Smart TV con 0€ al mes.';
+	'Aprende a transformar un smartphone Android en un servidor doméstico 24/7: agente de IA con Hermes, crons de empleo y chollos por Telegram, y streaming a tu Smart TV con 0€ al mes.';
 
 const BODY_HTML = `
 <p>Todos tenemos en casa un cajón donde van a morir los teléfonos antiguos. Dispositivos que sustituimos no porque su procesador haya dejado de funcionar, sino porque la batería ya no dura un día entero o porque la pantalla tiene alguna grieta superficial. En mi caso, ese teléfono era un <strong>Xiaomi POCO X3</strong>: un procesador Snapdragon de 8 núcleos ARM64, <strong>6 GB de memoria RAM LPDDR4X</strong> y almacenamiento flash UFS de alta velocidad.</p>
@@ -46,7 +46,7 @@ const BODY_HTML = `
 	<li><strong>Consumo eléctrico:</strong> El terminal consume entre <strong>1 y 3 vatios</strong> en reposo y carga ligera. El impacto en tu factura eléctrica anual es de apenas un par de euros.</li>
 </ul>
 
-<blockquote>"El hardware de un móvil que descartamos por viejo supera con creces los recursos de la mayoría de servidores que contratamos en la nube para automatizaciones personales."</blockquote>
+<blockquote>"El hardware de un smartphone Android supera con creces los recursos de la mayoría de servidores que contratamos en la nube para automatizaciones personales."</blockquote>
 
 <h2>2. Seguridad física: La estrategia del 50% para la batería</h2>
 

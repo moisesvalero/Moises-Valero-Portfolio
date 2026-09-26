@@ -39,8 +39,8 @@ async function main() {
 			en: 'Infrastructure · Self-Hosting & AI'
 		},
 		homeProofLine: {
-			es: 'Convierte cualquier smartphone viejo en un servidor doméstico 24/7 con IA autónoma, streaming a tu Smart TV y 0€ de coste mensual.',
-			en: 'Turn any spare Android phone into a 24/7 home server with autonomous AI, Smart TV media streaming, and 0€ monthly cost.'
+			es: 'Convierte cualquier smartphone Android en un servidor doméstico 24/7 con IA autónoma, streaming a tu Smart TV y 0€ de coste mensual.',
+			en: 'Turn any Android smartphone into a 24/7 home server with autonomous AI, Smart TV media streaming, and 0€ monthly cost.'
 		},
 		homeValueTags: ['Linux / Termux', 'Self-Hosting', 'IA autónoma', 'DLNA Streaming', 'Python'],
 		homeRole: {
@@ -53,15 +53,15 @@ async function main() {
 		titleEn: 'Android Home Server',
 		slug: { _type: 'slug', current: 'android-home-server' },
 		seoDescription:
-			'Android Home Server: infraestructura 24/7 en cualquier móvil Android con Termux, Hermes Agent (DeepSeek, OpenAI), servidor multimedia DLNA para Smart TV y crons de automatización sin coste.',
+			'Android Home Server: infraestructura 24/7 en cualquier smartphone Android con Termux, Hermes Agent (DeepSeek, OpenAI), servidor multimedia DLNA para Smart TV y crons de automatización sin coste.',
 		seoDescriptionEn:
-			'Android Home Server: 24/7 home server stack running on any spare Android phone via Termux, Hermes Agent (DeepSeek, OpenAI), DLNA media streaming for Smart TVs, and automated crons with 0€ monthly cost.',
+			'Android Home Server: 24/7 home server stack running on any Android smartphone via Termux, Hermes Agent (DeepSeek, OpenAI), DLNA media streaming for Smart TVs, and automated crons with 0€ monthly cost.',
 		heroTag: 'Proyecto personal · Infraestructura & Self-Hosting',
 		heroTagEn: 'Personal project · Infrastructure & Self-Hosting',
 		heroDescription:
-			'Infraestructura 24/7 de bajo consumo montada sobre un smartphone Android en desuso. Combina un agente de inteligencia artificial autónomo (Hermes Agent), automatización programada por crons, servidor multimedia DLNA para Smart TV y una suite de seguridad física para la batería.',
+			'Infraestructura 24/7 de bajo consumo montada sobre un smartphone Android. Combina un agente de inteligencia artificial autónomo (Hermes Agent), automatización programada por crons, servidor multimedia DLNA para Smart TV y una suite de seguridad física para la batería.',
 		heroDescriptionEn:
-			'An ultra-low-power 24/7 home server infrastructure deployed on a repurposed Android smartphone. Integrates an autonomous AI agent (Hermes Agent), scheduled cron automation, DLNA media streaming for Smart TVs, and hardware-level battery safety.',
+			'An ultra-low-power 24/7 home server infrastructure deployed on an Android smartphone. Integrates an autonomous AI agent (Hermes Agent), scheduled cron automation, DLNA media streaming for Smart TVs, and hardware-level battery safety.',
 		tags: [
 			'Android',
 			'Termux',
@@ -108,11 +108,11 @@ async function main() {
 		],
 		reto: {
 			title: 'El reto',
-			bodyHtml: `<p>Las instancias VPS en la nube y las capas gratuitas (como Google Cloud e2-micro) ofrecen apenas 1 GB de RAM, sufren estrangulamiento de CPU y conllevan riesgos de sobrecostes por transferencia. Por otro lado, comprar una Raspberry Pi 4 con accesorios supera los 100 € y carece de respaldo eléctrico ante cortes de luz.</p><p>El desafío consistía en rescatar un smartphone en desuso con hardware potente (Snapdragon ARM64, 6 GB de RAM y almacenamiento flash UFS) y convertirlo en un servidor doméstico desatendido 24/7, garantizando que la batería de litio no sufriera degradación ni hinchazón por estar conectada de forma continua.</p>`
+			bodyHtml: `<p>Las instancias VPS en la nube y las capas gratuitas (como Google Cloud e2-micro) ofrecen apenas 1 GB de RAM, sufren estrangulamiento de CPU y conllevan riesgos de sobrecostes por transferencia. Por otro lado, comprar una Raspberry Pi 4 con accesorios supera los 100 € y carece de respaldo eléctrico ante cortes de luz.</p><p>El desafío consistía en aprovechar un smartphone Android con hardware potente (Snapdragon ARM64, 6 GB de RAM y almacenamiento flash UFS) y convertirlo en un servidor doméstico desatendido 24/7, garantizando que la batería de litio no sufriera degradación ni hinchazón por estar conectada de forma continua.</p>`
 		},
 		retoEn: {
 			title: 'The challenge',
-			bodyHtml: `<p>Cloud VPS instances and free tiers (like Google Cloud e2-micro) offer only 1 GB of RAM, suffer from CPU throttling, and carry unexpected billing risks for outbound bandwidth. Conversely, purchasing a Raspberry Pi 4 with power supplies and storage costs over $100 and lacks power protection against blackouts.</p><p>The challenge was to repurpose an idle smartphone with capable hardware (Snapdragon ARM64, 6 GB RAM, and fast UFS flash storage) into an unattended 24/7 home server, while guaranteeing that the lithium-ion battery would not suffer from thermal degradation or swelling from continuous charging.</p>`
+			bodyHtml: `<p>Cloud VPS instances and free tiers (like Google Cloud e2-micro) offer only 1 GB of RAM, suffer from CPU throttling, and carry unexpected billing risks for outbound bandwidth. Conversely, purchasing a Raspberry Pi 4 with power supplies and storage costs over $100 and lacks power protection against blackouts.</p><p>The challenge was to deploy on an Android smartphone with capable hardware (Snapdragon ARM64, 6 GB RAM, and fast UFS flash storage) into an unattended 24/7 home server, while guaranteeing that the lithium-ion battery would not suffer from thermal degradation or swelling from continuous charging.</p>`
 		},
 		hice: {
 			title: 'Lo que hice',
@@ -128,7 +128,7 @@ async function main() {
 		},
 		resultadoEn: {
 			title: 'Outcome',
-			bodyHtml: `<p>A robust, silent, and ultra-low-power (1-3W) home server stack that completely replaces paid cloud VPS instances. The phone's internal battery acts as a built-in UPS, maintaining uptime during power outages with zero data corruption.</p><p>The project was modularized and open-sourced under the MIT license on GitHub (<a href="https://github.com/moisesvalero/android-home-server" target="_blank" rel="noopener noreferrer">android-home-server</a>) so any developer can replicate the setup on any spare Android phone.</p>`
+			bodyHtml: `<p>A robust, silent, and ultra-low-power (1-3W) home server stack that completely replaces paid cloud VPS instances. The phone's internal battery acts as a built-in UPS, maintaining uptime during power outages with zero data corruption.</p><p>The project was modularized and open-sourced under the MIT license on GitHub (<a href="https://github.com/moisesvalero/android-home-server" target="_blank" rel="noopener noreferrer">android-home-server</a>) so any developer can replicate the setup on any Android smartphone.</p>`
 		},
 		stack: [
 			'Android',

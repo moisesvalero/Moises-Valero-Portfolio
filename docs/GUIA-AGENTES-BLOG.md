@@ -191,7 +191,7 @@ El orden por defecto (sin `featuredOrder`) es por fecha de publicación descende
 
 | Título | Slug | Portada | Seed |
 |--------|------|---------|------|
-| Cómo convertí un móvil viejo en un servidor doméstico 24/7 con IA y DLNA | `servidor-domestico-movil-viejo` | `servidor-domestico-movil-viejo-cover.png` | `seed-landing-support-article-servidor-domestico-movil-viejo.ts` |
+| Cómo convertí un smartphone Android en un servidor doméstico 24/7 con IA y DLNA | `servidor-domestico-movil-viejo` | `servidor-domestico-movil-viejo-cover.png` | `seed-landing-support-article-servidor-domestico-movil-viejo.ts` |
 | Kimi K3: El nuevo titán MoE de Moonshot AI | `kimi-k3-llm-moonshot-ai` | `kimi-k3-cover.png` | `seed-landing-support-article-kimi-k3.ts` |
 | Frameworks web en la era de los agentes de IA | `frameworks-web-era-ia` | `frameworks-web-era-ia-cover.png` | `seed-landing-support-article-frameworks-web-era-ia.ts` |
 | Auditoría web en 2026: Por qué Lighthouse ya no es suficiente | `auditoria-web-moderna-ia` | `auditoria-web-moderna-ia-cover.png` | `seed-landing-support-article-auditoria-web-moderna-ia.ts` |
