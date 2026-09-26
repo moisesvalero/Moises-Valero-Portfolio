@@ -83,6 +83,7 @@ Editar el array `FEATURED` en ese archivo si cambia la selección.
 | `seed-case-study-agentchecker.ts` | agentchecker |
 | `seed-case-study-web-analyzer.ts` | Web Analyzer |
 | `seed-case-study-novatab.ts` | NovaTab (Startpage & New Tab) |
+| `seed-case-study-android-home-server.ts` | Android Home Server (Termux, Hermes, DLNA) |
 | `seed-existing-project-pages.ts` | Migración inicial: vshield, ember-iron, galeria-nova, chatbot |
 | `seed-initial-content.ts` | Documento singleton `portfolioSite` y contenido base |
 

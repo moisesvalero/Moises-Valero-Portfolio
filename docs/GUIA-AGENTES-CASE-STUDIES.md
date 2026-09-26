@@ -135,6 +135,7 @@ Reordenar en Studio arrastrando en **Proyectos**, o con **Reset order** si hace 
 | agentchecker | `agentchecker` | [repo](https://github.com/moisesvalero/agentchecker) | [agentcheck-rho.vercel.app](https://agentcheck-rho.vercel.app) | Sí (spotlight) | `seed-case-study-agentchecker.ts` |
 | Web Analyzer | `web-analyzer` | [repo](https://github.com/moisesvalero/web-analyzer) | [web-analyzer-three.vercel.app](https://web-analyzer-three.vercel.app) | No | `seed-case-study-web-analyzer.ts` |
 | NovaTab | `novatab` | [repo](https://github.com/moisesvalero/novatab) | [start.moisesvalero.es](https://start.moisesvalero.es) | No | `seed-case-study-novatab.ts` |
+| Android Home Server | `android-home-server` | [repo](https://github.com/moisesvalero/android-home-server) | [blog](https://moisesvalero.es/blog/servidor-domestico-movil-viejo) | No | `seed-case-study-android-home-server.ts` |
 
 **Sideglass portada:** `images.cardImagePath` = `/imagenes/sideglass-landscape-dark.png`  
 **agentchecker portada:** `images.cardImagePath` = `/imagenes/agentchecker-card.png`
